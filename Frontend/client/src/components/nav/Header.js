@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Menu } from "antd";
 import {
     UserOutlined, UserAddOutlined, AppstoreOutlined, SettingOutlined
@@ -16,15 +17,15 @@ const Header = () => {
     return (
         <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal" style={{ display: "block" }}>
             <Item key="home" icon={<AppstoreOutlined />}>
-                Home
+                <Link to={'/'} className="text-decoration-none">Home</Link>
             </Item>
 
             <Item key="register" icon={<UserAddOutlined />} className="float-end">
-                Register
+                <Link to={'/register'} className="text-decoration-none">Register</Link>
             </Item>
 
             <Item key="login" icon={<UserOutlined />} className="float-end">
-                Login
+                <Link to={'/login'} className="text-decoration-none">Login</Link>
             </Item>
 
             <SubMenu icon={<SettingOutlined />} title="Username">
