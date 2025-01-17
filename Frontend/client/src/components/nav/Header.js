@@ -2,17 +2,32 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu } from "antd";
 import {
-    UserOutlined, UserAddOutlined, AppstoreOutlined, SettingOutlined
+    UserOutlined, UserAddOutlined, AppstoreOutlined, SettingOutlined, LogoutOutlined
 } from "@ant-design/icons";
+import { auth } from '../../firebase';
+import { signOut } from 'firebase/auth';
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const { SubMenu, Item } = Menu;
 
 const Header = () => {
     const [current, setCurrent] = useState("home");
+    let dispatch = useDispatch();
+    let nav = useNavigate();
 
     const handleClick = (e) => {
         setCurrent(e.key);
     };
+
+    const logout = () => {
+        signOut(auth);
+        dispatch({
+            type:'LOGOUT',
+            payload: null,
+        });
+        nav('/login')
+    }
 
     return (
         <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal" style={{ display: "block" }}>
@@ -27,6 +42,8 @@ const Header = () => {
             <Item key="login" icon={<UserOutlined />} className="float-end">
                 <Link to={'/login'} className="text-decoration-none">Login</Link>
             </Item>
+
+            <Item key="logout" icon={<LogoutOutlined />} className="float-end" onClick={logout}>Logout</Item>
 
             <SubMenu icon={<SettingOutlined />} title="Username">
                 <Item key="setting:1">Option 1</Item>

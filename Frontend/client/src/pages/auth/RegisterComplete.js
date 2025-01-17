@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { sendSignInLinkToEmail } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-const RegisterComplete = ({ history }) => {
+const RegisterComplete = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const nav = useNavigate();
 
     useEffect(() => {
         setEmail(window.localStorage.getItem('emailRegister'));
@@ -24,15 +26,26 @@ const RegisterComplete = ({ history }) => {
         }
 
         try {
-            const result = await sendSignInLinkToEmail(auth, email, window.location.href);
+            const config = {
+                url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
+                handleCodeInApp: true,
+            };
+    
+            await signInWithEmailAndPassword(auth, email,pa config);
+            toast.success(`Mail đã được gửi tới ${email}. Vui lòng truy cập để hoàn tất đăng ký`);
+            //save email to local storage
+            window.localStorage.setItem('emailRegister', email)
+            //clear state
+            setEmail('');
+            nav('/register/complete')
+            const result = await signInWithEmailAndPassword(auth, email, window.location.href);
             if (result.user.emailVerified) {
                 window.localStorage.removeItem('emailRegister');
                 let user = auth.currentUser;
                 await user.updatePassword(password);
                 const idTokenResult = await user.getIdTokenResult();
 
-
-                history.push('/')
+                nav('/')
             }
         }
         catch(error){
