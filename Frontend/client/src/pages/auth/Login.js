@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { auth, googleAuthProvider } from "../../firebase";
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "antd";
 import {
     MailOutlined, GoogleOutlined
@@ -125,8 +125,8 @@ const Login = () => {
     </form>)
 
     return (
-        <div className="conatiner p-5" >
-            <div className="row">
+        <div className="conatiner p-5" style={{ display: "block" }}>
+            <div className="row ">
                 <div className="col-md-6 offset-md-3">
                     {loading ? <h4>Loading...</h4> : <h4>Login</h4>}
                     {loginform()}
@@ -138,7 +138,15 @@ const Login = () => {
                         shape="round"
                         icon={<GoogleOutlined />}
                         size="large"
-                    >Login with Google</Button>
+                    >
+                        Login with Google
+                    </Button>
+                    <Link
+                        to={'/forgot/password'}
+                        className="float-end text-danger text-decoration-none mt-2"
+                    >
+                        Forgot Password ?
+                    </Link>
                 </div>
             </div>
         </div>

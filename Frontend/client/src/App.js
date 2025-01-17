@@ -4,6 +4,7 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Home from "./pages/Home";
 import Header from "./components/nav/Header";
+import ForgotPassword from "./pages/auth/ForgotPassword"
 import {ToastContainer} from "react-toastify";
 import { auth } from "./firebase";
 import { useDispatch } from "react-redux";
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/" Component={Home} />
         <Route path="/login" Component={Login} />
         <Route path="/register" Component={Register} />
+        <Route path="/forgot/password" Component={ForgotPassword} />
       </Routes></>
   )
 }
