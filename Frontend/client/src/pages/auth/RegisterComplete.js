@@ -16,7 +16,7 @@ const RegisterComplete = ({ history }) => {
         try {
             const result = await sendSignInLinkToEmail(auth, email);
         }
-        catch {
+        catch{
 
         }
     };
