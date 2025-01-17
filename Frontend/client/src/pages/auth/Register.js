@@ -13,7 +13,7 @@ const Register = () => {
         };
 
         await sendSignInLinkToEmail(auth, email, config);
-        toast.success(`Email is sent to ${email}. Click to complete registration`);
+        toast.success(`Mail đã được gửi tới ${email}. Vui lòng truy cập để hoàn tất đăng ký`);
         //save email to local storage
         window.localStorage.setItem('emailRegister', email)
         //clear state

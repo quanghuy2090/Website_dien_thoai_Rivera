@@ -13,11 +13,31 @@ const RegisterComplete = ({ history }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const result = await sendSignInLinkToEmail(auth, email);
-        }
-        catch{
 
+        if (!email || !password) {
+            toast.error('Vui lòng điền email và mật khẩu');
+            return;
+        };
+        if (password.length < 6) {
+            toast.error('Mật khẩu phải từ 6 ký tự trở lên');
+            return;
+        }
+
+        try {
+            const result = await sendSignInLinkToEmail(auth, email, window.location.href);
+            if (result.user.emailVerified) {
+                window.localStorage.removeItem('emailRegister');
+                let user = auth.currentUser;
+                await user.updatePassword(password);
+                const idTokenResult = await user.getIdTokenResult();
+
+
+                history.push('/')
+            }
+        }
+        catch(error){
+            console.log(error);
+            toast.error(error.message);
         }
     };
 
