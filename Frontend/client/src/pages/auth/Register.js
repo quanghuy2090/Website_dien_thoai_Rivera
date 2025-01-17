@@ -3,11 +3,19 @@ import { auth } from "../../firebase";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const nav = useNavigate();
+    const { user } = useSelector((state) => ({ ...state }));
+
+    useEffect(() => {
+        if (user && user.token) {
+            nav('/')
+        }
+    }, [user, nav])
 
     useEffect(() => {
         setEmail(window.localStorage.getItem('emailRegister'));
@@ -32,7 +40,7 @@ const Register = () => {
             };
 
             const result = await createUserWithEmailAndPassword(auth, email, password, config);
-            toast.success("Đăng ký thành công. Chuyển hướng sang đăng nhập")
+            toast.success("Đăng ký thành công. Chuyển hướng sang trang chu")
             setEmail('');
             setPassword('');
             if (result.user.emailVerified) {
@@ -43,7 +51,7 @@ const Register = () => {
 
             }
             setTimeout(() => {
-                nav('/login');
+                nav('/');
             }, 2000);
         }
         catch (error) {

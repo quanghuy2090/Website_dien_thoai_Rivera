@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { auth, googleAuthProvider } from "../../firebase";
+import React, { useState,useEffect } from "react";
+import { auth } from "../../firebase";
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,15 @@ import { useSelector } from "react-redux";
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
+    const {user} = useSelector((state) => ({...state}));
+    const nav = useNavigate();
+
+    useEffect(() => {
+        if (user && user.token) {
+            nav('/')
+        }
+    },[user,nav])
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -18,16 +27,16 @@ const ForgotPassword = () => {
         };
 
         await sendPasswordResetEmail(auth, email, config)
-        .then(()=>{
-            setEmail('');
-            setLoading(false);
-            toast.success('Vui lòng vào hòm thư để tiếp tục đổi mật khẩu')
-        })
-        .catch((err)=> {
-            console.log(err);
-            toast.error(err.message);
-            setLoading(false);
-        })
+            .then(() => {
+                setEmail('');
+                setLoading(false);
+                toast.success('Vui lòng vào hòm thư để tiếp tục đổi mật khẩu')
+            })
+            .catch((err) => {
+                console.log(err);
+                toast.error(err.message);
+                setLoading(false);
+            })
     }
 
     return (

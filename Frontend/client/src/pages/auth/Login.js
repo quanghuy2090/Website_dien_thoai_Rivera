@@ -7,14 +7,21 @@ import { Button } from "antd";
 import {
     MailOutlined, GoogleOutlined
 } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const nav = useNavigate();
+    const { user } = useSelector((state) => ({ ...state }));
     let dispatch = useDispatch();
+
+    useEffect(() => {
+        if (user && user.token) {
+            nav('/')
+        }
+    }, [user, nav])
 
     // useEffect(() => {
     //     setEmail(window.localStorage.getItem('emailRegister'));
