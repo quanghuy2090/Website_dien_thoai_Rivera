@@ -39,12 +39,28 @@
           </div>
           <!-- Account and Cart -->
           <div class="flex items-center space-x-4">
-            <a class="text-gray-600" href="#"> Tài khoản </a>
-            <a class="text-gray-600" href="login.html"> Đăng nhập </a>
-            <a class="text-gray-600" href="#">
+            <a
+              class="text-gray-600 text-base hover:text-lg hover:font-bold"
+              href="#"
+            >
+              Tài khoản
+            </a>
+            <a
+              class="text-gray-600 text-base hover:text-lg hover:font-bold"
+              href="login.html"
+            >
+              Đăng nhập
+            </a>
+            <a
+              class="text-gray-600 text-base hover:text-lg hover:font-bold"
+              href="#"
+            >
               <i class="fas fa-heart"> </i>
             </a>
-            <a class="relative text-gray-600" href="cart.html">
+            <a
+              class="relative text-gray-600 text-base hover:text-lg hover:font-bold"
+              href="cart.html"
+            >
               <i class="fas fa-shopping-cart"> </i>
               <span
                 class="absolute top-0 right-0 bg-orange-500 text-white text-xs rounded-full px-1"
@@ -62,17 +78,19 @@
         <div
           class="container mx-auto flex justify-around py-2 text-white text-xl"
         >
-          <a class="hover:text-orange-600" href="index.html"> Trang chủ </a>
-          <a class="hover:text-orange-600" href="#"> Điện thoại </a>
-          <a class="hover:text-orange-600" href="#"> Thông tin </a>
-          <a class="hover:text-orange-600" href="#"> Bài viết </a>
-          <a class="hover:text-orange-600" href="#"> CSKH </a>
+          <a class="hover:text-xxl hover:font-bold" href="index.html"> Trang chủ </a>
+          <a class="hover:text-xxl hover:font-bold" href="#">
+            Điện thoại
+          </a>
+          <a class="hover:text-xxl hover:font-bold" href="#"> Thông tin </a>
+          <a class="hover:text-xxl hover:font-bold" href="#"> Bài viết </a>
+          <a class="hover:text-xxl hover:font-bold" href="#"> CSKH </a>
         </div>
       </nav>
     </section>
 
     <!-- Nội dung chính -->
-    <section class="bg-gray-100 py-8">
+    <section class="bg py-8">
       <div class="container mx-auto px-4">
         <h1 class="text-3xl font-bold text-gray-800 text-center mb-8">
           Danh Sách Sản Phẩm
@@ -81,7 +99,9 @@
           <!-- Sidebar -->
           <aside class="w-full md:w-1/4 space-y-6">
             <!-- Hãng Sản Xuất -->
-            <div class="bg-white p-4 rounded-lg shadow">
+            <div
+              class="bg-gray-100 hover:bg-gray-800 hover:text-white p-4 rounded-lg shadow-xl"
+            >
               <h2 class="font-bold text-lg mb-2">Hãng Sản Xuất</h2>
               <!-- <ul class="space-y-2">
                 <li>
@@ -94,7 +114,9 @@
             </div>
 
             <!-- Giá Bán -->
-            <div class="bg-white p-4 rounded-lg shadow">
+            <div
+              class="bg-gray-100 hover:bg-gray-800 hover:text-white p-4 rounded-lg shadow-xl"
+            >
               <h2 class="font-bold text-lg mb-2">Giá Bán</h2>
               <!-- <ul class="space-y-2">
                 <li>
@@ -111,7 +133,9 @@
             </div>
 
             <!-- Hệ Điều Hành -->
-            <div class="bg-white p-4 rounded-lg shadow">
+            <div
+              class="bg-gray-100 hover:bg-gray-800 hover:text-white p-4 rounded-lg shadow-xl"
+            >
               <h2 class="font-bold text-lg mb-2">Hệ Điều Hành</h2>
               <!-- <ul class="space-y-2">
                 <li>
@@ -124,7 +148,9 @@
             </div>
 
             <!-- Bộ nhớ trong -->
-            <div class="bg-white p-4 rounded-lg shadow">
+            <div
+              class="bg-gray-100 hover:bg-gray-800 hover:text-white p-4 rounded-lg shadow-xl"
+            >
               <h2 class="font-bold text-lg mb-2">Bộ nhớ trong</h2>
               <!-- <ul class="space-y-2">
                 <li>
@@ -136,11 +162,12 @@
               </ul> -->
             </div>
           </aside>
+
           <!-- Products Grid -->
           <main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Product -->
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -161,13 +188,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -188,13 +215,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -215,13 +242,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -242,13 +269,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -269,13 +296,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -296,13 +323,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -323,13 +350,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -350,13 +377,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -377,13 +404,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -404,13 +431,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -431,13 +458,13 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
 
             <div
-              class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow"
+              class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
             >
               <img
                 alt="Google Pixel (128GB, Black)"
@@ -458,29 +485,29 @@
                   <i class="fas fa-heart"></i>
                 </button>
                 <button class="text-blue-500 hover:text-blue-600 text-xl">
-                  <i class="fas fa-shopping-cart"></i>
+                  <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
                 </button>
               </div>
             </div>
             <div class="text-left">
               <a
                 href=""
-                class="py-2 px-4 bg-[#CA8A04] inline-block text-white font-bold rounded-md"
+                class="py-2 px-4 bg-blue-500 inline-block text-white font-bold rounded-md"
                 >1</a
               >
               <a
                 href=""
-                class="py-2 px-4 bg-[#a3a3a3] inline-block text-white font-bold rounded-md"
+                class="py-2 px-4 bg-[#a3a3a3] hover:bg-blue-500 inline-block text-white font-bold rounded-md"
                 >2</a
               >
               <a
                 href=""
-                class="py-2 px-4 bg-[#a3a3a3] inline-block text-white font-bold rounded-md"
+                class="py-2 px-4 bg-[#a3a3a3] hover:bg-blue-500 inline-block text-white font-bold rounded-md"
                 >3</a
               >
               <a
                 href=""
-                class="py-2 px-4 bg-[#a3a3a3] inline-block text-white font-bold rounded-md"
+                class="py-2 px-4 bg-[#a3a3a3] hover:bg-blue-500 inline-block text-white font-bold rounded-md"
                 >Next</a
               >
             </div>
@@ -492,7 +519,7 @@
 
     <!-- Footer -->
     <section>
-      <footer class="bg-white py-8">
+      <footer class="bg-gray-100 py-8">
         <div class="container mx-auto px-4">
           <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Thông tin hỗ trợ -->
