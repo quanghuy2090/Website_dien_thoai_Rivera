@@ -1,10 +1,14 @@
 {
- 
   "users": [
     {
       "email": "hanh123@gmail.com",
       "password": "$2a$10$qyBT1UFIU/KYBmPGrF6YAuJxedE/KnHFUFnkvgIXvf5sH2JvVvn.K",
       "id": 1
+    },
+    {
+      "email": "huyagama@gmail.com",
+      "password": "$2a$10$MDI5fY.KQ495yBruelJSHO3gYTpAwZn6iebcKKcSXTkO2b41tVLn.",
+      "id": 2
     }
   ]
 }
