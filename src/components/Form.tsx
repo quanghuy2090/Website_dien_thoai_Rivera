@@ -25,10 +25,10 @@ export function AuthForm({ onSubmit }: Form) {
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
             {...register("email", {
-              required: "khong de chong",
+              required: "khong de trong",
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                message: "phai dung dinh dang Email",
+                message: "phai dung dinh dang cua Email",
               },
             })}
           />
