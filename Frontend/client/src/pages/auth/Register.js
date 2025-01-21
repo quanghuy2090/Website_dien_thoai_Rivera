@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { auth } from "../../firebase";
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { createOrUpdateUser } from "../../functions/auth";
 
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const nav = useNavigate();
+    let dispatch = useDispatch();
+
     const { user } = useSelector((state) => ({ ...state }));
 
     useEffect(() => {
@@ -38,21 +41,34 @@ const Register = () => {
                 url: process.env.REACT_APP_REGISTER_REDIRECT_URL,
                 handleCodeInApp: true,
             };
-
             const result = await createUserWithEmailAndPassword(auth, email, password, config);
-            toast.success("Đăng ký thành công. Chuyển hướng sang trang chu")
+            const user = result.user
+            await sendEmailVerification(user);
+            toast.success("Email xác thực đã được gửi. Chuyển hướng sang trang chu");
             setEmail('');
             setPassword('');
-            if (result.user.emailVerified) {
-                let user = auth.currentUser;
-                await user.updatePassword(password);
-                const idTokenResult = await user.getIdTokenResult();
-                console.log(idTokenResult);
-
-            }
             setTimeout(() => {
                 nav('/');
             }, 2000);
+            if (result.user.emailVerified) {
+                let user = auth.currentUser;
+                const idTokenResult = await user.getIdTokenResult();
+                createOrUpdateUser(idTokenResult.token)
+                    .then((res) => {
+                        dispatch({
+                            type: "LOGGED_IN_USER",
+                            payload: {
+                                name: res.data.name,
+                                email: res.data.email,
+                                token: idTokenResult.token,
+                                role: res.data.role,
+                                _id: res.data._id,
+                            },
+                        });
+                        console.log();
+                    })
+                    .catch();
+            }
         }
         catch (error) {
             console.log(error);

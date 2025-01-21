@@ -5,7 +5,7 @@ export const createOrUpdateUser = async (authtoken) => {
     {},
     {
       headers: {
-        authtoken,
+        "Authorization": `Bearer ${authtoken}`
       },
     }
   );

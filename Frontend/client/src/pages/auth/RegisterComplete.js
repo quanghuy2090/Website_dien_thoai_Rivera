@@ -52,25 +52,7 @@ const RegisterComplete = () => {
         window.location.href
       );
       if (result.user.emailVerified) {
-        window.localStorage.removeItem("emailRegister");
-        let user = auth.currentUser;
-        await user.updatePassword(password);
-        const idTokenResult = await user.getIdTokenResult();
-        createOrUpdateUser(idTokenResult.token)
-          .then((res) => {
-            dispatch({
-              type: "LOGGED_IN_USER",
-              payload: {
-                name: res.data.name,
-                email: res.data.email,
-                token: idTokenResult.token,
-                role: res.data.role,
-                _id: res.data._id,
-              },
-            });
-          })
-          .catch();
-        nav("/");
+
       }
     } catch (error) {
       console.log(error);
