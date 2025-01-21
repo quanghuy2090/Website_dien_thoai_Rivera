@@ -8,8 +8,7 @@ import {
     MailOutlined, GoogleOutlined
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { createOrUpdateUser } from "../../functions/auth";
-
+import axios from"axios"
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -42,41 +41,26 @@ const Login = () => {
 
         try {
             const result = await signInWithEmailAndPassword(auth, email, password);
+            const { user } = result;
+            const idTokenResult = await user.getIdTokenResult();
+            toast.success("Đăng nhập thành công. Chuyển hướng sang trang chủ")
 
-            if (result.user.emailVerified) {
-                const { user } = result;
-                const idTokenResult = await user.getIdTokenResult();
-                toast.success("Đăng nhập thành công. Chuyển hướng sang trang chủ");
-                console.log(idTokenResult);
-
-                createOrUpdateUser(idTokenResult.token)
-                    .then((res) => {
-                        dispatch({
-                            type: "LOGGED_IN_USER",
-                            payload: {
-                                name: res.data.name,
-                                email: res.data.email,
-                                token: idTokenResult.token,
-                                role: res.data.role,
-                                _id: res.data._id,
-                            },
-                        });
-                        console.log("Create or update");
-                    })
-                    .catch();
-
-                dispatch({
-                    type: 'LOGGED_IN_USER',
-                    payload: {
-                        email: user.email,
-                        token: idTokenResult.token,
-                    }
-                });
-                setTimeout(() => {
-                    nav('/');
-                }, 2000);
-            }
-
+            dispatch({
+                type: 'LOGGED_IN_USER',
+                payload: {
+                    email: user.email,
+                    token: idTokenResult.token,
+                }
+            })
+            // if (result.user.emailVerified) {
+            //     let user = auth.currentUser;
+            //     await user.updatePassword(password);
+            //     const idTokenResult = await user.getIdTokenResult();    
+            //     console.log(idTokenResult);
+            // }
+            setTimeout(() => {
+                nav('/');
+            }, 2000);
         }
         catch (error) {
             console.log(error);
