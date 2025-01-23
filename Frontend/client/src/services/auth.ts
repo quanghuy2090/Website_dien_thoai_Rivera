@@ -1,14 +1,17 @@
 import { http } from "../config/axios";
 
 export type User = {
+  userName:string
   email: string;
   password: string;
+  confirmPassword:string
 };
 
 export const registerUser = (data: User) => {
-  return http.post("/register", data);
+  console.log(data)
+  return http.post("/auth/singup", data);
 };
 
 export const loginUser = (data: User) => {
-  return http.post("/login", data);
+  return http.post("/auth/singin", data);
 };

@@ -21,7 +21,7 @@ const Login = () => {
   return (
     <div>
       <h4>Login</h4>
-      <AuthForm onSubmit={handleLogin} />
+     <AuthForm onSubmit={handleLogin} mode="login" />
     </div>
   );
 };
