@@ -42,9 +42,16 @@ const ProductPage = () => {
                       <h1 className="card-name">{product.name}</h1>
                       <span className="price">${product.price}</span>
 
-                      <div className="card-back">
-                        <a href="#">Add to cart</a>
-                        <Link to={`/product/${product.id}`}>View detail</Link>
+                      <div className="card-back row">
+                        <a href="#" className="btn btn-primary m-2">
+                          Add to cart
+                        </a>
+                        <Link
+                          to={`/product/${product.id}`}
+                          className="btn btn-primary"
+                        >
+                          View detail
+                        </Link>
                       </div>
                     </div>
                   </div>
