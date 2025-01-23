@@ -2,9 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite"
+    "start": "nodemon --experimental-specifier-resolution=node src/server.js"
   },
   "keywords": [],
   "author": "",
@@ -12,20 +13,12 @@
   "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.20.3",
-    "cloudinary": "^1.21.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "i": "^0.3.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5",
-    "multer": "^1.4.5-lts.1",
-    "multer-storage-cloudinary": "^4.0.0",
-    "npm": "^11.0.0"
-  },
-  "devDependencies": {
-    "vite-plugin-node": "^4.0.0"
+    "mongoose": "^8.8.1",
+    "nodemon": "^3.1.7"
   }
 }
