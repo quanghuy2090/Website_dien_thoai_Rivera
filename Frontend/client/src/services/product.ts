@@ -16,3 +16,6 @@ export const getAllProduct = () => {
   return http.get("/products");
 };
 
+export const getProductById = (id: string | number) => {
+  return http.get(`/products/${id}`);
+};
