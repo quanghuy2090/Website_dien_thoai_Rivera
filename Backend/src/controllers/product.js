@@ -42,43 +42,6 @@ export const getDetail = async (req, res) => {
   }
 };
 
-// export const create = async (req, res) => {
-//   try {
-//     const { error } = productValidation.validate(req.body);
-//     if (error) {
-//       return res.status(400).json({
-//         message: error.details[0].message,
-//       });
-//     }
-//     const product = await Product.create(req.body);
-//     if (!product) {
-//       return res.status(404).json({
-//         message: "Tao san pham khong moi thanh cong",
-//       });
-//     }
-
-//     const updateCategory = await Category.findByIdAndUpdate(data.categoryId, {
-//       $addToSet: {
-//         products: data._id,
-//       },
-//     });
-//     if (!updateCategory) {
-//       return res.status(404).json({
-//         message: "Update category not successful",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       message: "Tao san pham moi thanh cong",
-//       data: product,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: error,
-//     });
-//   }
-// };
-
 export const create = async (req, res) => {
   try {
     const { error } = productValidation.validate(req.body);
@@ -120,49 +83,6 @@ export const create = async (req, res) => {
     });
   }
 };
-
-// export const update = async (req, res) => {
-//   try {
-//     const { error } = productValidation.validate(req.body, {
-//       abortEarly: false,
-//     });
-//     if (error) {
-//       return res.status(400).json({
-//         message: error.details[0].message,
-//       });
-//     }
-//     const product = await Product.findByIdAndUpdate(req.params.id, req.body);
-//     if (!product) {
-//       return res.status(404).json({
-//         message: "Cap nhat san pham khong moi thanh cong",
-//       });
-//     }
-
-//     const updateCategory = await Category.findByIdAndUpdate(
-//       req.params.id,
-//       req.body.categoryId,
-//       {
-//         $addToSet: {
-//           products: product._id,
-//         },
-//       }
-//     );
-//     if (!updateCategory) {
-//       return res.status(404).json({
-//         message: "Update category not successful",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       message: "Cap san pham moi thanh cong",
-//       data: product,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: error,
-//     });
-//   }
-// };
 
 export const update = async (req, res) => {
   try {
@@ -229,6 +149,37 @@ export const remove = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: error,
+    });
+  }
+};
+
+// API tim kiem san pham theo name
+export const searchProductByName = async (req, res) => {
+  try {
+    const { name } = req.body; //nhap tu khoa va kiem tra da nhap chua
+    if (!name) {
+      return res.status(400).json({
+        message: "Ban can phai nhap ten san pham can tim",
+      });
+    }
+    //tim kiem name
+    const products = await Product.find({ $text: { $search: name } });
+    //neu khong co san pham ton tai
+    if (products.length === 0) {
+      return res.status(404).json({
+        message: "Khong tim thay san pham",
+      });
+    }
+
+    //tim thay thi in ra
+    res.status(200).json({
+      message: "tim thay san pham",
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Da say ra loi khi tim kiem san pham",
+      error: error.message,
     });
   }
 };

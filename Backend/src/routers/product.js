@@ -4,6 +4,7 @@ import {
   getAll,
   getDetail,
   remove,
+  searchProductByName,
   update,
 } from "../controllers/product.js";
 import { checkPromission } from "../middlewares/checkPromission.js";
@@ -15,5 +16,8 @@ routerProduct.get("/:id", getDetail);
 routerProduct.post("/", create);
 routerProduct.put("/:id", update);
 routerProduct.delete("/:id", remove);
+
+// tim kiem san pham
+routerProduct.post("/search", searchProductByName);
 
 export default routerProduct;

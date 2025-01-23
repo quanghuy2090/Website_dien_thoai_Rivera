@@ -27,4 +27,7 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+// them text index tim kiem theo name
+productSchema.index({ name: "text" });
+
 export default mongoose.model("Product", productSchema);
