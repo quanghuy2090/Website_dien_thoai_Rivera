@@ -7,7 +7,7 @@ const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [productsPerPage] = useState<number>(4); // Adjust this number as needed
+  const [productsPerPage] = useState<number>(4);
 
   useEffect(() => {
     getAllProduct()
@@ -20,13 +20,9 @@ const ProductPage = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // Calculate the index of the last product on the current page
   const indexOfLastProduct = currentPage * productsPerPage;
-  // Calculate the index of the first product on the current page
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  // Get current products
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
-  // Calculate total pages
   const totalPages = Math.ceil(products.length / productsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
