@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 const ListProduct = () => {
   const [products, setProducts] = useState<Product[]>([])
-  
+
   useEffect(() => {
     (async () => {
       const res = await getAllProduct()
@@ -16,38 +16,40 @@ const ListProduct = () => {
   const deleteProduct = async (_id: string) => {
     try {
       const isConfirmed = confirm(`Are you sure you want to delete`);
-    if (isConfirmed) {
-      setProducts(prevProducts => prevProducts.filter(products => products._id!==_id));
-      await removeProduct(_id);
-      toast.success("Product deleted successfully")
-    }
+      if (isConfirmed) {
+        setProducts(prevProducts => prevProducts.filter(products => products._id !== _id));
+        await removeProduct(_id);
+        toast.success("Product deleted successfully")
+      }
     } catch (error) {
       console.log(error);
       toast.error("Product deleted unsuccessfully")
     }
-    
+
   }
-  
+
   return (
     <div className='main-content'>
       <Link to={`/admin/products/add`} className='btn btn-primary'>Add product</Link>
-    <table className="table-container">
-  <thead>
-    <tr>
-      <th scope="col">id</th>
-      <th scope="col">name</th>
-      <th scope="col">price</th>
-       <th scope="col">description</th>
-      <th scope="col">categories</th>    
-    </tr>
-  </thead>
-  <tbody>
+      <table className="table-container">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">name</th>
+            <th scope="col">price</th>
+            <th scope="col">image</th>
+            <th scope="col">description</th>
+            <th scope="col">categories</th>
+          </tr>
+        </thead>
+        <tbody>
           {products.map((product) => (
             <tr>
-              <td>{ product._id}</td>
-              <td>{product.name }</td>
-              <td>{ product.price}</td>
-              <td>{ product.description}</td>
+              <td>{product._id}</td>
+              <td>{product.name}</td>
+              <td>{product.price}</td>
+              <td><img src={product.image} alt="" width={100} /></td>
+              <td>{product.description}</td>
               <td>
                 {/* Render category name if categoryId is an object */}
                 {typeof product.categoryId === 'object' && product.categoryId !== null
@@ -62,10 +64,10 @@ const ListProduct = () => {
                 <Link to={`/admin/products/update/${product._id}`} className='btn btn-warning'>Update</Link>
 >>>>>>> thanhktph46166
               </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
