@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Category, deleteCategories, getCategories } from '../../../services/category'
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 
 const ListCategories = () => {
@@ -21,9 +22,11 @@ const ListCategories = () => {
 
       // Call the backend to delete the category
       await deleteCategories(_id);
+      toast.success("Category deleted successfully")
     } catch (error) {
       // If an error occurs, revert the UI change or show an error message
       console.error("Error removing category:", error);
+      toast.error("Category deleted unsuccessfully")
       // Optionally, re-fetch categories if necessary
     }
   }
@@ -36,8 +39,7 @@ const ListCategories = () => {
     <tr>
       <th scope="col">id</th>
       <th scope="col">categories</th>
-      <th scope="col">slug</th>
-            
+      <th scope="col">slug</th>   
       <th scope="col">action</th>
     </tr>
   </thead>
@@ -49,7 +51,7 @@ const ListCategories = () => {
               <td>{ category.slug}</td>
               <td>
                 <button className='btn btn-danger' onClick={() => remove(category._id)}>delete</button>
-                <Link to={`/admin/category/update/${category._id}`} className='btn btn-danger'>Update</Link>
+                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'>Update</Link>
               </td>
      </tr>
    ))}
