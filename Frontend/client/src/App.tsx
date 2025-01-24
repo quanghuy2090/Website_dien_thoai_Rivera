@@ -10,13 +10,10 @@ import AdminLayout from "./layout/AdminLayout";
 import Dashboard from "./pages/Admin/Dashboard";
 import AddCategories from "./pages/Admin/Categories/AddCategories";
 import ListCategories from "./pages/Admin/Categories/ListCategories";
-import UpdateCategories from './pages/Admin/Categories/UpdateCategories';
+import UpdateCategories from "./pages/Admin/Categories/UpdateCategories";
 import ListProduct from "./pages/Admin/Product/ListProduct";
 import AddProduct from "./pages/Admin/Product/AddProduct";
-<<<<<<< HEAD
-=======
 import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
->>>>>>> thanhktph46166
 
 function App() {
   const routes = useRoutes([
@@ -35,19 +32,14 @@ function App() {
       element: <AdminLayout />,
       children: [
         { path: "/admin/dasboard", element: <Dashboard /> },
-        {path:"/admin/category",element:<ListCategories/>},
+        { path: "/admin/category", element: <ListCategories /> },
         { path: "/admin/category/add", element: <AddCategories /> },
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },
         { path: "/admin/products", element: <ListProduct /> },
-<<<<<<< HEAD
-        {path:"/admin/products/add",element:<AddProduct/>}
-=======
         { path: "/admin/products/add", element: <AddProduct /> },
-        {path:"/admin/products/update/:id",element:<UpdateProduct/>}
->>>>>>> thanhktph46166
-        
-      ]
-    }
+        { path: "/admin/products/update/:id", element: <UpdateProduct /> },
+      ],
+    },
   ]);
   return (
     <>
