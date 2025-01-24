@@ -11,14 +11,21 @@ const ProductPage = () => {
   const [sortOrder, setSortOrder] = useState<string>("asc"); // Default sort order
 
   useEffect(() => {
-    getAllProduct()
-      .then(({ data }) => {
+    const fetchProducts = async () => {
+      try {
+        const response = await getAllProduct();
+        const data = response.data || []; // Ensure data is an array
         toast.success("Welcome");
         setProducts(data);
-        console.log(data);
-      })
-      .catch((error) => toast.error("Error: " + error.message))
-      .finally(() => setLoading(false));
+      } catch (error) {
+        toast.error("Error: " + error.message);
+        setProducts([]); // Reset products to an empty array on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -33,10 +40,7 @@ const ProductPage = () => {
     }
   });
 
-  const currentProducts = sortedProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
+  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
@@ -88,9 +92,6 @@ const ProductPage = () => {
                 <div className="">
                   <div className="card m-2">
                     <div className="cover item-a">
-                      <div className="card-image">
-                        <img width={200} src={product.images} alt="" />
-                      </div>
                       <h1 className="card-name">{product.name}</h1>
                       <span className="price">${product.price}</span>
 

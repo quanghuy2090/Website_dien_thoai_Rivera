@@ -34,7 +34,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                 required: "Username is required",
               })}
             />
-            {errors?.userName && <span>{errors.userName.message}</span>}
+            {errors?.userName && <span className="text-danger">{errors.userName.message}</span>}
           </div>
         )}
 
@@ -55,7 +55,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
               },
             })}
           />
-          {errors?.email && <span>{errors.email.message}</span>}
+          {errors?.email && <span className="text-danger">{errors.email.message}</span>}
         </div>
 
         {/* Password Field */}
@@ -71,7 +71,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
               required: "Password is required",
             })}
           />
-          {errors?.password && <span>{errors.password.message}</span>}
+          {errors?.password && <span className="text-danger">{errors.password.message}</span>}
         </div>
 
         {/* Confirm Password Field - Only for Registration */}
@@ -91,7 +91,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
               })}
             />
             {errors?.confirmPassword && (
-              <span>{errors.confirmPassword.message}</span>
+              <span className="text-danger">{errors.confirmPassword.message}</span>
             )}
           </div>
         )}
