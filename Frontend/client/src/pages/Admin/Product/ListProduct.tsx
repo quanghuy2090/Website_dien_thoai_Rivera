@@ -55,7 +55,12 @@ const ListProduct = () => {
                   : product.categoryId}
               </td>
               <td>
+<<<<<<< HEAD
                 <button className='btn btn-danger' onClick={()=>deleteProduct(product._id)}>delete</button>
+=======
+                <button className='btn btn-danger' onClick={() => deleteProduct(product._id)}>delete</button>
+                <Link to={`/admin/products/update/${product._id}`} className='btn btn-warning'>Update</Link>
+>>>>>>> thanhktph46166
               </td>
       </tr>
     ))}
