@@ -4,19 +4,40 @@ import { addProduct, Category, Product } from '../../../services/product'
 import { getCategories } from '../../../services/category';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddProduct = () => {
   const { register, handleSubmit } = useForm<Product>();
   const [category, setCategory] = useState<Category[]>([]);
   const nav = useNavigate();
   useEffect(() => {
-      (async () => {
-        const { data } = await getCategories();
-        setCategory(data.data);
-      })()
-    }, [])
+    (async () => {
+      const { data } = await getCategories();
+      setCategory(data.data);
+    })()
+  }, []);
+
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const { data } = await axios.post(
+        "http://localhost:3000/api/file/upload", 
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+    );
+    return data.secure_url;
+  }
   const onSubmit = async (product: Product) => {
     try {
+      if (product.image && product.image[0]) {
+        const imageUrl = await uploadImage(product.image[0]); // Gửi ảnh lên Cloudinary
+        product.image = imageUrl; 
+      }
       const { data } = await addProduct(product);
     toast.success("Product added successfully");
       console.log(data);
@@ -45,6 +66,11 @@ const AddProduct = () => {
           <input type="text" className='form-control'{...register("description")} />
         </div>
 
+        <div>
+          <label htmlFor="image">Image</label>
+          <input type="file" className='form-control'{...register("image")} />
+
+</div>
         <div className='form-group'>
           <select className='form-control'{...register("categoryId")}>
             {category.map((item) => (
