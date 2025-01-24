@@ -5,6 +5,7 @@ export type Category = {
     _id: string;
     name: string;
     slug: string;
+    products?: string[];
 }
 
 export const addCategories = (category:Category) => {

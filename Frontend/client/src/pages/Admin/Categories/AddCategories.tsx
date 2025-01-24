@@ -2,6 +2,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { addCategories, Category } from '../../../services/category'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 
 const AddCategories = () => {
@@ -10,10 +11,12 @@ const AddCategories = () => {
   const onSubmit = async (category: Category) => {
     try {
       const res = await addCategories(category)
-      console.log(res.data)
+      console.log(res.data);
+      toast.success("Category added successfully")
       nav("/admin/category")
     } catch (error) {
       console.log(error)
+      toast.error("Error adding categories")
     }  
   }
   return (

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Category, getCategoriesById, updateCategories } from '../../../services/category'
 import { useNavigate, useParams } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 const UpdateCategories = () => {
     const { register, handleSubmit,setValue } = useForm<Category>();
@@ -13,11 +14,13 @@ const UpdateCategories = () => {
             const { data } = await getCategoriesById(id!)
             console.log(data.data);
             setValue('name', data.name);
-        setValue('slug', data.slug);
+            setValue('slug', data.slug);
+            toast.success("product id successfully")
         })()
     }, [])
     const onSubmit = async (category: Category) => {
-        await updateCategories(id!, category);
+        await updateCategories(id!, category)
+        toast.success("Updated categories");
         nav("/admin/category")
     }
   return (
