@@ -13,8 +13,8 @@ const UpdateCategories = () => {
         (async () => {
             const { data } = await getCategoriesById(id!)
             console.log(data.data);
-            setValue('name', data.name);
-            setValue('slug', data.slug);
+            setValue('name', data.data.name);
+            setValue('slug', data.data.slug);
             toast.success("product id successfully")
         })()
     }, [])
