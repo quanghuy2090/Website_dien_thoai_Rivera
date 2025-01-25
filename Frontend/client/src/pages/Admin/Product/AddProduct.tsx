@@ -9,6 +9,7 @@ import axios from 'axios';
 const AddProduct = () => {
   const { register, handleSubmit } = useForm<Product>();
   const [category, setCategory] = useState<Category[]>([]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const nav = useNavigate();
   useEffect(() => {
     (async () => {
@@ -22,31 +23,41 @@ const AddProduct = () => {
     formData.append("image", file);
 
     const { data } = await axios.post(
-        "http://localhost:3000/api/file/upload", 
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+      "http://localhost:3000/api/file/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return data.secure_url;
   }
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string); // Show image preview
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   const onSubmit = async (product: Product) => {
     try {
       if (product.image && product.image[0]) {
         const imageUrl = await uploadImage(product.image[0]); // Gửi ảnh lên Cloudinary
-        product.image = imageUrl; 
+        product.image = imageUrl;
       }
       const { data } = await addProduct(product);
-    toast.success("Product added successfully");
+      toast.success("Product added successfully");
       console.log(data);
       nav("/admin/products");
     } catch (error) {
       console.log(error);
       toast.error("Product added failed")
     }
-    
+
   }
   return (
     <div>
@@ -68,21 +79,22 @@ const AddProduct = () => {
 
         <div>
           <label htmlFor="image">Image</label>
-          <input type="file" className='form-control'{...register("image")} />
+          <input type="file" className='form-control'{...register("image")} onChange={handleImageChange} />
+          {imagePreview && <img src={imagePreview} alt="Image Preview" width="100" />}
 
-</div>
+        </div>
         <div className='form-group'>
           <select className='form-control'{...register("categoryId")}>
             {category.map((item) => (
-               <option key={item._id} value={item._id}>
+              <option key={item._id} value={item._id}>
                 {item.name}
               </option>
-          ))}
+            ))}
           </select>
         </div>
 
         <div className='form-group'>
-         <button className='btn btn-primary'>Submit</button>
+          <button className='btn btn-primary'>Submit</button>
         </div>
       </form>
     </div>
