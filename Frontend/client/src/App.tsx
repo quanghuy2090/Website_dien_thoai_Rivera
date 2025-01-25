@@ -16,6 +16,7 @@ import AddProduct from "./pages/Admin/Product/AddProduct";
 
 
 import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
+import Notfound from "./pages/Notfound";
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         { path: "/register", element: <Register /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
+        { path: "*", element: <Notfound /> }
       ],
     },
     {
@@ -41,11 +43,16 @@ function App() {
         { path: "/admin/products", element: <ListProduct /> },
 
         { path: "/admin/products/add", element: <AddProduct /> },
+<<<<<<< HEAD
 
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/update/:id", element: <UpdateProduct /> }
 
 
+=======
+        { path: "/admin/products/update/:id", element: <UpdateProduct /> }
+
+>>>>>>> thanhktph46166
       ]
     }
   ]);
