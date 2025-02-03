@@ -11,7 +11,7 @@ export type Product = {
   name: string;
   price: number;
   description: string;
-  image: string;
+  image:  string;
   categoryId?: string | Category; // Hỗ trợ cả string và object
 };
 
@@ -32,6 +32,4 @@ export const getProductById = (_id: string ) => {
 export const updateProduct = (_id: string, product: Product) => {
   return http.put("/product/" + _id, product);
 }
-export const uploadFile = () => {
-  return http.post("/file/upload")
-}
+
