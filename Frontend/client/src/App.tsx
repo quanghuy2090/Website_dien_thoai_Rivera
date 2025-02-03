@@ -14,10 +14,8 @@ import UpdateCategories from "./pages/Admin/Categories/UpdateCategories";
 import ListProduct from "./pages/Admin/Product/ListProduct";
 import AddProduct from "./pages/Admin/Product/AddProduct";
 
-
 import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
 import Notfound from "./pages/Notfound";
-
 
 function App() {
   const routes = useRoutes([
@@ -29,9 +27,9 @@ function App() {
         { path: "/register", element: <Register /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
-        { path: "*", element: <Notfound /> }
       ],
     },
+    { path: "*", element: <Notfound /> },
     {
       path: "/admin",
       element: <AdminLayout />,
@@ -44,9 +42,9 @@ function App() {
 
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
-        { path: "/admin/products/update/:id", element: <UpdateProduct /> }
-      ]
-    }
+        { path: "/admin/products/update/:id", element: <UpdateProduct /> },
+      ],
+    },
   ]);
   return (
     <>
