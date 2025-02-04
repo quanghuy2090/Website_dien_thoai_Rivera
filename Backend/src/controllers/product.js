@@ -105,6 +105,7 @@ export const update = async (req, res) => {
         message: "Cập nhật sản phẩm không thành công",
       });
     }
+
     // Cập nhật category (nếu có categoryId trong body)
     if (req.body.categoryId) {
       const updateCategory = await Category.findByIdAndUpdate(
