@@ -22,6 +22,18 @@ export const singUpValidate = Joi.object({
     "any.required": "Mật khẩu là bắt buộc.",
     "string.min": "Mật khẩu tối thiểu 6 ký tự.",
   }),
+  confirmPassword: Joi.string()
+    .required()
+    .min(6)
+    .max(255)
+    .valid(Joi.ref("password"))
+    .messages({
+      "string.empty": "confirmPassword khong duoc de trong",
+      "any.required": "confirmPassword la bat buoc",
+      "string.min": "confirmPassword phai co it nhat {#litmit} ky tu",
+      "string.max": "confirmPassword it hon {#litmit} ky tu",
+      "any.only": "confirmPassword khong khop voi Password",
+    }),
   status: Joi.string().valid("active", "banned").default("active"),
   role: Joi.number().valid(1, 2, 3).default(3),
 });

@@ -35,9 +35,39 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
               })}
             />
             {errors?.userName && <span>{errors.userName.message}</span>}
-          </div>
-        )}
+            <div className="mb-3">
+              <label htmlFor="text" className="form-label">
+                Address
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="address"
+                {...register("address", {
+                  required: "Address is required",
+                })}
+              />
+              {errors?.password && <span>{errors.address?.message}</span>}
+            </div>
 
+            <div className="mb-3">
+              <label htmlFor="phone" className="form-label">
+                Phone
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="phone"
+                {...register("phone", {
+                  required: "Phone is required",
+                })}
+              />
+              {errors?.password && <span>{errors.phone?.message}</span>}
+            </div>
+          </div>
+
+
+        )}
         {/* Email Field */}
         <div className="mb-3">
           <label htmlFor="email" className="form-label">
@@ -73,6 +103,8 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
           />
           {errors?.password && <span>{errors.password.message}</span>}
         </div>
+
+
 
         {/* Confirm Password Field - Only for Registration */}
         {mode === "register" && (

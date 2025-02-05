@@ -1,12 +1,11 @@
 import Joi from "joi";
 
 export const productValidation = Joi.object({
-<<<<<<< HEAD
+
   name: Joi.string().required().min(3).max(255),
   price: Joi.number().required(),
   description: Joi.string(),
   image: Joi.string().uri(),
-=======
   name: Joi.string().required().min(3).max(255).message({
     "any.require": "Tên sản phẩm là bắt buộc",
     "string.empty": "Tên sản phẩm không được để trống",
@@ -38,6 +37,6 @@ export const productValidation = Joi.object({
     "string.base": "Màu sắc phải là một chuỗi ký tự.",
     "string.empty": "Trường color không được để trống.",
   }),
->>>>>>> a18280db041dfbf446fd234f6c8ca20bcc24cbb0
+
   categoryId: Joi.string().required(),
 });

@@ -16,7 +16,6 @@ routerProduct.get("/:id", getDetail);
 routerProduct.post("/", checkPromission, create);
 routerProduct.put("/:id", checkPromission, update);
 routerProduct.delete("/:id", checkPromission, remove);
-
 // tim kiem san pham
 routerProduct.post("/search", searchProductByName);
 

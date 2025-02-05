@@ -12,6 +12,8 @@ export type Product = {
   price: number;
   description: string;
   image: string;
+  stock: number;
+  color: string;
   categoryId?: string | Category; // Hỗ trợ cả string và object
 };
 
