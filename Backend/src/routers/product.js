@@ -13,9 +13,9 @@ const routerProduct = express.Router();
 
 routerProduct.get("/", getAll);
 routerProduct.get("/:id", getDetail);
-routerProduct.post("/", create);
-routerProduct.put("/:id", update);
-routerProduct.delete("/:id", remove);
+routerProduct.post("/", checkPromission, create);
+routerProduct.put("/:id", checkPromission, update);
+routerProduct.delete("/:id", checkPromission, remove);
 
 // tim kiem san pham
 routerProduct.post("/search", searchProductByName);

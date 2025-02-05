@@ -1,48 +1,38 @@
 import Joi from "joi";
 
 export const singUpValidate = Joi.object({
-  userName: Joi.string().required().min(6).max(255).message({
-    "string.empty": "userName khong duoc de trong",
-    "any.required": "userName la bat buoc",
-    "string.min": "userName phai co it nhat {#litmit} ky tu",
-    "string.max": "userName it hon {#litmit} ky tu",
+  userName: Joi.string().max(100).required().messages({
+    "any.required": "Tên không được để trống.",
+    "string.max": "Tên tối đa là 100 ký tự.",
   }),
-  email: Joi.string().required().email().message({
-    "string.empty": "Email khong duoc de trong",
-    "any.required": "Email la bat buoc",
-    "string.email": "Email khong dung dinh dang",
+  email: Joi.string().email().required().messages({
+    "any.required": "Email không được để trống.",
+    "string.email": "Email không đúng định dạng.",
   }),
-  password: Joi.string().required().min(6).max(255).message({
-    "string.empty": "Password khong duoc de trong",
-    "any.required": "Password la bat buoc",
-    "string.min": "Password phai co it nhat {#litmit} ky tu",
-    "string.max": "Password it hon {#litmit} ky tu",
-  }),
-  confirmPassword: Joi.string()
-    .required()
-    .min(6)
-    .max(255)
-    .valid(Joi.ref("password"))
+  phone: Joi.string()
+    .pattern(/^[0-9]{10,15}$/)
+    .allow(null)
     .messages({
-      "string.empty": "confirmPassword khong duoc de trong",
-      "any.required": "confirmPassword la bat buoc",
-      "string.min": "confirmPassword phai co it nhat {#litmit} ky tu",
-      "string.max": "confirmPassword it hon {#litmit} ky tu",
-      "any.only": "confirmPassword khong khop voi Password",
+      "string.pattern.base": "Số điện thoại phải từ 10 đến 15 số.",
     }),
-  role: Joi.string(),
+  address: Joi.string().max(255).allow(null).messages({
+    "string.max": "Địa chỉ tối đa 255 ký tự.",
+  }),
+  password: Joi.string().min(6).required().messages({
+    "any.required": "Mật khẩu là bắt buộc.",
+    "string.min": "Mật khẩu tối thiểu 6 ký tự.",
+  }),
+  status: Joi.string().valid("active", "banned").default("active"),
+  role: Joi.number().valid(1, 2, 3).default(3),
 });
 
 export const singInValidate = Joi.object({
-  email: Joi.string().required().email().message({
-    "string.empty": "Email khong duoc de trong",
-    "any.required": "Email la bat buoc",
-    "string.email": "Email khong dung dinh dang",
+  email: Joi.string().email().required().messages({
+    "any.required": "Email không được để trống.",
+    "string.email": "Email không đúng định dạng.",
   }),
-  password: Joi.string().required().min(6).max(255).message({
-    "string.empty": "Password khong duoc de trong",
-    "any.required": "Password la bat buoc",
-    "string.min": "Password phai co it nhat {#litmit} ky tu",
-    "string.max": "Password it hon {#litmit} ky tu",
+  password: Joi.string().min(6).required().messages({
+    "any.required": "Mật khẩu là bắt buộc.",
+    "string.min": "Mật khẩu tối thiểu 6 ký tự.",
   }),
 });

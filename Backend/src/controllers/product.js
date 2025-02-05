@@ -44,10 +44,19 @@ export const getDetail = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const { error } = productValidation.validate(req.body);
+    const { error } = productValidation.validate(req.body, {
+      abortEarly: false,
+    });
     if (error) {
       return res.status(400).json({
-        message: error.details[0].message,
+        message: error.details.map((detail) => detail.message).join(", "),
+      });
+    }
+    //Kiem tra ten san pham
+    const existingProduct = await Product.findOne({ name: req.body.name });
+    if (existingProduct) {
+      return res.status(400).json({
+        message: `Sản phẩm "${req.body.name}" đã tồn tại`,
       });
     }
 
@@ -57,7 +66,7 @@ export const create = async (req, res) => {
         message: "Tao san pham khong moi thanh cong",
       });
     }
-
+    // Cập nhật sản phẩm vào danh mục
     const updateCategory = await Category.findByIdAndUpdate(
       req.body.categoryId,
       {
@@ -84,6 +93,56 @@ export const create = async (req, res) => {
   }
 };
 
+// export const update = async (req, res) => {
+//   try {
+//     // Validate dữ liệu từ body
+//     const { error } = productValidation.validate(req.body, {
+//       abortEarly: false,
+//     });
+//     if (error) {
+//       return res.status(400).json({
+//         message: error.details.map((detail) => detail.message).join(", "),
+//       });
+//     }
+
+//     // Cập nhật sản phẩm
+//     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true, // Trả về dữ liệu đã cập nhật
+//     });
+//     if (!product) {
+//       return res.status(404).json({
+//         message: "Cập nhật sản phẩm không thành công",
+//       });
+//     }
+
+//     // Cập nhật category (nếu có categoryId trong body)
+//     if (req.body.categoryId) {
+//       const updateCategory = await Category.findByIdAndUpdate(
+//         req.body.categoryId,
+//         {
+//           $addToSet: {
+//             products: product._id,
+//           },
+//         }
+//       );
+//       if (!updateCategory) {
+//         return res.status(404).json({
+//           message: "Cập nhật danh mục không thành công",
+//         });
+//       }
+//     }
+
+//     return res.status(200).json({
+//       message: "Cập nhật sản phẩm thành công",
+//       data: product,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       message: error.message,
+//     });
+//   }
+// };
+
 export const update = async (req, res) => {
   try {
     // Validate dữ liệu từ body
@@ -96,27 +155,49 @@ export const update = async (req, res) => {
       });
     }
 
+    // Lấy sản phẩm cũ trước khi cập nhật
+    const oldProduct = await Product.findById(req.params.id);
+    if (!oldProduct) {
+      return res.status(404).json({
+        message: "Sản phẩm không tồn tại",
+      });
+    }
+
     // Cập nhật sản phẩm
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // Trả về dữ liệu đã cập nhật
-    });
-    if (!product) {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
+    if (!updatedProduct) {
       return res.status(404).json({
         message: "Cập nhật sản phẩm không thành công",
       });
     }
 
-    // Cập nhật category (nếu có categoryId trong body)
-    if (req.body.categoryId) {
-      const updateCategory = await Category.findByIdAndUpdate(
+    // Xử lý thay đổi danh mục
+    if (
+      req.body.categoryId &&
+      req.body.categoryId !== oldProduct.categoryId?.toString()
+    ) {
+      // Xóa sản phẩm khỏi danh mục cũ
+      if (oldProduct.categoryId) {
+        await Category.findByIdAndUpdate(oldProduct.categoryId, {
+          $pull: { products: oldProduct._id },
+        });
+      }
+
+      // Thêm sản phẩm vào danh mục mới
+      const newCategory = await Category.findByIdAndUpdate(
         req.body.categoryId,
         {
-          $addToSet: {
-            products: product._id,
-          },
+          $addToSet: { products: updatedProduct._id },
         }
       );
-      if (!updateCategory) {
+
+      if (!newCategory) {
         return res.status(404).json({
           message: "Cập nhật danh mục không thành công",
         });
@@ -125,7 +206,7 @@ export const update = async (req, res) => {
 
     return res.status(200).json({
       message: "Cập nhật sản phẩm thành công",
-      data: product,
+      data: updatedProduct,
     });
   } catch (error) {
     return res.status(500).json({
