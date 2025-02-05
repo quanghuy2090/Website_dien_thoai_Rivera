@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema(
     price: {
       type: Number,
       require: true,
-      minLength: 1,
+      min: 1,
     },
     description: {
       type: String,
@@ -18,6 +18,27 @@ const productSchema = new mongoose.Schema(
     image: {
       type: String,
       require: true,
+    },
+    // Trang thai san pham: active(bật), banned(ẩn)
+    status: {
+      type: String,
+      enum: ["active", "banned"],
+      default: "active",
+    },
+    // San pham hot hay khong: yes(hot), no(khong hot)
+    is_hot: {
+      type: String,
+      enum: ["yes", "no"],
+      default: "no",
+    },
+    // Số lượng trong kho
+    stock: {
+      type: Number,
+      require: true,
+      min: 0,
+    },
+    color: {
+      type: String,
     },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,

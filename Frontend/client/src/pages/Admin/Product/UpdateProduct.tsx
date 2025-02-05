@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getCategories } from '../../../services/category';
 import { updateProduct } from './../../../services/product';
 import toast from 'react-hot-toast';
+<<<<<<< HEAD
 import axios from 'axios';
 import z from "zod"
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,41 +50,43 @@ const UpdateProduct = () => {
         setImagePreview(reader.result as string); // Show image preview
       };
       reader.readAsDataURL(file);
+=======
+
+const UpdateProduct = () => {
+    const { register, handleSubmit,setValue } = useForm<Product>();
+    const { id } = useParams();
+    const [category, setCategory] = useState<Category[]>([]);
+      const nav = useNavigate();
+      useEffect(() => {
+          (async () => {
+            const { data } = await getCategories();
+              setCategory(data.data);
+          })()
+        }, [])
+    useEffect(() => {
+        (async () => {
+            const { data } = await getProductById(id!);
+            console.log(data);
+            toast.success("Product id successfully")
+            setValue("name", data.data.name);
+              setValue("price", data.data.price)
+              setValue("description", data.data.description);
+              setValue("categoryId._id", data.data.categoryId);
+        })()
+    }, [])
+    const onSubmit=async(product:Product)=>{
+        try {
+            const { data } = await updateProduct(id!, product)
+            console.log(data);
+            toast.success("product updated successfully")
+            nav("/admin/products");
+        } catch (error) {
+            console.log(error)
+            toast.error("Product update unsuccessful")
+
+        }
+>>>>>>> a18280db041dfbf446fd234f6c8ca20bcc24cbb0
     }
-  };
-
-  const uploadImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
-    const { data } = await axios.post(
-      "http://localhost:3000/api/file/upload",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    return data.secure_url;
-  }
-  const onSubmit = async (product: Product) => {
-    try {
-
-      if (product.image && product.image[0]) {
-        const imageUrl = await uploadImage(product.image[0]); // Gửi ảnh lên Cloudinary
-        product.image = imageUrl;
-      }
-      const { data } = await updateProduct(id!, product)
-      console.log(data);
-      toast.success("product updated successfully")
-      nav("/admin/products");
-    } catch (error) {
-      console.log(error)
-      toast.error("Product update unsuccessful")
-
-    }
-  }
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -106,6 +109,7 @@ const UpdateProduct = () => {
         </div>
 
         <div className='form-group'>
+<<<<<<< HEAD
           <label htmlFor="image">Image</label>
           <input type="file" className='form-control'{...register("image", { required: true })} onChange={handleImageChange} />
           {errors.image && <p className='text-danger'>{errors.image.message}</p>}
@@ -114,17 +118,20 @@ const UpdateProduct = () => {
 
         <div className='form-group'>
           <select className='form-control'{...register("categoryId", { required: true })}>
+=======
+          <select className='form-control'{...register("categoryId")}>
+>>>>>>> a18280db041dfbf446fd234f6c8ca20bcc24cbb0
             {category.map((item) => (
-              <option key={item._id} value={item._id}>
+               <option key={item._id} value={item._id}>
                 {item.name}
               </option>
-            ))}
+          ))}
           </select>
           {errors.categoryId && <p className='text-danger'>{errors.categoryId.message}</p>}
         </div>
 
         <div className='form-group'>
-          <button className='btn btn-primary'>Submit</button>
+         <button className='btn btn-primary'>Submit</button>
         </div>
       </form>
     </div>

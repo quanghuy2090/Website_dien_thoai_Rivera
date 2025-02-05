@@ -13,11 +13,10 @@ import ListCategories from "./pages/Admin/Categories/ListCategories";
 import UpdateCategories from './pages/Admin/Categories/UpdateCategories';
 import ListProduct from "./pages/Admin/Product/ListProduct";
 import AddProduct from "./pages/Admin/Product/AddProduct";
-
-
+<<<<<<< HEAD
+=======
 import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
-import Notfound from "./pages/Notfound";
-
+>>>>>>> thanhktph46166
 
 function App() {
   const routes = useRoutes([
@@ -29,7 +28,6 @@ function App() {
         { path: "/register", element: <Register /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
-        { path: "*", element: <Notfound /> }
       ],
     },
     {
@@ -37,22 +35,17 @@ function App() {
       element: <AdminLayout />,
       children: [
         { path: "/admin/dasboard", element: <Dashboard /> },
-        { path: "/admin/category", element: <ListCategories /> },
+        {path:"/admin/category",element:<ListCategories/>},
         { path: "/admin/category/add", element: <AddCategories /> },
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },
         { path: "/admin/products", element: <ListProduct /> },
-
-        { path: "/admin/products/add", element: <AddProduct /> },
 <<<<<<< HEAD
-
-        { path: "/admin/products/add", element: <AddProduct /> },
-        { path: "/admin/products/update/:id", element: <UpdateProduct /> }
-
-
+        {path:"/admin/products/add",element:<AddProduct/>}
 =======
-        { path: "/admin/products/update/:id", element: <UpdateProduct /> }
-
+        { path: "/admin/products/add", element: <AddProduct /> },
+        {path:"/admin/products/update/:id",element:<UpdateProduct/>}
 >>>>>>> thanhktph46166
+        
       ]
     }
   ]);
