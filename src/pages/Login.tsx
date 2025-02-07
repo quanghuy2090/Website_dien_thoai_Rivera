@@ -11,7 +11,7 @@ const Register = () => {
     loginUser(values)
       .then(({ data }) => {
         localStorage.setItem("token",  data.accessToken);
-        alert("login successfull ");
+        alert("đăng nhập thành công ");
         nav("/");
       })
       .catch((error) => {
