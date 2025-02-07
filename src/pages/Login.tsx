@@ -11,7 +11,7 @@ const Register = () => {
     loginUser(values)
       .then(({ data }) => {
         localStorage.setItem("token",  data.accessToken);
-        alert("Đăng nhập thành công ");
+        alert("login successfull ");
         nav("/");
       })
       .catch((error) => {
@@ -19,7 +19,7 @@ const Register = () => {
       });
   };
   return (
-    <div>
+    <div>git
       <h4>Login</h4>
       <AuthForm onSubmit={handleLogin} />
     </div>
