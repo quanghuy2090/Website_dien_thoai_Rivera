@@ -10,8 +10,8 @@ const Register = () => {
   const handleLogin: SubmitHandler<User> = (values) => {
     loginUser(values)
       .then(({ data }) => {
-        localStorage.setItem("token", data.accessToken);
-        alert("Dang nhap thanh cong");
+        localStorage.setItem("token",  data.accessToken);
+        alert("Đăng nhập thành công ");
         nav("/");
       })
       .catch((error) => {

@@ -10,7 +10,7 @@ const Register = () => {
   const handleRegister: SubmitHandler<User> = (values) => {
     registerUser(values)
       .then(() => {
-        alert("Dang ky thanh cong");
+        alert("Đăng ký thành công");
         nav("/login");
       })
       .catch((error) => {
