@@ -42,7 +42,7 @@ export function AuthForm({ onSubmit }: Form) {
             type="password"
             className="form-control"
             id="exampleInputPassword1"
-            {...register("password", { required: " password không dược để trống" })}
+            {...register("password", { required: "khong duoc de trong" })}
           />
           {errors?.password && <span>{errors.password.message}</span>}
         </div>

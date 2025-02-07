@@ -10,7 +10,7 @@ const Register = () => {
   const handleRegister: SubmitHandler<User> = (values) => {
     registerUser(values)
       .then(() => {
-        alert("Đăng ký thành công");
+        alert("dang ky thanh cong");
         nav("/login");
       })
       .catch((error) => {
@@ -19,7 +19,7 @@ const Register = () => {
   };
   return (
     <div>
-      <h4>Register</h4>
+      <h4>trang dang nhap</h4>
       <AuthForm onSubmit={handleRegister} />
     </div>
   );
