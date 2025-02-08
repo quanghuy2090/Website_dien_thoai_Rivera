@@ -1,3 +1,4 @@
+
 import { http } from "../config/axios";
 
 
@@ -33,7 +34,12 @@ export const getProductById = (_id: string ) => {
 };
 export const updateProduct = (_id: string, product: Product) => {
   return http.put("/product/" + _id, product);
+};
+export const searchProduct = async(name:string) => {
+  try {
+    return http.post("/product/search",{name})
+  } catch (error) {
+    console.log(error)
+  }
 }
-export const uploadFile = () => {
-  return http.post("/file/upload")
-}
+

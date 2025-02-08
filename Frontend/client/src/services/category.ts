@@ -24,3 +24,10 @@ export const getCategoriesById = (_id: string) => {
 export const updateCategories = (_id:string,category: Category) => {
     return http.put(`/category/${_id}`,category);
 }
+export const searchCategory = async(name:string) => {
+  try {
+    return http.post("/category/search",{name})
+  } catch (error) {
+    console.log(error)
+  }
+}

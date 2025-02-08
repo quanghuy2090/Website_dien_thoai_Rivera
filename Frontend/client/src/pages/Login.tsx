@@ -11,6 +11,7 @@ const Login = () => {
     loginUser(values)
       .then(({ data }) => {
         localStorage.setItem("token", data.accessToken);
+        localStorage.setItem(`user`, JSON.stringify(data.user));
         toast.success("Dang nhap thanh cong");
         nav("/");
       })

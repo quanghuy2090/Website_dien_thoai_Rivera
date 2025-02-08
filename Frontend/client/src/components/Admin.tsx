@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const Admin = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== 1) {
     return (
       <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
         <div className="card text-center shadow p-4" style={{ maxWidth: "400px" }}>

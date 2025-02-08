@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { getAllProduct, Product } from "../../../services/product";
+import { getAllProduct, Product, searchProduct } from "../../../services/product";
 import { Link } from "react-router-dom";
 import { removeProduct } from "./../../../services/product";
 import toast from "react-hot-toast";
 
+
 const ListProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
-
+  const [search, setSearch] = useState<string>("");
   useEffect(() => {
     (async () => {
-      const res = await getAllProduct();
-      setProducts(res.data.data);
+      fetchProduct();
     })();
   }, []);
+
+  const fetchProduct = async () => {
+    const res = await getAllProduct();
+    setProducts(res.data.data);
+  }
   const deleteProduct = async (_id: string) => {
     try {
       const isConfirmed = confirm(`Are you sure you want to delete`);
@@ -28,9 +33,35 @@ const ListProduct = () => {
       toast.error("Product deleted unsuccessfully");
     }
   };
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (!search.trim()) {
+        fetchProduct(); // Nếu ô tìm kiếm trống, hiển thị tất cả sản phẩm
+        return;
+      }
+      try {
+        const result = await searchProduct(search);
+        setProducts(result?.data?.data || []);
+      } catch (error) {
+        console.log("Error searching products:", error);
+      }
+    };
 
+    // Debounce (tránh gọi API quá nhiều lần)
+    const delayDebounce = setTimeout(fetchSearchResults, 500); // Chờ 500ms sau khi nhập xong mới gọi API
+    return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
+  }, [search]);
   return (
     <div className="main-content">
+
+      <input
+        type="text" className="form-control"
+        placeholder="Nhập tên sản phẩm..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+
       <Link to={`/admin/products/add`} className="btn btn-primary">
         Add product
       </Link>
@@ -45,6 +76,8 @@ const ListProduct = () => {
             <th scope="col">color</th>
             <th scope="col">description</th>
             <th scope="col">categories</th>
+            <th scope="col">action</th>
+
           </tr>
         </thead>
         <tbody>
@@ -57,7 +90,17 @@ const ListProduct = () => {
                 <img src={product.image} alt="" width={100} />
               </td>
               <td>{product.stock}</td>
-              <td>{product.color}</td>
+              <td>
+                <div
+                  style={{
+                    width: "50px",
+                    height: "50px",
+                    backgroundColor: product.color,
+                    border: "1px solid #000",
+                    display: "inline-block"
+                  }}
+                ></div>
+              </td>
               <td>{product.description}</td>
               <td>
                 {/* Render category name if categoryId is an object */}

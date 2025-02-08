@@ -188,7 +188,6 @@ export const update = async (req, res) => {
           $pull: { products: oldProduct._id },
         });
       }
-
       // Thêm sản phẩm vào danh mục mới
       const newCategory = await Category.findByIdAndUpdate(
         req.body.categoryId,
@@ -244,7 +243,7 @@ export const searchProductByName = async (req, res) => {
       });
     }
     //tim kiem name
-    const products = await Product.find({ $text: { $search: name } });
+    const products = await Product.find({ $text: { $search: name } }).populate("categoryId");
     //neu khong co san pham ton tai
     if (products.length === 0) {
       return res.status(404).json({

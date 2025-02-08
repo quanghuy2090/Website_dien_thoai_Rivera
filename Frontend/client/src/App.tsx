@@ -40,8 +40,6 @@ function App() {
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/update/:id", element: <UpdateProduct /> }
-
-
       ]
     }
   ]);

@@ -121,3 +121,36 @@ export const remove = async (req, res) => {
     });
   }
 };
+export const searchCategoryByName = async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({
+        message: "Bạn cần phải nhập tên danh mục cần tìm",
+      });
+    }
+
+    // Tìm kiếm danh mục bằng regex (nếu không muốn dùng `$text`)
+    const categories = await Category.find({
+      name: { $regex: name, $options: "i" } // "i" để không phân biệt hoa/thường
+    });
+
+    if (categories.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy danh mục",
+      });
+    }
+
+    res.status(200).json({
+      message: "Tìm thấy danh mục",
+      data: categories,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Đã xảy ra lỗi khi tìm kiếm danh mục",
+      error: error.message,
+    });
+  }
+};
+
+
