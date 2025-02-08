@@ -28,7 +28,7 @@ export function AuthForm({ onSubmit }: Form) {
               required: "khong de trong",
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                message: "Can nhap dung dinh dang email",
+                message: "can phai nhap dung dinh dang email",
               },
             })}
           />
@@ -36,13 +36,13 @@ export function AuthForm({ onSubmit }: Form) {
         </div>
         <div className="mb-3">
           <label htmlFor="exampleInputPassword1" className="form-label">
-            Password
+            password
           </label>
           <input
             type="password"
             className="form-control"
             id="exampleInputPassword1"
-            {...register("password", { required: "khong duoc de trong password" })}
+            {...register("password", { required: "khong duoc de trong " })}
           />
           {errors?.password && <span>{errors.password.message}</span>}
         </div>

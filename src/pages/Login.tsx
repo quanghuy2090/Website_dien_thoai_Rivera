@@ -11,7 +11,7 @@ const Register = () => {
     loginUser(values)
       .then(({ data }) => {
         localStorage.setItem("token",  data.accessToken);
-        alert("Dang nhap thanh cong ");
+        alert("Dang nhap vao thanh cong ");
         nav("/");
       })
       .catch((error) => {
