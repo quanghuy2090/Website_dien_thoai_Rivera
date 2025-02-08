@@ -11,7 +11,7 @@ const Register = () => {
     loginUser(values)
       .then(({ data }) => {
         localStorage.setItem("token",  data.accessToken);
-        alert("dang nhap thanh cong ");
+        alert("Dang nhap thanh cong ");
         nav("/");
       })
       .catch((error) => {
@@ -20,7 +20,7 @@ const Register = () => {
   };
   return (
     <div>
-      <h4>Đăng nhập</h4>
+      <h4>Login</h4>
       <AuthForm onSubmit={handleLogin} />
     </div>
   );

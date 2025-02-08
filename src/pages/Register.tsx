@@ -19,7 +19,7 @@ const Register = () => {
   };
   return (
     <div>
-      <h4>trang dang nhap</h4>
+      <h4>Register</h4>
       <AuthForm onSubmit={handleRegister} />
     </div>
   );
