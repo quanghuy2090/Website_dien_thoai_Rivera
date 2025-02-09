@@ -14,6 +14,7 @@ import UpdateCategories from './pages/Admin/Categories/UpdateCategories';
 import ListProduct from "./pages/Admin/Product/ListProduct";
 import AddProduct from "./pages/Admin/Product/AddProduct";
 import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
+import HomePage from "./pages/Homepage";
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
       path: "",
       element: <ClientLayout />,
       children: [
+        { path: "/", element: <HomePage /> },
         { path: "/login", element: <Login /> },
         { path: "/register", element: <Register /> },
         { path: "/product-page", element: <ProductPage /> },
