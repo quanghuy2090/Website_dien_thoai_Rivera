@@ -299,6 +299,12 @@ ul.product-section-items-wrapper {
   margin-top: 50px;
   width: 90%;
   flex-wrap: wrap;
+  transition: opacity 0.5s ease;
+  opacity: 1;
+}
+
+.product-section-items-wrapper.fade-out {
+  opacity: 0; /* Fade out effect */
 }
 
 .product-item {
@@ -353,6 +359,26 @@ button.add-to-cart {
   padding: 7px 21px;
   border-radius: 7px;
   font-size: 16px;
+}
+
+.btn-seller {
+  background-color: initial; /* Set initial background color */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.btn-seller:hover {
+  background-color: blue; /* Change background color on hover */
+}
+
+.btn-seller:hover .btn-icon { /* Assuming you use a class like 'btn-icon' for your icons */
+  color: white; /* Change icon color on hover */
+}
+
+button.rounded-circle {
+  margin-top: 160px;
+}
+.btn-icon {
+  color: blue;
 }
 
 .promo-container {

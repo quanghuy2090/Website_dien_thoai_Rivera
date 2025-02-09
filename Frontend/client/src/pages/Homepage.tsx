@@ -1,4 +1,51 @@
+import { useEffect, useState } from "react";
+import { getAllProduct, Product } from "../services/product";
+import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
+
 const HomePage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [productsPerPage] = useState<number>(3);
+  const [fade, setFade] = useState<boolean>(false); // State for fade effect
+
+  useEffect(() => {
+    (async () => {
+      const res = await getAllProduct();
+      setProducts(res.data.data);
+    })();
+  }, []);
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(products.length / productsPerPage);
+
+  // Handle next and previous
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setFade(true); // Start fade out
+      setTimeout(() => {
+        setCurrentPage(currentPage + 1);
+        setFade(false); // Reset fade after changing page
+      }, 500); // Match the duration of your CSS transition
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setFade(true); // Start fade out
+      setTimeout(() => {
+        setCurrentPage(currentPage - 1);
+        setFade(false); // Reset fade after changing page
+      }, 500); // Match the duration of your CSS transition
+    }
+  };
+
   return (
     <div>
       <div>
@@ -111,68 +158,52 @@ const HomePage = () => {
             Lectus sapien auctor tortor quis pharetra ligula sapien eu augue.
             Praesent bibendum sapien ut est venenatis semper.
           </span>
-          <ul className="product-section-items-wrapper">
-            <li className="product-item">
-              <div className="product-image">
-                <img
-                  src="images/collection/watch.png"
-                  alt="Torquoise SmartWatch"
-                />
-              </div>
-              <div className="product-text">
-                <span className="product-title">
-                  Turquoise Light Blue
-                  <br />
-                  Single Wool Smartwatch
-                </span>
-                <div className="product-purchase">
-                  <span className="product-price">$300.00</span>
-                  <button className="blue-button add-to-cart">
-                    Add To Cart
-                  </button>
-                </div>
-              </div>
+          <ul
+            className={`product-section-items-wrapper ${
+              fade ? "fade-out" : ""
+            }`}
+          >
+            <li>
+              <button
+                className="btn btn-seller rounded-circle"
+                onClick={handlePrevious}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="btn-icon" />
+              </button>
             </li>
-            <li className="product-item">
-              <div className="product-image">
-                <img
-                  src="images/collection/ipad.png"
-                  alt="Torquoise SmartWatch"
-                />
-              </div>
-              <div className="product-text">
-                <span className="product-title">
-                  Sunshine Yellow Bright Curve-Edged Tablet
-                </span>
-                <div className="product-purchase">
-                  <span className="product-price">$200.00</span>
-                  <button className="blue-button add-to-cart">
-                    Add To Cart
-                  </button>
+            {currentProducts.map((item, index) => (
+              <li className="product-item" key={index}>
+                <div className="product-image">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    width={200}
+                    height={500}
+                  />
                 </div>
-              </div>
-            </li>
-            <li className="product-item">
-              <div className="product-image">
-                <img
-                  src="images/collection/headphone.png"
-                  alt="Sunshine Yellow Bright"
-                />
-              </div>
-              <div className="product-text">
-                <span className="product-title">
-                  Candyfloss Pink Two-Earpiece Headphone
-                </span>
-                <div className="product-purchase">
-                  <span className="product-price">$500.00</span>
-                  <button className="blue-button add-to-cart">
-                    Add To Cart
-                  </button>
+                <div className="product-text">
+                  <span className="product-title">{item.name}</span>
+                  <div className="product-purchase">
+                    <span className="product-price">{item.price}đ</span>
+                    <button className="blue-button add-to-cart">
+                      Add To Cart
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </li>
+            ))}
+            <li>
+              <button
+                className="btn btn-seller rounded-circle"
+                onClick={handleNext}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="btn-icon" />
+              </button>
             </li>
           </ul>
-        </div>{" "}
+        </div>
         {/* END OF BEST SELLERS - PRODUCT SECTION */}
         {/* IPAD PROMO */}
         <div className="promo-container">

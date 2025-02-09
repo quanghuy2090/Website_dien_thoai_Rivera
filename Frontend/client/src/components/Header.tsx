@@ -35,7 +35,12 @@ export function Header() {
         <nav>
           <div id="navbar">
             <div id="navbar-logo">
-              <img src="image/eLife.png" alt="eLife, Company Ecommerce Logo" width="140" height="70"/>
+              <img
+                src="image/eLife.png"
+                alt="eLife, Company Ecommerce Logo"
+                width="140"
+                height="70"
+              />
             </div>
             <div id="menu-bar">
               <svg
@@ -53,17 +58,33 @@ export function Header() {
             <div id="navbar-links">
               <ul>
                 <li>
-                  <a href="/">Home</a>
+                  <a href="/">Trang chủ</a>
                 </li>
                 <li>
-                  <a href="/product-page">Products</a>
+                  <a href="/product-page">Sản phẩm</a>
                 </li>
-                <li>
-                  <a href="#">Services</a>
-                </li>
-                <li>
-                  <a href="#">About</a>
-                </li>
+                {!token && (
+                  <>
+                    <li>
+                      <a href="/register">Đăng ký</a>
+                    </li>
+                    <li>
+                      <a href="/login">Đăng nhập</a>
+                    </li>
+                  </>
+                )}
+                {token && (
+                  <>
+                    <li>
+                      <a href="/admin">Admin</a>
+                    </li>
+                    <li>
+                      <a href="/login" onClick={handleLogout}>
+                        Logout
+                      </a>
+                    </li>
+                  </>
+                )}
               </ul>
               <div className="collection-tools" id="navbar-tools">
                 <a className="cart-link" href="#">
