@@ -6,22 +6,11 @@ import { loginUser, User } from "../services/auth";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const nav = useNavigate();
-  const handleLogin: SubmitHandler<User> = (values) => {
-    loginUser(values)
-      .then(({ data }) => {
-        localStorage.setItem("token",  data.accessToken);
-        alert("Dang nhap vao thanh cong ");
-        nav("/");
-      })
-      .catch((error) => {
-        toast.error("Error: " + error.message);
-      });
-  };
+  
   return (
     <div>
       <h4>Login</h4>
-      <AuthForm onSubmit={handleLogin} />
+      //<AuthForm onSubmit={handleLogin} />
     </div>
   );
 };
