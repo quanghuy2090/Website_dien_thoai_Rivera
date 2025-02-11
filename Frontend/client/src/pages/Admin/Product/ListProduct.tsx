@@ -52,7 +52,7 @@ const ListProduct = () => {
     return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
   }, [search]);
   return (
-    <div className="main-content">
+    <div className="col-md-10 ms-sm-auto px-md-4">
 
       <input
         type="text" className="form-control"
@@ -65,7 +65,7 @@ const ListProduct = () => {
       <Link to={`/admin/products/add`} className="btn btn-primary">
         Add product
       </Link>
-      <table className="table">
+      <table className="table table-striped table-bordered">
         <thead>
           <tr>
             <th scope="col">id</th>
@@ -86,17 +86,31 @@ const ListProduct = () => {
               <td>{product._id}</td>
               <td>{product.name}</td>
               <td>{product.price}</td>
-              <td>
-                {product.images.map((image) => (
-                  <img src={image} alt="" style={{
-                    width: "100px",
-                    height: "100px",
-                    objectFit: "cover", // Giữ đúng tỷ lệ ảnh, không bị méo
-                    borderRadius: "5px", // Bo góc ảnh
-                    marginRight: "5px"
-                  }} />
+              <td style={{ padding: "10px", textAlign: "center" }}>
+                <div style={{
+                  display: "flex",
+                  flexWrap: "wrap", // Tự động xuống hàng nếu quá nhiều ảnh
+                  gap: "5px", // Khoảng cách giữa các ảnh
+                  justifyContent: "center", // Căn giữa ảnh trong ô
+                }}>
+                  {product.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Product ${index}`}
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        objectFit: "cover",  // Giữ đúng tỷ lệ, không méo
+                        borderRadius: "8px", // Bo góc ảnh mềm mại hơn
+                        boxShadow: "0 2px 5px rgba(0,0,0,0.1)", // Hiệu ứng đổ bóng
+                        transition: "transform 0.2s", // Hiệu ứng khi hover
+                        cursor: "pointer"
+                      }}
 
-                ))}
+                    />
+                  ))}
+                </div>
               </td>
               <td>{product.stock}</td>
               <td>

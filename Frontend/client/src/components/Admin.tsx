@@ -20,16 +20,39 @@ const Admin = () => {
   }
   return (
     <div>
-      <div className="sidebar">
-        <h2>Admin Panel</h2>
-        <ul>
-          <li><a href="/"><i className="fas fa-users"></i>Home</a></li>
-          <li><a href="/admin/users"><i className="fas fa-users"></i> Users</a></li>
-          <li><a href="/admin/category"><i className="fas fa-tags"></i> Categories</a></li>
-          <li><a href="/admin/products"><i className="fas fa-box"></i> Products</a></li>
-          <li><a href="/admin/orders"><i className="fas fa-shopping-cart"></i> Orders</a></li>
-        </ul>
-      </div>
+      <nav className="col-md-2 d-md-block bg-dark sidebar vh-100">
+        <div className="position-sticky">
+          <h2 className="text-white text-center py-3">Admin Panel</h2>
+          <ul className="nav flex-column">
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/">
+                <i className="fas fa-home me-2"></i> Home
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/admin/users">
+                <i className="fas fa-users me-2"></i> Users
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/admin/category">
+                <i className="fas fa-tags me-2"></i> Categories
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/admin/products">
+                <i className="fas fa-box me-2"></i> Products
+              </a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link text-white" href="/admin/orders">
+                <i className="fas fa-shopping-cart me-2"></i> Orders
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </nav>
     </div>
 
   )

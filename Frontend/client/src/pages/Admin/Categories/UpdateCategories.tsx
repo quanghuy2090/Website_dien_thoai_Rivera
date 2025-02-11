@@ -32,7 +32,7 @@ const UpdateCategories = () => {
         nav("/admin/category")
     }
     return (
-        <div>
+        <div className=' col-md-10 ms-sm-auto px-md-4'>
             <form onSubmit={handleSubmit(onSubmit)} >
                 <div className='form-group'>
                     <label htmlFor="name">name</label>

@@ -55,19 +55,18 @@ const ListCategories = () => {
     return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
   }, [search]);
   return (
-    <div className='main-content'>
+    <div className='col-md-10 ms-sm-auto px-md-4'>
       <input
         type="text" className="form-control"
         placeholder="Nhập tên danh mục..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-
       <Link to={`/admin/category/add`} className='btn btn-primary' >add categories</Link>
-      <table className="table">
+      <table className="table table-striped table-bordered">
         <thead>
           <tr>
-            <th scope="col">id</th>
+            <th scope="col">id </th>
             <th scope="col">categories</th>
             <th scope="col">slug</th>
             <th scope="col">action</th>
