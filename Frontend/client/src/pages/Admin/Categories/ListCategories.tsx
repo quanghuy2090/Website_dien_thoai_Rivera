@@ -55,14 +55,15 @@ const ListCategories = () => {
     return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
   }, [search]);
   return (
-    <div className='col-md-10 ms-sm-auto px-md-4'>
+    <div className='col-md-10 ms-sm-auto px-md-4 '>
       <input
-        type="text" className="form-control"
-        placeholder="Nhập tên danh mục..."
+        type="text"
+        className="form-control border-primary shadow-sm my-3 p-2"
+        placeholder=" 🔍 Nhập tên danh mục..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <Link to={`/admin/category/add`} className='btn btn-primary' >add categories</Link>
+      <Link to={`/admin/category/add`} className='btn btn-primary mb-3 w-100' > ➕</Link>
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
@@ -79,8 +80,8 @@ const ListCategories = () => {
               <td>{category.name}</td>
               <td>{category.slug}</td>
               <td>
-                <button className='btn btn-danger' onClick={() => remove(category._id)}>delete</button>
-                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'>Update</Link>
+                <button className='btn btn-danger' onClick={() => remove(category._id)}> 🗑</button>
+                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'> ✏</Link>
               </td>
             </tr>
           ))}

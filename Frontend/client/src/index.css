@@ -1382,3 +1382,35 @@ footer {
     border-radius: 20px;
   }
 }
+
+
+
+/* Sidebar */
+.sidebar {
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: #343a40;
+  color: white;
+  width: 250px;
+  padding-top: 20px;
+  z-index: 1000; /* Đặt z-index cao để sidebar luôn hiển thị trên các phần tử khác */
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 250px; /* Đẩy navbar sang phải để tránh bị sidebar che */
+  width: calc(100% - 250px);
+  z-index: 999; /* Đặt thấp hơn sidebar */
+  background-color: #f8f9fa;
+}
+
+/* Content */
+.content {
+  margin-left: 250px;
+  padding: 20px;
+  margin-top: 10px; /* Để tránh bị navbar che mất phần đầu */
+}

@@ -15,6 +15,7 @@ import ListProduct from "./pages/Admin/Product/ListProduct";
 import AddProduct from "./pages/Admin/Product/AddProduct";
 import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
 import HomePage from "./pages/Homepage";
+import ListUser from "./pages/Admin/User/ListUser";
 
 
 function App() {
@@ -41,7 +42,8 @@ function App() {
         { path: "/admin/products", element: <ListProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
-        { path: "/admin/products/update/:id", element: <UpdateProduct /> }
+        { path: "/admin/products/update/:id", element: <UpdateProduct /> },
+        { path: "/admin/user", element: <ListUser /> }
       ]
     }
   ]);

@@ -124,76 +124,82 @@ const UpdateProduct = () => {
     }
   }
   return (
-    <div className='col-md-10 ms-sm-auto px-md-4'>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className='form-group'>
-          <label htmlFor="name">Name</label>
-          <input type="text" className='form-control'{...register("name", { required: true })} />
-          {errors.name && <p className='text-danger'>{errors.name.message}</p>}
-        </div>
-
-        <div className='form-group'>
-          <label htmlFor="price">Price</label>
-          <input type="number" className='form-control'{...register("price", { required: true, valueAsNumber: true })} />
-          {errors.price && <p className='text-danger'>{errors.price.message}</p>}
-        </div>
-
-        <div className='form-group'>
-          <label htmlFor="description">Description</label>
-          <input type="text" className='form-control'{...register("description", { required: true })} />
-          {errors.description && <p className='text-danger'>{errors.description.message}</p>}
-        </div>
-
-        <div className='form-group'>
-          <label htmlFor="images">Images</label>
-          {inputs.map((_, index) => (
-            <div key={index} className='relative'>
-              <input type="file" onChange={(e) => handleImageChange(e, index)} className='form-control' />
-              {previewImages[index] && (
-                <div className='mt-2 relative'>
-                  <img src={previewImages[index]} alt="" style={{
-                    width: "50px",
-                    height: "50px",
-                    objectFit: "cover",
-                    borderRadius: "5px",
-                    border: "1px solid #ddd"
-                  }} />
-                  <button type='button' className='btn btn-danger' onClick={() => removeInput(index)}>X</button>
-                </div>
-              )}
+    <div className='col-md-10 ms-sm-auto px-md-4 '>
+      <div className='row justify-content-center'>
+        <div className='col-md-8'>
+          <form onSubmit={handleSubmit(onSubmit)} className="p-4 border rounded shadow-sm bg-light">
+            <div className='form-group'>
+              <label htmlFor="name">Name</label>
+              <input type="text" className='form-control border-primary shadow-sm'{...register("name", { required: true })} />
+              {errors.name && <p className='text-danger'>{errors.name.message}</p>}
             </div>
-          ))}
 
-          <button type='button' className='btn btn-primary' onClick={addInput}>+ thêm ảnh</button>
-        </div>
+            <div className='form-group'>
+              <label htmlFor="price">Price</label>
+              <input type="number" className='form-control border-primary shadow-sm'{...register("price", { required: true, valueAsNumber: true })} />
+              {errors.price && <p className='text-danger'>{errors.price.message}</p>}
+            </div>
 
-        <div className='form-group'>
-          <label htmlFor="stock">Stock</label>
-          <input type="number" className='form-control'{...register("stock", { required: true, valueAsNumber: true })} />
-          {errors.stock && <p className='text-danger'>{errors.stock.message}</p>}
-        </div>
+            <div className='form-group'>
+              <label htmlFor="description">Description</label>
+              <input type="text" className='form-control border-primary shadow-sm'{...register("description", { required: true })} />
+              {errors.description && <p className='text-danger'>{errors.description.message}</p>}
+            </div>
 
-        <div className='form-group'>
-          <label htmlFor="color">Color</label>
-          <input type="text" className='form-control'{...register("color", { required: true })} />
-          {errors.color && <p className='text-danger'>{errors.color.message}</p>}
-        </div>
+            <div className='form-group'>
+              <label htmlFor="images">Images</label>
+              {inputs.map((_, index) => (
+                <div key={index} className='relative'>
+                  <input type="file" onChange={(e) => handleImageChange(e, index)} className='form-control border-primary shadow-sm' />
+                  {previewImages[index] && (
+                    <div className='mt-2 relative'>
+                      <img src={previewImages[index]} alt="" style={{
+                        width: "50px",
+                        height: "50px",
+                        objectFit: "cover",
+                        borderRadius: "5px",
+                        border: "1px solid #ddd"
+                      }} />
+                      <button type='button' className='btn btn-danger' onClick={() => removeInput(index)}>X</button>
+                    </div>
+                  )}
+                </div>
+              ))}
 
-        <div className='form-group'>
-          <select className='form-control'{...register("categoryId", { required: true })}>
-            {category.map((item) => (
-              <option key={item._id} value={item._id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-          {errors.categoryId && <p className='text-danger'>{errors.categoryId.message}</p>}
-        </div>
+              <button type='button' className='btn btn-outline-primary mt-2' onClick={addInput}>+ thêm ảnh</button>
+            </div>
 
-        <div className='form-group'>
-          <button className='btn btn-primary'>Submit</button>
+            <div className='form-group'>
+              <label htmlFor="stock">Stock</label>
+              <input type="number" className='form-control border-primary shadow-sm'{...register("stock", { required: true, valueAsNumber: true })} />
+              {errors.stock && <p className='text-danger'>{errors.stock.message}</p>}
+            </div>
+
+            <div className='form-group'>
+              <label htmlFor="color">Color</label>
+              <input type="text" className='form-control border-primary shadow-sm'{...register("color", { required: true })} />
+              {errors.color && <p className='text-danger'>{errors.color.message}</p>}
+            </div>
+
+            <div className='form-group'>
+              <label htmlFor="categoryId">Categories</label>
+              <select className='form-control border-primary shadow-sm'{...register("categoryId", { required: true })}>
+                {category.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              {errors.categoryId && <p className='text-danger'>{errors.categoryId.message}</p>}
+            </div>
+
+            <div className="text-center mt-2">
+              <button type="submit" className="btn btn-primary px-4 w-100">Submit</button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
+
     </div>
   )
 }
