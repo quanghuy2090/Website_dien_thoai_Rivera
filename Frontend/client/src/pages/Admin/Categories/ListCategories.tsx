@@ -64,7 +64,7 @@ const ListCategories = () => {
       />
 
       <Link to={`/admin/category/add`} className='btn btn-primary' >add categories</Link>
-      <table className="table-container">
+      <table className="table">
         <thead>
           <tr>
             <th scope="col">id</th>

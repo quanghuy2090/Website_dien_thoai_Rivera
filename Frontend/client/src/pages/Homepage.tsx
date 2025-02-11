@@ -159,9 +159,8 @@ const HomePage = () => {
             Praesent bibendum sapien ut est venenatis semper.
           </span>
           <ul
-            className={`product-section-items-wrapper ${
-              fade ? "fade-out" : ""
-            }`}
+            className={`product-section-items-wrapper ${fade ? "fade-out" : ""
+              }`}
           >
             <li>
               <button
@@ -175,12 +174,9 @@ const HomePage = () => {
             {currentProducts.map((item, index) => (
               <li className="product-item" key={index}>
                 <div className="product-image">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    width={200}
-                    height={500}
-                  />
+                  {item.images.length > 0 && (
+                    <img src={item.images[0]} alt="" />
+                  )}
                 </div>
                 <div className="product-text">
                   <span className="product-title">{item.name}</span>

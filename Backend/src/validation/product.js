@@ -5,7 +5,7 @@ export const productValidation = Joi.object({
   name: Joi.string().required().min(3).max(255),
   price: Joi.number().required(),
   description: Joi.string(),
-  image: Joi.string().uri(),
+  images: Joi.array().items(Joi.string()).required(),
   name: Joi.string().required().min(3).max(255).message({
     "any.require": "Tên sản phẩm là bắt buộc",
     "string.empty": "Tên sản phẩm không được để trống",
@@ -18,7 +18,7 @@ export const productValidation = Joi.object({
     "number.base": "Giá sản phẩm phải là số",
   }),
   description: Joi.string().optional(),
-  image: Joi.string().required(),
+  images: Joi.array().items(Joi.string()).required(),
   status: Joi.string().valid("active", "banned").default("active").messages({
     "any.only": 'Status chỉ có thể là "active" hoặc "banned".',
   }),

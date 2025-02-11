@@ -65,7 +65,7 @@ const ListProduct = () => {
       <Link to={`/admin/products/add`} className="btn btn-primary">
         Add product
       </Link>
-      <table className="table-container">
+      <table className="table">
         <thead>
           <tr>
             <th scope="col">id</th>
@@ -87,7 +87,16 @@ const ListProduct = () => {
               <td>{product.name}</td>
               <td>{product.price}</td>
               <td>
-                <img src={product.image} alt="" width={100} />
+                {product.images.map((image) => (
+                  <img src={image} alt="" style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover", // Giữ đúng tỷ lệ ảnh, không bị méo
+                    borderRadius: "5px", // Bo góc ảnh
+                    marginRight: "5px"
+                  }} />
+
+                ))}
               </td>
               <td>{product.stock}</td>
               <td>

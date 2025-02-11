@@ -5,13 +5,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getCategories } from '../../../services/category';
 import { updateProduct } from './../../../services/product';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import z from "zod"
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
 const productSchema = z.object({
   name: z.string().min(3).max(225),
   price: z.number().min(0),
-  image: z.any().refine((file) => file !== null && file !== undefined),
+  images: z.array(z.string()).max(5, "Chỉ được tải lên tối đa 5 ảnh").optional(),
   stock: z.number().min(0),
   color: z.string().nonempty(),
   description: z.string().nonempty(),
@@ -23,8 +23,60 @@ const UpdateProduct = () => {
   });
   const { id } = useParams();
   const [category, setCategory] = useState<Category[]>([]);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [inputFiles, setInputFiles] = useState<File[]>([]);
+  const [inputs, setInputs] = useState<number[]>([0]);
   const nav = useNavigate();
+
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    if (inputFiles.length >= 5) {
+      toast.error("Chỉ được tải lên tối đa 5 ảnh!");
+      return;
+    }
+    if (event.target.files) {
+      const file = event.target.files[0];
+      const imageUrl = URL.createObjectURL(file);
+
+      setInputFiles(prev => {
+        const newFiles = [...prev];
+        newFiles[index] = file;
+        return newFiles;
+      });
+
+      setPreviewImages(prev => {
+        const newPreviews = [...prev];
+        newPreviews[index] = imageUrl;
+        return newPreviews;
+      });
+    }
+  };
+
+  const addInput = () => {
+    if (inputFiles.length >= 5) {
+      toast.error("Chỉ được tải lên tối đa 5 ảnh!");
+      return;
+    }
+    setInputs(prev => [...prev, prev.length]);
+  };
+  const removeInput = (index: number) => {
+    setInputs(prev => prev.filter((_, i) => i !== index));
+    setInputFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImages = async (files: File[]) => {
+    const formData = new FormData();
+    files.forEach(file => formData.append("images", file));
+    const { data } = await axios.post("http://localhost:3000/api/file/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+    return data.imageUrls;
+  }
+
+
   useEffect(() => {
     (async () => {
       const { data } = await getCategories();
@@ -34,6 +86,9 @@ const UpdateProduct = () => {
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
+      const images = Array.isArray(data.data.images) ? data.data.images.slice(0, 5) : [data.data.images];
+      setPreviewImages(images);
+      setInputFiles(new Array(images.length).fill(null));
       console.log(data);
       toast.success("Product id successfully")
       setValue("name", data.data.name);
@@ -41,43 +96,23 @@ const UpdateProduct = () => {
       setValue("stock", data.data.stock);
       setValue("color", data.data.color);
       setValue("description", data.data.description);
-      setImagePreview(data.data.image);
+      // setPreviewImages(data.data.images);
       setValue("categoryId._id", data.data.categoryId);
     })()
   }, [])
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string); // Show image preview
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
-  const uploadImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append("image", file);
 
-    const { data } = await axios.post(
-      "http://localhost:3000/api/file/upload",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    return data.secure_url;
-  }
+
   const onSubmit = async (product: Product) => {
     try {
+      let imageUrls = previewImages; // Giữ lại ảnh cũ
 
-      if (product.image && product.image[0]) {
-        const imageUrl = await uploadImage(product.image[0]); // Gửi ảnh lên Cloudinary
-        product.image = imageUrl;
+      if (inputFiles.length > 0) {
+        imageUrls = await uploadImages(inputFiles);
       }
+
+      product.images = imageUrls; // 
+
       const { data } = await updateProduct(id!, product)
       console.log(data);
       toast.success("product updated successfully")
@@ -110,9 +145,26 @@ const UpdateProduct = () => {
         </div>
 
         <div className='form-group'>
-          <label htmlFor="image">Image</label>
-          <input type="file" className='form-control'{...register("image", { required: true })} onChange={handleImageChange} />
-          {imagePreview && <img src={imagePreview} alt="Image Preview" width="100" />}
+          <label htmlFor="images">Images</label>
+          {inputs.map((_, index) => (
+            <div key={index} className='relative'>
+              <input type="file" onChange={(e) => handleImageChange(e, index)} className='form-control' />
+              {previewImages[index] && (
+                <div className='mt-2 relative'>
+                  <img src={previewImages[index]} alt="" style={{
+                    width: "50px",
+                    height: "50px",
+                    objectFit: "cover",
+                    borderRadius: "5px",
+                    border: "1px solid #ddd"
+                  }} />
+                  <button type='button' className='btn btn-danger' onClick={() => removeInput(index)}>X</button>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button type='button' className='btn btn-primary' onClick={addInput}>+ them anh</button>
         </div>
 
         <div className='form-group'>
