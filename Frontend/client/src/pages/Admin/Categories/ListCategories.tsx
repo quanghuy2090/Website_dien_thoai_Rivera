@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { Category, deleteCategories, getCategories, searchCategory } from '../../../services/category'
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
+import { GrUpdate } from "react-icons/gr";
+import { IoMdAdd } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
 
 const ListCategories = () => {
   const [category, setCategory] = useState<Category[]>([]);
@@ -59,11 +61,11 @@ const ListCategories = () => {
       <input
         type="text"
         className="form-control border-primary shadow-sm my-3 p-2"
-        placeholder=" 🔍 Nhập tên danh mục..."
+        placeholder="  Nhập tên danh mục..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <Link to={`/admin/category/add`} className='btn btn-primary mb-3 w-100' > ➕</Link>
+      <Link to={`/admin/category/add`} className='btn btn-primary mb-3 w-100' > <IoMdAdd /></Link>
       <table className="table table-striped table-bordered">
         <thead>
           <tr>
@@ -80,8 +82,8 @@ const ListCategories = () => {
               <td>{category.name}</td>
               <td>{category.slug}</td>
               <td>
-                <button className='btn btn-danger' onClick={() => remove(category._id)}> 🗑</button>
-                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'> ✏</Link>
+                <button className='btn btn-danger' onClick={() => remove(category._id)}> <MdDelete /></button>
+                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'> <GrUpdate /></Link>
               </td>
             </tr>
           ))}

@@ -3,7 +3,9 @@ import { getAllProduct, Product, searchProduct } from "../../../services/product
 import { Link } from "react-router-dom";
 import { removeProduct } from "../../../services/product";
 import toast from "react-hot-toast";
-
+import { GrUpdate } from "react-icons/gr";
+import { IoMdAdd } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
 const ListProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -57,14 +59,14 @@ const ListProduct = () => {
       <input
         type="text"
         className="form-control border-primary shadow-sm my-3 p-2"
-        placeholder="🔍 Nhập tên sản phẩm..."
+        placeholder=" Nhập tên sản phẩm..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
 
       {/* Nút thêm sản phẩm */}
       <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
-        ➕
+        <IoMdAdd />
       </Link>
 
       {/* Bảng danh sách sản phẩm */}
@@ -148,10 +150,10 @@ const ListProduct = () => {
                 {/* Nút hành động */}
                 <td>
                   <button className="btn btn-danger" onClick={() => deleteProduct(product._id)}>
-                    🗑
+                    <MdDelete />
                   </button>
                   <Link to={`/admin/products/update/${product._id}`} className="btn btn-warning">
-                    ✏
+                    <GrUpdate />
                   </Link>
                 </td>
               </tr>

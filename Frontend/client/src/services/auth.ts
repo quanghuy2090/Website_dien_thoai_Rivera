@@ -7,7 +7,8 @@ export type User = {
   password: string;
   address: string;
   phone: string;
-  role: string;
+  role: number;
+  status: string;
   confirmPassword: string;
 };
 
@@ -26,4 +27,16 @@ export const getUser = () => {
 
 export const deleteUser = (_id: string) => {
   return http.delete(`/auth/user/${_id}`);
+}
+
+export const getDetailUser = (_id:string) => {
+  return http.get(`/auth/user/${_id}`);
+}
+
+export const updateStatus = (userId:string,status:string) => {
+  return http.put(`auth/user/${userId}`,{status});
+}
+
+export const updateRole = (userId:string,role:number) => {
+  return http.put(`auth/user-role/${userId}`,{role})
 }

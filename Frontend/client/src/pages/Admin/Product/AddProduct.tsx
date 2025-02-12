@@ -93,7 +93,7 @@ const AddProduct = () => {
 
   }
   return (
-    <div className='col-md-10 ms-sm-auto px-md-4'>
+    <div className='col-md-10 ms-sm-auto px-md-4 mt-5'>
       <div className='row justify-content-center'>
 
         <div className='col-md-8'>
