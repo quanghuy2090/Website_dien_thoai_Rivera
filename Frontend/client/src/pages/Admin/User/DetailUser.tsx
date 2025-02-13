@@ -38,7 +38,7 @@ const DetailUser = () => {
 
     return (
         <div className='detail-container col-md-10 ms-sm-auto px-md-4 mt-5'>
-            <table className="table table-bordered table-striped">
+            <table className="table table-bordered">
                 <tbody>
                     <tr>
                         <th>ID</th>
