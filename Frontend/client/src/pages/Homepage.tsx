@@ -3,6 +3,7 @@ import { getAllProduct, Product } from "../services/product";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import { addCart, Cart } from "../services/cart";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -211,7 +212,7 @@ const HomePage = () => {
                   )}
                 </div>
                 <div className="product-text">
-                  <span className="product-title">{item.name}</span>
+                  <Link to={`/product/${item._id}`} className="product-title">{item.name}</Link>
                   <div className="product-purchase">
                     <span className="product-price">{item.price}đ</span>
                     <button
