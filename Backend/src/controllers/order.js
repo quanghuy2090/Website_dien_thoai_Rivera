@@ -51,8 +51,6 @@ export const createOrder = async (req, res) => {
   }
 };
 
-
-
 // Cập nhật trạng thái đơn hàng
 export const updateOrder = async (req, res) => {
   const { orderId } = req.params;
@@ -65,7 +63,6 @@ export const updateOrder = async (req, res) => {
       return res.status(404).json({ message: "Đơn hàng không tồn tại" });
     }
 
-
     // Các trạng thái hợp lệ
     const validStatuses = [
       "Chưa xác nhận",
@@ -74,7 +71,7 @@ export const updateOrder = async (req, res) => {
       "Đã giao hàng",
       "Đã nhận hàng",
       "Hoàn thành",
-      "Đã huỷ",
+      "Đã hủy",
     ];
 
     if (!validStatuses.includes(orderStatus)) {
@@ -86,20 +83,26 @@ export const updateOrder = async (req, res) => {
     // Cập nhật trạng thái đơn hàng
     order.orderStatus = orderStatus;
 
-    if (orderStatus === "Đã huỷ") {
+    if (orderStatus === "Đã hủy") {
       // Nếu trạng thái là huỷ đơn, lưu lý do huỷ
       order.cancellationReason = cancellationReason || "Không có lý do";
       order.cancelledByAdmin = cancelledByAdmin || null; // Ghi nhận admin huỷ nếu có
     }
 
-    if(orderStatus === "Đã giao hàng" ){
-        order.orderStatus = "Đã giao hàng";
-        order.paymentStatus = "Đã thanh toán";
+    if (orderStatus === "Đã giao hàng") {
+      order.orderStatus = "Đã giao hàng";
+      order.paymentStatus = "Đã thanh toán";
     }
 
     // Nếu trạng thái là "Đã nhận hàng", tự động chuyển thành "Hoàn thành"
     if (orderStatus === "Đã nhận hàng") {
       order.orderStatus = "Hoàn thành";
+    }
+    //Nếu đang hủy không thể chuyển trạng thái
+    if (order.orderStatus === "Đã hủy") {
+      return res.status(400).json({
+        message: "Đơn hàng  Đã hủy, không thể cập nhật trạng thái",
+      });
     }
 
     // Nếu không phải trạng thái huỷ, lưu đơn hàng và trả về kết quả
@@ -115,3 +118,45 @@ export const updateOrder = async (req, res) => {
   }
 };
 
+// Hủy đơn hàng
+
+export const removeOrder = async (req, res) => {
+  const { orderId } = req.params;
+  const { cancellationReason } = req.body; // Lý do huỷ đơn hàng
+
+  try {
+    // Kiểm tra xem đơn hàng có tồn tại không
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Đơn hàng không tồn tại" });
+    }
+
+    // Kiểm tra trạng thái đơn hàng có thể huỷ hay không
+    if (
+      order.orderStatus !== "Chưa xác nhận" &&
+      order.orderStatus !== "Đã xác nhận"
+    ) {
+      return res.status(400).json({
+        message:
+          "Đơn hàng không thể huỷ khi không ở trạng thái 'Chưa xác nhận' hoặc 'Đã xác nhận'.",
+      });
+    }
+
+    // Cập nhật trạng thái đơn hàng thành "Đã huỷ"
+    order.orderStatus = "Đã hủy";
+
+    // Lưu lý do huỷ nếu có
+    order.cancellationReason = cancellationReason || "Không có lý do";
+
+    // Lưu đơn hàng sau khi cập nhật
+    await order.save();
+
+    return res.status(200).json({
+      message: "Đơn hàng đã được huỷ thành công",
+      order,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Lỗi server" });
+  }
+};
