@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { Category, deleteCategories, getCategories, searchCategory } from '../../../services/category'
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-
+import { GrUpdate } from "react-icons/gr";
+import { IoMdAdd } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
 
 const ListCategories = () => {
   const [category, setCategory] = useState<Category[]>([]);
@@ -55,19 +57,19 @@ const ListCategories = () => {
     return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
   }, [search]);
   return (
-    <div className='main-content'>
+    <div className='col-md-10 ms-sm-auto px-md-4 '>
       <input
-        type="text" className="form-control"
-        placeholder="Nhập tên danh mục..."
+        type="text"
+        className="form-control border-primary shadow-sm my-3 p-2"
+        placeholder="  Nhập tên danh mục..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-
-      <Link to={`/admin/category/add`} className='btn btn-primary' >add categories</Link>
-      <table className="table-container">
+      <Link to={`/admin/category/add`} className='btn btn-primary mb-3 w-100' > <IoMdAdd /></Link>
+      <table className="table table-striped table-bordered">
         <thead>
           <tr>
-            <th scope="col">id</th>
+            <th scope="col">id </th>
             <th scope="col">categories</th>
             <th scope="col">slug</th>
             <th scope="col">action</th>
@@ -80,8 +82,8 @@ const ListCategories = () => {
               <td>{category.name}</td>
               <td>{category.slug}</td>
               <td>
-                <button className='btn btn-danger' onClick={() => remove(category._id)}>delete</button>
-                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'>Update</Link>
+                <button className='btn btn-danger' onClick={() => remove(category._id)}> <MdDelete /></button>
+                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'> <GrUpdate /></Link>
               </td>
             </tr>
           ))}

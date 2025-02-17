@@ -15,9 +15,9 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    image: {
-      type: String,
-      require: true,
+    images: {
+      type: [String],
+      required: true,
     },
     // Trang thai san pham: active(bật), banned(ẩn)
     status: {

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { getAllProduct, Product } from "../services/product";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
-import { Footer } from "../components/Footer";
+import { addCart, Cart } from "../services/cart";
+import toast from "react-hot-toast";
 
 const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -44,6 +45,36 @@ const HomePage = () => {
         setCurrentPage(currentPage - 1);
         setFade(false); // Reset fade after changing page
       }, 500); // Match the duration of your CSS transition
+    }
+  };
+
+  const addToCart = async (product: Product) => {
+    try {
+
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user || !user._id) {
+        toast("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {
+        });
+        return;
+      }
+      const cart: Cart = {
+        _id: "", // Backend tự tạo `_id`
+        product: product,
+        userId: user._id, // Chỉ lấy `_id` của user
+        quantity: 1,
+        productId: product._id, // Đảm bảo có productId
+      };
+
+      // 🛠 Gửi request thêm vào giỏ hàng
+      const { data } = await addCart(cart);
+
+      // 🎉 Hiển thị thông báo thành công
+      toast.success("Cart added successfully");
+
+      console.log("🛒 Thêm vào giỏ hàng:", data);
+    } catch (error) {
+      console.error(" Lỗi khi thêm vào giỏ hàng:", error);
+      toast.error("Error");
     }
   };
 
@@ -160,9 +191,8 @@ const HomePage = () => {
             Praesent bibendum sapien ut est venenatis semper.
           </span>
           <ul
-            className={`product-section-items-wrapper ${
-              fade ? "fade-out" : ""
-            }`}
+            className={`product-section-items-wrapper ${fade ? "fade-out" : ""
+              }`}
           >
             <li>
               <button
@@ -176,20 +206,21 @@ const HomePage = () => {
             {currentProducts.map((item, index) => (
               <li className="product-item" key={index}>
                 <div className="product-image">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    width={200}
-                    height={500}
-                  />
+                  {item.images.length > 0 && (
+                    <img src={item.images[0]} alt="" />
+                  )}
                 </div>
                 <div className="product-text">
                   <span className="product-title">{item.name}</span>
                   <div className="product-purchase">
                     <span className="product-price">{item.price}đ</span>
-                    <button className="blue-button add-to-cart">
+                    <button
+                      className="blue-button add-to-cart"
+                      onClick={() => addToCart(item)}
+                    >
                       Add To Cart
                     </button>
+
                   </div>
                 </div>
               </li>
@@ -232,7 +263,7 @@ const HomePage = () => {
         {/* END OF IPAD PROMO */}
         <Footer/>
       </div>
-    </div>
+    </div >
   );
 };
 

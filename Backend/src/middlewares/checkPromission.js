@@ -23,6 +23,7 @@ export const checkPromission = async (req, res, next) => {
         message: "Token loi",
       });
     }
+    req.user = user;
     if (user.role !== 1) {
       return res.status(400).json({
         message: "Ban khong co quyen lam viec nay",
