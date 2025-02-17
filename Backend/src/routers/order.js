@@ -1,9 +1,10 @@
 import express from "express";
-import { createOrder } from "../controllers/order.js";
+import { createOrder, updateOrder } from "../controllers/order.js";
 
 const routerOrder = express.Router();
 
 // Tạo đơn hàng từ giỏ hàng
 routerOrder.post("/", createOrder);
+routerOrder.put("/:orderId", updateOrder);
 
 export default routerOrder;

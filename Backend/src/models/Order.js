@@ -52,6 +52,8 @@ const orderSchema = new mongoose.Schema(
       enum: ["Chưa xác nhận", "Đã xác nhận", "Đang giao hàng", "Đã giao hàng", "Hoàn thành", "Đã huỷ"],
       default: "Chưa xác nhận",
     },
+    cancellationReason: { type: String }, // Lý do huỷ đơn
+    cancelledByAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" }, // Lưu tài khoản admin huỷ đơn (nếu có)
   },
   {
     timestamps: true,
