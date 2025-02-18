@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getDetailUser, updateRole, updateStatus, User } from '../../../services/auth';
 import { useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 
 const DetailUser = () => {
@@ -11,6 +12,7 @@ const DetailUser = () => {
         const fetchDetailUser = async (_id: string) => {
             const res = await getDetailUser(_id);
             setUsers(res.data.data);
+            toast.success("User details successfully")
         };
         if (id) {
             fetchDetailUser(id);
@@ -21,8 +23,10 @@ const DetailUser = () => {
         try {
             const { data } = await updateStatus(userId, status);
             setUsers(prevUsers => prevUsers ? { ...prevUsers, status: data.user.status } : prevUsers);
+            toast.success("Updated status successfully")
         } catch (error) {
             console.error("Lỗi khi cập nhật trạng thái:", error);
+            toast.error("Error: " + error)
         }
     };
 
@@ -30,9 +34,10 @@ const DetailUser = () => {
         try {
             const { data } = await updateRole(userId, role);
             setUsers(prevUser => prevUser ? { ...prevUser, role: data.user.role } : prevUser);
+            toast.success("Role updated successfully")
         } catch (error) {
             console.error("Lỗi khi cập nhật vai trò:", error);
-            alert("Cập nhật thất bại. Vui lòng thử lại!");
+            toast.error("Error");
         }
     };
 

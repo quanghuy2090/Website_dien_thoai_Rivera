@@ -17,6 +17,7 @@ import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
 import HomePage from "./pages/Homepage";
 import ListUser from "./pages/Admin/User/ListUser";
 import DetailUser from "./pages/Admin/User/DetailUser";
+import Cart from "./pages/Cart";
 
 
 function App() {
@@ -30,8 +31,10 @@ function App() {
         { path: "/register", element: <Register /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
+        { path: "/cart", element: <Cart /> },
       ],
     },
+
     {
       path: "/admin",
       element: <AdminLayout />,
@@ -42,10 +45,10 @@ function App() {
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },
         { path: "/admin/products", element: <ListProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
-        { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/update/:id", element: <UpdateProduct /> },
         { path: "/admin/user", element: <ListUser /> },
-        { path: "/admin/user/:id", element: <DetailUser /> }
+        { path: "/admin/user/:id", element: <DetailUser /> },
+
       ]
     }
   ]);

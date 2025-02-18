@@ -89,7 +89,7 @@ export function Header() {
                 )}
               </ul>
               <div className="collection-tools" id="navbar-tools">
-                <a className="cart-link" href="#">
+                <a className="cart-link" href="/cart">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width={20}

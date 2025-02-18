@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getProductById, Product } from '../services/product';
 import { useParams } from 'react-router-dom';
 import './ProductDetail.css';
+import toast from 'react-hot-toast';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -10,6 +11,7 @@ const ProductDetail = () => {
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
+      toast.success("Product id Successfully")
       setProducts(data.data);
       setMainImage(data.data.images[0]);
     })();

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getAllProduct, Product } from "../services/product";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
-import { addCart, Cart } from "../services/cart";
+import { addCart, Carts } from "../services/cart";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -59,21 +59,19 @@ const HomePage = () => {
         nav("/login");
 
       }
-      const cart: Cart = {
+      const cart: Carts = {
         _id: "", // Backend tự tạo `_id`
-        product: product,
         userId: user._id, // Chỉ lấy `_id` của user
         quantity: 1,
         productId: product._id, // Đảm bảo có productId
       };
-
       // 🛠 Gửi request thêm vào giỏ hàng
       const { data } = await addCart(cart);
 
       // 🎉 Hiển thị thông báo thành công
       toast.success("Cart added successfully");
 
-      console.log("🛒 Thêm vào giỏ hàng:", data);
+      console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
       console.error(" Lỗi khi thêm vào giỏ hàng:", error);
       toast.error("Error");
