@@ -8,6 +8,7 @@ function App() {
    
     { path: "register", element: <Register /> },
     { path: "login", element: <Login /> },
+   
   ]);
   return (
     <>
@@ -23,12 +24,12 @@ function App() {
             >
               <li className="nav-item">
                 <Link className="nav-link active" to="/">
-                  Home
+                  home
                 </Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/register">
-                  Register
+                  Registr
                 </Link>
               </li>
               <li className="nav-item">
@@ -36,16 +37,7 @@ function App() {
                   Login
                 </Link>
               </li>
-              {/* <li className="nav-item">
-                <Link className="nav-link active" to="/product/add">
-                  Add Product
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link active" to="/product/list">
-                  List Product
-                </Link>
-              </li> */}
+             
             </ul>
           </div>
           <button className="btn btn-danger">Logout</button>

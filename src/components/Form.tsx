@@ -25,7 +25,7 @@ export function AuthForm({ onSubmit }: Form) {
             id="exampleInputEmail1"
             aria-describedby="emailHelp"
             {...register("email", {
-              required: "khong de trong",
+              required: "khong de trong truong email",
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
                 message: " phai nhap dung dinh dang email",
@@ -42,7 +42,7 @@ export function AuthForm({ onSubmit }: Form) {
             type="password"
             className="form-control"
             id="exampleInputPassword1"
-            {...register("password", { required: "khong de trong " })}
+            {...register("password", { required: "khong de trong truong password" })}
           />
           {errors?.password && <span>{errors.password.message}</span>}
         </div>
