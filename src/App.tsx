@@ -24,11 +24,13 @@ function App() {
             >
               <li className="nav-item">
                 <Link className="nav-link active" to="/">
-                  home
+
+                  Home
                 </Link>
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/register">
+
                   Registr
                 </Link>
               </li>
@@ -40,7 +42,7 @@ function App() {
              
             </ul>
           </div>
-          <button className="btn btn-danger">Logout</button>
+          
         </div>
       </nav>
       <div className="container">{routes}</div>
