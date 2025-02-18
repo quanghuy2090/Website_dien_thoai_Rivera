@@ -1,9 +1,56 @@
-import React from 'react'
+import { useForm } from "react-hook-form";
+import { User } from "../services/auth";
 
-const Login = () => {
+type Form = {
+  onSubmit: (values: User) => void;
+};
+
+export function AuthForm({ onSubmit }: Form) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<User>();
   return (
-    <div>Login</div>
-  )
-}
+    <>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        
+        <div className="mb-3">
+          <label htmlFor="exampleInputEmail1" className="form-label">
+            Email 
+          </label>
+          <input
+            type="email"
+            className="form-control"
+            id="exampleInputEmail1"
+            aria-describedby="emailHelp"
+            {...register("email", {
+              required: "khong de trong",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                message: "can phai nhap dung dinh dang email",
+              },
+            })}
+          />
+          {errors?.email && <span>{errors.email.message}</span>}
+        </div>
+        <div className="mb-3">
+          <label htmlFor="exampleInputPassword1" className="form-label">
+            password
+          </label>
+          <input
+            type="password"
+            className="form-control"
+            id="exampleInputPassword1"
+            {...register("password", { required: "khong duoc de trong " })}
+          />
+          {errors?.password && <span>{errors.password.message}</span>}
+        </div>
 
-export default Login
+        <button type="submit" className="btn btn-primary">
+          Submit
+        </button>
+      </form>
+    </>
+  );
+}
