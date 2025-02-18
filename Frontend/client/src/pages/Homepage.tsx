@@ -3,14 +3,14 @@ import { getAllProduct, Product } from "../services/product";
 import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import { addCart, Cart } from "../services/cart";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [productsPerPage] = useState<number>(3);
   const [fade, setFade] = useState<boolean>(false); // State for fade effect
-
+  const nav = useNavigate();
   useEffect(() => {
     (async () => {
       const res = await getAllProduct();
@@ -54,9 +54,10 @@ const HomePage = () => {
 
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (!user || !user._id) {
-        toast("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {
         });
-        return;
+        nav("/login");
+
       }
       const cart: Cart = {
         _id: "", // Backend tự tạo `_id`

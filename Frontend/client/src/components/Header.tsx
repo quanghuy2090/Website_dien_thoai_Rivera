@@ -4,6 +4,8 @@ export function Header() {
   const token = localStorage.getItem("token");
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
   };
 
   useEffect(() => {

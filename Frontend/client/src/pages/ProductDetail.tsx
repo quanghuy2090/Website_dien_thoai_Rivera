@@ -6,12 +6,12 @@ import './ProductDetail.css';
 const ProductDetail = () => {
   const { id } = useParams();
   const [products, setProducts] = useState<Product | null>(null);
-
+  const [mainImage, setMainImage] = useState<string | null>(null);
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
-      console.log(data);
       setProducts(data.data);
+      setMainImage(data.data.images[0]);
     })();
   }, [id]);
 
@@ -19,15 +19,15 @@ const ProductDetail = () => {
     <div className="product-detail">
       <div className="product-images">
         <div className="thumbnail-images">
-          {products?.images.slice(1, 5).map((img, index) => (
-            <div key={index} className="thumbnail-container">
-              <img src={img} alt={`Thumbnail ${index + 1}`} />
+          {products?.images.map((img, index) => (
+            <div key={index} className={`${img === mainImage}`} onClick={() => setMainImage(img)}>
+              <img src={img} alt={`${index + 1}`} />
             </div>
           ))}
         </div>
 
         <div className="main-image">
-          <img src={products?.images[0]} alt="Main Product" />
+          <img src={mainImage!} alt="" />
         </div>
       </div>
 
