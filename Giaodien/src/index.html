@@ -1,0 +1,753 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Shop Rivera</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./output.css" />
+  </head>
+
+  <body class="font-sans">
+    <!-- Header Section -->
+    <section>
+      <header class="bg-white py-4">
+        <div class="container mx-auto flex items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center">
+            <img
+              alt="Mobile Store Logo"
+              class="h-10 w-10"
+              height="50"
+              src="../src/images/logo.png"
+              width="50"
+            />
+            <div class="ml-2">
+              <h1 class="text-lg font-bold text-blue-600">Shop Rivera</h1>
+              <p class="text-sm text-gray-500">Thế giới điện thoại</p>
+            </div>
+          </div>
+          <!-- Search Bar -->
+          <div class="flex-1 mx-4">
+            <input
+              class="w-full border border-gray-300 rounded-full px-4 py-2"
+              placeholder="Nhập từ khóa bạn cần tìm..."
+              type="text"
+            />
+          </div>
+          <!-- Account and Cart -->
+          <div class="flex items-center space-x-4">
+            <a class="text-gray-600 hover:text-lg hover:font-bold" href="#">
+              Tài khoản
+            </a>
+            <a
+              class="text-gray-600 hover:text-lg hover:font-bold"
+              href="login.html"
+            >
+              Đăng nhập
+            </a>
+            <a class="text-gray-600 hover:text-lg hover:font-bold" href="#">
+              <i class="fas fa-heart"> </i>
+            </a>
+            <a
+              class="relative text-gray-600 hover:text-lg hover:font-bold"
+              href="cart.html"
+            >
+              <i class="fas fa-shopping-cart"> </i>
+              <span
+                class="absolute top-0 right-0 bg-orange-500 text-white text-xs rounded-full px-1"
+              >
+              </span>
+            </a>
+          </div>
+        </div>
+      </header>
+    </section>
+
+    <!-- Thanh menu -->
+    <section>
+      <nav class="bg-blue-500">
+        <div
+          class="container mx-auto flex justify-around py-2 text-white text-xl"
+        >
+          <a class="hover:text-xxl hover:font-bold" href="#"> Trang chủ </a>
+          <a class="hover:text-xxl hover:font-bold" href="product.html">
+            Điện thoại
+          </a>
+          <a class="hover:text-xxl hover:font-bold" href="#"> Thông tin </a>
+          <a class="hover:text-xxl hover:font-bold" href="#"> Bài viết </a>
+          <a class="hover:text-xxl hover:font-bold" href="#"> CSKH </a>
+        </div>
+      </nav>
+    </section>
+
+    <!-- banner slides -->
+    <section>
+      <img class="w-full" src="../src/images/slider_3.jpg" alt="w-full" />
+    </section>
+
+    <!-- các thương hiệu lớn -->
+    <section>
+      <div class="container mx-auto p-4 mt-11">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div
+            class="bg-white p-4 flex flex-col items-center font-semibold border border-solid border-yellow-500 hover:bg-slate-300"
+          >
+            <img
+              alt="Nexus phone"
+              class="w-48 h-auto"
+              height="300"
+              src="../src/images/nexus.png"
+              width="200"
+            />
+            <img src="../src/images/display_img_1.png" alt="" />
+          </div>
+          <div
+            class="bg-white p-4 flex flex-col items-center border border-solid border-yellow-500 hover:bg-slate-300"
+          >
+            <img
+              alt="iPhone"
+              class="w-48 h-auto"
+              height="300"
+              src="../src/images/iphone.png"
+              width="200"
+            />
+            <img src="../src/images/display_img_2.png" alt="" />
+          </div>
+          <div
+            class="bg-white p-4 flex flex-col items-center border border-solid border-yellow-500 hover:bg-slate-300"
+          >
+            <img
+              alt="Samsung phone"
+              class="w-48 h-auto"
+              height="300"
+              src="../src/images/samsung.png"
+              width="200"
+            />
+            <img src="../src/images/display_img_3.png" alt="" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+          <div
+            class="bg-white p-4 flex flex-col items-center border border-solid border-yellow-500 hover:bg-slate-300"
+          >
+            <img
+              alt="HTC phone"
+              class="w-48 h-auto"
+              height="300"
+              src="../src/images/htc.png"
+              width="200"
+            />
+            <img src="../src/images/display_img_4.png" alt="" />
+          </div>
+          <div
+            class="bg-white p-4 flex flex-col items-center border border-solid border-yellow-500 hover:bg-slate-300"
+          >
+            <img
+              alt="Alcatel phone"
+              class="w-48 h-auto"
+              height="300"
+              src="../src/images/alcatel.png"
+              width="200"
+            />
+            <img src="../src/images/display_img_5.png" alt="" />
+          </div>
+          <div
+            class="bg-white p-4 flex flex-col items-center border border-solid border-yellow-500 hover:bg-slate-300"
+          >
+            <img
+              alt="Pixel phone"
+              class="w-48 h-auto"
+              height="300"
+              src="../src/images/pixel.png"
+              width="200"
+            />
+            <img src="../src/images/display_img_6.png" alt="" />
+          </div>
+          <div
+            class="bg-white p-4 flex flex-col items-center border border-solid border-yellow-500 hover:bg-slate-300"
+          >
+            <img
+              alt="Pixel phone"
+              class="w-48 h-auto"
+              height="300"
+              src="../src/images/vivo.png"
+              width="200"
+            />
+            <img src="../src/images/display_img_7.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sản phẩm nổi bật -->
+    <section>
+      <div class="container mx-auto px-4 mt-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Sản phẩm mới nhất
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Product 1 -->
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="container mx-auto px-4 mt-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Sản phẩm bán chạy
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Product 1 -->
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold"> (128GB, Black) </span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm"> $1400 </span>
+              <span class="text-green-500 text-sm ml-2"> 20% off </span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <a href="cart.html">
+                  <i class="fas fa-shopping-cart"></i>
+                </a>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="container mx-auto px-4 mt-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Sản phẩm khuyến mãi
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Product 1 -->
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold"> (128GB, Black) </span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm"> $1400 </span>
+              <span class="text-green-500 text-sm ml-2"> 20% off </span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <a href="cart.html">
+                  <i class="fas fa-shopping-cart"></i>
+                </a>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+          <div
+            class="bg-white border-2 p-6 rounded-lg shadow hover:shadow-lg border border-gray-300 hover:border-gray-600"
+          >
+            <a href="product-detail.html">
+              <img
+                alt="Google Pixel (128GB, Black)"
+                class="w-48 h-auto mx-auto mb-4"
+                src="../src/images/product_img_1.png"
+              />
+            </a>
+            <h3 class="text-gray-700 text-lg font-medium mb-2">
+              Google Pixel
+              <span class="font-semibold">(128GB, Black)</span>
+            </h3>
+            <div class="text-orange-500 text-xl font-bold">
+              $1100
+              <span class="text-gray-500 line-through text-sm">$1400</span>
+              <span class="text-green-500 text-sm ml-2">20% off</span>
+            </div>
+            <div class="flex justify-center items-center space-x-4 mt-4">
+              <button class="text-orange-500 hover:text-orange-600 text-xl">
+                <i class="fas fa-heart"></i>
+              </button>
+              <button class="text-blue-500 hover:text-blue-600 text-xl">
+                <i class="fas fa-shopping-cart"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slogan -->
+    <div class="mx-auto py-10 bg-blue-600 mt-16">
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-white text-center"
+      >
+        <div>
+          <div class="flex justify-center mb-4">
+            <i
+              class="fas fa-credit-card text-4xl border-2 border-white rounded-full p-4"
+            ></i>
+          </div>
+          <h3 class="text-xl font-semibold">Thanh toán an toàn</h3>
+          <p>
+            Mang đến dịch vụ trải nghiệm thoải mái, an toàn, tiện lợi cho quý
+            khách hàng!
+          </p>
+        </div>
+        <div>
+          <div class="flex justify-center mb-4">
+            <i
+              class="fas fa-users text-4xl border-2 border-white rounded-full p-4"
+            ></i>
+          </div>
+          <h3 class="text-xl font-semibold">Hỗ trợ nhiệt tình</h3>
+          <p>
+            Tư vấn thông tin trung thực, nhanh chóng, chăm sóc quý khách hàng
+            24/7!
+          </p>
+        </div>
+        <div>
+          <div class="flex justify-center mb-4">
+            <i
+              class="fas fa-undo text-4xl border-2 border-white rounded-full p-4"
+            ></i>
+          </div>
+          <h3 class="text-xl font-semibold">Đổi trả miễn phí</h3>
+          <p>Miễn phí bảo hành đổi trả lên đến 365 ngày!</p>
+        </div>
+        <div>
+          <div class="flex justify-center mb-4">
+            <i
+              class="fas fa-dollar-sign text-4xl border-2 border-white rounded-full p-4"
+            ></i>
+          </div>
+          <h3 class="text-xl font-semibold">Giá cả hài hòa</h3>
+          <p>Giá thành tốt nhất trong thị trường. Cập nhật sản phẩm 24/7!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <section>
+      <footer class="bg-white py-8">
+        <div class="container mx-auto px-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Thông tin hỗ trợ -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Thông tin hỗ trợ</h3>
+              <ul class="space-y-2">
+                <li class="flex items-center">
+                  <i class="fas fa-map-marker-alt mr-2 text-blue-500"> </i>
+                  <span> Quận Nam Từ Liêm, Hà Nội </span>
+                </li>
+                <li class="flex items-center">
+                  <i class="fas fa-phone-alt mr-2 text-blue-500"> </i>
+                  <span> 0123 456 789 </span>
+                </li>
+                <li class="flex items-center">
+                  <i class="fas fa-envelope mr-2 text-blue-500"> </i>
+                  <span> rivera2025@gmail.com </span>
+                </li>
+              </ul>
+            </div>
+            <!-- Tiện ích -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Tiện ích</h3>
+              <ul class="space-y-2">
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Mobie
+                  </a>
+                </li>
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    About
+                  </a>
+                </li>
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Blog
+                  </a>
+                </li>
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Contact
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- Chính sách -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Chính sách</h3>
+              <ul class="space-y-2">
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Thanh toán
+                  </a>
+                </li>
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Hủy, trả hàng
+                  </a>
+                </li>
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Giao hàng và vận chuyển
+                  </a>
+                </li>
+                <li>
+                  <a class="text-gray-600 hover:text-blue-500" href="#">
+                    Chính sách bảo mật
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <!-- Liên lạc với chúng tôi -->
+            <div>
+              <h3 class="text-lg font-semibold mb-4">
+                Tương tác với chúng tôi
+              </h3>
+              <div class="flex space-x-4">
+                <a class="text-blue-500" href="#">
+                  <i class="fab fa-facebook-f"> </i>
+                </a>
+                <a class="text-blue-400" href="#">
+                  <i class="fab fa-twitter"> </i>
+                </a>
+                <a class="text-red-500" href="#">
+                  <i class="fab fa-google-plus-g"> </i>
+                </a>
+                <a class="text-blue-700" href="#">
+                  <i class="fab fa-linkedin-in"> </i>
+                </a>
+                <a class="text-red-600" href="#">
+                  <i class="fab fa-pinterest"> </i>
+                </a>
+                <a class="text-pink-500" href="#">
+                  <i class="fab fa-instagram"> </i>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="mt-8 border-t pt-4 flex flex-col md:flex-row items-center justify-between"
+          >
+            <div class="flex space-x-4">
+              <img
+                alt="PayPal logo"
+                height="30"
+                src="https://storage.googleapis.com/a1aa/image/HAdu2fnjgMwvLydYBY8CCsGHoogDj9IUMqjYrUd6F7wZeR8TA.jpg"
+                width="50"
+              />
+              <img
+                alt="MasterCard logo"
+                height="30"
+                src="https://storage.googleapis.com/a1aa/image/SfJ5cVVwXerzCUkWLTSVJfgASBl74LaYtERxO6vJfdbHzHxPB.jpg"
+                width="50"
+              />
+              <img
+                alt="Visa logo"
+                height="30"
+                src="https://storage.googleapis.com/a1aa/image/npagVq4SNEY4GJWPsWJsPP6EgrBtYo3o3SBOm4XjHcCMfIeTA.jpg"
+                width="50"
+              />
+              <img
+                alt="Discover logo"
+                height="30"
+                src="https://storage.googleapis.com/a1aa/image/gwNxgqtz2ALVLpBrnZOw6iq8knCicTyGDKY4J4jgzsTNfIeTA.jpg"
+                width="50"
+              />
+            </div>
+            <p class="text-gray-600 text-sm mt-4 md:mt-0">
+              Copyright © Rivera 2025 Template Designed by
+              <span class="text-orange-500"> Team Rivera </span>
+            </p>
+          </div>
+        </div>
+      </footer>
+    </section>
+  </body>
+</html>
