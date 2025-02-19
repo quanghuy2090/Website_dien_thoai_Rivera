@@ -96,7 +96,7 @@ const UpdateProduct = () => {
       setValue("stock", data.data.stock);
       setValue("color", data.data.color);
       setValue("description", data.data.description);
-      // setPreviewImages(data.data.images);
+      setPreviewImages(data.data.images);
       setValue("categoryId._id", data.data.categoryId);
     })()
   }, [])

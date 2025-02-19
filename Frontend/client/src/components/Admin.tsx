@@ -5,6 +5,7 @@ const Admin = () => {
   const token = localStorage.getItem("token");
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
