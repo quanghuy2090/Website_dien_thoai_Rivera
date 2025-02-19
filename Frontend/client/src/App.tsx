@@ -31,10 +31,10 @@ function App() {
         { path: "/register", element: <Register /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
-        { path: "/cart", element: <Cart /> },
+
       ],
     },
-
+    { path: "/cart", element: <Cart /> },
     {
       path: "/admin",
       element: <AdminLayout />,

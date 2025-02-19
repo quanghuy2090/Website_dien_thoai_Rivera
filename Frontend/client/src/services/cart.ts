@@ -16,4 +16,7 @@ export const addCart = (cart:Carts) => {
 export const getCart = (userId: string) => {
     return http.get(`/cart/${userId}`);
 }
+export const deleteCart = (userId:string,productId:string) => {
+    return http.delete(`/cart/${userId}/${productId}`);
+}
 
