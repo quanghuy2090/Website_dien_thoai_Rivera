@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { Carts, deleteCart, getCart } from './../services/cart';
 import toast from 'react-hot-toast';
+import { Carts, deleteCart, getCart } from '../services/cart';
 
 const Cart = () => {
     const [carts, setCarts] = useState<Carts[]>([]);
