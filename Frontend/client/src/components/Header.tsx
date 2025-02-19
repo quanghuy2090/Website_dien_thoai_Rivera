@@ -6,6 +6,7 @@ export function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   const toggleDropdown = (e: React.MouseEvent) => {
@@ -134,7 +135,7 @@ export function Header() {
                     <a href="/product-page" className="nav-item nav-link">
                       Sản phẩm
                     </a>
-                    <a href="" className="nav-item nav-link">
+                    <a href="/cart" className="nav-item nav-link">
                       Giỏ hàng
                     </a>
                     {/* <a href="" className="nav-item nav-link">

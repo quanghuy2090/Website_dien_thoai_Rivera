@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { getAllProduct, Product } from "../services/product";
-import { addCart, Cart } from "../services/cart";
+import { addCart, Carts } from "../services/cart";
 import toast from "react-hot-toast";
 import { Footer } from "../components/Footer";
 import { Carousel } from "../components/Carousel";
+import { Link, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [scrolling, setScrolling] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [productsPerPage] = useState<number>(4);
+  const nav = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -42,28 +44,29 @@ const HomePage = () => {
   );
 
   const totalPages = Math.ceil(products.length / productsPerPage);
-
   const addToCart = async (product: Product) => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (!user || !user._id) {
-        toast("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
-        return;
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
+        nav("/login");
       }
-      const cart: Cart = {
-        _id: "",
-        product: product,
-        userId: user._id,
+      const cart: Carts = {
+        _id: "", // Backend tự tạo `_id`
+        userId: user._id, // Chỉ lấy `_id` của user
         quantity: 1,
-        productId: product._id,
+        productId: product._id, // Đảm bảo có productId
       };
-
+      // 🛠 Gửi request thêm vào giỏ hàng
       const { data } = await addCart(cart);
-      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-      console.log("🛒 Thêm vào giỏ hàng:", data);
+
+      // 🎉 Hiển thị thông báo thành công
+      toast.success("Cart added successfully");
+
+      console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
-      console.error("Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
+      console.error(" Lỗi khi thêm vào giỏ hàng:", error);
+      toast.error("Error");
     }
   };
 
@@ -190,13 +193,14 @@ const HomePage = () => {
                 <div className="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
                   <img
                     className="img-fluid"
-                    width={200}
                     src={product.images[0]}
                     alt={product.name}
                   />
                 </div>
                 <div className="card-body border-left border-right text-center p-0 pt-4 pb-3">
-                  <h6 className="text-truncate mb-3">{product.name}</h6>
+                  <Link to={`/product/${product._id}`}>
+                    <h6 className="text-truncate mb-3">{product.name}</h6>
+                  </Link>
                   <div className="d-flex justify-content-center">
                     <h6>${product.price}</h6>
                   </div>
