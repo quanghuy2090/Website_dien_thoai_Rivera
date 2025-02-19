@@ -1,21 +1,38 @@
 import { useEffect, useState } from "react";
 import { getAllProduct, Product } from "../services/product";
-import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import { addCart, Cart } from "../services/cart";
 import toast from "react-hot-toast";
+import { Footer } from "../components/Footer";
+import { Carousel } from "../components/Carousel";
 
 const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [scrolling, setScrolling] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [productsPerPage] = useState<number>(3);
-  const [fade, setFade] = useState<boolean>(false); // State for fade effect
+  const [productsPerPage] = useState<number>(4);
 
   useEffect(() => {
-    (async () => {
+    const fetchProducts = async () => {
       const res = await getAllProduct();
       setProducts(res.data.data);
-    })();
+    };
+    fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolling(window.scrollY > 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -24,246 +41,211 @@ const HomePage = () => {
     indexOfLastProduct
   );
 
-  // Calculate total pages
   const totalPages = Math.ceil(products.length / productsPerPage);
-
-  // Handle next and previous
-  const handleNext = () => {
-    if (currentPage < totalPages) {
-      setFade(true); // Start fade out
-      setTimeout(() => {
-        setCurrentPage(currentPage + 1);
-        setFade(false); // Reset fade after changing page
-      }, 500); // Match the duration of your CSS transition
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      setFade(true); // Start fade out
-      setTimeout(() => {
-        setCurrentPage(currentPage - 1);
-        setFade(false); // Reset fade after changing page
-      }, 500); // Match the duration of your CSS transition
-    }
-  };
 
   const addToCart = async (product: Product) => {
     try {
-
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (!user || !user._id) {
-        toast("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {
-        });
+        toast("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
         return;
       }
       const cart: Cart = {
-        _id: "", // Backend tự tạo `_id`
+        _id: "",
         product: product,
-        userId: user._id, // Chỉ lấy `_id` của user
+        userId: user._id,
         quantity: 1,
-        productId: product._id, // Đảm bảo có productId
+        productId: product._id,
       };
 
-      // 🛠 Gửi request thêm vào giỏ hàng
       const { data } = await addCart(cart);
-
-      // 🎉 Hiển thị thông báo thành công
-      toast.success("Cart added successfully");
-
+      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
       console.log("🛒 Thêm vào giỏ hàng:", data);
     } catch (error) {
-      console.error(" Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Error");
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
     }
   };
 
   return (
-    <div>
-      <div>
-        {/* TOP */}
-        <div id="home-top-container">
-          <div id="home-top-wrapper">
-            <div id="home-top-text">
-              <h1>Track Your Steps With Quality Smartwatch</h1>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Suspendisse pellentesque, ante vitae cursus elementum, lectus
-                sapien auctor tortor, quis pharetra ligula sapien eu augue.
-              </p>
-              <button className="blue-button">See Collection</button>
+    <>
+      <Carousel />
+      {/* Featured Start */}
+      <div className="container-fluid pt-5">
+        <div className="row px-xl-5 pb-3 text-center">
+          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
+            <div
+              className="d-flex align-items-center border mb-4"
+              style={{ padding: 30 }}
+            >
+              <h1 className="fa fa-check text-primary m-0 mr-3" />
+              <h5 className="font-weight-semi-bold m-0">Quality Product</h5>
             </div>
-            <div id="home-top-image">
-              <img src="image/topwatch.png" alt="Large Blue Smartwatch" />
+          </div>
+          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
+            <div
+              className="d-flex align-items-center border mb-4"
+              style={{ padding: 30 }}
+            >
+              <h1 className="fa fa-shipping-fast text-primary m-0 mr-2" />
+              <h5 className="font-weight-semi-bold m-0">Free Shipping</h5>
+            </div>
+          </div>
+          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
+            <div
+              className="d-flex align-items-center border mb-4"
+              style={{ padding: 30 }}
+            >
+              <h1 className="fas fa-exchange-alt text-primary m-0 mr-3" />
+              <h5 className="font-weight-semi-bold m-0">14-Day Return</h5>
+            </div>
+          </div>
+          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
+            <div
+              className="d-flex align-items-center border mb-4"
+              style={{ padding: 30 }}
+            >
+              <h1 className="fa fa-phone-volume text-primary m-0 mr-3" />
+              <h5 className="font-weight-semi-bold m-0">24/7 Support</h5>
             </div>
           </div>
         </div>
-        {/* OUR COLLECTION/ TYPES OF PRODUCTS SELLING */}
-        <div id="collection-container">
-          <h1>Our Collection</h1>
-          <div id="collection-items-wrapper">
-            <div className="collection-item">
-              <div className="collection-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={50}
-                  height={50}
-                  fill="currentColor"
-                  className="bi bi-headphones"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 3a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a6 6 0 1 1 12 0v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1V8a5 5 0 0 0-5-5" />
-                </svg>
-              </div>
-              <span className="collection-name">Headphone</span>
-            </div>
-            <div className="collection-item">
-              <div className="collection-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={50}
-                  height={50}
-                  fill="currentColor"
-                  className="bi bi-phone"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                  <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
-                </svg>
-              </div>
-              <span className="collection-name">Phone</span>
-            </div>
-            <div className="collection-item">
-              <div className="collection-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={50}
-                  height={50}
-                  fill="currentColor"
-                  className="bi bi-smartwatch"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M9 5a.5.5 0 0 0-1 0v3H6a.5.5 0 0 0 0 1h2.5a.5.5 0 0 0 .5-.5z" />
-                  <path d="M4 1.667v.383A2.5 2.5 0 0 0 2 4.5v7a2.5 2.5 0 0 0 2 2.45v.383C4 15.253 4.746 16 5.667 16h4.666c.92 0 1.667-.746 1.667-1.667v-.383a2.5 2.5 0 0 0 2-2.45V8h.5a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5H14v-.5a2.5 2.5 0 0 0-2-2.45v-.383C12 .747 11.254 0 10.333 0H5.667C4.747 0 4 .746 4 1.667M4.5 3h7A1.5 1.5 0 0 1 13 4.5v7a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 11.5v-7A1.5 1.5 0 0 1 4.5 3" />
-                </svg>
-              </div>
-              <span className="collection-name">Smartwatch</span>
-            </div>
-            <div className="collection-item">
-              <div className="collection-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={50}
-                  height={50}
-                  fill="currentColor"
-                  className="bi bi-tablet-landscape"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1zm-1 8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2z" />
-                  <path d="M14 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0" />
-                </svg>
-              </div>
-              <span className="collection-name">Tablet</span>
-            </div>
-            <div className="collection-item">
-              <div className="collection-icon">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width={50}
-                  height={50}
-                  fill="currentColor"
-                  className="bi bi-laptop"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M13.5 3a.5.5 0 0 1 .5.5V11H2V3.5a.5.5 0 0 1 .5-.5zm-11-1A1.5 1.5 0 0 0 1 3.5V12h14V3.5A1.5 1.5 0 0 0 13.5 2zM0 12.5h16a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 12.5" />
-                </svg>
-              </div>
-              <span className="collection-name">PC</span>
+      </div>
+
+      {/* Categories Start */}
+      <div className="container-fluid pt-5">
+        <div className="row px-xl-5 pb-3">
+          <div className="col-lg-4 col-md-6 pb-1">
+            <div
+              className="cat-item d-flex flex-column border mb-4"
+              style={{ padding: 30 }}
+            >
+              <p className="text-right">15 Products</p>
+              <a
+                href="#"
+                className="cat-img position-relative overflow-hidden mb-3"
+              >
+                <img
+                  className="img-fluid"
+                  src="img/cat-1.jpg"
+                  alt="Category 1"
+                />
+              </a>
+              <h5 className="font-weight-semi-bold m-0">Women's Dresses</h5>
             </div>
           </div>
-        </div>{" "}
-        {/* END OF PRODUCT COLLECTION*/}
-        {/* BEST SELLERS – PRODUCT SECTION */}
-        <div className="product-section-container">
-          <h1>Best Sellers</h1>
-          <span className="product-section-description">
-            Lectus sapien auctor tortor quis pharetra ligula sapien eu augue.
-            Praesent bibendum sapien ut est venenatis semper.
-          </span>
-          <ul
-            className={`product-section-items-wrapper ${fade ? "fade-out" : ""
-              }`}
-          >
-            <li>
-              <button
-                className="btn btn-seller rounded-circle"
-                onClick={handlePrevious}
-                disabled={currentPage === 1}
+          <div className="col-lg-4 col-md-6 pb-1">
+            <div
+              className="cat-item d-flex flex-column border mb-4"
+              style={{ padding: 30 }}
+            >
+              <p className="text-right">10 Products</p>
+              <a
+                href="#"
+                className="cat-img position-relative overflow-hidden mb-3"
               >
-                <ChevronLeft className="btn-icon" />
-              </button>
-            </li>
-            {currentProducts.map((item, index) => (
-              <li className="product-item" key={index}>
-                <div className="product-image">
-                  {item.images.length > 0 && (
-                    <img src={item.images[0]} alt="" />
-                  )}
-                </div>
-                <div className="product-text">
-                  <span className="product-title">{item.name}</span>
-                  <div className="product-purchase">
-                    <span className="product-price">{item.price}đ</span>
-                    <button
-                      className="blue-button add-to-cart"
-                      onClick={() => addToCart(item)}
-                    >
-                      Add To Cart
-                    </button>
+                <img
+                  className="img-fluid"
+                  src="img/cat-2.jpg"
+                  alt="Category 2"
+                />
+              </a>
+              <h5 className="font-weight-semi-bold m-0">Men's Fashion</h5>
+            </div>
+          </div>
+          <div className="col-lg-4 col-md-6 pb-1">
+            <div
+              className="cat-item d-flex flex-column border mb-4"
+              style={{ padding: 30 }}
+            >
+              <p className="text-right">8 Products</p>
+              <a
+                href="#"
+                className="cat-img position-relative overflow-hidden mb-3"
+              >
+                <img
+                  className="img-fluid"
+                  src="img/cat-3.jpg"
+                  alt="Category 3"
+                />
+              </a>
+              <h5 className="font-weight-semi-bold m-0">Kids' Clothes</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Categories End */}
 
+      {/* Products Start */}
+      <div className="container-fluid pt-5">
+        <div className="text-center mb-4">
+          <h2 className="section-title px-5">
+            <span className="px-2">Trendy Products</span>
+          </h2>
+        </div>
+        <div className="row px-xl-5 pb-3">
+          {currentProducts.map((product) => (
+            <div key={product._id} className="col-lg-3 col-md-6 col-sm-12 pb-1">
+              <div className="card product-item border-0 mb-4">
+                <div className="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                  <img
+                    className="img-fluid"
+                    width={200}
+                    src={product.images[0]}
+                    alt={product.name}
+                  />
+                </div>
+                <div className="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                  <h6 className="text-truncate mb-3">{product.name}</h6>
+                  <div className="d-flex justify-content-center">
+                    <h6>${product.price}</h6>
                   </div>
                 </div>
-              </li>
-            ))}
-            <li>
-              <button
-                className="btn btn-seller rounded-circle"
-                onClick={handleNext}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="btn-icon" />
-              </button>
-            </li>
-          </ul>
-        </div>
-        {/* END OF BEST SELLERS - PRODUCT SECTION */}
-        {/* IPAD PROMO */}
-        <div className="promo-container">
-          <div className="promo-box">
-            <div className="promo-image">
-              <img
-                src="images/collection/ipad.png"
-                alt="Candyfloss Pink Two-Earpiece Headphone"
-              />
-            </div>
-            <div className="promo-content">
-              <h1>New Arrivals</h1>
-              <h2>Sunshine Ipad</h2>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Curabitur tristique quam eget eros convallis, sit amet
-                pellentesque.
-              </p>
-              <div>
-                <button className="white-button">SHOP NOW</button>
+                <div className="card-footer d-flex justify-content-between bg-light border">
+                  <button
+                    className="btn btn-sm text-dark p-0"
+                    onClick={() => addToCart(product)}
+                  >
+                    <i className="fas fa-shopping-cart text-primary mr-1" />
+                    Add To Cart
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>{" "}
-        {/* END OF IPAD PROMO */}
-        <Footer/>
+          ))}
+        </div>
+        {/* Pagination */}
+        <div className="d-flex justify-content-center mb-4">
+          <button
+            className="btn btn-primary"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          >
+            Prev
+          </button>
+          <span className="mx-2">
+            {currentPage} of {totalPages}
+          </span>
+          <button
+            className="btn btn-primary"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+          >
+            Next
+          </button>
+        </div>
       </div>
-    </div >
+      {/* Products End */}
+      {/* Back to top button */}
+      <button
+        className={`back-to-top ${scrolling ? "show" : ""}`}
+        onClick={scrollToTop}
+      >
+        <i className="fa fa-angle-up" />
+      </button>
+
+      <Footer />
+    </>
   );
 };
 

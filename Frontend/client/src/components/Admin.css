@@ -11,7 +11,7 @@
 }
 
 /* Navbar */
-.navbar {
+.navbar-admin {
   position: fixed;
   top: 0;
   left: 250px; /* Đẩy navbar sang phải để tránh bị sidebar che */
