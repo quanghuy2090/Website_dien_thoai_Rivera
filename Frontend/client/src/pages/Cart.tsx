@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Carts, deleteCart, getCart } from './../services/cart';
+import toast from 'react-hot-toast';
 
 const Cart = () => {
     const [carts, setCarts] = useState<Carts[]>([]);
@@ -24,7 +25,7 @@ const Cart = () => {
 
     const fetchCart = async (userId: string) => {
         try {
-            console.log("🔍 Fetching cart for user ID:", userId);
+            console.log(" Fetching cart for user ID:", userId);
             const { data } = await getCart(userId);
             console.log("Dữ liệu giỏ hàng:", data);
             setCarts(data.cart.items || []);
@@ -52,10 +53,12 @@ const Cart = () => {
 
                 // Gửi request xóa sản phẩm khỏi backend
                 await deleteCart(userId, productId);
+                toast.success("Cart deleted successfully")
                 console.log(" Sản phẩm đã được xóa, tổng tiền cập nhật:", newTotalAmount);
             }
         } catch (error) {
             console.error(" Lỗi khi xóa sản phẩm khỏi giỏ hàng:", error);
+            toast.error("Error")
         }
     };
 
