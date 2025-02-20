@@ -10,7 +10,7 @@ import AdminLayout from "./layout/AdminLayout";
 import Dashboard from "./pages/Admin/Dashboard";
 import AddCategories from "./pages/Admin/Categories/AddCategories";
 import ListCategories from "./pages/Admin/Categories/ListCategories";
-import UpdateCategories from './pages/Admin/Categories/UpdateCategories';
+import UpdateCategories from "./pages/Admin/Categories/UpdateCategories";
 import ListProduct from "./pages/Admin/Product/ListProduct";
 import AddProduct from "./pages/Admin/Product/AddProduct";
 import UpdateProduct from "./pages/Admin/Product/UpdateProduct";
@@ -19,7 +19,6 @@ import ListUser from "./pages/Admin/User/ListUser";
 import DetailUser from "./pages/Admin/User/DetailUser";
 import Cart from "./pages/Cart";
 
-
 function App() {
   const routes = useRoutes([
     {
@@ -27,14 +26,14 @@ function App() {
       element: <ClientLayout />,
       children: [
         { path: "/", element: <HomePage /> },
-        { path: "/login", element: <Login /> },
-        { path: "/register", element: <Register /> },
+        { path: "/cart", element: <Cart /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
-
       ],
     },
-    { path: "/cart", element: <Cart /> },
+
+    { path: "/login", element: <Login /> },
+    { path: "/register", element: <Register /> },
     {
       path: "/admin",
       element: <AdminLayout />,
@@ -48,9 +47,8 @@ function App() {
         { path: "/admin/products/update/:id", element: <UpdateProduct /> },
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
-
-      ]
-    }
+      ],
+    },
   ]);
   return (
     <>

@@ -3,6 +3,7 @@ import { Category, getCategories } from "../services/category";
 
 export function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [scrolling, setScrolling] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const token = localStorage.getItem("token");
 
@@ -13,6 +14,21 @@ export function Header() {
     };
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolling(window.scrollY > 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -80,13 +96,15 @@ export function Header() {
               </a>
               {dropdownOpen && (
                 <nav
-                  className="navbar-vertical navbar-light align-items-start p-0 position-absolute"
-                  style={{ height: 410, zIndex: 1000, left: 0, top: 65 }}
+                  className="navbar-vertical navbar-light border align-items-start p-0 position-absolute"
+                  style={{ zIndex: 1000, left: 12, top: 65, width: "92%" }} // Adjust width
                 >
-                  <div className="navbar-nav w-100 overflow-hidden">
-                    {categories.map((categories) => (
-                      <a href="" className="nav-item nav-link">
-                        {categories.name}
+                  <div className="navbar-nav w-100 overflow-hidden border bg-white">
+                    {" "}
+                    {/* Set min height */}
+                    {categories.map((category, index) => (
+                      <a key={index} href="#" className="nav-item nav-link">
+                        {category.name}
                       </a>
                     ))}
                   </div>
@@ -166,6 +184,13 @@ export function Header() {
           </div>
         </div>
         {/* Navbar End */}
+        {/* Back to top button */}
+        <button
+          className={`back-to-top ${scrolling ? "show" : ""}`}
+          onClick={scrollToTop}
+        >
+          <i className="fa fa-angle-up" />
+        </button>
       </div>
     </>
   );

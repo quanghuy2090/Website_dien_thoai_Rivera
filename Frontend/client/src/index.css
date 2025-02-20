@@ -765,7 +765,6 @@ pre code {
 .col-xl-auto {
   position: relative;
   width: 100%;
-
 }
 
 .col {
@@ -6230,8 +6229,9 @@ a.close.disabled {
 
 .carousel-inner {
   position: relative;
-  width: 100%;
+  width: 80%;
   overflow: hidden;
+  justify-self: center;
 }
 
 .carousel-inner::after {
@@ -9896,7 +9896,6 @@ a.text-dark:focus {
   padding: 8px 30px;
 }
 
-
 #header-carousel img {
   width: 100%;
   height: 100%;
@@ -9976,13 +9975,13 @@ a.text-dark:focus {
   position: fixed;
   bottom: 30px;
   right: 30px;
+  width: 40px;
   display: none; /* Initially hidden */
   z-index: 1000;
-  background: #007bff;
+  background: #6ba8fd;
   color: #fff;
   border: none;
   padding: 10px;
-  border-radius: 50%;
   cursor: pointer;
   transition: opacity 0.3s ease, visibility 0.3s ease; /* Added transition */
   opacity: 0; /* Start hidden */

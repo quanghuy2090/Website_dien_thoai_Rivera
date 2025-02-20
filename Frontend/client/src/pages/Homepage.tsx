@@ -8,7 +8,6 @@ import { Link, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [scrolling, setScrolling] = useState(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [productsPerPage] = useState<number>(4);
   const nav = useNavigate();
@@ -20,21 +19,6 @@ const HomePage = () => {
     };
     fetchProducts();
   }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolling(window.scrollY > 100);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -82,7 +66,9 @@ const HomePage = () => {
               style={{ padding: 30 }}
             >
               <h1 className="fa fa-check text-primary m-0 mr-3" />
-              <h5 className="font-weight-semi-bold m-0">Quality Product</h5>
+              <h5 className="font-weight-semi-bold m-0">
+                Sản phẩm chất lượng cao
+              </h5>
             </div>
           </div>
           <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
@@ -91,7 +77,7 @@ const HomePage = () => {
               style={{ padding: 30 }}
             >
               <h1 className="fa fa-shipping-fast text-primary m-0 mr-2" />
-              <h5 className="font-weight-semi-bold m-0">Free Shipping</h5>
+              <h5 className="font-weight-semi-bold m-0">Miễn phí vận chuyển</h5>
             </div>
           </div>
           <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
@@ -100,7 +86,9 @@ const HomePage = () => {
               style={{ padding: 30 }}
             >
               <h1 className="fas fa-exchange-alt text-primary m-0 mr-3" />
-              <h5 className="font-weight-semi-bold m-0">14-Day Return</h5>
+              <h5 className="font-weight-semi-bold m-0">
+                Hoàn trả trong 14 ngày
+              </h5>
             </div>
           </div>
           <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
@@ -109,7 +97,7 @@ const HomePage = () => {
               style={{ padding: 30 }}
             >
               <h1 className="fa fa-phone-volume text-primary m-0 mr-3" />
-              <h5 className="font-weight-semi-bold m-0">24/7 Support</h5>
+              <h5 className="font-weight-semi-bold m-0">Hỗ trợ 24/7</h5>
             </div>
           </div>
         </div>
@@ -183,7 +171,7 @@ const HomePage = () => {
       <div className="container-fluid pt-5">
         <div className="text-center mb-4">
           <h2 className="section-title px-5">
-            <span className="px-2">Trendy Products</span>
+            <span className="px-2">Sản phẩm bán chạy</span>
           </h2>
         </div>
         <div className="row px-xl-5 pb-3">
@@ -211,7 +199,7 @@ const HomePage = () => {
                     onClick={() => addToCart(product)}
                   >
                     <i className="fas fa-shopping-cart text-primary mr-1" />
-                    Add To Cart
+                    Thêm giỏ hàng
                   </button>
                 </div>
               </div>
@@ -224,7 +212,7 @@ const HomePage = () => {
             className="btn btn-primary"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           >
-            Prev
+            Trước
           </button>
           <span className="mx-2">
             {currentPage} of {totalPages}
@@ -235,19 +223,11 @@ const HomePage = () => {
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
           >
-            Next
+            Sau
           </button>
         </div>
       </div>
-      {/* Products End */}
-      {/* Back to top button */}
-      <button
-        className={`back-to-top ${scrolling ? "show" : ""}`}
-        onClick={scrollToTop}
-      >
-        <i className="fa fa-angle-up" />
-      </button>
-
+      {/* Products End */}     
       <Footer />
     </>
   );

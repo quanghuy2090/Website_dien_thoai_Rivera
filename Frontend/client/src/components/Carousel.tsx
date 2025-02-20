@@ -6,14 +6,14 @@ export function Carousel() {
           <div className="col-lg-3 d-none d-lg-block"></div>
           <div
             id="header-carousel"
-            className="carousel slide col-lg-9"
+            className="carousel slide"
             data-ride="carousel"
           >
             <div className="carousel-inner">
               <div className="carousel-item active" style={{ height: 410 }}>
                 <img
                   className="img-fluid"
-                  src="img/carousel-1.jpg"
+                  src="../image/anh1.jpg"
                   alt="Image"
                 />
                 <div className="carousel-caption d-flex flex-column align-items-center justify-content-center">
@@ -22,7 +22,7 @@ export function Carousel() {
                       10% Off Your First Order
                     </h4>
                     <h3 className="display-4 text-white font-weight-semi-bold mb-4">
-                      Fashionable Dress
+                      New iphone
                     </h3>
                     <a href="" className="btn btn-light py-2 px-3">
                       Shop Now
@@ -33,7 +33,7 @@ export function Carousel() {
               <div className="carousel-item" style={{ height: 410 }}>
                 <img
                   className="img-fluid"
-                  src="img/carousel-2.jpg"
+                  src="../image/anh2.webp"
                   alt="Image"
                 />
                 <div className="carousel-caption d-flex flex-column align-items-center justify-content-center">
