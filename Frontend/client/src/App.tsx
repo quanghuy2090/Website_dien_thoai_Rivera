@@ -19,7 +19,6 @@ import ListUser from "./pages/Admin/User/ListUser";
 import DetailUser from "./pages/Admin/User/DetailUser";
 import Cart from "./pages/Cart";
 
-
 function App() {
   const routes = useRoutes([
     {
@@ -31,10 +30,10 @@ function App() {
         { path: "/register", element: <Register /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
-
+        { path: "/cart", element: <Cart /> },
       ],
     },
-    { path: "/cart", element: <Cart /> },
+
     {
       path: "/admin",
       element: <AdminLayout />,
