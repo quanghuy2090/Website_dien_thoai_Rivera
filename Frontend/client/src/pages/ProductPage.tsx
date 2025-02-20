@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAllProduct, Product } from "../services/product";
+import { addCart, Carts } from "../services/cart";
 
 const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -13,6 +14,7 @@ const ProductPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number] | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const nav = useNavigate();
   const categories = [
     "All product",
     ...new Set(products.map((p) => (p.categoryId?.name ? p.categoryId?.name : "Unknown"))),
@@ -74,6 +76,32 @@ const ProductPage = () => {
   // Handle page change
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+  };
+
+  const addToCart = async (product: Product) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user || !user._id) {
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
+        nav("/login");
+      }
+      const cart: Carts = {
+        _id: "", // Backend tự tạo `_id`
+        userId: user._id, // Chỉ lấy `_id` của user
+        quantity: 1,
+        productId: product._id, // Đảm bảo có productId
+      };
+      // 🛠 Gửi request thêm vào giỏ hàng
+      const { data } = await addCart(cart);
+
+      // 🎉 Hiển thị thông báo thành công
+      toast.success("Cart added successfully");
+
+      console.log(" Thêm vào giỏ hàng:", data);
+    } catch (error) {
+      console.error(" Lỗi khi thêm vào giỏ hàng:", error);
+      toast.error("Error");
+    }
   };
 
   return (
@@ -201,7 +229,7 @@ const ProductPage = () => {
                           <i className="fas fa-eye text-primary mr-1" />
                           View Detail
                         </Link>
-                        <button className="btn btn-sm text-dark p-0">
+                        <button className="btn btn-sm text-dark p-0" onClick={() => addToCart(product)}>
                           <i className="fas fa-shopping-cart text-primary mr-1" />
                           Add To Cart
                         </button>
