@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getProductById, Product } from "../services/product";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
+import { addCart, Carts } from "../services/cart";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -11,6 +12,24 @@ const ProductDetail = () => {
   const [mainImage, setMainImage] = useState<string | null>(null);
 
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
+
+  const [quantity, setQuantity] = useState(1);
+
+  // Xử lý tăng số lượng
+  const increaseQuantity = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  // Xử lý giảm số lượng
+  const decreaseQuantity = () => {
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1);
+    }
+  };
+
+
+  const nav = useNavigate();
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
@@ -20,6 +39,37 @@ const ProductDetail = () => {
       setMainImage(data.data.images[0]);
     })();
   }, [id]);
+
+
+  const addToCart = async (productId?: string) => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (!user || !user._id) {
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
+        return nav("/login");
+      }
+
+      const selectedProductId = productId || product?._id; // Nếu có productId thì dùng, không thì lấy sản phẩm chính
+
+      if (!selectedProductId) {
+        toast.error("Sản phẩm không hợp lệ!");
+        return;
+      }
+
+      const cartItem: Carts = {
+        userId: user._id,
+        productId: selectedProductId,
+        quantity: quantity,
+      };
+
+      const { data } = await addCart(cartItem);
+      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
+      console.log("Thêm vào giỏ hàng:", data);
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+    }
+  };
 
 
   return (
@@ -126,22 +176,23 @@ const ProductDetail = () => {
             <div className="d-flex align-items-center mb-4 pt-2">
               <div className="input-group quantity mr-3" style={{ width: 130 }}>
                 <div className="input-group-btn">
-                  <button className="btn btn-primary btn-minus">
+                  <button className="btn btn-primary btn-minus" onClick={decreaseQuantity}>
                     <i className="fa fa-minus" />
                   </button>
                 </div>
                 <input
                   type="text"
                   className="form-control bg-secondary text-center"
-                  defaultValue={1}
+                  value={quantity} // Thay vì defaultValue
+                  readOnly // Ngăn người dùng nhập tay
                 />
                 <div className="input-group-btn">
-                  <button className="btn btn-primary btn-plus">
+                  <button className="btn btn-primary btn-plus" onClick={increaseQuantity}>
                     <i className="fa fa-plus" />
                   </button>
                 </div>
               </div>
-              <button className="btn btn-primary px-3">
+              <button className="btn btn-primary px-3" onClick={() => addToCart(product?._id)}>
                 <i className="fa fa-shopping-cart mr-1" /> Thêm giỏ hàng
               </button>
             </div>
@@ -358,7 +409,7 @@ const ProductDetail = () => {
                     <div className="card-footer d-flex justify-content-between bg-light border">
                       <button
                         className="btn btn-sm text-dark p-0"
-
+                        onClick={() => addToCart(item._id)}
                       >
                         <i className="fas fa-shopping-cart text-primary mr-1" />
                         Thêm giỏ hàng
