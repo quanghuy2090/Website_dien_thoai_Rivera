@@ -212,7 +212,7 @@ const HomePage = () => {
             className="btn btn-primary"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           >
-            Trước
+            «
           </button>
           <span className="mx-2">
             {currentPage} of {totalPages}
@@ -223,7 +223,7 @@ const HomePage = () => {
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
           >
-            Sau
+            »
           </button>
         </div>
       </div>
