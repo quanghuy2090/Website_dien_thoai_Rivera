@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getAllProduct, Product } from "../services/product";
 import { addCart, Carts } from "../services/cart";
 import toast from "react-hot-toast";
-import { Footer } from "../components/Footer";
+// import { Footer } from "../components/Footer";
 import { Carousel } from "../components/Carousel";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -248,7 +248,7 @@ const HomePage = () => {
         <i className="fa fa-angle-up" />
       </button>
 
-      <Footer />
+
     </>
   );
 };

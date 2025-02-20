@@ -6,10 +6,39 @@ import { getAllProduct, Product } from "../services/product";
 const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [productsPerPage] = useState<number>(6);
   const [sortOption, setSortOption] = useState<string>("Latest");
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [selectedCategory, setSelectdCategory] = useState<string>("All product");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number] | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const categories = [
+    "All product",
+    ...new Set(products.map((p) => (p.categoryId?.name ? p.categoryId?.name : "Unknown"))),
+  ];
+  const priceRanger: [number, number][] = [
+    [3000000, 5000000],
+    [5000000, 10000000],
+    [10000000, 20000000],
+    [20000000, 30000000],
+    [30000000, 40000000],
+  ];
+
+
+  const filteredProducts = products.filter((p) => {
+    // Kiểm tra nếu sản phẩm thuộc danh mục được chọn
+    const categoryMatch = selectedCategory === "All product" || p.categoryId?.name === selectedCategory;
+
+    // Kiểm tra nếu sản phẩm có chứa từ khóa tìm kiếm
+    const searchMatch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Kiểm tra nếu sản phẩm nằm trong khoảng giá đã chọn
+    const priceMatch = selectedPriceRange
+      ? p.price >= selectedPriceRange[0] && p.price <= selectedPriceRange[1]
+      : true;
+    return categoryMatch && searchMatch && priceMatch;
+  });
 
   useEffect(() => {
     (async () => {
@@ -37,10 +66,10 @@ const ProductPage = () => {
   // Calculate the current products to display
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
 
   // Calculate total pages
-  const totalPages = Math.ceil(products.length / productsPerPage);
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
   // Handle page change
   const handlePageChange = (pageNumber: number) => {
@@ -70,19 +99,20 @@ const ProductPage = () => {
           <div className="col-lg-3 col-md-12">
             {/* Price Start */}
             <div className="border-bottom mb-4 pb-4">
-              <h5 className="font-weight-semi-bold mb-4">Filter by price</h5>
+              <h5 className="font-weight-semi-bold mb-4">Filter by product</h5>
               <form>
-                {Array.from({ length: 5 }, (_, index) => (
-                  <div className="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3" key={index}>
+                {categories.map((category) => (
+                  <div key={category} className="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                     <input
                       type="checkbox"
                       className="custom-control-input"
-                      id={`price-${index}`}
+                      id={`category-${category}`}
+                      checked={selectedCategory === category} // Kiểm tra nếu category được chọn
+                      onChange={() => setSelectdCategory(category)} // Cập nhật danh mục khi chọn
                     />
-                    <label className="custom-control-label" htmlFor={`price-${index}`}>
-                      {`$${index * 100} - $${(index + 1) * 100}`}
+                    <label className="custom-control-label" htmlFor={`category-${category}`}>
+                      {category}
                     </label>
-                    <span className="badge border font-weight-normal">100</span>
                   </div>
                 ))}
               </form>
@@ -91,19 +121,26 @@ const ProductPage = () => {
 
             {/* Color Start */}
             <div className="border-bottom mb-4 pb-4">
-              <h5 className="font-weight-semi-bold mb-4">Filter by color</h5>
+              <h5 className="font-weight-semi-bold mb-4">Filter by price</h5>
               <form>
-                {["All Colors", "Black", "White", "Red", "Blue", "Green"].map((color, index) => (
-                  <div className="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3" key={index}>
+                {priceRanger.map(([min, max], index) => (
+                  <div key={index} className="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                     <input
                       type="checkbox"
                       className="custom-control-input"
-                      id={`color-${index}`}
+                      id={`price-${index}`}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedPriceRange([min, max]); // Chọn khoảng giá
+                        } else {
+                          setSelectedPriceRange(null); // Bỏ chọn => Hiển thị tất cả
+                        }
+                      }}
+                      checked={selectedPriceRange?.[0] === min && selectedPriceRange?.[1] === max}
                     />
-                    <label className="custom-control-label" htmlFor={`color-${index}`}>
-                      {color}
+                    <label className="custom-control-label" htmlFor={`price-${index}`}>
+                      {min.toLocaleString()} - {max.toLocaleString()}
                     </label>
-                    <span className="badge border font-weight-normal">100</span>
                   </div>
                 ))}
               </form>
@@ -119,7 +156,7 @@ const ProductPage = () => {
                 <div className="d-flex align-items-center justify-content-between mb-4">
                   <form action="">
                     <div className="input-group">
-                      <input type="text" className="form-control" placeholder="Search by name" />
+                      <input type="text" className="form-control" placeholder="Search by name" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                       <div className="input-group-append">
                         <span className="input-group-text bg-transparent text-primary">
                           <i className="fa fa-search" />
