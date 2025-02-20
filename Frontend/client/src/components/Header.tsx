@@ -1,8 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Category, getCategories } from "../services/category";
 
 export function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await getCategories();
+      setCategories(res.data.data);
+    };
+    fetchCategories();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -74,33 +84,11 @@ export function Header() {
                   style={{ height: 410, zIndex: 1000, left: 0, top: 65 }}
                 >
                   <div className="navbar-nav w-100 overflow-hidden">
-                    <a href="" className="nav-item nav-link">
-                      Shirts
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Jeans
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Swimwear
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Sleepwear
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Sportswear
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Jumpsuits
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Blazers
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Jackets
-                    </a>
-                    <a href="" className="nav-item nav-link">
-                      Shoes
-                    </a>
+                    {categories.map((categories) => (
+                      <a href="" className="nav-item nav-link">
+                        {categories.name}
+                      </a>
+                    ))}
                   </div>
                 </nav>
               )}
