@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { getAllProduct, getProductById, Product } from "../services/product";
-import { Link, useParams } from "react-router-dom";
+import { getProductById, Product } from "../services/product";
+import { useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
-import { Footer } from "../components/Footer";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+
   const [mainImage, setMainImage] = useState<string | null>(null);
   useEffect(() => {
     (async () => {
@@ -19,13 +18,6 @@ const ProductDetail = () => {
     })();
   }, [id]);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      const res = await getAllProduct();
-      setProducts(res.data.data);
-    };
-    fetchProducts();
-  }, []);
 
   return (
     <>
@@ -95,39 +87,39 @@ const ProductDetail = () => {
         diam et rebum kasd rebum.
       </p> */}
             <div className="d-flex mb-3">
-        <p className="text-dark font-weight-medium mb-0 mr-3">Dung lượng</p>
-        <form>
-          <div className="custom-control custom-radio custom-control-inline">
-            <input type="radio" className="custom-control-input" id="size-1" name="size" />
-            <label className="custom-control-label" htmlFor="size-1">256GB</label>
-          </div>
-          <div className="custom-control custom-radio custom-control-inline">
-            <input type="radio" className="custom-control-input" id="size-2" name="size" />
-            <label className="custom-control-label" htmlFor="size-2">512GB</label>
-          </div>
-          <div className="custom-control custom-radio custom-control-inline">
-            <input type="radio" className="custom-control-input" id="size-3" name="size" />
-            <label className="custom-control-label" htmlFor="size-3">1TB</label>
-          </div>
-        </form>
-      </div>
+              <p className="text-dark font-weight-medium mb-0 mr-3">Dung lượng</p>
+              <form>
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input type="radio" className="custom-control-input" id="size-1" name="size" />
+                  <label className="custom-control-label" htmlFor="size-1">256GB</label>
+                </div>
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input type="radio" className="custom-control-input" id="size-2" name="size" />
+                  <label className="custom-control-label" htmlFor="size-2">512GB</label>
+                </div>
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input type="radio" className="custom-control-input" id="size-3" name="size" />
+                  <label className="custom-control-label" htmlFor="size-3">1TB</label>
+                </div>
+              </form>
+            </div>
             <div className="d-flex mb-4">
-        <p className="text-dark font-weight-medium mb-0 mr-3">Màu sắc:</p>
-        <form>
-          <div className="custom-control custom-radio custom-control-inline">
-            <input type="radio" className="custom-control-input" id="color-1" name="color" />
-            <label className="custom-control-label" htmlFor="color-1">Đen</label>
-          </div>
-          <div className="custom-control custom-radio custom-control-inline">
-            <input type="radio" className="custom-control-input" id="color-2" name="color" />
-            <label className="custom-control-label" htmlFor="color-2">Trắng</label>
-          </div>
-          <div className="custom-control custom-radio custom-control-inline">
-            <input type="radio" className="custom-control-input" id="color-3" name="color" />
-            <label className="custom-control-label" htmlFor="color-3">Đỏ</label>
-          </div>
-        </form>
-      </div>
+              <p className="text-dark font-weight-medium mb-0 mr-3">Màu sắc:</p>
+              <form>
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input type="radio" className="custom-control-input" id="color-1" name="color" />
+                  <label className="custom-control-label" htmlFor="color-1">Đen</label>
+                </div>
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input type="radio" className="custom-control-input" id="color-2" name="color" />
+                  <label className="custom-control-label" htmlFor="color-2">Trắng</label>
+                </div>
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input type="radio" className="custom-control-input" id="color-3" name="color" />
+                  <label className="custom-control-label" htmlFor="color-3">Đỏ</label>
+                </div>
+              </form>
+            </div>
             <div className="d-flex align-items-center mb-4 pt-2">
               <div className="input-group quantity mr-3" style={{ width: 130 }}>
                 <div className="input-group-btn">
@@ -374,7 +366,7 @@ const ProductDetail = () => {
       </div> */}
       {/* Products End */}
 
-      <Footer />
+
     </>
   );
 };

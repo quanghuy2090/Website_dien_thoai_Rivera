@@ -227,8 +227,7 @@ const HomePage = () => {
           </button>
         </div>
       </div>
-      {/* Products End */}     
-      <Footer />
+      {/* Products End */}
     </>
   );
 };
