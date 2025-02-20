@@ -52,7 +52,7 @@ const Admin = () => {
           </li>
         </ul>
       </div>
-      <nav className="navbar navbar-expand-lg navbar-blue bg-blue">
+      <nav className="navbar-admin navbar-expand-lg navbar-blue bg-blue">
         <div className="container-fluid">
           <button className="btn btn-outline-dark d-md-none me-2" type="button">
             <i className="bi bi-list"></i>

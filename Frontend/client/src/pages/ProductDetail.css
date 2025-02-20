@@ -72,3 +72,23 @@
   line-height: 1.5;
   color: #555;
 }
+.related-product-box {
+  width: 200px; /* Điều chỉnh kích thước box */
+  margin: auto; /* Căn giữa */
+}
+
+.related-product-box img {
+  width: 100%; /* Ảnh sẽ vừa với box */
+  height: auto;
+  object-fit: contain;
+}
+
+.related-product-box .card-body {
+  padding: 10px;
+  text-align: center;
+}
+
+.related-product-box .card-footer {
+  padding: 5px;
+  font-size: 12px; /* Thu nhỏ chữ */
+}
