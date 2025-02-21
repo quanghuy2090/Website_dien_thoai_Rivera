@@ -109,7 +109,7 @@ const ProductPage = () => {
     <>
       {/* Page Header Start */}
       <div className="container-fluid bg-secondary mb-5">
-        <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: 300 }}>
+        <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: 150 }}>
           <h1 className="font-weight-semi-bold text-uppercase mb-3">Our Shop</h1>
           <div className="d-inline-flex">
             <p className="m-0">
