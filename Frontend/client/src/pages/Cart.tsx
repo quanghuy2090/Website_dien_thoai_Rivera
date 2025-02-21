@@ -1,10 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
-import { Carts, deleteCart, getCart } from './../services/cart';
+import { Carts, deleteCart, getCart, updateCart } from './../services/cart';
 import toast from 'react-hot-toast';
 
 const Cart = () => {
-    const [carts, setCarts] = useState<Carts[]>([]);
+    const [carts, setCarts] = useState<Carts[]>(() => []);
+
+    console.log(carts)
     const [totalAmount, setTotalAmount] = useState<number>(0);
     const [userId, setUserId] = useState<string | null>(null); // Lưu userId vào state
 
@@ -62,6 +64,36 @@ const Cart = () => {
         }
     };
 
+    const handleUpdateCart = async (productId: string, change: number) => {
+        const updatedCart = carts.map((item) =>
+            item.productId._id === productId
+                ? { ...item, quantity: Math.max(1, item.quantity + change) }
+                : item
+        );
+
+        setCarts(updatedCart);
+
+        const newTotalAmount = updatedCart.reduce(
+            (sum, item) => sum + item.productId.price * item.quantity,
+            0
+        );
+        setTotalAmount(newTotalAmount);
+
+        try {
+            // Gửi request update lên backend
+            const quantity = updatedCart.find(item => item.productId?._id === productId)?.quantity ?? 1;
+            const newCartData = await updateCart(String(userId), productId, Number(quantity));
+            toast.success("Updated quantity cart successfully")
+            if (newCartData.data && Array.isArray(newCartData.data.data)) {
+                setCarts(newCartData.data.cart); // Cập nhật lại state với dữ liệu từ server
+            }
+        } catch (error) {
+            console.error("Lỗi cập nhật giỏ hàng", error);
+            toast.error("Error");
+        }
+    };
+
+
     return (
         <div>
             <table className="table">
@@ -85,7 +117,13 @@ const Cart = () => {
                             </td>
                             <td>{item.productId?.name}</td>
                             <td>{item.productId?.price}</td>
-                            <td>{item.quantity}</td>
+
+                            <td>
+                                <button className='btn btn-danger' onClick={() => handleUpdateCart(item.productId._id, -1)} disabled={item.quantity <= 1}>-</button>
+                                {item.quantity}
+                                <button className='btn btn-warning' onClick={() => handleUpdateCart(item.productId._id, 1)}>+</button>
+                            </td>
+
                             <td>{item.productId.price * item.quantity}</td>
                             <td>
                                 <button

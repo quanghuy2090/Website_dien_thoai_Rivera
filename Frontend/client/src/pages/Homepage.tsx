@@ -34,6 +34,7 @@ const HomePage = () => {
       if (!user || !user._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
         nav("/login");
+        return;
       }
       const cart: Carts = {
         _id: "", // Backend tự tạo `_id`
@@ -45,7 +46,7 @@ const HomePage = () => {
       const { data } = await addCart(cart);
 
       // 🎉 Hiển thị thông báo thành công
-      toast.success("Cart added successfully");
+      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
 
       console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
@@ -227,7 +228,7 @@ const HomePage = () => {
           </button>
         </div>
       </div>
-      {/* Products End */}     
+      {/* Products End */}
     </>
   );
 };
