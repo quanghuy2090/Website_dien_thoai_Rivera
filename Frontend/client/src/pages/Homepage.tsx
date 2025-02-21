@@ -228,7 +228,6 @@ const HomePage = () => {
         </div>
       </div>
       {/* Products End */}     
-      <Footer />
     </>
   );
 };
