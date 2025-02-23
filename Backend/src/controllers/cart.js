@@ -51,6 +51,7 @@ export const addToCart = async (req, res) => {
 
 // Lấy thông tin giỏ hàng
 export const getCart = async (req, res) => {
+
   const { userId } = req.params;
 
   try {

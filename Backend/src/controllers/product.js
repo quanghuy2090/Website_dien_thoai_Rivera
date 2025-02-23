@@ -31,10 +31,15 @@ export const getDetail = async (req, res) => {
         message: "Khong co san pham",
       });
     }
+    const relatedProducts = await Product.find({
+      categoryId: product.categoryId,
+      _id: { $ne: product.id },
+    })
     return res.status(200).json({
       message: "Lay chi tiet san pham thanh cong!",
-      data: product,
+      data: product, relatedProducts,
     });
+
   } catch (error) {
     return res.status(500).json({
       message: error,

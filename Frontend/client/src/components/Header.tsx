@@ -1,124 +1,192 @@
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Category, getCategories } from "../services/category";
 
 export function Header() {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [scrolling, setScrolling] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const token = localStorage.getItem("token");
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-  };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await getCategories();
+      setCategories(res.data.data);
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      const navBar = document.querySelector("nav");
-      if (navBar) {
-        if (window.scrollY > 0) {
-          navBar.style.background = "white";
-          navBar.style.boxShadow = "0 5px 20px rgba(190, 190, 190, 0.15)";
-        } else {
-          navBar.style.background = "transparent";
-          navBar.style.boxShadow = "none";
-        }
-      }
+      setScrolling(window.scrollY > 100);
     };
 
-    // Add event listeners
-    document.addEventListener("scroll", handleScroll);
-
-    // Cleanup function to remove the event listener on unmount
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      document.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
-  }, []); //
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  };
+
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setDropdownOpen(!dropdownOpen);
+  };
 
   return (
     <>
-      <div className="">
-        <nav>
-          <div id="navbar">
-            <div id="navbar-logo">
-              <img
-                src="image/eLife.png"
-                alt="eLife, Company Ecommerce Logo"
-                width="140"
-                height="70"
-              />
-            </div>
-            <div id="menu-bar">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                className="bi bi-list"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"
+      <div className="container-fluid">
+        {/* Navbar Start */}
+        <div className="row align-items-center py-3 px-xl-5">
+          <div className="col-lg-3 d-none d-lg-block">
+            <a href="" className="text-decoration-none">
+              <h1 className="m-0 display-5 font-weight-semi-bold">
+                <span className="text-primary font-weight-bold px-3 mr-1">
+                  Rivera
+                </span>
+              </h1>
+            </a>
+          </div>
+          <div className="col-lg-6 col-6 text-left">
+            <form action="">
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Tìm kiếm sản phẩm"
                 />
-              </svg>
-            </div>
-            <div id="navbar-links">
-              <ul>
-                <li>
-                  <a href="/">Trang chủ</a>
-                </li>
-                <li>
-                  <a href="/product-page">Sản phẩm</a>
-                </li>
-                {!token && (
-                  <>
-                    <li>
-                      <a href="/register">Đăng ký</a>
-                    </li>
-                    <li>
-                      <a href="/login">Đăng nhập</a>
-                    </li>
-                  </>
-                )}
-                {token && (
-                  <>
-                    <li>
-                      <a href="/admin">Admin</a>
-                    </li>
-                    <li>
-                      <a href="/login" onClick={handleLogout}>
-                        Logout
-                      </a>
-                    </li>
-                  </>
-                )}
-              </ul>
-              <div className="collection-tools" id="navbar-tools">
-                <a className="cart-link" href="#">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={20}
-                    height={20}
-                    fill="currentColor"
-                    className="bi bi-bag"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
-                  </svg>
-                  <span>0</span>
-                </a>
-                <a className="wishlist-link" href="#">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={20}
-                    height={20}
-                    fill="currentColor"
-                    className="bi bi-heart"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
-                  </svg>
-                  <span>0</span>
-                </a>
+                <div className="input-group-append">
+                  <span className="input-group-text bg-transparent text-primary">
+                    <i className="fa fa-search" />
+                  </span>
+                </div>
               </div>
+            </form>
+          </div>
+          <div className="col-lg-3 col-6 text-right">
+            <a href="" className="btn border">
+              <i className="fas fa-shopping-cart text-primary" />
+              <span className="badge">0</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Categories Dropdown */}
+        <div className="container-fluid mb-5 position-relative">
+          <div className="row border-top px-xl-5">
+            <div className="col-lg-3 d-none d-lg-block">
+              <a
+                className="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100"
+                onClick={toggleDropdown}
+                style={{ height: 65, marginTop: "-1px", padding: "0 30px" }}
+              >
+                <h6 className="m-0">Danh mục</h6>
+                <i className="fa fa-angle-down text-dark" />
+              </a>
+              {dropdownOpen && (
+                <nav
+                  className="navbar-vertical navbar-light border align-items-start p-0 position-absolute"
+                  style={{ zIndex: 1000, left: 12, top: 65, width: "92%" }} // Adjust width
+                >
+                  <div className="navbar-nav w-100 overflow-hidden border bg-white">
+                    {" "}
+                    {/* Set min height */}
+                    {categories.map((category, index) => (
+                      <a key={index} href="#" className="nav-item nav-link">
+                        {category.name}
+                      </a>
+                    ))}
+                  </div>
+                </nav>
+              )}
+            </div>
+
+            {/* Other Navbar Content */}
+            <div className="col-lg-9">
+              <nav className="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
+                <a href="" className="text-decoration-none d-block d-lg-none">
+                  <h1 className="m-0 display-5 font-weight-semi-bold">
+                    <span className="text-primary font-weight-bold px-3 mr-1">
+                      Rivera
+                    </span>
+                  </h1>
+                </a>
+                <button
+                  type="button"
+                  className="navbar-toggler"
+                  data-toggle="collapse"
+                  data-target="#navbarCollapse"
+                >
+                  <span className="navbar-toggler-icon" />
+                </button>
+                <div
+                  className="collapse navbar-collapse justify-content-start"
+                  id="navbarCollapse"
+                >
+                  <div className="navbar-nav mr-auto py-0">
+                    <a href="/" className="nav-item nav-link active">
+                      Trang chủ
+                    </a>
+                    <a href="/product-page" className="nav-item nav-link">
+                      Sản phẩm
+                    </a>
+                    <a href="/cart" className="nav-item nav-link">
+                      Giỏ hàng
+                    </a>
+                    {/* <a href="" className="nav-item nav-link">
+                      Checkout
+                    </a>
+
+                    <a href="contact.html" className="nav-item nav-link">
+                      Contact
+                    </a> */}
+                  </div>
+                  <div className="navbar-nav ml-auto py-0">
+                    {!token && (
+                      <>
+                        <a href="/login" className="nav-item nav-link">
+                          Đăng nhập
+                        </a>
+                        <a href="/register" className="nav-item nav-link">
+                          Đăng ký
+                        </a>
+                      </>
+                    )}
+                    {token && (
+                      <>
+                        <a href="" className="nav-item nav-link">
+                          Tài khoản
+                        </a>
+                        <a
+                          onClick={handleLogout}
+                          href=""
+                          className="nav-item nav-link"
+                        >
+                          Đăng xuất
+                        </a>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </nav>
             </div>
           </div>
-        </nav>
-
-        {/* Page Content */}
+        </div>
+        {/* Navbar End */}
+        {/* Back to top button */}
+        <button
+          className={`back-to-top ${scrolling ? "show" : ""}`}
+          onClick={scrollToTop}
+        >
+          <i className="fa fa-angle-up" />
+        </button>
       </div>
     </>
   );
