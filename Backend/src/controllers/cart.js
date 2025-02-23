@@ -39,6 +39,7 @@ export const addToCart = async (req, res) => {
 
     // Trả về giỏ hàng và tổng tiền
     res.status(201).json({
+      message: "Thêm vào giỏ hàng thành công!",
       cart,
       totalAmount,
     });

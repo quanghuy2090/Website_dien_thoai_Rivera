@@ -119,7 +119,6 @@ export const updateOrder = async (req, res) => {
 };
 
 // Hủy đơn hàng
-
 export const removeOrder = async (req, res) => {
   const { orderId } = req.params;
   const { cancellationReason } = req.body; // Lý do huỷ đơn hàng
@@ -160,3 +159,80 @@ export const removeOrder = async (req, res) => {
     return res.status(500).json({ message: "Lỗi server" });
   }
 };
+
+//Danh sách đơn hàng Admin
+export const getAllOrders = async (req, res) => {
+  try {
+    // Truy vấn tất cả đơn hàng, sắp xếp theo thời gian mới nhất
+    const orders = await Order.find()
+      .populate("userId", "userName email") // Lấy thông tin user đặt đơn
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: "Lấy danh sách đơn hàng thành công!",
+      success: true,
+
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
+// Danh sách đơn hàng theo User
+export const getAllOrdersByUser = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Tìm tất cả đơn hàng theo userId và populate để lấy thông tin user
+    const orders = await Order.find({ userId }).populate(
+      "userId",
+      "userName email"
+    );
+
+    if (!orders || orders.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không có đơn hàng nào" });
+    }
+
+    return res.status(200).json({
+      message: "Lấy danh sách đơn hàng thành công!",
+
+      success: true,
+      count: orders.length,
+      orders,
+    });
+  } catch (error) {
+    console.error("Lỗi lấy đơn hàng theo user:", error);
+    return res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
+//Chi tiết đơn hàng
+export const getOrderDetails = async (req, res) => {
+  const { orderId } = req.params;
+
+  try {
+    // Tìm đơn hàng theo ID, populate để lấy thông tin user và product
+    const order = await Order.findById(orderId)
+      .populate("userId", "userName email phone address") // Lấy thông tin người mua
+      .populate("orderItems.productId", "name price image"); // Lấy thông tin sản phẩm
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Đơn hàng không tồn tại" });
+    }
+
+    return res.status(200).json({
+      message: "Lấy chi tiết đơn hàng thành công!", 
+      success: true,
+      order,
+    });
+  } catch (error) {
+    console.error("Lỗi lấy chi tiết đơn hàng:", error);
+    return res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+};
+
