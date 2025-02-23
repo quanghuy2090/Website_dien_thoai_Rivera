@@ -215,8 +215,8 @@ const HomePage = () => {
           >
             «
           </button>
-          <span className="mx-2">
-            Trang {currentPage}/{totalPages}
+          <span className="mx-2 mt-2">
+            {currentPage}/{totalPages}
           </span>
           <button
             className="btn btn-primary"
