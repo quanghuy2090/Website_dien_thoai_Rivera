@@ -71,7 +71,10 @@ const ProductDetail = () => {
   // Pagination logic
   const indexOfLastProduct = currentPage * itemsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
-  const currentProducts = relatedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = relatedProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
   const totalPages = Math.ceil(relatedProducts.length / itemsPerPage);
 
   const handleNextPage = () => {
@@ -84,6 +87,13 @@ const ProductDetail = () => {
     if (currentPage > 1) {
       setCurrentPage((prev) => prev - 1);
     }
+  };
+
+  const formatPrice = (price) => {
+    if (price === undefined || price === null) {
+      return "0 VND"; // Return a default value if price is undefined
+    }
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
   };
 
   return (
@@ -116,7 +126,7 @@ const ProductDetail = () => {
                 {product?.images.map((img, index) => (
                   <div
                     key={index}
-                    className={`${img === mainImage ? 'active' : ''}`}
+                    className={`${img === mainImage ? "active" : ""}`}
                     onClick={() => setMainImage(img)}
                   >
                     <img src={img} alt={`${index + 1}`} />
@@ -134,22 +144,45 @@ const ProductDetail = () => {
               {product?.name}
             </h3>
             <h3 className="font-weight-semi-bold mb-4 ">
-              {product?.price} VND
+              {formatPrice(product?.price)}
             </h3>
             <div className="d-flex mb-3">
-              <p className="text-dark font-weight-medium mb-0 mr-3">Dung lượng:</p>
+              <p className="text-dark font-weight-medium mb-0 mr-3">
+                Dung lượng:
+              </p>
               <form>
                 <div className="custom-control custom-radio custom-control-inline">
-                  <input type="radio" className="custom-control-input" id="size-1" name="size" />
-                  <label className="custom-control-label" htmlFor="size-1">256GB</label>
+                  <input
+                    type="radio"
+                    className="custom-control-input"
+                    id="size-1"
+                    name="size"
+                  />
+                  <label className="custom-control-label" htmlFor="size-1">
+                    256GB
+                  </label>
                 </div>
                 <div className="custom-control custom-radio custom-control-inline">
-                  <input type="radio" className="custom-control-input" id="size-2" name="size" />
-                  <label className="custom-control-label" htmlFor="size-2">512GB</label>
+                  <input
+                    type="radio"
+                    className="custom-control-input"
+                    id="size-2"
+                    name="size"
+                  />
+                  <label className="custom-control-label" htmlFor="size-2">
+                    512GB
+                  </label>
                 </div>
                 <div className="custom-control custom-radio custom-control-inline">
-                  <input type="radio" className="custom-control-input" id="size-3" name="size" />
-                  <label className="custom-control-label" htmlFor="size-3">1TB</label>
+                  <input
+                    type="radio"
+                    className="custom-control-input"
+                    id="size-3"
+                    name="size"
+                  />
+                  <label className="custom-control-label" htmlFor="size-3">
+                    1TB
+                  </label>
                 </div>
               </form>
             </div>
@@ -157,23 +190,47 @@ const ProductDetail = () => {
               <p className="text-dark font-weight-medium mb-0 mr-3">Màu sắc:</p>
               <form>
                 <div className="custom-control custom-radio custom-control-inline">
-                  <input type="radio" className="custom-control-input" id="color-1" name="color" />
-                  <label className="custom-control-label" htmlFor="color-1">Đen</label>
+                  <input
+                    type="radio"
+                    className="custom-control-input"
+                    id="color-1"
+                    name="color"
+                  />
+                  <label className="custom-control-label" htmlFor="color-1">
+                    Đen
+                  </label>
                 </div>
                 <div className="custom-control custom-radio custom-control-inline">
-                  <input type="radio" className="custom-control-input" id="color-2" name="color" />
-                  <label className="custom-control-label" htmlFor="color-2">Trắng</label>
+                  <input
+                    type="radio"
+                    className="custom-control-input"
+                    id="color-2"
+                    name="color"
+                  />
+                  <label className="custom-control-label" htmlFor="color-2">
+                    Trắng
+                  </label>
                 </div>
                 <div className="custom-control custom-radio custom-control-inline">
-                  <input type="radio" className="custom-control-input" id="color-3" name="color" />
-                  <label className="custom-control-label" htmlFor="color-3">Đỏ</label>
+                  <input
+                    type="radio"
+                    className="custom-control-input"
+                    id="color-3"
+                    name="color"
+                  />
+                  <label className="custom-control-label" htmlFor="color-3">
+                    Đỏ
+                  </label>
                 </div>
               </form>
             </div>
             <div className="d-flex align-items-center mb-4 pt-2">
               <div className="input-group quantity mr-3" style={{ width: 130 }}>
                 <div className="input-group-btn">
-                  <button className="btn btn-primary btn-minus" onClick={decreaseQuantity}>
+                  <button
+                    className="btn btn-primary btn-minus"
+                    onClick={decreaseQuantity}
+                  >
                     <i className="fa fa-minus" />
                   </button>
                 </div>
@@ -184,7 +241,10 @@ const ProductDetail = () => {
                   readOnly
                 />
                 <div className="input-group-btn">
-                  <button className="btn btn-primary btn-plus" onClick={increaseQuantity}>
+                  <button
+                    className="btn btn-primary btn-plus"
+                    onClick={increaseQuantity}
+                  >
                     <i className="fa fa-plus" />
                   </button>
                 </div>
@@ -211,7 +271,10 @@ const ProductDetail = () => {
               <div className="owl-carousel related-carousel">
                 <div className="row">
                   {currentProducts.map((item) => (
-                    <div key={item._id} className="col-lg-3 col-md-6 col-sm-12 pb-1">
+                    <div
+                      key={item._id}
+                      className="col-lg-3 col-md-6 col-sm-12 pb-1"
+                    >
                       <div className="card product-item border-0 mb-4">
                         <div className="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
                           <img
@@ -225,7 +288,7 @@ const ProductDetail = () => {
                             <h6 className="text-truncate mb-3">{item.name}</h6>
                           </Link>
                           <div className="d-flex justify-content-center">
-                            <h6>${item.price}</h6>
+                            <h6>{formatPrice(item.price)}</h6>
                           </div>
                         </div>
                         <div className="card-footer d-flex justify-content-between bg-light border">

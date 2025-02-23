@@ -55,6 +55,10 @@ const HomePage = () => {
     }
   };
 
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+  };
+
   return (
     <>
       <Carousel />
@@ -191,7 +195,8 @@ const HomePage = () => {
                     <h6 className="text-truncate mb-3">{product.name}</h6>
                   </Link>
                   <div className="d-flex justify-content-center">
-                    <h6>${product.price}</h6>
+                    <h6>{formatPrice(product.price)}</h6>{" "}
+                    {/* Format the price here */}
                   </div>
                 </div>
                 <div className="card-footer d-flex justify-content-between bg-light border">
