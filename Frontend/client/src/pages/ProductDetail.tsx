@@ -93,7 +93,7 @@ const ProductDetail = () => {
     if (price === undefined || price === null) {
       return "0 VND"; // Return a default value if price is undefined
     }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
   };
 
   return (
@@ -126,14 +126,13 @@ const ProductDetail = () => {
                 {product?.images.map((img, index) => (
                   <div
                     key={index}
-                    className={`${img === mainImage ? "active" : ""}`}
+                    className={`${img === mainImage ? "active" : ""}`} // Active class logic
                     onClick={() => setMainImage(img)}
                   >
                     <img src={img} alt={`${index + 1}`} />
                   </div>
                 ))}
               </div>
-
               <div className="main-image">
                 <img src={mainImage!} alt="" />
               </div>

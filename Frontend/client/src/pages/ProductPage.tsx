@@ -10,13 +10,13 @@ const ProductPage = () => {
   const [productsPerPage] = useState<number>(6);
   const [sortOption, setSortOption] = useState<string>("Latest");
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
-  const [selectedCategory, setSelectdCategory] = useState<string>("All product");
+  const [selectedCategory, setSelectdCategory] = useState<string>("Tất cả sản phẩm");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedPriceRange, setSelectedPriceRange] = useState<[number, number] | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const nav = useNavigate();
   const categories = [
-    "All product",
+    "Tất cả sản phẩm",
     ...new Set(products.map((p) => (p.categoryId?.name ? p.categoryId?.name : "Unknown"))),
   ];
   const priceRanger: [number, number][] = [
@@ -30,7 +30,7 @@ const ProductPage = () => {
 
   const filteredProducts = products.filter((p) => {
     // Kiểm tra nếu sản phẩm thuộc danh mục được chọn
-    const categoryMatch = selectedCategory === "All product" || p.categoryId?.name === selectedCategory;
+    const categoryMatch = selectedCategory === "Tất cả sản phẩm" || p.categoryId?.name === selectedCategory;
 
     // Kiểm tra nếu sản phẩm có chứa từ khóa tìm kiếm
     const searchMatch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -106,7 +106,7 @@ const ProductPage = () => {
   };
 
   const formatPrice = (price) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
   };
 
   return (
@@ -114,13 +114,13 @@ const ProductPage = () => {
       {/* Page Header Start */}
       <div className="container-fluid bg-secondary mb-5">
         <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: 150 }}>
-          <h1 className="font-weight-semi-bold text-uppercase mb-3">Our Shop</h1>
+          <h1 className="font-weight-semi-bold text-uppercase mb-3">Trang sản phẩm</h1>
           <div className="d-inline-flex">
             <p className="m-0">
-              <Link to="/">Home</Link>
+              <Link to="/">Trang chủ</Link>
             </p>
             <p className="m-0 px-2">-</p>
-            <p className="m-0">Shop</p>
+            <p className="m-0">Sản phẩm</p>
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@ const ProductPage = () => {
           <div className="col-lg-3 col-md-12">
             {/* Price Start */}
             <div className="border-bottom mb-4 pb-4">
-              <h5 className="font-weight-semi-bold mb-4">Filter by product</h5>
+              <h5 className="font-weight-semi-bold mb-4">Phân loại theo thương hiệu</h5>
               <form>
                 {categories.map((category) => (
                   <div key={category} className="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
@@ -154,7 +154,7 @@ const ProductPage = () => {
 
             {/* Color Start */}
             <div className="border-bottom mb-4 pb-4">
-              <h5 className="font-weight-semi-bold mb-4">Filter by price</h5>
+              <h5 className="font-weight-semi-bold mb-4">Phân loại theo giá</h5>
               <form>
                 {priceRanger.map(([min, max], index) => (
                   <div key={index} className="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
@@ -172,7 +172,7 @@ const ProductPage = () => {
                       checked={selectedPriceRange?.[0] === min && selectedPriceRange?.[1] === max}
                     />
                     <label className="custom-control-label" htmlFor={`price-${index}`}>
-                      {min.toLocaleString()} - {max.toLocaleString()}
+                      {min.toLocaleString()} - {max.toLocaleString()} VND
                     </label>
                   </div>
                 ))}
@@ -189,7 +189,7 @@ const ProductPage = () => {
                 <div className="d-flex align-items-center justify-content-between mb-4">
                   <form action="">
                     <div className="input-group">
-                      <input type="text" className="form-control" placeholder="Search by name" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                      <input type="text" className="form-control" placeholder="Tìm kiếm sản phẩm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                       <div className="input-group-append">
                         <span className="input-group-text bg-transparent text-primary">
                           <i className="fa fa-search" />
@@ -232,11 +232,11 @@ const ProductPage = () => {
                       <div className="card-footer d-flex justify-content-between bg-light border">
                         <Link to={`/product/${product._id}`} className="btn btn-sm text-dark p-0">
                           <i className="fas fa-eye text-primary mr-1" />
-                          View Detail
+                          Chi tiết
                         </Link>
                         <button className="btn btn-sm text-dark p-0" onClick={() => addToCart(product)}>
                           <i className="fas fa-shopping-cart text-primary mr-1" />
-                          Add To Cart
+                          Them giỏ hàng
                         </button>
                       </div>
                     </div>

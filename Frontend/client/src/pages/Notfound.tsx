@@ -11,10 +11,10 @@ const NotFound = () => {
         <h1 className="big-error">404 NOT FOUND</h1> {/* Added class "big-error" */}
         <img src="../../image/gif/gif/error.gif" width={500} alt="Error" />
         <div>
-          <h2>Look like you're lost</h2>
-          <p>The page you are looking for is not available</p>
+          <h2>Có vẻ bạn đã nhầm trang</h2>
+          <p>Trang bạn tìm kiếm không tồn tại</p>
           <Link to={"/"} className="btn btn-primary">
-            Go To Home
+            Về trang chủ
           </Link>
         </div>
       </div>

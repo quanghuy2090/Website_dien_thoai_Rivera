@@ -35,7 +35,7 @@
 
 .thumbnail-images div:hover,
 .thumbnail-images .active {
-  border: 2px solid #ff0000;
+  border: 1px solid #6ba8fd;
 }
 
 .main-image {
