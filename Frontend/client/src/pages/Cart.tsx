@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Carts, deleteCart, getCart, updateCart } from "./../services/cart";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
   const [carts, setCarts] = useState<Carts[]>(() => []);
-
-  console.log(carts);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [userId, setUserId] = useState<string | null>(null); // Lưu userId vào state
 
@@ -142,7 +141,7 @@ const Cart = () => {
                 </tr>
               </thead>
               <tbody className="align-middle">
-                {carts.map((item, index) => (
+                {carts.map((item) => (
                   <tr>
                     <td className="align-middle">
                       {item.productId?.images && (
@@ -232,9 +231,9 @@ const Cart = () => {
                   <h5 className="font-weight-bold">Total</h5>
                   <h5 className="font-weight-bold">{totalAmount.toFixed()} VND</h5>
                 </div>
-                <button className="btn btn-block btn-primary my-3 py-3">
+                <Link to={`/checkout`} className="btn btn-block btn-primary my-3 py-3" >
                   Proceed To Checkout
-                </button>
+                </Link>
               </div>
             </div>
           </div>

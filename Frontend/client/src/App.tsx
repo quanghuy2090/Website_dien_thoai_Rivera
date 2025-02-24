@@ -18,6 +18,8 @@ import HomePage from "./pages/Homepage";
 import ListUser from "./pages/Admin/User/ListUser";
 import DetailUser from "./pages/Admin/User/DetailUser";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import Notfound from "./pages/Notfound";
 
 function App() {
   const routes = useRoutes([
@@ -29,11 +31,14 @@ function App() {
         { path: "/cart", element: <Cart /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
+        { path: "/checkout", element: <Checkout /> },
+
       ],
     },
 
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
+    { path: "*", element: <Notfound /> },
     {
       path: "/admin",
       element: <AdminLayout />,
