@@ -105,7 +105,7 @@ const Cart = () => {
     }
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     if (price === undefined || price === null) {
       return "0 VND"; // Return a default value if price is undefined
     }
@@ -157,7 +157,7 @@ const Cart = () => {
                       {item.productId?.name}
                     </td>
                     <td className="align-middle">
-                      {formatPrice(item.productId?.price)} 
+                      {formatPrice(item.productId?.price)}
                     </td>
                     <td className="align-middle">
                       <div
@@ -193,7 +193,7 @@ const Cart = () => {
                       </div>
                     </td>
                     <td className="align-middle">
-                      {formatPrice(item.productId.price * item.quantity)} 
+                      {formatPrice(item.productId.price * item.quantity)}
                     </td>
                     <td className="align-middle">
                       <button
@@ -239,7 +239,7 @@ const Cart = () => {
                 <div className="d-flex justify-content-between mt-2">
                   <h5 className="font-weight-bold">Total</h5>
                   <h5 className="font-weight-bold">
-                    {formatPrice(totalAmount.toFixed())} 
+                    {formatPrice(totalAmount)}
                   </h5>
                 </div>
                 <Link

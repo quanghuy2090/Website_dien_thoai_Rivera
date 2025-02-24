@@ -140,6 +140,9 @@ export function Header() {
                     <a href="/cart" className="nav-item nav-link">
                       Giỏ hàng
                     </a>
+                    <a href="/history" className="nav-item nav-link">
+                      Lịch sử đơn hàng
+                    </a>
                     {/* <a href="" className="nav-item nav-link">
                       Checkout
                     </a>
