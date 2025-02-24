@@ -105,6 +105,13 @@ const Cart = () => {
     }
   };
 
+  const formatPrice = (price) => {
+    if (price === undefined || price === null) {
+      return "0 VND"; // Return a default value if price is undefined
+    }
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+  };
+
   return (
     <div>
       {/* Page Header Start */}
@@ -149,7 +156,9 @@ const Cart = () => {
                       )}
                       {item.productId?.name}
                     </td>
-                    <td className="align-middle">{item.productId?.price} VND</td>
+                    <td className="align-middle">
+                      {formatPrice(item.productId?.price)} 
+                    </td>
                     <td className="align-middle">
                       <div
                         className="input-group quantity mx-auto"
@@ -184,7 +193,7 @@ const Cart = () => {
                       </div>
                     </td>
                     <td className="align-middle">
-                      {item.productId.price * item.quantity} VND
+                      {formatPrice(item.productId.price * item.quantity)} 
                     </td>
                     <td className="align-middle">
                       <button
@@ -229,9 +238,14 @@ const Cart = () => {
               <div className="card-footer border-secondary bg-transparent">
                 <div className="d-flex justify-content-between mt-2">
                   <h5 className="font-weight-bold">Total</h5>
-                  <h5 className="font-weight-bold">{totalAmount.toFixed()} VND</h5>
+                  <h5 className="font-weight-bold">
+                    {formatPrice(totalAmount.toFixed())} 
+                  </h5>
                 </div>
-                <Link to={`/checkout`} className="btn btn-block btn-primary my-3 py-3" >
+                <Link
+                  to={`/checkout`}
+                  className="btn btn-block btn-primary my-3 py-3"
+                >
                   Proceed To Checkout
                 </Link>
               </div>
