@@ -134,7 +134,7 @@ const Checkout = () => {
         if (price === undefined || price === null) {
             return "0 VND"; // Return a default value if price is undefined
         }
-        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
     };
 
     return (
