@@ -190,7 +190,7 @@ export const getAllOrdersByUser = async (req, res) => {
     const orders = await Order.find({ userId }).populate(
       "userId",
       "userName email"
-    );
+    ).populate("orderItems.productId", "name price images");
 
     if (!orders || orders.length === 0) {
       return res
@@ -226,7 +226,7 @@ export const getOrderDetails = async (req, res) => {
     }
 
     return res.status(200).json({
-      message: "Lấy chi tiết đơn hàng thành công!", 
+      message: "Lấy chi tiết đơn hàng thành công!",
       success: true,
       order,
     });

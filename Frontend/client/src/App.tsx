@@ -20,7 +20,8 @@ import DetailUser from "./pages/Admin/User/DetailUser";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Notfound from "./pages/Notfound";
-
+import Bill from "./pages/Bill";
+import HistoryUser from "./pages/HistoryUser";
 function App() {
   const routes = useRoutes([
     {
@@ -32,7 +33,8 @@ function App() {
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
         { path: "/checkout", element: <Checkout /> },
-
+        { path: "/bill", element: <Bill /> },
+        { path: "/history", element: <HistoryUser /> }
       ],
     },
 

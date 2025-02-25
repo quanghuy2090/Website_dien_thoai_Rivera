@@ -43,3 +43,8 @@ export const createOrder = (order: Omit<Order, "_id" | "createdAt" | "updatedAt"
     return http.post("/order", order);
 }
 
+export const getOrderUser = (userId:string) => {
+    return http.get(`/order/${userId}`);
+}
+
+
