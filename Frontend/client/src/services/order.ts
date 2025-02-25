@@ -54,5 +54,8 @@ export const getAllOrder = () => {
 export const getDetailOrder = (orderId:string) => {
     return http.get(`/order/detail/${orderId}`);
 }
+export const updateStatusOrder = (orderId: string,orderStatus:Order["orderStatus"],cancellationReason:string) => {
+    return http.put(`/order/${orderId}`, { orderStatus, cancellationReason });
+}
 
 

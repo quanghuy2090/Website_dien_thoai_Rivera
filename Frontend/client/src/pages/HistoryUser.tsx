@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { getOrderUser, Order } from '../services/order';
+import { getOrderUser, Order, updateStatusOrder } from '../services/order';
+// import { useParams } from 'react-router-dom';
 
 const HistoryUser = () => {
     const [userId, setUserId] = useState<string | null>(null);
     console.log(userId);
     const [orderUser, setOrderUser] = useState<Order[]>([]);
-
+    // const [orderStatus, setOrderStatus] = useState<Order["orderStatus"]>();
     useEffect(() => {
         const userData = localStorage.getItem("user");
         if (userData) {
@@ -35,6 +36,19 @@ const HistoryUser = () => {
         }
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
     };
+
+    const handleStatusChange = async (orderId: string, newStatus: Order["orderStatus"]) => {
+        try {
+            await updateStatusOrder(orderId, newStatus, newStatus === "Đã huỷ" ? "Lý do hủy" : "");
+            alert("Cập nhật trạng thái thành công!");
+            // Gọi lại API để cập nhật danh sách đơn hàng sau khi thay đổi trạng thái
+            fetchOrder(userId!);
+        } catch (error) {
+            console.error("Lỗi cập nhật trạng thái:", error);
+            alert("Cập nhật trạng thái thất bại, vui lòng thử lại!");
+        }
+    };
+
     return (
         <div>
             <table className="table">
@@ -67,7 +81,18 @@ const HistoryUser = () => {
                                 </div>
                             ))}</td>
                             <td>{formatPrice(order.totalPrice)}</td>
-                            <td>{order.orderStatus}</td>
+                            <td>
+                                <select className='form-select'
+                                    value={order.orderStatus}
+                                    onChange={(e) => handleStatusChange(order._id, e.target.value as Order["orderStatus"])}
+                                ><option value="Chưa xác nhận" disabled>Chưa xác nhận</option>
+                                    <option value="Đã xác nhận" disabled>Đã xác nhận</option>
+                                    <option value="Đang giao hàng" disabled>Đang giao hàng</option>
+                                    <option value="Đã giao hàng" disabled>Đã giao hàng</option>
+                                    <option value="Đã nhận hàng">Đã nhận hàng</option>
+                                    <option value="Đã huỷ">Đã hủy</option>
+                                </select>
+                            </td>
                             <td>{order.paymentMethod}</td>
                             <td>{order.paymentStatus}</td>
                         </tr>
