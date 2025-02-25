@@ -51,7 +51,7 @@ const Bill = () => {
                                 <tr>
                                     <th>Ảnh</th>
                                     <th>Tên sản phẩm</th>
-                                    <th>Gía</th>
+                                    <th>Giá</th>
 
                                     <th>Số lượng</th>
                                 </tr>
@@ -65,7 +65,7 @@ const Bill = () => {
                                             )}
                                         </td>
                                         <td>{cart.productId.name}</td>
-                                        <td>{cart.productId.price}</td>
+                                        <td>{formatPrice(cart.productId.price)}</td>
                                         <td>{cart.quantity}</td>
                                     </tr>
                                 ))}

@@ -22,6 +22,8 @@ import Checkout from "./pages/Checkout";
 import Notfound from "./pages/Notfound";
 import Bill from "./pages/Bill";
 import HistoryUser from "./pages/HistoryUser";
+import OrderDetail from "./pages/Admin/Order/OrderDetail";
+import Orders from "./pages/Admin/Order/Orders";
 function App() {
   const routes = useRoutes([
     {
@@ -37,7 +39,6 @@ function App() {
         { path: "/history", element: <HistoryUser /> }
       ],
     },
-
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path: "*", element: <Notfound /> },
@@ -54,6 +55,8 @@ function App() {
         { path: "/admin/products/update/:id", element: <UpdateProduct /> },
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
+        { path: "/admin/order", element: <Orders /> },
+        { path: "/admin/order/:id", element: <OrderDetail /> }
       ],
     },
   ]);

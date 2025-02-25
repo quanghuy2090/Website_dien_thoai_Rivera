@@ -62,7 +62,7 @@ const HistoryUser = () => {
                                         )}
                                     </li>
                                     <li>{cart.productId.name}</li>
-                                    <li>{cart.productId.price}</li>
+                                    <li>{formatPrice(cart.productId.price)}</li>
                                     <li>{cart.quantity}</li>
                                 </div>
                             ))}</td>
