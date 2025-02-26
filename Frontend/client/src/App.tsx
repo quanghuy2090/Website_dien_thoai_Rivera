@@ -24,6 +24,7 @@ import Bill from "./pages/Bill";
 import HistoryUser from "./pages/HistoryUser";
 import OrderDetail from "./pages/Admin/Order/OrderDetail";
 import Orders from "./pages/Admin/Order/Orders";
+import ListDetailCategory from "./pages/Admin/Categories/ListDetailCategory";
 function App() {
   const routes = useRoutes([
     {
@@ -50,6 +51,7 @@ function App() {
         { path: "/admin/category", element: <ListCategories /> },
         { path: "/admin/category/add", element: <AddCategories /> },
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },
+        { path: "/admin/category/detail/:id", element: <ListDetailCategory /> },
         { path: "/admin/products", element: <ListProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/update/:id", element: <UpdateProduct /> },

@@ -1,9 +1,4 @@
 
-
-import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
-import { Carts, deleteCart, getCart } from '../services/cart';
-
 import React, { useEffect, useState } from "react";
 import { Carts, deleteCart, getCart, updateCart } from "./../services/cart";
 import toast from "react-hot-toast";

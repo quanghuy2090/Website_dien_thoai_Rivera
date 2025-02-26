@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
-
+import { FaEye } from "react-icons/fa";
 const ListCategories = () => {
   const [category, setCategory] = useState<Category[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -84,6 +84,7 @@ const ListCategories = () => {
               <td>
                 <button className='btn btn-danger' onClick={() => remove(category._id)}> <MdDelete /></button>
                 <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'> <GrUpdate /></Link>
+                <Link to={`/admin/category/detail/${category._id}`} className='btn btn-success'><FaEye /></Link>
               </td>
             </tr>
           ))}
