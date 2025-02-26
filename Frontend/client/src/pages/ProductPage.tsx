@@ -84,6 +84,7 @@ const ProductPage = () => {
       if (!user || !user._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
         nav("/login");
+        return;
       }
       const cart: Carts = {
         _id: "", // Backend tự tạo `_id`
@@ -95,7 +96,7 @@ const ProductPage = () => {
       const { data } = await addCart(cart);
 
       // 🎉 Hiển thị thông báo thành công
-      toast.success("Cart added successfully");
+      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
 
       console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
@@ -104,11 +105,15 @@ const ProductPage = () => {
     }
   };
 
+  const formatPrice = (price) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+  };
+
   return (
     <>
       {/* Page Header Start */}
       <div className="container-fluid bg-secondary mb-5">
-        <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: 300 }}>
+        <div className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: 150 }}>
           <h1 className="font-weight-semi-bold text-uppercase mb-3">Our Shop</h1>
           <div className="d-inline-flex">
             <p className="m-0">
@@ -221,7 +226,7 @@ const ProductPage = () => {
                       <div className="card-body border-left border-right text-center p-0 pt-4 pb-3">
                         <h6 className="text-truncate mb-3">{product.name}</h6>
                         <div className="d-flex justify-content-center">
-                          <h6>${product.price}</h6>
+                          <h6>{formatPrice(product.price)}</h6>
                         </div>
                       </div>
                       <div className="card-footer d-flex justify-content-between bg-light border">

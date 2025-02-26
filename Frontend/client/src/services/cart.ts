@@ -19,4 +19,7 @@ export const getCart = (userId: string) => {
 export const deleteCart = (userId:string,productId:string) => {
     return http.delete(`/cart/${userId}/${productId}`);
 }
+export const updateCart = (userId: string,productId:string, quantity:number) => {
+    return http.put(`/cart/${userId}`,{productId,quantity});
+}
 

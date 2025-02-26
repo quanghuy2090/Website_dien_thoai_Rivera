@@ -45,7 +45,7 @@ const Admin = () => {
             <a className="nav-link" href="/admin/user"><i className="bi bi-people me-2"></i>Users</a>
           </li>
           <li className="nav-item">
-            <a className="nav-link" href="#"><i className="bi bi-card-checklist me-2"></i>Orders</a>
+            <a className="nav-link" href="/admin/order"><i className="bi bi-card-checklist me-2"></i>Orders</a>
           </li>
           <li className="nav-item">
             <a className="nav-link" href="#"><i className="bi bi-gear me-2"></i>Settings</a>

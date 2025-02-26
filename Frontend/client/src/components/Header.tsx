@@ -72,10 +72,6 @@ export function Header() {
           </div>
           <div className="col-lg-3 col-6 text-right">
             <a href="" className="btn border">
-              <i className="fas fa-heart text-primary" />
-              <span className="badge">0</span>
-            </a>
-            <a href="" className="btn border">
               <i className="fas fa-shopping-cart text-primary" />
               <span className="badge">0</span>
             </a>
@@ -143,6 +139,9 @@ export function Header() {
                     </a>
                     <a href="/cart" className="nav-item nav-link">
                       Giỏ hàng
+                    </a>
+                    <a href="/history" className="nav-item nav-link">
+                      Lịch sử đơn hàng
                     </a>
                     {/* <a href="" className="nav-item nav-link">
                       Checkout

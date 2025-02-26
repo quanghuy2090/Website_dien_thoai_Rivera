@@ -34,6 +34,7 @@ const HomePage = () => {
       if (!user || !user._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
         nav("/login");
+        return;
       }
       const cart: Carts = {
         _id: "", // Backend tự tạo `_id`
@@ -45,13 +46,17 @@ const HomePage = () => {
       const { data } = await addCart(cart);
 
       // 🎉 Hiển thị thông báo thành công
-      toast.success("Cart added successfully");
+      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
 
       console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
       console.error(" Lỗi khi thêm vào giỏ hàng:", error);
       toast.error("Error");
     }
+  };
+
+  const formatPrice = (price: number) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
   };
 
   return (
@@ -190,7 +195,8 @@ const HomePage = () => {
                     <h6 className="text-truncate mb-3">{product.name}</h6>
                   </Link>
                   <div className="d-flex justify-content-center">
-                    <h6>${product.price}</h6>
+                    <h6>{formatPrice(product.price)}</h6>{" "}
+                    {/* Format the price here */}
                   </div>
                 </div>
                 <div className="card-footer d-flex justify-content-between bg-light border">
@@ -214,8 +220,8 @@ const HomePage = () => {
           >
             «
           </button>
-          <span className="mx-2">
-            {currentPage} of {totalPages}
+          <span className="mx-2 mt-2">
+            {currentPage}/{totalPages}
           </span>
           <button
             className="btn btn-primary"

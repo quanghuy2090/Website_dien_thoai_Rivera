@@ -5,7 +5,9 @@
  * Copyright 2011-2020 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
-
+.test{
+  color: #d4e0ed;
+}
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -6579,7 +6581,7 @@ button.bg-dark:focus {
 }
 
 .border {
-  border: 1px solid #edf1ff !important;
+  border: 1px solid #d4e0ed !important;
 }
 
 .border-top {
@@ -9996,6 +9998,12 @@ a.text-dark:focus {
 
 .back-to-top:hover {
   background: #0056b3;
+}
+
+.big-error {
+  font-size: 6rem; /* Adjust the size as needed */
+  font-weight: bold; /* Optional: make it bold */
+  color: #dc3545; /* Optional: change the color (e.g., red) */
 }
 
 @keyframes action {

@@ -98,55 +98,7 @@ export const create = async (req, res) => {
   }
 };
 
-// export const update = async (req, res) => {
-//   try {
-//     // Validate dữ liệu từ body
-//     const { error } = productValidation.validate(req.body, {
-//       abortEarly: false,
-//     });
-//     if (error) {
-//       return res.status(400).json({
-//         message: error.details.map((detail) => detail.message).join(", "),
-//       });
-//     }
 
-//     // Cập nhật sản phẩm
-//     const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-//       new: true, // Trả về dữ liệu đã cập nhật
-//     });
-//     if (!product) {
-//       return res.status(404).json({
-//         message: "Cập nhật sản phẩm không thành công",
-//       });
-//     }
-
-//     // Cập nhật category (nếu có categoryId trong body)
-//     if (req.body.categoryId) {
-//       const updateCategory = await Category.findByIdAndUpdate(
-//         req.body.categoryId,
-//         {
-//           $addToSet: {
-//             products: product._id,
-//           },
-//         }
-//       );
-//       if (!updateCategory) {
-//         return res.status(404).json({
-//           message: "Cập nhật danh mục không thành công",
-//         });
-//       }
-//     }
-
-//     return res.status(200).json({
-//       message: "Cập nhật sản phẩm thành công",
-//       data: product,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: error.message,
-//     });
-//   }
-// };
 
 export const update = async (req, res) => {
   try {

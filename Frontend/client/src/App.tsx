@@ -18,7 +18,12 @@ import HomePage from "./pages/Homepage";
 import ListUser from "./pages/Admin/User/ListUser";
 import DetailUser from "./pages/Admin/User/DetailUser";
 import Cart from "./pages/Cart";
-
+import Checkout from "./pages/Checkout";
+import Notfound from "./pages/Notfound";
+import Bill from "./pages/Bill";
+import HistoryUser from "./pages/HistoryUser";
+import OrderDetail from "./pages/Admin/Order/OrderDetail";
+import Orders from "./pages/Admin/Order/Orders";
 function App() {
   const routes = useRoutes([
     {
@@ -29,11 +34,14 @@ function App() {
         { path: "/cart", element: <Cart /> },
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
+        { path: "/checkout", element: <Checkout /> },
+        { path: "/bill", element: <Bill /> },
+        { path: "/history", element: <HistoryUser /> }
       ],
     },
-
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
+    { path: "*", element: <Notfound /> },
     {
       path: "/admin",
       element: <AdminLayout />,
@@ -47,6 +55,8 @@ function App() {
         { path: "/admin/products/update/:id", element: <UpdateProduct /> },
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
+        { path: "/admin/order", element: <Orders /> },
+        { path: "/admin/order/:id", element: <OrderDetail /> }
       ],
     },
   ]);
