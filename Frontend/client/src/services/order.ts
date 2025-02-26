@@ -1,4 +1,5 @@
 import { http } from "../config/axios";
+import { User } from "./auth";
 import { Carts } from "./cart";
 
 export type IShippingAddress = {
@@ -12,7 +13,7 @@ export type IShippingAddress = {
 }
 export type Order = {
     _id: string;
-    userId: string;
+    userId: User;
     orderItems: Carts[];
     shippingAddress: IShippingAddress;
     paymentMethod: "COD" | "Credit Card" | "Bank Transfer";
@@ -45,6 +46,16 @@ export const createOrder = (order: Omit<Order, "_id" | "createdAt" | "updatedAt"
 
 export const getOrderUser = (userId:string) => {
     return http.get(`/order/${userId}`);
+}
+
+export const getAllOrder = () => {
+    return http.get("/order");
+}
+export const getDetailOrder = (orderId:string) => {
+    return http.get(`/order/detail/${orderId}`);
+}
+export const updateStatusOrder = (orderId: string,orderStatus:Order["orderStatus"],cancellationReason:string) => {
+    return http.put(`/order/${orderId}`, { orderStatus, cancellationReason });
 }
 
 

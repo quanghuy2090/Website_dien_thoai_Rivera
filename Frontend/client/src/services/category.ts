@@ -1,11 +1,12 @@
 
 import { http } from "../config/axios";
+import { Product } from "./product";
 
 export type Category = {
     _id: string;
     name: string;
     slug: string;
-    products?: string[];
+    products?: Product[];
 }
 
 export const addCategories = (category:Category) => {
