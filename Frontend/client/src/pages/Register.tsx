@@ -19,7 +19,6 @@ const Register = () => {
   };
   return (
     <div>
-      <h4>Register</h4>
       <AuthForm onSubmit={handleRegister} mode="register"/>
     </div>
   );
