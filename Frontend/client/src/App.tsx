@@ -25,6 +25,7 @@ import HistoryUser from "./pages/HistoryUser";
 import OrderDetail from "./pages/Admin/Order/OrderDetail";
 import Orders from "./pages/Admin/Order/Orders";
 import ListDetailCategory from "./pages/Admin/Categories/ListDetailCategory";
+import DetailAdminProduct from "./pages/Admin/Product/DetailAdminProduct";
 function App() {
   const routes = useRoutes([
     {
@@ -54,7 +55,8 @@ function App() {
         { path: "/admin/category/detail/:id", element: <ListDetailCategory /> },
         { path: "/admin/products", element: <ListProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
-        { path: "/admin/products/update/:id", element: <UpdateProduct /> },
+        { path: "/admin/products/update/:id", element: <UpdateProduct /> }, 
+        { path: "/admin/products/detail/:id", element: <DetailAdminProduct /> }, 
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
         { path: "/admin/order", element: <Orders /> },
