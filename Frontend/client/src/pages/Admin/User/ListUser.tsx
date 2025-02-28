@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { deleteUser, getUser, User } from '../../../services/auth'
-import toast from 'react-hot-toast'
+import { getUser, User } from '../../../services/auth'
+
 import { Link } from 'react-router-dom'
-import { MdDelete } from "react-icons/md";
+
 import { FaEye } from "react-icons/fa";
 const ListUser = () => {
     const [user, setUser] = useState<User[]>([])
@@ -18,19 +18,6 @@ const ListUser = () => {
         setUser(res.data.data);
     }
 
-    const removeUser = async (_id: string) => {
-        try {
-            const isConfirmed = window.confirm("Are you sure you want to remove");
-            if (isConfirmed) {
-                setUser((prevUser) => prevUser.filter((user) => user._id !== _id));
-                await deleteUser(_id);
-                toast.success("User deleted successfully");
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error("Error deleting user");
-        }
-    }
 
     return (
         <div className='col-md-10 ms-sm-auto px-md-4 mt-4 '>
@@ -59,7 +46,7 @@ const ListUser = () => {
                             <td>{u.phone}</td>
                             <td>{u.role}</td>
                             <td>
-                                <button className='btn btn-danger' onClick={() => removeUser(u._id)}> <MdDelete /></button>
+                               
                                 <Link to={`/admin/user/${u._id}`} className='btn btn-warning'><FaEye /></Link>
                             </td>
                         </tr>
