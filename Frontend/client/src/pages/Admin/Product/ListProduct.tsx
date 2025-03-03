@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
+import { FaEye } from "react-icons/fa";
 const ListProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -154,6 +155,9 @@ const ListProduct = () => {
                   </button>
                   <Link to={`/admin/products/update/${product._id}`} className="btn btn-warning">
                     <GrUpdate />
+                  </Link>
+                  <Link to={`/admin/products/detail/${product._id}`} className="btn btn-info">
+                  <FaEye />
                   </Link>
                 </td>
               </tr>

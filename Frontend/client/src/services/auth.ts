@@ -25,10 +25,6 @@ export const getUser = () => {
   return http.get("/auth/user");
 };
 
-export const deleteUser = (_id: string) => {
-  return http.delete(`/auth/user/${_id}`);
-}
-
 export const getDetailUser = (_id:string) => {
   return http.get(`/auth/user/${_id}`);
 }

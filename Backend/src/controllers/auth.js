@@ -120,24 +120,7 @@ export const getUser = async (req, res) => {
   }
 }
 
-export const remove = async (req, res) => {
-  try {
-    const data = await User.findByIdAndDelete(req.params.id);
-    if (!data) {
-      return res.status(404).json({
-        message: "Xoa user khong thanh cong",
-      });
-    }
-    return res.status(200).json({
-      message: "Xoa user thanh cong",
-      data: data,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      message: error,
-    });
-  }
-};
+
 
 export const getDetailUser = async (req, res) => {
   try {
