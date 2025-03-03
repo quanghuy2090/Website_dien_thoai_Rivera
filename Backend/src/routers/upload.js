@@ -1,5 +1,5 @@
 import express from "express";
-import uploadCloud from './../controllers/upload.js';
+import uploadCloud from "./../controllers/upload.js";
 const router = express.Router();
 router.post("/upload", uploadCloud.array("images", 5), (req, res, next) => {
   if (!req.files || req.files.length === 0) {
