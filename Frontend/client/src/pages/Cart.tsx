@@ -247,7 +247,7 @@ const Cart = () => {
                   to={`/checkout`}
                   className="btn btn-block btn-primary my-3 py-3"
                 >
-                  Đến Trang Thanh Toán
+                  Thanh Toán
                 </Link>
               </div>
             </div>

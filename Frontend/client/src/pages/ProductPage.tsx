@@ -236,7 +236,7 @@ const ProductPage = () => {
                         </Link>
                         <button className="btn btn-sm text-dark p-0" onClick={() => addToCart(product)}>
                           <i className="fas fa-shopping-cart text-primary mr-1" />
-                          Them giỏ hàng
+                          Thêm giỏ hàng
                         </button>
                       </div>
                     </div>

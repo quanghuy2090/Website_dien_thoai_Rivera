@@ -191,6 +191,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                     id="password"
                     {...register("password", {
                       required: "Password is required",
+                      minLength: 6,
                     })}
                   />
                   {errors?.password && (
@@ -220,12 +221,13 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
               >
                 {mode === "login" ? "Đăng nhập" : "Đăng ký"}
               </button>
-              <button
-                className="btn btn-primary text-white"
+              <a
+                href="/"
+                className="btn btn-primary text-white text-decoration-none"
                 style={{ width: 170 }}
               >
                 Về trang chủ
-              </button>
+              </a>
             </div>
           </form>
         </div>
