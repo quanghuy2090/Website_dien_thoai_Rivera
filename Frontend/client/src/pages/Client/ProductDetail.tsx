@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { getProductById, Product } from "../services/product";
+import { getProductById, Product } from "../../services/product";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
-import { addCart, Carts } from "../services/cart";
+import { addCart, Carts } from "../../services/cart";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -89,7 +89,7 @@ const ProductDetail = () => {
     }
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     if (price === undefined || price === null) {
       return "0 VND"; // Return a default value if price is undefined
     }
@@ -143,7 +143,7 @@ const ProductDetail = () => {
               {product?.name}
             </h3>
             <h3 className="font-weight-semi-bold mb-4 ">
-              {formatPrice(product?.price)}
+              {formatPrice(product?.price ?? 0)}
             </h3>
             <div className="d-flex mb-3">
               <p className="text-dark font-weight-medium mb-0 mr-3">
@@ -255,7 +255,7 @@ const ProductDetail = () => {
                 <i className="fa fa-shopping-cart mr-1" /> Thêm giỏ hàng
               </button>
             </div>
-            <div className="d-flex align-items-center mb-4 pt-2">
+            {/* <div className="d-flex align-items-center mb-4 pt-2">
               <div className="input-group quantity mr-3" style={{ width: 130 }}>
                 <div className="input-group-btn">
                   <button className="btn btn-primary btn-minus">
@@ -276,7 +276,7 @@ const ProductDetail = () => {
               <button className="btn btn-primary px-3">
                 <i className="fa fa-shopping-cart mr-1" /> Thêm giỏ hàng
               </button>
-            </div>
+            </div> */}
             {/* <div className="d-flex pt-2">
         <p className="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
         <div className="d-inline-flex">

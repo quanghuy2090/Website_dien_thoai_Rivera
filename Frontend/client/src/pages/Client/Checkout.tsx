@@ -1,17 +1,11 @@
 import { useEffect, useState } from "react";
-import { Carts, getCart } from "../services/cart";
 import { useForm } from "react-hook-form";
-import {
-    createOrder,
-    District,
-    IShippingAddress,
-    Order,
-    Province,
-    Ward,
-} from "../services/order";
+
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { Carts, getCart } from "../../services/cart";
+import { createOrder, District, IShippingAddress, Order, Province, Ward } from "../../services/order";
 
 const Checkout = () => {
     const { register, handleSubmit, setValue, watch } = useForm<

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { getAllProduct, Product } from "../services/product";
-import { addCart, Carts } from "../services/cart";
+import { getAllProduct, Product } from "../../services/product";
+import { addCart, Carts } from "../../services/cart";
 
 const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -105,7 +105,7 @@ const ProductPage = () => {
     }
   };
 
-  const formatPrice = (price) => {
+  const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
   };
 

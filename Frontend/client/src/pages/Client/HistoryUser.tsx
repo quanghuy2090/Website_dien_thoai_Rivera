@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getOrderUser, Order, updateStatusOrder } from "../services/order";
+import { getOrderUser, Order, updateStatusOrder } from "../../services/order";
 // import { useParams } from 'react-router-dom';
 
 const HistoryUser = () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getOrderUser, Order } from "../services/order";
+import { getOrderUser, Order } from "../../services/order";
 const Bill = () => {
     const [userId, setUserId] = useState<string | null>(null);
     console.log(userId);

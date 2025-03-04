@@ -1,10 +1,12 @@
 // import React from "react";
-import { AuthForm } from "../components/Form";
+
 import { SubmitHandler } from "react-hook-form";
 import { toast } from "react-hot-toast";
-import { loginUser, User } from "../services/auth";
+
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
+import { AuthForm } from "../../components/Form";
+import { loginUser, User } from "../../services/auth";
 
 const Login = () => {
   const nav = useNavigate();
