@@ -5,11 +5,10 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-const { SECRET_CODE } = process.env;
-
+// Đăng Kí
 export const signUp = async (req, res) => {
   try {
-    //Buoc 1: Validate du lieu nguoi dung
+    // Bước 1: Validate dữ liệu người dùng
     const { error } = singUpValidate.validate(req.body, { abortEarly: false });
     if (error) {
       const errors = error.details.map((err) => err.message);
@@ -17,32 +16,40 @@ export const signUp = async (req, res) => {
         message: errors,
       });
     }
-    //Buoc 2: Kiem tra xem email da ton tai hay chua
+
+    // Bước 2: Kiểm tra xem email đã tồn tại hay chưa
     const userExists = await User.findOne({ email: req.body.email });
     if (userExists) {
       return res.status(400).json({
-        message: "Email nay da ton tai ",
+        message: "Email này đã tồn tại",
       });
     }
 
-    // Buoc 3: Ma hoa password
-
+    // Bước 3: Mã hóa mật khẩu
     const hashedPassword = await bcryptjs.hash(req.body.password, 10);
 
-    //Buoc 4: khoi tao user trong db
+    // Bước 4: Khởi tạo user trong database
+    const { userName, email, phone, address, password } = req.body;
     const user = await User.create({
-      ...req.body,
+      userName,
+      email,
+      phone,
+      address,
       password: hashedPassword,
     });
 
-    // buoc 5:Thong bao cho nguoi dung dang ki thanh cong
-    //xoa mat khau di
+    // Bước 5: Thông báo đăng ký thành công
     user.password = undefined;
-    return res.status(200).json({
-      message: "Dang ki thanh cong Account",
-      user,
+    return res.status(201).json({
+      message: "Đăng ký tài khoản thành công",
+      data: user,
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        message: "Email hoặc tên người dùng đã tồn tại",
+      });
+    }
     return res.status(500).json({
       name: error.name,
       message: error.message,
@@ -50,9 +57,10 @@ export const signUp = async (req, res) => {
   }
 };
 
+// Đăng nhập
 export const signIn = async (req, res) => {
   try {
-    // Buoc 1: Validate data tu phia client
+    // Bước 1: Validate dữ liệu từ client
     const { error } = singInValidate.validate(req.body, { abortEarly: false });
     if (error) {
       const errors = error.details.map((err) => err.message);
@@ -61,38 +69,45 @@ export const signIn = async (req, res) => {
       });
     }
 
-    // Buoc 2: Kiem tra email da ton tai hay chua
+    // Bước 2: Kiểm tra email có tồn tại hay không
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return res.status(404).json({
-        message: "Email nay chua duoc dang ky, ban co muon dang ky khong",
+        message: "Email này chưa được đăng ký, bạn có muốn đăng ký không?",
       });
     }
     if (user.status !== "active") {
-      return res
-        .status(403)
-        .json({ message: "Tài khoản của bạn đã bị vô hiệu hóa" });
-    }
-
-    //Buoc 3: Kiem tra password
-    const isMatch = await bcryptjs.compare(req.body.password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Mat khau khong dung",
+      return res.status(403).json({
+        message: "Tài khoản của bạn đã bị vô hiệu hóa",
       });
     }
 
-    //Buoc 4: Tao JWT
+    // Bước 3: Kiểm tra mật khẩu
+    const isMatch = await bcryptjs.compare(req.body.password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Mật khẩu không đúng",
+      });
+    }
+
+    // Bước 4: Tạo JWT
+    const SECRET_CODE = process.env.SECRET_CODE || "default_secret";
+    if (!SECRET_CODE) {
+      throw new Error("SECRET_CODE không được cấu hình");
+    }
     const accessToken = jwt.sign({ _id: user._id }, SECRET_CODE, {
       expiresIn: "1d",
     });
 
-    //Buoc 5: tra ra thong bao cho nguoi dung
+    // Bước 5: Trả về thông báo cho người dùng
     user.password = undefined;
     return res.status(200).json({
-      message: "Dang nhap thanh cong",
-      user,
-      accessToken,
+      message: "Đăng nhập thành công",
+      data: {
+        user,
+        accessToken,
+        expiresIn: "1d",
+      },
     });
   } catch (error) {
     return res.status(500).json({
