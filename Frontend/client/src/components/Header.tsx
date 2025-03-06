@@ -5,6 +5,7 @@ export function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolling, setScrolling] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -38,6 +39,11 @@ export function Header() {
   const toggleDropdown = (e: React.MouseEvent) => {
     e.preventDefault();
     setDropdownOpen(!dropdownOpen);
+  };
+
+  const toggleAccountDropdown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setAccountDropdownOpen(!accountDropdownOpen);
   };
 
   return (
@@ -81,7 +87,7 @@ export function Header() {
         {/* Categories Dropdown */}
         <div className="container-fluid mb-5 position-relative">
           <div className="row border-top px-xl-5">
-            <div className="col-lg-3 d-none d-lg-block">
+            {/* <div className="col-lg-3 d-none d-lg-block">
               <a
                 className="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100"
                 onClick={toggleDropdown}
@@ -96,8 +102,6 @@ export function Header() {
                   style={{ zIndex: 1000, left: 12, top: 65, width: "92%" }} // Adjust width
                 >
                   <div className="navbar-nav w-100 overflow-hidden border bg-white">
-                    {" "}
-                    {/* Set min height */}
                     {categories.map((category, index) => (
                       <a key={index} href="#" className="nav-item nav-link">
                         {category.name}
@@ -106,10 +110,10 @@ export function Header() {
                   </div>
                 </nav>
               )}
-            </div>
+            </div> */}
 
             {/* Other Navbar Content */}
-            <div className="col-lg-9">
+            <div className="col">
               <nav className="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
                 <a href="" className="text-decoration-none d-block d-lg-none">
                   <h1 className="m-0 display-5 font-weight-semi-bold">
@@ -140,13 +144,6 @@ export function Header() {
                     <a href="/cart" className="nav-item nav-link">
                       Giỏ hàng
                     </a>
-                    {/* <a href="" className="nav-item nav-link">
-                      Checkout
-                    </a>
-
-                    <a href="contact.html" className="nav-item nav-link">
-                      Contact
-                    </a> */}
                   </div>
                   <div className="navbar-nav ml-auto py-0">
                     {!token && (
@@ -160,18 +157,32 @@ export function Header() {
                       </>
                     )}
                     {token && (
-                      <>
-                        <a href="" className="nav-item nav-link">
-                          Tài khoản
-                        </a>
+                      <div className="nav-item dropdown">
                         <a
-                          onClick={handleLogout}
-                          href=""
-                          className="nav-item nav-link"
+                          href="#"
+                          className="nav-link"
+                          onClick={toggleAccountDropdown}
                         >
-                          Đăng xuất
+                          Tài khoản <i className="fa" />
                         </a>
-                      </>
+                        {accountDropdownOpen && (
+                          <div className="dropdown-menu show">
+                            <a href="/profile" className="dropdown-item">
+                              Hồ sơ
+                            </a>
+                            <a href="/history" className="dropdown-item">
+                              Đơn hàng
+                            </a>
+                            <a
+                              onClick={handleLogout}
+                              href="#"
+                              className="dropdown-item"
+                            >
+                              Đăng xuất
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -180,6 +191,7 @@ export function Header() {
           </div>
         </div>
         {/* Navbar End */}
+
         {/* Back to top button */}
         <button
           className={`back-to-top ${scrolling ? "show" : ""}`}

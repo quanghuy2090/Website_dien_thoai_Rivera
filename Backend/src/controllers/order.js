@@ -165,7 +165,7 @@ export const getAllOrders = async (req, res) => {
   try {
     // Truy vấn tất cả đơn hàng, sắp xếp theo thời gian mới nhất
     const orders = await Order.find()
-      .populate("userId", "userName email") // Lấy thông tin user đặt đơn
+      .populate("userId", "userName email").populate("orderItems.productId", "name price images") // Lấy thông tin user đặt đơn
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -190,7 +190,7 @@ export const getAllOrdersByUser = async (req, res) => {
     const orders = await Order.find({ userId }).populate(
       "userId",
       "userName email"
-    );
+    ).populate("orderItems.productId", "name price images");
 
     if (!orders || orders.length === 0) {
       return res
@@ -219,14 +219,14 @@ export const getOrderDetails = async (req, res) => {
     // Tìm đơn hàng theo ID, populate để lấy thông tin user và product
     const order = await Order.findById(orderId)
       .populate("userId", "userName email phone address") // Lấy thông tin người mua
-      .populate("orderItems.productId", "name price image"); // Lấy thông tin sản phẩm
+      .populate("orderItems.productId", "name price images"); // Lấy thông tin sản phẩm
 
     if (!order) {
       return res.status(404).json({ success: false, message: "Đơn hàng không tồn tại" });
     }
 
     return res.status(200).json({
-      message: "Lấy chi tiết đơn hàng thành công!", 
+      message: "Lấy chi tiết đơn hàng thành công!",
       success: true,
       order,
     });

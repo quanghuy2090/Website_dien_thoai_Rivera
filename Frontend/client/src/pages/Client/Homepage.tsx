@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getAllProduct, Product } from "../services/product";
-import { addCart, Carts } from "../services/cart";
+import { getAllProduct, Product } from "../../services/product";
+import { addCart, Carts } from "../../services/cart";
 import toast from "react-hot-toast";
 // import { Footer } from "../components/Footer";
-import { Carousel } from "../components/Carousel";
+import { Carousel } from "../../components/Carousel";
 import { Link, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
@@ -53,6 +53,10 @@ const HomePage = () => {
       console.error(" Lỗi khi thêm vào giỏ hàng:", error);
       toast.error("Error");
     }
+  };
+
+  const formatPrice = (price: number) => {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
   };
 
   return (
@@ -191,7 +195,8 @@ const HomePage = () => {
                     <h6 className="text-truncate mb-3">{product.name}</h6>
                   </Link>
                   <div className="d-flex justify-content-center">
-                    <h6>${product.price}</h6>
+                    <h6>{formatPrice(product.price)}</h6>{" "}
+                    {/* Format the price here */}
                   </div>
                 </div>
                 <div className="card-footer d-flex justify-content-between bg-light border">
@@ -215,8 +220,8 @@ const HomePage = () => {
           >
             «
           </button>
-          <span className="mx-2">
-            Trang {currentPage}/{totalPages}
+          <span className="mx-2 mt-2">
+            {currentPage}/{totalPages}
           </span>
           <button
             className="btn btn-primary"
