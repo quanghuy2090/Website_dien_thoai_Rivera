@@ -4,7 +4,22 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: "Roboto", sans-serif;
+}
+
+input[type="password"]::-webkit-inner-spin-button,
+input[type="password"]::-webkit-outer-spin-button {
+  -webkit-appearance: none; /* Remove default appearance */
+  margin: 0; /* Remove margin */
+}
+
+input[type="password"] {
+  -webkit-text-security: disc; /* Hides the password characters */
+}
+
+/* Hide the default show/hide button in WebKit browsers */
+input[type="password"]::-webkit-password-field {
+  -webkit-appearance: none; /* Remove default appearance */
 }
 
 .container {
@@ -27,7 +42,12 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent layer (black with 50% opacity) */
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* Semi-transparent layer (black with 50% opacity) */
   z-index: 0; /* Ensure it sits below the form */
 }
 
@@ -38,6 +58,11 @@
   padding: 30px;
   border-radius: 6px;
   background: #fff;
+  max-height: 85vh; /* Chiều cao tối đa */
+  overflow-y: auto;
+}
+.form::-webkit-scrollbar {
+  width: 0; /* Hide scrollbar */
 }
 .form.signup {
   opacity: 0;
@@ -128,7 +153,7 @@ form {
   background-color: #d4d4d4;
 }
 .line::before {
-  content: "Or";
+  content: "Hoặc";
   position: absolute;
   top: 50%;
   left: 50%;
