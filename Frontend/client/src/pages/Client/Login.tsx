@@ -32,9 +32,9 @@ const Login = () => {
       });
   };
   return (
-    <div >
+    <>
       <AuthForm onSubmit={handleLogin} mode="login" />
-    </div>
+    </>
   );
 };
 
