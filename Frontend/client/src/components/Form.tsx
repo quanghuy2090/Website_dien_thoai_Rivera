@@ -264,18 +264,18 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                   </div>
                   <div className="form-link">
                     <a href="#" className="forgot-pass">
-                      Forgot password?
+                      Quên mật khẩu?
                     </a>
                   </div>
                   <div className="field button-field">
-                    <button>Login</button>
+                    <button>Đăng nhập</button>
                   </div>
                 </form>
                 <div className="form-link">
                   <span>
-                    Don't have an account?{" "}
+                    Chưa có tài khoản?{" "}
                     <a href="/register" className="link signup-link">
-                      Signup
+                      Đăng ký
                     </a>
                   </span>
                 </div>
@@ -284,13 +284,13 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
               <div className="media-options">
                 <a href="#" className="field facebook">
                   <i className="bx bxl-facebook facebook-icon" />
-                  <span>Login with Facebook</span>
+                  <span>Đăng nhập với Facebook</span>
                 </a>
               </div>
               <div className="media-options">
                 <a href="/register" className="field google">
                   <img src=".\image\google-icon.webp" className="google-img" />
-                  <span>Login with Google</span>
+                  <span>Đăng nhập với Google</span>
                 </a>
               </div>
             </div>
