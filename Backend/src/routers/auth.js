@@ -4,16 +4,18 @@ import {
   signIn,
   getUser,
   getDetailUser,
-  updateStatus,
   updateRole,
+  updateUser,
 } from "../controllers/auth.js";
+import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
+import { checkUserPermission } from "../middlewares/checkUserPermission.js";
 
 const routerAuth = Router();
 
 routerAuth.post("/singup", signUp);
 routerAuth.post("/singin", signIn);
-routerAuth.get("/user", getUser);
-routerAuth.get("/user/:id", getDetailUser);
-routerAuth.put("/user/:id", updateStatus);
-routerAuth.put("/user-role/:id", updateRole);
+routerAuth.get("/user", checkAdminPermission, getUser);
+routerAuth.get("/user/:id", checkUserPermission, getDetailUser);
+routerAuth.put("/user/:id", checkUserPermission, updateUser);
+routerAuth.put("/user/:id/role", checkAdminPermission, updateRole);
 export default routerAuth;
