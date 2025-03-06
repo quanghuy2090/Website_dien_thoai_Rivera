@@ -7,14 +7,16 @@ import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { AuthForm } from "../../components/Form";
 import { loginUser, User } from "../../services/auth";
+import { log } from "node:console";
 
 const Login = () => {
   const nav = useNavigate();
   const handleLogin: SubmitHandler<User> = (values) => {
     loginUser(values)
       .then(({ data }) => {
-        localStorage.setItem("token", data.accessToken);
-        localStorage.setItem(`user`, JSON.stringify(data.user));
+        console.log("data:",data)
+        localStorage.setItem("token", data.data.accessToken);
+        localStorage.setItem(`user`, JSON.stringify(data.data.user));
         toast.success("Dang nhap thanh cong");
         nav("/");
       })
@@ -32,7 +34,7 @@ const Login = () => {
       });
   };
   return (
-    <div >
+    <div>
       <AuthForm onSubmit={handleLogin} mode="login" />
     </div>
   );
