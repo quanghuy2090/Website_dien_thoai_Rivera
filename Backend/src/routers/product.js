@@ -1,20 +1,22 @@
 import express from "express";
 import {
-  create,
-  getAll,
+  createProduct,
+  getAllProduct,
   getDetail,
-  remove,
+  removeProduct,
   searchProductByName,
-  update,
+  updateProduct,
 } from "../controllers/product.js";
+import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
 
 const routerProduct = express.Router();
 
-routerProduct.get("/", getAll);
+routerProduct.get("/", checkAdminPermission, getAllProduct);
 routerProduct.get("/:id", getDetail);
-routerProduct.post("/", create);
-routerProduct.put("/:id", update);
-routerProduct.delete("/:id", remove);
+routerProduct.post("/", checkAdminPermission, createProduct);
+routerProduct.put("/:id", checkAdminPermission, updateProduct);
+routerProduct.delete("/:id", checkAdminPermission, removeProduct);
+
 // tim kiem san pham
 routerProduct.post("/search", searchProductByName);
 
