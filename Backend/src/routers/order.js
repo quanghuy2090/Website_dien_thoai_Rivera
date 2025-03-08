@@ -7,7 +7,6 @@ import {
   removeOrder,
   updateOrder,
 } from "../controllers/order.js";
-import { checkPromission } from "../middlewares/checkPromission.js";
 
 const routerOrder = express.Router();
 

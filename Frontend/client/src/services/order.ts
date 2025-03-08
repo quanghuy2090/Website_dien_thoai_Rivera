@@ -3,9 +3,9 @@ import { User } from "./auth";
 import { Carts } from "./cart";
 
 export type IShippingAddress = {
-  fullName: string;
-  phone: string;
-  address: string;
+  // fullName: string;
+  // phone: string;
+  // address: string;
   ward: string;
   district: string;
   city: string;

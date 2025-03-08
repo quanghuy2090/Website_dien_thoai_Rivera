@@ -11,7 +11,7 @@ const Login = () => {
   const handleLogin: SubmitHandler<User> = (values) => {
     loginUser(values)
       .then(({ data }) => {
-        console.log("data:",data)
+        console.log("data:", data)
         localStorage.setItem("token", data.data.accessToken);
         localStorage.setItem(`user`, JSON.stringify(data.data.user));
         toast.success("Dang nhap thanh cong");

@@ -21,10 +21,17 @@ const Orders = () => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
   };
   return (
-    <div className="container mt-4">
-      <div className="table">
-        <table className="table table-hover table-bordered">
-          <thead className="table-primary">
+    <div className="content">
+      <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
+        <i className="bi bi-receipt-cutoff me-2"></i> Quản lý Đơn hàng
+      </h1>
+      <p className="mb-4 text-secondary">
+        Đây là danh sách các đơn hàng. Bạn có thể kiểm tra trạng thái, cập nhật thông tin vận chuyển hoặc hủy đơn hàng nếu cần.
+      </p>
+
+      <div className="table-container">
+        <table className="table table-bordered">
+          <thead>
             <tr>
               <th scope="col">Mã đơn hàng</th>
               <th scope="col">Ngày đặt</th>
@@ -32,6 +39,7 @@ const Orders = () => {
               <th scope="col">Tổng tiền</th>
               <th scope="col">Ten kh</th>
               <th scope="col">Email</th>
+              <th scope="col">Sđt</th>
               <th scope="col">Địa chỉ giao hàng</th>
               <th scope="col">Trạng thái đơn hàng</th>
               <th scope="col">Phương thức thanh toán</th>
@@ -44,23 +52,36 @@ const Orders = () => {
               <tr>
                 <td>{order._id}</td>
                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td>
-                  {order.orderItems.map((cart) => (
+                <table className="table table-bordered border-primary">
+                  <thead>
                     <tr>
-                      <td>{cart.productId.images && (
-                                            <img src={cart.productId.images[0]} alt="" width={50} />
-                                        )}</td>
-                      <td>{cart.productId.name}</td>
-                      <td>{formatPrice(cart.productId.price)}</td>
-                      <td>{cart.quantity}</td>
+                      <th scope="col">Hình Ảnh</th>
+                      <th scope="col">Tên Sản Phẩm</th>
+                      <th scope="col">Giá</th>
+                      <th scope="col">Số Lượng</th>
                     </tr>
-                  ))}
-                </td>
+                  </thead>
+                  <tbody>
+                    {order.orderItems.map((cart, index) => (
+                      <tr key={index} className="align-middle text-center">
+                        <td>
+                          {cart.productId.images && (
+                            <img src={cart.productId.images[0]} alt="" width={50} className="rounded" />
+                          )}
+                        </td>
+                        <td className="text-start fw-semibold">{cart.productId.name}</td>
+                        <td>{formatPrice(cart.productId.price)}</td>
+                        <td>{cart.quantity}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
                 <td>{formatPrice(order.totalPrice)}</td>
                 <td>{order.userId.userName}</td>
                 <td>{order.userId.email}</td>
+                <td>{order.userId.phone}</td>
                 <td>
-                  {order.shippingAddress.address}, {order.shippingAddress.ward},{" "}
+                  {order.userId.address}, {order.shippingAddress.ward},{" "}
                   {order.shippingAddress.district}, {order.shippingAddress.city}
                 </td>
                 <td>{order.orderStatus}</td>
