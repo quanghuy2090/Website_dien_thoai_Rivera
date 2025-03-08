@@ -13,7 +13,6 @@ export type User = {
 };
 
 export const registerUser = (data: User) => {
-  console.log(data)
   return http.post("/auth/singup", data);
 };
 

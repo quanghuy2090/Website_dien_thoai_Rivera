@@ -17,6 +17,10 @@ const Checkout = () => {
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
     const [wards, setWards] = useState<Ward[]>([]);
+    const [userName, setUserName] = useState<string>("");
+    const [address, setAddress] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [phone, setPhone] = useState<string>("");
     const nav = useNavigate();
     useEffect(() => {
         const fetchProvinces = async () => {
@@ -37,6 +41,10 @@ const Checkout = () => {
                 if (user && user._id) {
                     setUsetId(user._id);
                     fetchCart(user._id);
+                    setEmail(user.email || "");
+                    setUserName(user.userName || "");
+                    setAddress(user.address || "");
+                    setPhone(user.phone || "");
                 }
             } catch (error) {
                 console.log(error);
@@ -100,9 +108,9 @@ const Checkout = () => {
                 userId,
                 orderItems: carts,
                 shippingAddress: {
-                    fullName: formData.fullName,
-                    phone: formData.phone,
-                    address: formData.address,
+                    // fullName: formData.fullName,
+                    // phone: formData.phone,
+                    // address: formData.address,
                     ward: formData.ward,
                     district: formData.district,
                     city: formData.city,
@@ -164,24 +172,44 @@ const Checkout = () => {
                                     </h4>
                                     <div className="row">
                                         <div>
-                                            <div className=" form-group">
-                                                <label htmlFor="fullName">Họ và tên</label>
+                                            <div className="form-group">
+                                                <label htmlFor="userName">Người dùng</label>
                                                 <input
-                                                    type="text"
+                                                    type="text" disabled
                                                     className="form-control"
-                                                    {...register("fullName")}
+                                                    value={userName}
+                                                    placeholder="Nhập tên người dùng"
                                                 />
                                             </div>
 
-                                            <div className=" form-group">
+                                            <div className="form-group">
+                                                <label htmlFor="address">Email</label>
+                                                <input
+                                                    type="text" disabled
+                                                    className="form-control"
+                                                    value={email}
+                                                    placeholder="Nhập địa chỉ"
+                                                />
+                                            </div>
+
+                                            <div className="form-group">
                                                 <label htmlFor="phone">Số điện thoại</label>
                                                 <input
-                                                    type="text"
+                                                    type="text" disabled
                                                     className="form-control"
-                                                    {...register("phone")}
+                                                    value={phone}
+                                                    placeholder="Nhập số điện thoại"
                                                 />
                                             </div>
-
+                                            <div className="form-group">
+                                                <label htmlFor="phone">Địa chỉ</label>
+                                                <input
+                                                    type="text" disabled
+                                                    className="form-control"
+                                                    value={address}
+                                                    placeholder="Nhập số điện thoại"
+                                                />
+                                            </div>
                                             <div className=" form-group">
                                                 <label htmlFor="city">Tỉnh / Thành phố</label>
                                                 <select className="form-control" {...register("city")}>
@@ -226,14 +254,14 @@ const Checkout = () => {
                                                 </select>
                                             </div>
 
-                                            <div className=" form-group">
+                                            {/* <div className=" form-group">
                                                 <label htmlFor="address">Địa chỉ</label>
                                                 <input
                                                     type="text"
                                                     className="form-control"
                                                     {...register("address")}
                                                 />
-                                            </div>
+                                            </div> */}
                                         </div>
                                     </div>
                                 </div>

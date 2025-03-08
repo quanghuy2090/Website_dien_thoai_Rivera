@@ -55,25 +55,47 @@ const ListProduct = () => {
   }, [search]);
 
   return (
-    <div className="col-md-10 ms-sm-auto px-md-4">
-      {/* Ô tìm kiếm */}
-      <input
-        type="text"
-        className="form-control border-primary shadow-sm my-3 p-2"
-        placeholder=" Nhập tên sản phẩm..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {/* Nút thêm sản phẩm */}
-      <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
-        <IoMdAdd />
-      </Link>
-
+    <div className="content">
+      <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
+        <i className="bi bi-box-seam me-2"></i> Quản lý Sản phẩm
+      </h1>
+      <p className="mb-4 text-secondary">
+        Đây là danh sách sản phẩm trong cửa hàng. Bạn có thể quản lý, chỉnh sửa hoặc thêm mới sản phẩm.
+      </p>
       {/* Bảng danh sách sản phẩm */}
-      <div className="table-responsive">
-        <table className="table table-hover table-bordered align-middle text-center">
-          <thead className="table-primary">
+      <div className="table-container">
+        {/* <h2 className="h5 mb-4">DataTables Example</h2> */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          {/* Phần chọn số lượng hiển thị */}
+          <div>
+            <label className="d-flex align-items-center">
+              Show
+              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              entries
+            </label>
+          </div>
+
+          {/* Ô tìm kiếm căn phải */}
+          <div>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder="Nhập tên sản phẩm..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+        <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
+          <IoMdAdd />
+        </Link>
+        <table className="table table-bordered">
+          <thead className="thead-light">
             <tr>
               <th>ID</th>
               <th>Name</th>
@@ -150,14 +172,14 @@ const ListProduct = () => {
 
                 {/* Nút hành động */}
                 <td>
-                  <button className="btn btn-danger" onClick={() => deleteProduct(product._id)}>
+                  <button className="btn btn-danger me-2 " onClick={() => deleteProduct(product._id)}>
                     <MdDelete />
                   </button>
-                  <Link to={`/admin/products/update/${product._id}`} className="btn btn-warning">
+                  <Link to={`/admin/products/update/${product._id}`} className="btn btn-warning me-2">
                     <GrUpdate />
                   </Link>
-                  <Link to={`/admin/products/detail/${product._id}`} className="btn btn-info">
-                  <FaEye />
+                  <Link to={`/admin/products/detail/${product._id}`} className="btn btn-info mt-2">
+                    <FaEye />
                   </Link>
                 </td>
               </tr>

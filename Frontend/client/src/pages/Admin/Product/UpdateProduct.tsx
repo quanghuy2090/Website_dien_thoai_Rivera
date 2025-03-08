@@ -37,7 +37,7 @@ const UpdateProduct = () => {
 
       setImageInputs(prev => {
         const newInputs = [...prev];
-        newInputs[index] = { file, preview: imageUrl };
+        newInputs[index] = { file, preview: imageUrl }; // Cập nhật đúng vị trí
         return newInputs;
       });
     }
@@ -89,22 +89,24 @@ const UpdateProduct = () => {
       setValue("color", data.data.color);
       setValue("description", data.data.description);
 
-      setValue("categoryId._id", data.data.categoryId);
+      setValue("categoryId", typeof data.data.categoryId === "string" ? data.data.categoryId : data.data.categoryId?._id);
     })();
   }, []);
 
   const onSubmit = async (product: Product) => {
     try {
-      let imageUrls = imageInputs.map(img => img.preview); // Giữ ảnh cũ
+      let imageUrls = imageInputs.map(img => img.preview); // Lấy danh sách ảnh hiện có
 
-      // Nếu có ảnh mới, upload ảnh
+      // Upload ảnh mới nếu có
       const newFiles = imageInputs.map(img => img.file).filter(file => file !== null);
       if (newFiles.length > 0) {
         const uploadedUrls = await uploadImages(newFiles);
-        imageUrls = uploadedUrls;
+
+        // **Giữ thứ tự cũ, thay thế ảnh mới vào đúng vị trí**
+        imageUrls = imageInputs.map(img => img.file ? uploadedUrls.shift() || img.preview : img.preview);
       }
 
-      product.images = imageUrls;
+      product.images = imageUrls; // Gán danh sách ảnh đã cập nhật
       await updateProduct(id!, product);
       toast.success("Product updated successfully");
       nav("/admin/products");
@@ -114,31 +116,38 @@ const UpdateProduct = () => {
     }
   };
 
+
   return (
     <div className='col-md-10 ms-sm-auto px-md-4 mt-5'>
       <div className='row justify-content-center'>
         <div className='col-md-8'>
-          <form onSubmit={handleSubmit(onSubmit)} className="p-4 border rounded shadow-sm bg-light">
-            <div className='form-group'>
-              <label htmlFor="name">Name</label>
-              <input type="text" className='form-control' {...register("name")} />
-              {errors.name && <p className='text-danger'>{errors.name.message}</p>}
+          <div className='text-center'>
+            <h2 className="fw-bold text-primary">Update Sản Phẩm</h2>
+            <p className="text-muted">Quản lý sản phẩm cho cửa hàng Rivera</p>
+          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="p-4 border rounded bg-white shadow-sm">
+            <div className="row">
+              <div className='col-md-6 mb-3'>
+                <label htmlFor="name" className='fw-bold fs-6'>Name</label>
+                <input type="text" className='form-control' {...register("name")} />
+                {errors.name && <p className='text-danger'>{errors.name.message}</p>}
+              </div>
+
+              <div className='col-md-6 mb-3'>
+                <label htmlFor="price" className='fw-bold fs-6'>Price</label>
+                <input type="number" className='form-control' {...register("price", { valueAsNumber: true })} />
+                {errors.price && <p className='text-danger'>{errors.price.message}</p>}
+              </div>
             </div>
 
-            <div className='form-group'>
-              <label htmlFor="price">Price</label>
-              <input type="number" className='form-control' {...register("price", { valueAsNumber: true })} />
-              {errors.price && <p className='text-danger'>{errors.price.message}</p>}
-            </div>
-            <div className='form-group'>
-              <label htmlFor="description">Description</label>
-              <input type="text" className='form-control border-primary shadow-sm'{...register("description", { required: true })} />
+            <div className='mb-3'>
+              <label htmlFor="description" className='fw-bold fs-6'>Description</label>
+              <textarea className='form-control' {...register("description", { required: true })} />
               {errors.description && <p className='text-danger'>{errors.description.message}</p>}
             </div>
 
-
-            <div className='form-group'>
-              <label htmlFor="images">Images</label>
+            <div className='mb-3'>
+              <label htmlFor="images" className='fw-bold fs-6'>Images</label>
               {imageInputs.map((img, index) => (
                 <div key={index} className='d-flex align-items-center mb-2'>
                   <input type="file" onChange={(e) => handleImageChange(e, index)} className='form-control' />
@@ -152,21 +161,24 @@ const UpdateProduct = () => {
               ))}
               <button type='button' className='btn btn-outline-primary mt-2' onClick={addInput}>+ Thêm ảnh</button>
             </div>
-            <div className='form-group'>
-              <label htmlFor="stock">Stock</label>
-              <input type="number" className='form-control border-primary shadow-sm'{...register("stock", { required: true, valueAsNumber: true })} />
-              {errors.stock && <p className='text-danger'>{errors.stock.message}</p>}
+
+            <div className="row">
+              <div className='col-md-6 mb-3'>
+                <label htmlFor="stock" className='fw-bold fs-6'>Stock</label>
+                <input type="number" className='form-control' {...register("stock", { required: true, valueAsNumber: true })} />
+                {errors.stock && <p className='text-danger'>{errors.stock.message}</p>}
+              </div>
+
+              <div className='col-md-6 mb-3'>
+                <label htmlFor="color" className='fw-bold fs-6'>Color</label>
+                <input type="text" className='form-control' {...register("color", { required: true })} />
+                {errors.color && <p className='text-danger'>{errors.color.message}</p>}
+              </div>
             </div>
 
-            <div className='form-group'>
-              <label htmlFor="color">Color</label>
-              <input type="text" className='form-control border-primary shadow-sm'{...register("color", { required: true })} />
-              {errors.color && <p className='text-danger'>{errors.color.message}</p>}
-            </div>
-
-            <div className='form-group'>
-              <label htmlFor="categoryId">Categories</label>
-              <select className='form-control border-primary shadow-sm'{...register("categoryId", { required: true })}>
+            <div className='mb-3'>
+              <label htmlFor="categoryId" className='fw-bold fs-6'>Categories</label>
+              <select className='form-control' {...register("categoryId", { required: true })}>
                 {category.map((item) => (
                   <option key={item._id} value={item._id}>
                     {item.name}
@@ -175,13 +187,15 @@ const UpdateProduct = () => {
               </select>
               {errors.categoryId && <p className='text-danger'>{errors.categoryId.message}</p>}
             </div>
-            <div className="text-center mt-2">
-              <button type="submit" className="btn btn-primary px-4 w-100">Submit</button>
+
+            <div className="text-center mt-5">
+              <button type="submit" className="btn btn-primary w-100 py-3 fs-5">Submit</button>
             </div>
           </form>
         </div>
       </div>
     </div>
+
   );
 };
 
