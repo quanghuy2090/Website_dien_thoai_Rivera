@@ -112,16 +112,6 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    // Validate dữ liệu từ req.body
-    const { error } = productValidation.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error) {
-      return res.status(400).json({
-        message: error.details.map((detail) => detail.message).join(", "),
-      });
-    }
-
     // Lấy sản phẩm cũ trước khi cập nhật
     const oldProduct = await Product.findById(req.params.id);
     if (!oldProduct) {
@@ -130,10 +120,58 @@ export const updateProduct = async (req, res) => {
       });
     }
 
+    // Tạo object dữ liệu cập nhật
+    let updateData = {};
+
+    // Xử lý variants
+    if (req.body.variants) {
+      // Validate variants từ req.body
+      const variantSchema = productValidation.extract("variants").items[0];
+      const variantValidation = Joi.array().items(variantSchema);
+      const { error } = variantValidation.validate(req.body.variants, { abortEarly: false });
+      if (error) {
+        return res.status(400).json({
+          message: error.details.map((detail) => detail.message).join(", "),
+        });
+      }
+
+      if (req.body.replaceVariants === true) {
+        // Thay thế toàn bộ variants
+        updateData.variants = req.body.variants;
+      } else {
+        // Chỉ thêm biến thể mới vào mảng cũ
+        const newVariants = req.body.variants;
+        updateData = {
+          $push: { variants: { $each: newVariants } }, // Thêm từng biến thể mới
+        };
+      }
+    }
+
+    // Thêm các trường khác từ req.body (ngoại trừ variants và replaceVariants)
+    Object.keys(req.body).forEach((key) => {
+      if (key !== "variants" && key !== "replaceVariants") {
+        updateData[key] = req.body[key];
+      }
+    });
+
+    // Nếu không dùng $push, validate toàn bộ dữ liệu
+    if (!updateData.$push) {
+      const fullUpdateData = {
+        ...oldProduct.toObject(), // Lấy dữ liệu cũ
+        ...updateData, // Ghi đè bằng dữ liệu mới
+      };
+      const { error } = productValidation.validate(fullUpdateData, { abortEarly: false });
+      if (error) {
+        return res.status(400).json({
+          message: error.details.map((detail) => detail.message).join(", "),
+        });
+      }
+    }
+
     // Kiểm tra trùng tên sản phẩm (nếu thay đổi tên)
     if (req.body.name && req.body.name !== oldProduct.name) {
       const existingProduct = await Product.findOne({ name: req.body.name });
-      if (existingProduct) {
+      if (existingProduct && existingProduct._id.toString() !== req.params.id) {
         return res.status(400).json({
           message: `Sản phẩm "${req.body.name}" đã tồn tại`,
         });
@@ -143,8 +181,8 @@ export const updateProduct = async (req, res) => {
     // Cập nhật sản phẩm
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
-      { new: true } // Trả về document sau khi cập nhật
+      updateData,
+      { new: true }
     );
     if (!updatedProduct) {
       return res.status(404).json({
@@ -157,22 +195,16 @@ export const updateProduct = async (req, res) => {
       req.body.categoryId &&
       req.body.categoryId !== oldProduct.categoryId?.toString()
     ) {
-      // Xóa sản phẩm khỏi danh mục cũ (nếu có)
       if (oldProduct.categoryId) {
         await Category.findByIdAndUpdate(oldProduct.categoryId, {
           $pull: { products: oldProduct._id },
         });
       }
-
-      // Thêm sản phẩm vào danh mục mới
       const newCategory = await Category.findByIdAndUpdate(
         req.body.categoryId,
-        {
-          $addToSet: { products: updatedProduct._id },
-        },
-        { new: true } // Trả về document sau khi cập nhật
+        { $addToSet: { products: updatedProduct._id } },
+        { new: true }
       );
-
       if (!newCategory) {
         return res.status(404).json({
           message: "Không tìm thấy danh mục mới để cập nhật",
