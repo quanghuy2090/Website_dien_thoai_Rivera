@@ -1,12 +1,10 @@
-// import React from "react";
-
 import { SubmitHandler } from "react-hook-form";
 import { toast } from "react-hot-toast";
-
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { AuthForm } from "../../components/Form";
 import { loginUser, User } from "../../services/auth";
+import "../../css/auth.css";
 
 const Login = () => {
   const nav = useNavigate();
@@ -33,7 +31,7 @@ const Login = () => {
       });
   };
   return (
-    <div>
+    <div className="body-auth">
       <AuthForm onSubmit={handleLogin} mode="login" />
     </div>
   );

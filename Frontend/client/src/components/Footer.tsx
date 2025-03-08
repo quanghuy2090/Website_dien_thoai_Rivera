@@ -1,157 +1,121 @@
 export function Footer() {
   return (
     <>
-      {/* Footer Start */}
-      <div className="container-fluid bg-secondary text-dark mt-5 pt-5">
-        <div className="row px-xl-5 pt-5">
-          <div className="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
-            <a href="" className="text-decoration-none">
-              <h1 className="mb-4 display-5 font-weight-semi-bold">
-                <span className="text-primary font-weight-bold mr-1">
-                  Rivera
-                </span>
-              </h1>
-            </a>
+{/* FOOTER */}
+<footer id="footer">
+  {/* top footer */}
+  <div className="section">
+    {/* container */}
+    <div className="container">
+      {/* row */}
+      <div className="row">
+        <div className="col-md-3 col-xs-6">
+          <div className="footer">
+            <h3 className="footer-title">About Us</h3>
             <p>
-              Dolore erat dolor sit lorem vero amet. Sed sit lorem magna, ipsum
-              no sit erat lorem et magna ipsum dolore amet erat.
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed
+              do eiusmod tempor incididunt ut.
             </p>
-            <p className="mb-2">
-              <i className="fa fa-map-marker-alt text-primary mr-3" />
-              123 Street, New York, USA
-            </p>
-            <p className="mb-2">
-              <i className="fa fa-envelope text-primary mr-3" />
-              info@example.com
-            </p>
-            <p className="mb-0">
-              <i className="fa fa-phone-alt text-primary mr-3" />
-              +012 345 67890
-            </p>
-          </div>
-          <div className="col-lg-8 col-md-12">
-            <div className="row">
-              <div className="col-md-4 mb-5">
-                <h5 className="font-weight-bold text-dark mb-4">Quick Links</h5>
-                <div className="d-flex flex-column justify-content-start">
-                  <a className="text-dark mb-2" href="index.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Home
-                  </a>
-                  <a className="text-dark mb-2" href="shop.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Our Shop
-                  </a>
-                  <a className="text-dark mb-2" href="detail.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Shop Detail
-                  </a>
-                  <a className="text-dark mb-2" href="cart.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Shopping Cart
-                  </a>
-                  <a className="text-dark mb-2" href="checkout.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Checkout
-                  </a>
-                  <a className="text-dark" href="contact.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Contact Us
-                  </a>
-                </div>
-              </div>
-              <div className="col-md-4 mb-5">
-                <h5 className="font-weight-bold text-dark mb-4">Quick Links</h5>
-                <div className="d-flex flex-column justify-content-start">
-                  <a className="text-dark mb-2" href="index.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Home
-                  </a>
-                  <a className="text-dark mb-2" href="shop.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Our Shop
-                  </a>
-                  <a className="text-dark mb-2" href="detail.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Shop Detail
-                  </a>
-                  <a className="text-dark mb-2" href="cart.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Shopping Cart
-                  </a>
-                  <a className="text-dark mb-2" href="checkout.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Checkout
-                  </a>
-                  <a className="text-dark" href="contact.html">
-                    <i className="fa fa-angle-right mr-2" />
-                    Contact Us
-                  </a>
-                </div>
-              </div>
-              <div className="col-md-4 mb-5">
-                <h5 className="font-weight-bold text-dark mb-4">Newsletter</h5>
-                <form action="">
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      className="form-control border-0 py-4"
-                      placeholder="Your Name"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="email"
-                      className="form-control border-0 py-4"
-                      placeholder="Your Email"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <button
-                      className="btn btn-primary btn-block border-0 py-3"
-                      type="submit"
-                    >
-                      Subscribe Now
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
+            <ul className="footer-links">
+              <li>
+                <a href="#"><i className="fa fa-map-marker" />1734 Stonecoal Road</a>
+              </li>
+              <li>
+                <a href="#"><i className="fa fa-phone" />+021-95-51-84</a>
+              </li>
+              <li>
+                <a href="#"><i className="fa fa-envelope-o" />email@email.com</a>
+              </li>
+            </ul>
           </div>
         </div>
-        <div className="row border-top border-light mx-xl-5 py-4">
-          <div className="col-md-6 px-xl-0">
-            <p className="mb-md-0 text-center text-md-left text-dark">
-              ©
-              <a className="text-dark font-weight-semi-bold" href="#">
-                Your Site Name
-              </a>
-              . All Rights Reserved. Designed by
-              <a
-                className="text-dark font-weight-semi-bold"
-                href="https://htmlcodex.com"
-              >
-                HTML Codex
-              </a>
-              <br />
-              Distributed By
-              <a
-                href="https://themewagon.com"
-                target="_blank"
-                className="text-primary text-decoration-none"
-              >
-                ThemeWagon
-              </a>
-            </p>
+        <div className="col-md-3 col-xs-6">
+          <div className="footer">
+            <h3 className="footer-title">Categories</h3>
+            <ul className="footer-links">
+              <li><a href="#">Hot deals</a></li>
+              <li><a href="#">Laptops</a></li>
+              <li><a href="#">Smartphones</a></li>
+              <li><a href="#">Cameras</a></li>
+              <li><a href="#">Accessories</a></li>
+            </ul>
           </div>
-          <div className="col-md-6 px-xl-0 text-center text-md-right">
-            <img className="img-fluid" src="img/payments.png" alt="" />
+        </div>
+        <div className="clearfix visible-xs" />
+        <div className="col-md-3 col-xs-6">
+          <div className="footer">
+            <h3 className="footer-title">Information</h3>
+            <ul className="footer-links">
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Orders and Returns</a></li>
+              <li><a href="#">Terms &amp; Conditions</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="col-md-3 col-xs-6">
+          <div className="footer">
+            <h3 className="footer-title">Service</h3>
+            <ul className="footer-links">
+              <li><a href="#">My Account</a></li>
+              <li><a href="#">View Cart</a></li>
+              <li><a href="#">Wishlist</a></li>
+              <li><a href="#">Track My Order</a></li>
+              <li><a href="#">Help</a></li>
+            </ul>
           </div>
         </div>
       </div>
-      {/* Footer End */}
+      {/* /row */}
+    </div>
+    {/* /container */}
+  </div>
+  {/* /top footer */}
+  {/* bottom footer */}
+  <div id="bottom-footer" className="section">
+    <div className="container">
+      {/* row */}
+      <div className="row">
+        <div className="col-md-12 text-center">
+          <ul className="footer-payments">
+            <li>
+              <a href="#"><i className="fa fa-cc-visa" /></a>
+            </li>
+            <li>
+              <a href="#"><i className="fa fa-credit-card" /></a>
+            </li>
+            <li>
+              <a href="#"><i className="fa fa-cc-paypal" /></a>
+            </li>
+            <li>
+              <a href="#"><i className="fa fa-cc-mastercard" /></a>
+            </li>
+            <li>
+              <a href="#"><i className="fa fa-cc-discover" /></a>
+            </li>
+            <li>
+              <a href="#"><i className="fa fa-cc-amex" /></a>
+            </li>
+          </ul>
+          <span className="copyright">
+            {/* Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. */}
+            Copyright ©
+            All rights reserved | This template is made with
+            <i className="fa fa-heart-o" aria-hidden="true" /> by
+            <a href="https://colorlib.com" target="_blank">Colorlib</a>
+            {/* Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. */}
+          </span>
+        </div>
+      </div>
+      {/* /row */}
+    </div>
+    {/* /container */}
+  </div>
+  {/* /bottom footer */}
+</footer>
+{/* /FOOTER */}
+
     </>
   );
 }

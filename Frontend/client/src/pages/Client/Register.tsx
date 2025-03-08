@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthForm } from "../../components/Form";
 import { SubmitHandler } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import { getUser, registerUser, User } from "../../services/auth";
 import { useNavigate } from "react-router-dom";
+import "../../css/auth.css";
 
 const Register = () => {
   const [existingUsers, setExistingUsers] = useState<User[]>([]);
@@ -53,7 +54,7 @@ const Register = () => {
   };
 
   return (
-    <div>
+    <div className="body-auth">
       <AuthForm onSubmit={handleRegister} mode="register" />
     </div>
   );
