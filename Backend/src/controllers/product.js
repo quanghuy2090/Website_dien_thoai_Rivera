@@ -26,7 +26,7 @@ export const getAllProduct = async (req, res) => {
   }
 };
 
-export const getDetail = async (req, res) => {
+export const getDetailProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate(
       "categoryId"
@@ -36,15 +36,17 @@ export const getDetail = async (req, res) => {
         message: "Khong co san pham",
       });
     }
+    // Tìm sản phẩm liên quan, chỉ lấy các trường cần thiết
     const relatedProducts = await Product.find({
       categoryId: product.categoryId,
-      _id: { $ne: product.id },
-    })
+      _id: { $ne: product._id },
+      status: "active",
+    }).limit(5);
     return res.status(200).json({
       message: "Lay chi tiet san pham thanh cong!",
-      data: product, relatedProducts,
+      data: product,
+      relatedProducts,
     });
-
   } catch (error) {
     return res.status(500).json({
       message: error,
@@ -189,7 +191,6 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-
 export const removeProduct = async (req, res) => {
   try {
     // Tìm sản phẩm trước khi xóa
@@ -245,7 +246,9 @@ export const searchProductByName = async (req, res) => {
       });
     }
     //tim kiem name
-    const products = await Product.find({ $text: { $search: name } }).populate("categoryId");
+    const products = await Product.find({ $text: { $search: name } }).populate(
+      "categoryId"
+    );
     //neu khong co san pham ton tai
     if (products.length === 0) {
       return res.status(404).json({

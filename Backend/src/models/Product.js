@@ -71,4 +71,6 @@ const productSchema = new mongoose.Schema(
 // Thêm text index để tìm kiếm theo name
 productSchema.index({ name: "text" });
 
+productSchema.index({ categoryId: 1 });
+
 export default mongoose.model("Product", productSchema);

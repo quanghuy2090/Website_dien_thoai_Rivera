@@ -2,7 +2,7 @@ import express from "express";
 import {
   createProduct,
   getAllProduct,
-  getDetail,
+  getDetailProduct,
   removeProduct,
   searchProductByName,
   updateProduct,
@@ -11,8 +11,8 @@ import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
 
 const routerProduct = express.Router();
 
-routerProduct.get("/", checkAdminPermission, getAllProduct);
-routerProduct.get("/:id", getDetail);
+routerProduct.get("/", getAllProduct);
+routerProduct.get("/:id", getDetailProduct);
 routerProduct.post("/", checkAdminPermission, createProduct);
 routerProduct.put("/:id", checkAdminPermission, updateProduct);
 routerProduct.delete("/:id", checkAdminPermission, removeProduct);
