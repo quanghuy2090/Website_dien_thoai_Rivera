@@ -1,38 +1,40 @@
+// checkAdminPermission.js
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import User from "../models/User.js";
 dotenv.config();
 const { SECRET_CODE } = process.env;
 
-export const checkPromission = async (req, res, next) => {
+export const checkAdminPermission = async (req, res, next) => {
   try {
-    // check da dang nhap hay chua
+    // Bước 1: Check token có tồn tại không
     const token = req.headers.authorization?.split(" ")[1];
-
-    //buoc 2: kiem tra token
     if (!token) {
       return res.status(403).json({
-        message: "Ban chua dang nhap",
+        message: "Bạn chưa đăng nhập",
       });
     }
-    //buoc 3: kiem tra quyen cua nguoi dung
+
+    // Bước 2: Verify token
     const decoded = jwt.verify(token, SECRET_CODE);
     const user = await User.findById(decoded._id);
     if (!user) {
       return res.status(403).json({
-        message: "Token loi",
+        message: "Token lỗi",
       });
     }
-    req.user = user;
+
+    // Bước 3: Check role admin (role = 1)
     if (user.role !== 1) {
-      return res.status(400).json({
-        message: "Ban khong co quyen lam viec nay",
+      return res.status(403).json({
+        message: "Chỉ admin mới có quyền thực hiện hành động này",
       });
     }
-    // buoc 4: next
+
+    req.user = user;
     next();
   } catch (error) {
-    return res.json({
+    return res.status(500).json({
       name: error.name,
       message: error.message,
     });
