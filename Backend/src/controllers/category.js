@@ -132,7 +132,7 @@ export const searchCategoryByName = async (req, res) => {
 
     // Tìm kiếm danh mục bằng regex (nếu không muốn dùng `$text`)
     const categories = await Category.find({
-      name: { $regex: name, $options: "i" } // "i" để không phân biệt hoa/thường
+      name: { $regex: name, $options: "i" }, // "i" để không phân biệt hoa/thường
     });
 
     if (categories.length === 0) {
@@ -152,5 +152,3 @@ export const searchCategoryByName = async (req, res) => {
     });
   }
 };
-
-

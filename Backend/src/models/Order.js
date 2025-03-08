@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema(
     paymentMethod: {
       type: String,
       required: true,
-      enum: ["COD", "Credit Card", "Bank Transfer"],
+      enum: ["COD", "Online"],
     },
     paymentStatus: {
       type: String,
@@ -51,7 +51,14 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       required: true,
-      enum: ["Chưa xác nhận", "Đã xác nhận", "Đang giao hàng", "Đã giao hàng", "Hoàn thành", "Đã huỷ"],
+      enum: [
+        "Chưa xác nhận",
+        "Đã xác nhận",
+        "Đang giao hàng",
+        "Đã giao hàng",
+        "Hoàn thành",
+        "Đã huỷ",
+      ],
       default: "Chưa xác nhận",
     },
     cancellationReason: { type: String }, // Lý do huỷ đơn

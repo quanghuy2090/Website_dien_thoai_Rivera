@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import { AuthForm } from "../../components/Form";
 import { loginUser, User } from "../../services/auth";
+
 const Login = () => {
   const nav = useNavigate();
   const handleLogin: SubmitHandler<User> = (values) => {
     loginUser(values)
       .then(({ data }) => {
-        console.log("data:",data)
+        console.log("data:", data)
         localStorage.setItem("token", data.data.accessToken);
         localStorage.setItem(`user`, JSON.stringify(data.data.user));
         toast.success("Dang nhap thanh cong");

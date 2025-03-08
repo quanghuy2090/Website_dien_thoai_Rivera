@@ -24,99 +24,99 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
 
   return (
     <>
-      <section className="container forms">
+      <section className="container-auth forms">
         <div className="overlay"></div>
         {/* Username Field - Only for Registration */}
 
         {/* Register Fields */}
         {mode === "register" && (
           <>
-            <div className="form register">
-              <div className="form-content">
+            <div className="form-auth register">
+              <div className="form-auth-content">
                 <header>Đăng Ký</header>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="row">
-                  <div className="field input-field mb-3 col-md-6">
-                    <input
-                      type="text"
-                      placeholder="Tên người dùng"
-                      className="input mb-2"
-                      {...register("userName", {
-                        required: "Không để trống tên",
-                        maxLength: {
-                          value: 100,
-                          message: "Nhiều nhất 100 ký tự"
-                        }
-                      })}
-                    />
-                    {errors?.userName && (
-                      <span className="text-danger mt-5 ">
-                        *{errors.userName.message}
-                      </span>
-                    )}
-                  </div>
-                  <div className="field input-field mb-3 col-md-6">
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      className="input mb-2"
-                      {...register("email", {
-                        required: "Không để trống Email",
-                        pattern: {
-                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
-                          message: "Không đúng định dạng Email",
-                        },
-                      })}
-                    />
-                    {errors?.email && (
-                      <span className="text-danger mt-5">
-                        *{errors.email.message}
-                      </span>
-                    )}
-                  </div>
+                    <div className="field input-field mb-3 col-md-6">
+                      <input
+                        type="text"
+                        placeholder="Tên người dùng"
+                        className="input mb-2"
+                        {...register("userName", {
+                          required: "Không để trống tên",
+                          maxLength: {
+                            value: 100,
+                            message: "Nhiều nhất 100 ký tự",
+                          },
+                        })}
+                      />
+                      {errors?.userName && (
+                        <span className="text-danger mt-5 ">
+                          *{errors.userName.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="field input-field mb-3 col-md-6">
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        className="input mb-2"
+                        {...register("email", {
+                          required: "Không để trống Email",
+                          pattern: {
+                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                            message: "Không đúng định dạng Email",
+                          },
+                        })}
+                      />
+                      {errors?.email && (
+                        <span className="text-danger mt-5">
+                          *{errors.email.message}
+                        </span>
+                      )}
+                    </div>
 
-                  <div className="field input-field mb-3 col-md-6">
-                    <input
-                      type="text"
-                      placeholder="Số điện thoại"
-                      className="input mb-2"
-                      {...register("phone", {
-                        required: "Không để trống số điện thoại",
-                        maxLength: {
-                          value: 15,
-                          message: "Nhiều nhất 15 ký tự"
-                        },
-                        minLength: {
-                          value: 10,
-                          message: "Ít nhất 10 ký tự"
-                        }
-                      })}
-                    />
-                    {errors?.phone && (
-                      <span className="text-danger mt-5">
-                        *{errors.phone.message}
-                      </span>
-                    )}
-                  </div>
-                  <div className="field input-field mb-3 col-md-6">
-                    <input
-                      type="text"
-                      placeholder="Địa chỉ"
-                      className="input mb-2"
-                      {...register("address", {
-                        required: "Không để trống địa chỉ",
-                        maxLength: {
-                          value: 255,
-                          message: "Nhiều nhất 255 ký tự"
-                        }
-                      })}
-                    />
-                    {errors?.address && (
-                      <span className="text-danger mt-5">
-                        *{errors.address.message}
-                      </span>
-                    )}
-                  </div>
+                    <div className="field input-field mb-3 col-md-6">
+                      <input
+                        type="text"
+                        placeholder="Số điện thoại"
+                        className="input mb-2"
+                        {...register("phone", {
+                          required: "Không để trống số điện thoại",
+                          maxLength: {
+                            value: 15,
+                            message: "Nhiều nhất 15 ký tự",
+                          },
+                          minLength: {
+                            value: 10,
+                            message: "Ít nhất 10 ký tự",
+                          },
+                        })}
+                      />
+                      {errors?.phone && (
+                        <span className="text-danger mt-5">
+                          *{errors.phone.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="field input-field mb-3 col-md-6">
+                      <input
+                        type="text"
+                        placeholder="Địa chỉ"
+                        className="input mb-2"
+                        {...register("address", {
+                          required: "Không để trống địa chỉ",
+                          maxLength: {
+                            value: 255,
+                            message: "Nhiều nhất 255 ký tự",
+                          },
+                        })}
+                      />
+                      {errors?.address && (
+                        <span className="text-danger mt-5">
+                          *{errors.address.message}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="field input-field mb-5">
                     <input
@@ -131,8 +131,8 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                         },
                         maxLength: {
                           value: 255,
-                          message: "Nhiều nhất 255 ký tự"
-                        }
+                          message: "Nhiều nhất 255 ký tự",
+                        },
                       })}
                     />
                     <span
@@ -168,7 +168,9 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                       style={{ cursor: "pointer" }}
                     >
                       <i
-                        className={`bx ${showConfirmPassword ? "bx-show" : "bx-hide"}`}
+                        className={`bx ${
+                          showConfirmPassword ? "bx-show" : "bx-hide"
+                        }`}
                       />
                     </span>
                     {errors?.confirmPassword && (
@@ -182,7 +184,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                     <button>Đăng ký</button>
                   </div>
                 </form>
-                <div className="form-link">
+                <div className="form-auth-link">
                   <span>
                     Đã có tài khoản?{" "}
                     <a href="/login" className="link login-link">
@@ -204,6 +206,11 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                   <span>Đăng nhập với Google</span>
                 </a>
               </div>
+              <div className="form-auth-link mt-4">
+                <a href="/" className="link login-link" style={{fontSize:18}}>
+                  Về trang chủ
+                </a>
+              </div>
             </div>
           </>
         )}
@@ -211,8 +218,8 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
         {/* Login Fields */}
         {mode === "login" && (
           <>
-            <div className="form login">
-              <div className="form-content">
+            <div className="form-auth login">
+              <div className="form-auth-content">
                 <header>Đăng nhập</header>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="field input-field mb-5">
@@ -262,7 +269,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                       </span>
                     )}
                   </div>
-                  <div className="form-link">
+                  <div className="form-auth-link">
                     <a href="#" className="forgot-pass">
                       Quên mật khẩu?
                     </a>
@@ -271,7 +278,7 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                     <button>Đăng nhập</button>
                   </div>
                 </form>
-                <div className="form-link">
+                <div className="form-auth-link">
                   <span>
                     Chưa có tài khoản?{" "}
                     <a href="/register" className="link signup-link">
@@ -291,6 +298,11 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                 <a href="/register" className="field google">
                   <img src=".\image\google-icon.webp" className="google-img" />
                   <span>Đăng nhập với Google</span>
+                </a>
+              </div>
+              <div className="form-auth-link mt-4">
+                <a href="/" className="link login-link" style={{fontSize:18}}>
+                  Về trang chủ
                 </a>
               </div>
             </div>
