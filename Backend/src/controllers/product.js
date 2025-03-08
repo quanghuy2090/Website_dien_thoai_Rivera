@@ -74,6 +74,14 @@ export const createProduct = async (req, res) => {
       });
     }
 
+    // Kiểm tra xem danh mục có tồn tại không trước khi tạo sản phẩm
+    const category = await Category.findById(req.body.categoryId);
+    if (!category) {
+      return res.status(404).json({
+        message: "Danh mục không tồn tại",
+      });
+    }
+
     // Tạo sản phẩm mới
     const product = await Product.create(req.body);
     if (!product) {
@@ -93,9 +101,12 @@ export const createProduct = async (req, res) => {
       { new: true } // Trả về document sau khi cập nhật
     );
 
+    // Nếu cập nhật danh mục thất bại (trường hợp hiếm, ví dụ lỗi concurrency)
     if (!updateCategory) {
-      return res.status(404).json({
-        message: "Không tìm thấy danh mục để cập nhật",
+      // Xóa sản phẩm vừa tạo để đảm bảo tính nhất quán
+      await Product.findByIdAndDelete(product._id);
+      return res.status(500).json({
+        message: "Không thể cập nhật danh mục, sản phẩm đã bị hủy",
       });
     }
 
@@ -128,7 +139,9 @@ export const updateProduct = async (req, res) => {
       // Validate variants từ req.body
       const variantSchema = productValidation.extract("variants").items[0];
       const variantValidation = Joi.array().items(variantSchema);
-      const { error } = variantValidation.validate(req.body.variants, { abortEarly: false });
+      const { error } = variantValidation.validate(req.body.variants, {
+        abortEarly: false,
+      });
       if (error) {
         return res.status(400).json({
           message: error.details.map((detail) => detail.message).join(", "),
@@ -160,7 +173,9 @@ export const updateProduct = async (req, res) => {
         ...oldProduct.toObject(), // Lấy dữ liệu cũ
         ...updateData, // Ghi đè bằng dữ liệu mới
       };
-      const { error } = productValidation.validate(fullUpdateData, { abortEarly: false });
+      const { error } = productValidation.validate(fullUpdateData, {
+        abortEarly: false,
+      });
       if (error) {
         return res.status(400).json({
           message: error.details.map((detail) => detail.message).join(", "),
