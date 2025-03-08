@@ -50,61 +50,89 @@ const OrderDetail = () => {
         }
     };
     return (
-        <div className='container mt-4'>
-            <table className="table">
-                <thead className='table-primary'>
-                    <tr>
-                        <th scope="col">Mã đơn hàng</th>
-                        <th scope="col">Ngày đặt</th>
-                        <th scope="col">Product</th>
-                        <th scope="col">Tổng tiền</th>
-                        <th scope="col">Ten kh</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Địa chỉ giao hàng</th>
-                        <th scope="col">Trạng thái đơn hàng</th>
-                        <th scope="col">Phương thức thanh toán</th>
-                        <th scope="col">Trạng thái thanh toán</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{orderDetail?._id}</td>
-                        <td>{orderDetail?.createdAt ? new Date(orderDetail.createdAt).toLocaleDateString() : "N/A"}</td>
-                        <td>{orderDetail?.orderItems.map((cart) => (
-                            <tr>
-                                <td>{cart.productId.images && (
-                                    <img src={cart.productId.images[0]} alt="" width={50} />
-                                )}</td>
-                                <td>{cart.productId.name}</td>
-                                <td>{cart.productId.price}</td>
-                                <td>{cart.quantity}</td>
-                            </tr>
-                        ))}</td>
-                        <td>{formatPrice(orderDetail?.totalPrice ?? 0)}</td>
-                        <td>{orderDetail?.userId.userName}</td>
-                        <td>{orderDetail?.userId.email}</td>
-                        <td>{orderDetail?.shippingAddress.address},{orderDetail?.shippingAddress.ward},{orderDetail?.shippingAddress.district},{orderDetail?.shippingAddress.city}</td>
-                        <select value={orderDetail?.orderStatus} onChange={(e) => handleStatusChange(e.target.value as Order["orderStatus"])}>
-                            <option value="Chưa xác nhận">Chưa xác nhận</option>
-                            <option value="Đã xác nhận">Đã xác nhận</option>
-                            <option value="Đang giao hàng">Đang giao hàng</option>
-                            <option value="Đã giao hàng">Đã giao hàng</option>
-                            <option value="Hoàn thành" disabled>Hoàn thành</option>
-                            <option value="Đã huỷ" disabled>Đã hủy</option>
-                        </select>
-                        {/* <input
+        <div className='content'>
+            <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
+                <i className="bi bi-receipt me-2"></i> Chi Tiết Đơn Hàng
+            </h1>
+            <p className="mb-4 text-secondary">
+                Đây là thông tin chi tiết của đơn hàng "<strong>{orderDetail?._id}</strong>". Bạn có thể kiểm tra trạng thái, cập nhật thông tin giao hàng hoặc hủy đơn nếu cần.
+            </p>
+
+            <div className="table-container">
+                <table className="table table-bordered border-primary">
+                    <thead >
+                        <tr>
+                            <th scope="col">Mã đơn hàng</th>
+                            <th scope="col">Ngày đặt</th>
+                            <th scope="col">Product</th>
+                            <th scope="col">Tổng tiền</th>
+                            <th scope="col">Ten kh</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Sđt</th>
+                            <th scope="col">Địa chỉ giao hàng</th>
+                            <th scope="col">Trạng thái đơn hàng</th>
+                            <th scope="col">Phương thức thanh toán</th>
+                            <th scope="col">Trạng thái thanh toán</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{orderDetail?._id}</td>
+                            <td>{orderDetail?.createdAt ? new Date(orderDetail.createdAt).toLocaleDateString() : "N/A"}</td>
+                            <table className="table table-bordered border-primary">
+                                <thead >
+                                    <tr>
+                                        <th scope="col">Hình Ảnh</th>
+                                        <th scope="col">Tên Sản Phẩm</th>
+                                        <th scope="col">Giá</th>
+                                        <th scope="col">Số Lượng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orderDetail?.orderItems.map((cart, index) => (
+                                        <tr key={index} className="align-middle text-center">
+                                            <td>
+                                                {cart.productId.images && (
+                                                    <img src={cart.productId.images[0]} alt="" width={50} className="rounded" />
+                                                )}
+                                            </td>
+                                            <td className="text-start fw-semibold">{cart.productId.name}</td>
+                                            <td>{formatPrice(cart.productId.price)}</td>
+                                            <td>{cart.quantity}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <td>{formatPrice(orderDetail?.totalPrice ?? 0)}</td>
+                            <td>{orderDetail?.userId.userName}</td>
+                            <td>{orderDetail?.userId.email}</td>
+                            <td>{orderDetail?.userId.phone}</td>
+
+                            <td>{orderDetail?.userId.address},{orderDetail?.shippingAddress.ward},{orderDetail?.shippingAddress.district},{orderDetail?.shippingAddress.city}</td>
+                            <select value={orderDetail?.orderStatus} onChange={(e) => handleStatusChange(e.target.value as Order["orderStatus"])} >
+                                <option value="Chưa xác nhận">Chưa xác nhận</option>
+                                <option value="Đã xác nhận">Đã xác nhận</option>
+                                <option value="Đang giao hàng">Đang giao hàng</option>
+                                <option value="Đã giao hàng">Đã giao hàng</option>
+                                <option value="Hoàn thành" disabled>Hoàn thành</option>
+                                <option value="Đã huỷ" disabled>Đã hủy</option>
+                            </select>
+                            {/* <input
                             type="text"
                             placeholder="Nhập lý do hủy"
                             value={cancellationReason}
                             onChange={(e) => setCancellationReason(e.target.value)}
                             onBlur={() => handleStatusChange("Đã huỷ")} // Gọi API khi rời khỏi ô nhập
                         /> */}
-                        <td>{orderDetail?.paymentMethod}</td>
-                        <td>{orderDetail?.paymentStatus}</td>
-                    </tr>
-                </tbody>
-            </table>
+                            <td>{orderDetail?.paymentMethod}</td>
+                            <td>{orderDetail?.paymentStatus}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
         </div>
     )
 }

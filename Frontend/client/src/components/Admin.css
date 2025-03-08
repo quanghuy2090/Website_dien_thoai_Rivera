@@ -1,28 +1,90 @@
+body {
+  margin: 0;
+  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #858796;
+  text-align: left;
+  background-color: #fff;
+}
+
 .sidebar {
-  height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
-  background-color: #343a40;
-  color: white;
   width: 250px;
-  padding-top: 20px;
-  z-index: 1000; /* Đặt z-index cao để sidebar luôn hiển thị trên các phần tử khác */
+  height: 100vh;
+  background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+  color: white;
+  padding: 20px;
 }
 
-/* Navbar */
-.navbar-admin {
+.sidebar a {
+  display: flex;
+  /* Căn chỉnh icon và chữ theo chiều ngang */
+  align-items: center;
+  /* Căn giữa icon và chữ theo chiều dọc */
+  gap: 10px;
+  /* Tạo khoảng cách giữa icon và chữ */
+  color: white;
+  margin-bottom: 1.5rem;
+  /* Khoảng cách giữa các mục */
+  font-size: 13px;
+  font-weight: 300;
+  text-decoration: none;
+  /* Loại bỏ gạch chân */
+}
+
+.sidebar a:hover {
+  color: #484343;
+}
+
+.topbar {
   position: fixed;
+  /* Giữ topbar cố định */
   top: 0;
-  left: 250px; /* Đẩy navbar sang phải để tránh bị sidebar che */
+  left: 250px;
+  /* Đẩy topbar ra khỏi sidebar */
   width: calc(100% - 250px);
-  z-index: 999; /* Đặt thấp hơn sidebar */
-  background-color: #f8f9fa;
+  /* Chiều rộng trừ phần sidebar */
+  background-color: white;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  /* Đảm bảo topbar luôn trên cùng */
 }
 
-/* Content */
 .content {
   margin-left: 250px;
-  padding: 20px;
-  margin-top: 10px; /* Để tránh bị navbar che mất phần đầu */
+  /* Tương ứng với width của sidebar */
+  padding: 80px;
+  width: calc(100% - 250px);
+
 }
+
+.table-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+  margin-top: 20px;
+  /* Đảm bảo không bị đẩy xuống quá xa */
+  width: 100%;
+  min-height: 500px;
+  overflow-x: auto;
+}
+
+
+/*!
+ * Start Bootstrap - SB Admin 2 v4.1.3 (https://startbootstrap.com/theme/sb-admin-2)
+ * Copyright 2013-2021 Start Bootstrap
+ * Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-sb-admin-2/blob/master/LICENSE)
+ */
+
+/*!
+ * Bootstrap v4.6.0 (https://getbootstrap.com/)
+ * Copyright 2011-2021 The Bootstrap Authors
+ * Copyright 2011-2021 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */

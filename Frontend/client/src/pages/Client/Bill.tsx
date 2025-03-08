@@ -75,9 +75,11 @@ const Bill = () => {
                         {/* Thông tin địa chỉ giao hàng */}
                         <div className="mt-3">
                             <h6>Địa chỉ giao hàng:</h6>
-                            <p className="mb-1">Ten kh:<strong>{order.shippingAddress.fullName}</strong></p>
-                            <p className="mb-1">Sdt:{order.shippingAddress.phone}</p>
-                            <p className="mb-1">{order.shippingAddress.address}, {order.shippingAddress.ward}, {order.shippingAddress.district}, {order.shippingAddress.city}</p>
+                            <p className="mb-1">Ten kh:<strong>{order.userId.userName}</strong></p>
+                            <p className="mb-1">Email:{order.userId.email}</p>
+                            <p className="mb-1">Sdt:{order.userId.phone}</p>
+
+                            <p className="mb-1">{order.userId.address}, {order.shippingAddress.ward}, {order.shippingAddress.district}, {order.shippingAddress.city}</p>
                         </div>
                         {/* Trạng thái đơn hàng */}
                         <p className="mt-3">

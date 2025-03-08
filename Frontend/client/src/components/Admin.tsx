@@ -7,6 +7,19 @@ const Admin = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
   };
+  <div className="">
+    {token && (
+      <>
+
+        <li>
+          <a href="/login" onClick={handleLogout} className='nav-link'>
+            Logout
+          </a>
+        </li>
+      </>
+    )}
+
+  </div>
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   if (!user || user.role !== 1) {
@@ -24,69 +37,90 @@ const Admin = () => {
     );
   }
   return (
-    <div>
-      <div className="sidebar">
-        <h4 className="text-center">Admin Panel</h4>
-        <ul className="nav flex-column mt-4">
-
-          <li className="nav-item">
-            <a className="nav-link" href="/"><i className="bi bi-house-door-fill me-2"></i>Home</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/dasboard"><i className="bi bi-speedometer2 me-2"></i>Dashboard</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/category"><i className="bi bi-collection seam me-2"></i>Category</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/products"><i className="bi bi-box-seam me-2"></i>Product</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/user"><i className="bi bi-people me-2"></i>Users</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="/admin/order"><i className="bi bi-card-checklist me-2"></i>Orders</a>
-          </li>
-          <li className="nav-item">
-            <a className="nav-link" href="#"><i className="bi bi-gear me-2"></i>Settings</a>
-          </li>
-        </ul>
+    <div className='d-flex'>
+      <div className="sidebar p-3">
+        <div className="d-flex align-items-center mb-4">
+          <i className="fas fa-smile fa-2x">
+          </i>
+          <div className="sidebar-brand-text mx-3">RIVERA ADMIN <sup>2</sup></div>
+        </div>
+        <nav className="nav flex-column">
+          <a className="nav-link d-flex align-items-center" href="/">
+            <i className="fas fa-home mr-2">
+            </i>
+            Home
+          </a>
+          <a className="nav-link d-flex align-items-center" href="/admin/dasboard">
+            <i className="fas fa-tachometer-alt mr-2">
+            </i>
+            Dashboard
+          </a>
+          <a className="nav-link d-flex align-items-center" href="/admin/category">
+            <i className="bi bi-list-ul mr-2">
+            </i>
+            Danh mục
+          </a>
+          <a className="nav-link d-flex align-items-center" href="/admin/products">
+            <i className="bi bi-box mr-2">
+            </i>
+            Sản phẩm
+          </a>
+          <a className="nav-link d-flex align-items-center" href="/admin/user">
+            <i className="bi bi-people mr-2">
+            </i>
+            User
+          </a>
+          <a className="nav-link d-flex align-items-center" href="/admin/order">
+            <i className="bi bi-cart mr-2">
+            </i>
+            Order
+          </a>
+          <a className="nav-link d-flex align-items-center" href="#">
+            <i className="fas fa-table mr-2">
+            </i>
+            Tables
+          </a>
+        </nav>
       </div>
-      <nav className="navbar-admin navbar-expand-lg navbar-blue bg-blue">
-        <div className="container-fluid">
-          <button className="btn btn-outline-dark d-md-none me-2" type="button">
-            <i className="bi bi-list"></i>
-          </button>
-          <a className="navbar-brand" href="#">Admin Dashboard</a>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul className="navbar-nav">
-              <li className="nav-item">
-                <a className="nav-link" href="#">{user.email}</a>
-              </li>
-              <li className="nav-item">
-                {token && (
-                  <>
+      <div className='flex-grow-1 mb-4'>
+        <div className="topbar d-flex justify-content-between align-items-center">
+          <div className="input-group w-25">
+            {/* <input type="text" className='form-control bg-light border-0 small' placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" /> */}
 
-                    <li>
-                      <a href="/login" onClick={handleLogout} className='nav-link'>
-                        Logout
-                      </a>
-                    </li>
-                  </>
-                )}
+            {/* <div className="input-group-append">
+              <button className="btn btn-primary" type="button">
+                <i className="fas fa-search">
+                </i>
+              </button>
+            </div> */}
+          </div>
+          <div className="d-flex align-items-center">
+            <div className="position-relative mr-3">
+              <i className="fas fa-bell text-gray-600 fa-lg">
+              </i>
+              <span className="badge badge-danger badge-counter">
+                3+
+              </span>
+            </div>
+            <div className="position-relative mr-3">
+              <i className="fas fa-envelope text-gray-600 fa-lg">
+              </i>
+              <span className="badge badge-danger badge-counter">
+                7
+              </span>
+            </div>
+            <div className="d-flex align-items-center">
+              <span className="text-gray-600 mr-2">
+                {user.email}
+              </span>
 
-              </li>
-            </ul>
+            </div>
           </div>
         </div>
-      </nav>
-      <div className="content">
-      </div>
-    </div>
 
+      </div>
+
+    </div>
   )
 }
 

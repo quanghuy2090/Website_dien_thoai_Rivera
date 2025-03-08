@@ -57,39 +57,67 @@ const ListCategories = () => {
     return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
   }, [search]);
   return (
-    <div className='col-md-10 ms-sm-auto px-md-4 '>
-      <input
-        type="text"
-        className="form-control border-primary shadow-sm my-3 p-2"
-        placeholder="  Nhập tên danh mục..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <Link to={`/admin/category/add`} className='btn btn-primary mb-3 w-100' > <IoMdAdd /></Link>
-      <table className="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th scope="col">id </th>
-            <th scope="col">categories</th>
-            <th scope="col">slug</th>
-            <th scope="col">action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {category.map((category) => (
+    <div className='content'>
+      <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
+        <i className="bi bi-tags me-2"></i> Quản lý Danh mục
+      </h1>
+      <p className="mb-4 text-secondary">
+        Đây là danh sách các danh mục sản phẩm trong hệ thống. Bạn có thể thêm, sửa hoặc xóa danh mục theo nhu cầu.
+      </p>
+      <div className='table-container'>
+        {/* <h2 className="h5 mb-4">DataTables Example</h2> */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          {/* Phần chọn số lượng hiển thị */}
+          <div>
+            <label className="d-flex align-items-center">
+              Show
+              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              entries
+            </label>
+          </div>
+
+          {/* Ô tìm kiếm căn phải */}
+          <div>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder="Nhập tên Danh mục..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+        <Link to={`/admin/category/add`} className='btn btn-primary mb-3 w-100' > <IoMdAdd /></Link>
+        <table className="table table-bordered">
+          <thead className='thead-light'>
             <tr>
-              <td>{category._id}</td>
-              <td>{category.name}</td>
-              <td>{category.slug}</td>
-              <td>
-                <button className='btn btn-danger' onClick={() => remove(category._id)}> <MdDelete /></button>
-                <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning'> <GrUpdate /></Link>
-                <Link to={`/admin/category/detail/${category._id}`} className='btn btn-success'><FaEye /></Link>
-              </td>
+              <th scope="col">Id </th>
+              <th scope="col">Categories</th>
+              <th scope="col">Slug</th>
+              <th scope="col">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {category.map((category) => (
+              <tr>
+                <td>{category._id}</td>
+                <td>{category.name}</td>
+                <td>{category.slug}</td>
+                <td>
+                  <button className='btn btn-danger me-2' onClick={() => remove(category._id)}> <MdDelete /></button>
+                  <Link to={`/admin/category/update/${category._id}`} className='btn btn-warning me-2'> <GrUpdate /></Link>
+                  <Link to={`/admin/category/detail/${category._id}`} className='btn btn-success me-2'><FaEye /></Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

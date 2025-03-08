@@ -42,66 +42,75 @@ const DetailUser = () => {
     };
 
     return (
-        <div className='detail-container col-md-10 ms-sm-auto px-md-4 mt-5'>
-            <table className="table table-bordered">
-                <tbody>
-                    <tr>
-                        <th>ID</th>
-                        <td>{users?._id}</td>
-                    </tr>
-                    <tr>
-                        <th>Họ & Tên</th>
-                        <td>{users?.userName}</td>
-                    </tr>
-                    <tr>
-                        <th>Email</th>
-                        <td>{users?.email}</td>
-                    </tr>
-                    <tr>
-                        <th>Password</th>
-                        <td>{users?.password}</td>
-                    </tr>
-                    <tr>
-                        <th>Địa Chỉ</th>
-                        <td>{users?.address}</td>
-                    </tr>
-                    <tr>
-                        <th>Số Điện Thoại</th>
-                        <td>{users?.phone}</td>
-                    </tr>
-                    <tr>
-                        <th>Vai trò</th>
-                        <td>
-                            <select
-                                value={users?.role}
-                                onChange={(e) => {
-                                    if (users?._id) {
-                                        handleRoleChange(users._id, Number(e.target.value));
-                                    }
-                                }}
-                                className="form-select border-primary shadow-sm"
-                            >
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Trạng Thái</th>
-                        <td>
-                            <select
-                                value={users?.status}
-                                onChange={(e) => handleStatusChange(users?._id ?? "", e.target.value)}
-                                className="form-select border-primary shadow-sm"
-                            >
-                                <option value="active" className="text-success">🟢 Active</option>
-                                <option value="banned" className="text-danger">🔴 Banned</option>
-                            </select>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div className='content'>
+            <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
+                <i className="bi bi-people me-2"></i> Chi Tiết Khách Hàng
+            </h1>
+            <p className="mb-4 text-secondary">
+                Đây là thông tin chi tiết của khách hàng "<strong>{users?._id}</strong>". Bạn có thể xem thông tin và quản lý khách hàng tại đây.
+            </p>
+            <div className='table-container'>
+                <table className="table table-bordered border-primary">
+                    <tbody>
+                        <tr>
+                            <th>ID</th>
+                            <td>{users?._id}</td>
+                        </tr>
+                        <tr>
+                            <th>Họ & Tên</th>
+                            <td>{users?.userName}</td>
+                        </tr>
+                        <tr>
+                            <th>Email</th>
+                            <td>{users?.email}</td>
+                        </tr>
+                        <tr>
+                            <th>Password</th>
+                            <td>{users?.password}</td>
+                        </tr>
+                        <tr>
+                            <th>Địa Chỉ</th>
+                            <td>{users?.address}</td>
+                        </tr>
+                        <tr>
+                            <th>Số Điện Thoại</th>
+                            <td>{users?.phone}</td>
+                        </tr>
+                        <tr>
+                            <th>Vai trò</th>
+                            <td>
+                                <select
+                                    value={users?.role}
+                                    onChange={(e) => {
+                                        if (users?._id) {
+                                            handleRoleChange(users._id, Number(e.target.value));
+                                        }
+                                    }}
+                                    className="form-select border-primary shadow-sm"
+                                >
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Trạng Thái</th>
+                            <td>
+                                <select
+                                    value={users?.status}
+                                    onChange={(e) => handleStatusChange(users?._id ?? "", e.target.value)}
+                                    className="form-select border-primary shadow-sm"
+                                >
+                                    <option value="active" className="text-success">🟢 Active</option>
+                                    <option value="banned" className="text-danger">🔴 Banned</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     );
 };

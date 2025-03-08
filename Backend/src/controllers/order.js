@@ -165,7 +165,7 @@ export const getAllOrders = async (req, res) => {
   try {
     // Truy vấn tất cả đơn hàng, sắp xếp theo thời gian mới nhất
     const orders = await Order.find()
-      .populate("userId", "userName email").populate("orderItems.productId", "name price images") // Lấy thông tin user đặt đơn
+      .populate("userId", "userName email phone address").populate("orderItems.productId", "name price images") // Lấy thông tin user đặt đơn
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -189,7 +189,7 @@ export const getAllOrdersByUser = async (req, res) => {
     // Tìm tất cả đơn hàng theo userId và populate để lấy thông tin user
     const orders = await Order.find({ userId }).populate(
       "userId",
-      "userName email"
+      "userName email phone address"
     ).populate("orderItems.productId", "name price images");
 
     if (!orders || orders.length === 0) {
