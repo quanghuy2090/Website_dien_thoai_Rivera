@@ -22,7 +22,7 @@ input[type="password"]::-webkit-password-field {
   -webkit-appearance: none; /* Remove default appearance */
 }
 
-.container {
+.container-auth {
   height: 100vh;
   width: 100%; /* Full viewport width */
   display: flex;
@@ -51,7 +51,7 @@ input[type="password"]::-webkit-password-field {
   z-index: 0; /* Ensure it sits below the form */
 }
 
-.form {
+.form-auth {
   position: absolute;
   max-width: 430px;
   width: 100%;
@@ -61,18 +61,18 @@ input[type="password"]::-webkit-password-field {
   max-height: 85vh; /* Chiều cao tối đa */
   overflow-y: auto;
 }
-.form::-webkit-scrollbar {
+.form-auth::-webkit-scrollbar {
   width: 0; /* Hide scrollbar */
 }
-.form.signup {
+.form-auth.signup {
   opacity: 0;
   pointer-events: none;
 }
-.forms.show-signup .form.signup {
+.forms.show-signup .form-auth.signup {
   opacity: 1;
   pointer-events: auto;
 }
-.forms.show-signup .form.login {
+.forms.show-signup .form-auth.login {
   opacity: 0;
   pointer-events: none;
 }
@@ -82,10 +82,11 @@ header {
   color: #232836;
   text-align: center;
 }
-form {
+
+.form-auth {
   margin-top: 30px;
 }
-.form .field {
+.form-auth .field {
   position: relative;
   height: 50px;
   width: 100%;
@@ -128,21 +129,21 @@ form {
 .field button:hover {
   background-color: #016dcb;
 }
-.form-link {
+.form-auth-link {
   text-align: center;
   margin-top: 10px;
 }
-.form-link span,
-.form-link a {
+.form-auth-link span,
+.form-auth-link a {
   font-size: 14px;
   font-weight: 400;
   color: #232836;
 }
-.form a {
+.form-auth a {
   color: #0171d3;
   text-decoration: none;
 }
-.form-content a:hover {
+.form-auth-content a:hover {
   text-decoration: underline;
 }
 .line {
