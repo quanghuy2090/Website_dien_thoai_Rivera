@@ -139,122 +139,100 @@ const ProductDetail = () => {
             </div>
           </div>
           <div className="col-lg-7 pb-5">
-            <h3 className="font-weight-semi-bold text-primary">
-              {product?.name}
-            </h3>
-            <h3 className="font-weight-semi-bold mb-4 ">
+            <h3 className="h4 font-weight-bold">{product?.name}</h3>
+            <div className="d-flex align-items-center mb-2">
+              <div className="text-danger">
+                <i className="fas fa-star"> </i>
+                <i className="fas fa-star"> </i>
+                <i className="fas fa-star"> </i>
+                <i className="fas fa-star"> </i>
+                <i className="fas fa-star-half-alt"> </i>
+              </div>
+              <span className="ml-2 text-muted">
+                (10 Review(s)) |
+                <a className="text-primary" href="#">
+                  {" "}
+                  Add your review{" "}
+                </a>
+              </span>
+            </div>
+            <h2 className="h3 text-danger font-weight-bold mb-2">
               {formatPrice(product?.price ?? 0)}
-            </h3>
-            <div className="d-flex mb-3">
-              <p className="text-dark font-weight-medium mb-0 mr-3">
-                Dung lượng:
-              </p>
-              <form>
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    className="custom-control-input"
-                    id="size-1"
-                    name="size"
-                  />
-                  <label className="custom-control-label" htmlFor="size-1">
-                    256GB
-                  </label>
+            </h2>
+            <div className="text-success font-weight-bold mb-4">IN STOCK</div>
+            <p className="mb-4">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation ullamco laboris
+              nisi ut aliquip ex ea commodo consequat.
+            </p>
+            <div className="product-options">
+              <div className="row align-items-center mb-3">
+                <div className="col-auto">
+                  <label className="form-label fw-bold">Dung Lượng</label>
                 </div>
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    className="custom-control-input"
-                    id="size-2"
-                    name="size"
-                  />
-                  <label className="custom-control-label" htmlFor="size-2">
-                    512GB
-                  </label>
+                <div className="col-auto">
+                  <select className="form-select form-select-sm w-auto border-dark">
+                    <option value="0">64GB</option>
+                    <option value="1">128GB</option>
+                    <option value="2">256GB</option>
+                  </select>
                 </div>
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    className="custom-control-input"
-                    id="size-3"
-                    name="size"
-                  />
-                  <label className="custom-control-label" htmlFor="size-3">
-                    1TB
-                  </label>
+                <div className="col-auto">
+                  <label className="form-label fw-bold">Màu Sắc</label>
                 </div>
-              </form>
+                <div className="col-auto">
+                  <select className="form-select form-select-sm w-auto border-dark">
+                    <option value="0">Đỏ</option>
+                    <option value="1">Đen</option>
+                    <option value="2">Trắng</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <div className="d-flex mb-4">
-              <p className="text-dark font-weight-medium mb-0 mr-3">Màu sắc:</p>
-              <form>
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    className="custom-control-input"
-                    id="color-1"
-                    name="color"
-                  />
-                  <label className="custom-control-label" htmlFor="color-1">
-                    Đen
-                  </label>
-                </div>
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    className="custom-control-input"
-                    id="color-2"
-                    name="color"
-                  />
-                  <label className="custom-control-label" htmlFor="color-2">
-                    Trắng
-                  </label>
-                </div>
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    className="custom-control-input"
-                    id="color-3"
-                    name="color"
-                  />
-                  <label className="custom-control-label" htmlFor="color-3">
-                    Đỏ
-                  </label>
-                </div>
-              </form>
-            </div>
+
             <div className="d-flex align-items-center mb-4 pt-2">
-              <div className="input-group quantity mr-3" style={{ width: 130 }}>
-                <div className="input-group-btn">
-                  <button
-                    className="btn btn-primary btn-minus"
-                    onClick={decreaseQuantity}
-                  >
-                    <i className="fa fa-minus" />
-                  </button>
-                </div>
+              {/* Nút Giảm */}
+              <button
+                className="btn btn-primary me-3"
+                onClick={decreaseQuantity}
+              >
+                <i className="fa fa-minus"></i>
+              </button>
+
+              {/* Ô Input */}
+              <div
+                className="d-flex align-items-center border border-dark rounded px-3 bg-light"
+                style={{ width: 80, height: 38 }}
+              >
                 <input
                   type="text"
-                  className="form-control bg-secondary text-center"
+                  className="form-control text-center border-0 bg-light"
+                  style={{ width: "100%" }}
                   value={quantity}
                   readOnly
                 />
-                <div className="input-group-btn">
-                  <button
-                    className="btn btn-primary btn-plus"
-                    onClick={increaseQuantity}
-                  >
-                    <i className="fa fa-plus" />
-                  </button>
-                </div>
               </div>
+
+              {/* Nút Tăng */}
               <button
-                className="btn btn-primary px-3"
-                onClick={() => addToCart(product?._id)}
+                className="btn btn-primary ms-3"
+                onClick={increaseQuantity}
               >
-                <i className="fa fa-shopping-cart mr-1" /> Thêm giỏ hàng
+                <i className="fa fa-plus"></i>
               </button>
             </div>
+
+            <br />
+            <div>
+              <button
+                className="btn btn-danger px-3 rounded-pill"
+                onClick={() => addToCart(product?._id)}
+              >
+                <i className="fa fa-shopping-cart me-1" /> Thêm giỏ hàng
+              </button>
+            </div>
+
             {/* <div className="d-flex align-items-center mb-4 pt-2">
               <div className="input-group quantity mr-3" style={{ width: 130 }}>
                 <div className="input-group-btn">
@@ -323,9 +301,6 @@ const ProductDetail = () => {
             </div>
             <div className="tab-content">
               <div className="tab-pane fade show active" id="tab-pane-1">
-                <p>{product?.description}</p>
-              </div>
-              <div className="tab-pane fade" id="tab-pane-2">
                 <h4 className="mb-3">Additional Information</h4>
                 <div className="row">
                   <div className="col-md-6">
@@ -367,6 +342,9 @@ const ProductDetail = () => {
                     </ul>
                   </div>
                 </div>
+              </div>
+              <div className="tab-pane fade" id="tab-pane-2">
+                <p>{product?.description}</p>
               </div>
               {/* <div className="tab-pane fade" id="tab-pane-3">
                 <div className="row">
