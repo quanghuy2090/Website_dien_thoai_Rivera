@@ -57,7 +57,7 @@ const ListProduct = () => {
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="bi bi-box-seam me-2"></i> Quản lý Sản phẩm
+        <i className="fas fa-cube me-2"></i> Quản lý Sản phẩm
       </h1>
       <p className="mb-4 text-secondary">
         Đây là danh sách sản phẩm trong cửa hàng. Bạn có thể quản lý, chỉnh sửa hoặc thêm mới sản phẩm.
@@ -91,7 +91,7 @@ const ListProduct = () => {
             />
           </div>
         </div>
-        <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
+        <Link to={`/admin/products/add`} className="btn btn-primary">
           <IoMdAdd />
         </Link>
         <table className="table table-bordered">
@@ -99,11 +99,10 @@ const ListProduct = () => {
             <tr>
               <th>ID</th>
               <th>Name</th>
-              <th>Price</th>
-              <th>Image</th>
-              <th>Stock</th>
-              <th>Color</th>
-              <th>Description</th>
+              <th>short_description</th>
+              <th>long_description</th>
+              <th>images</th>
+              <th> variants</th>
               <th>Categories</th>
               <th>Action</th>
             </tr>
@@ -113,8 +112,8 @@ const ListProduct = () => {
               <tr key={product._id}>
                 <td>{product._id}</td>
                 <td>{product.name}</td>
-                <td>{product.price}</td>
-
+                <td>{product.short_description}</td>
+                <td>{product.long_description}</td>
                 {/* Hiển thị ảnh sản phẩm */}
                 <td>
                   <div
@@ -146,22 +145,30 @@ const ListProduct = () => {
                   </div>
                 </td>
 
-                <td>{product.stock}</td>
-
-                {/* Hiển thị màu sản phẩm */}
                 <td>
-                  <div
-                    className="rounded-circle border border-dark"
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      backgroundColor: product.color,
-                      display: "inline-block",
-                    }}
-                  ></div>
+                  <table className="table table-bordered table-sm text-center">
+                    <thead>
+                      <tr className="bg-light">
+                        <th>Dung lượng</th>
+                        <th>Màu sắc</th>
+                        <th>Giá</th>
+                        <th>Stock</th>
+                        <th>SKU</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {product.variants.map((v, index) => (
+                        <tr key={index}>
+                          <td>{v.capacity}</td>
+                          <td>{v.color}</td>
+                          <td>{v.price}</td>
+                          <td>{v.stock}</td>
+                          <td>{v.sku}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </td>
-
-                <td>{product.description}</td>
 
                 {/* Hiển thị danh mục sản phẩm */}
                 <td>

@@ -17,7 +17,7 @@ const ListDetailCategory = () => {
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-                <i className="bi bi-tags me-2"></i> Chi Tiết Danh Mục
+                <i className="fas fa-th-large me-2"></i> Chi Tiết Danh Mục
             </h1>
             <p className="mb-4 text-secondary">
                 Đây là thông tin chi tiết của danh mục "<strong>{categoryDetail?.name}</strong>". Bạn có thể xem thông tin và quản lý danh mục<cite></cite> tại đây.

@@ -7,14 +7,20 @@ export type Category = {
   name: string;
 };
 
+export type Variants = {
+  color: string;
+  capacity: string;
+  price: number;
+  stock: number;
+  sku: string;
+}
 export type Product = {
   _id: string;
   name: string;
-  price: number;
-  description: string;
+  short_description: string;
+  long_description: string;
   images: string[];
-  stock: number;
-  color: string;
+  variants: Variants[];
   categoryId?: string | Category; // Hỗ trợ cả string và object
 };
 

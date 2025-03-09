@@ -18,7 +18,7 @@ const DetailAdminProduct = () => {
     <div>
       <div className="content">
         <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-          <i className="bi bi-box-seam me-2"></i> Chi Tiết Sản Phẩm
+          <i className="fas fa-cart-plus me-2"></i> Chi Tiết Sản Phẩm
         </h1>
         <p className="mb-4 text-secondary">
           Đây là thông tin chi tiết của sản phẩm "<strong>{productDetail?.name}</strong>". Bạn có thể xem thông tin và quản lý sản phẩm tại đây.

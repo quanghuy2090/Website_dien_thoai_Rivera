@@ -59,7 +59,7 @@ const ListCategories = () => {
   return (
     <div className='content'>
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="bi bi-tags me-2"></i> Quản lý Danh mục
+        <i className="fas fa-th-large me-2"></i> Quản lý Danh mục
       </h1>
       <p className="mb-4 text-secondary">
         Đây là danh sách các danh mục sản phẩm trong hệ thống. Bạn có thể thêm, sửa hoặc xóa danh mục theo nhu cầu.

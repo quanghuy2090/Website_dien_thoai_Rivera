@@ -44,7 +44,7 @@ const DetailUser = () => {
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-                <i className="bi bi-people me-2"></i> Chi Tiết Khách Hàng
+                <i className="fas fa-users me-2"></i> Chi Tiết Khách Hàng
             </h1>
             <p className="mb-4 text-secondary">
                 Đây là thông tin chi tiết của khách hàng "<strong>{users?._id}</strong>". Bạn có thể xem thông tin và quản lý khách hàng tại đây.

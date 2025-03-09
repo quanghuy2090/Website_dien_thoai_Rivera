@@ -52,7 +52,7 @@ const OrderDetail = () => {
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-                <i className="bi bi-receipt me-2"></i> Chi Tiết Đơn Hàng
+                <i className="fas fa-cart-plus me-2"></i> Chi Tiết Đơn Hàng
             </h1>
             <p className="mb-4 text-secondary">
                 Đây là thông tin chi tiết của đơn hàng "<strong>{orderDetail?._id}</strong>". Bạn có thể kiểm tra trạng thái, cập nhật thông tin giao hàng hoặc hủy đơn nếu cần.
