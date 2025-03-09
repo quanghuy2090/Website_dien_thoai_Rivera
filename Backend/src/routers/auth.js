@@ -17,5 +17,5 @@ routerAuth.post("/singin", signIn);
 routerAuth.get("/user", checkAdminPermission, getUser);
 routerAuth.get("/user/:id", checkUserPermission, getDetailUser);
 routerAuth.put("/user/:id", checkUserPermission, updateUser);
-routerAuth.put("/user/:id/role", checkAdminPermission, updateRole);
+routerAuth.put("/user/role/:id", checkAdminPermission, updateRole);
 export default routerAuth;
