@@ -1,4 +1,3 @@
-import Joi from "joi";
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
 import { productValidation } from "../validation/product.js";
@@ -124,118 +123,53 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   try {
-    // Lấy sản phẩm cũ trước khi cập nhật
-    const oldProduct = await Product.findById(req.params.id);
-    if (!oldProduct) {
-      return res.status(404).json({
-        message: "Sản phẩm không tồn tại",
+    const { id } = req.params;
+    const updateData = req.body; // Dữ liệu cập nhật từ client
+
+    // Kiểm tra sản phẩm có tồn tại không
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+    }
+
+    // Cập nhật thông tin sản phẩm
+    if (updateData.name) product.name = updateData.name;
+    if (updateData.images) product.images = updateData.images;
+    if (updateData.short_description)
+      product.short_description = updateData.short_description;
+    if (updateData.long_description)
+      product.long_description = updateData.long_description;
+    if (updateData.status) product.status = updateData.status;
+    if (updateData.is_hot) product.is_hot = updateData.is_hot;
+    if (updateData.categoryId) product.categoryId = updateData.categoryId;
+
+    // Cập nhật biến thể (variants)
+    if (updateData.variants && Array.isArray(updateData.variants)) {
+      updateData.variants.forEach((variant) => {
+        const existingVariant = product.variants.find(
+          (v) => v.sku === variant.sku
+        );
+        if (existingVariant) {
+          // Nếu biến thể đã tồn tại, cập nhật nó
+          existingVariant.color = variant.color || existingVariant.color;
+          existingVariant.capacity =
+            variant.capacity || existingVariant.capacity;
+          existingVariant.price = variant.price || existingVariant.price;
+          existingVariant.stock = variant.stock || existingVariant.stock;
+        } else {
+          // Nếu biến thể mới, thêm vào danh sách
+          product.variants.push(variant);
+        }
       });
     }
 
-    // Tạo object dữ liệu cập nhật
-    let updateData = {};
+    // Lưu sản phẩm đã cập nhật
+    await product.save();
 
-    // Xử lý variants
-    if (req.body.variants) {
-      // Validate variants từ req.body
-      const variantSchema = productValidation.extract("variants").items[0];
-      const variantValidation = Joi.array().items(variantSchema);
-      const { error } = variantValidation.validate(req.body.variants, {
-        abortEarly: false,
-      });
-      if (error) {
-        return res.status(400).json({
-          message: error.details.map((detail) => detail.message).join(", "),
-        });
-      }
-
-      if (req.body.replaceVariants === true) {
-        // Thay thế toàn bộ variants
-        updateData.variants = req.body.variants;
-      } else {
-        // Chỉ thêm biến thể mới vào mảng cũ
-        const newVariants = req.body.variants;
-        updateData = {
-          $push: { variants: { $each: newVariants } }, // Thêm từng biến thể mới
-        };
-      }
-    }
-
-    // Thêm các trường khác từ req.body (ngoại trừ variants và replaceVariants)
-    Object.keys(req.body).forEach((key) => {
-      if (key !== "variants" && key !== "replaceVariants") {
-        updateData[key] = req.body[key];
-      }
-    });
-
-    // Nếu không dùng $push, validate toàn bộ dữ liệu
-    if (!updateData.$push) {
-      const fullUpdateData = {
-        ...oldProduct.toObject(), // Lấy dữ liệu cũ
-        ...updateData, // Ghi đè bằng dữ liệu mới
-      };
-      const { error } = productValidation.validate(fullUpdateData, {
-        abortEarly: false,
-      });
-      if (error) {
-        return res.status(400).json({
-          message: error.details.map((detail) => detail.message).join(", "),
-        });
-      }
-    }
-
-    // Kiểm tra trùng tên sản phẩm (nếu thay đổi tên)
-    if (req.body.name && req.body.name !== oldProduct.name) {
-      const existingProduct = await Product.findOne({ name: req.body.name });
-      if (existingProduct && existingProduct._id.toString() !== req.params.id) {
-        return res.status(400).json({
-          message: `Sản phẩm "${req.body.name}" đã tồn tại`,
-        });
-      }
-    }
-
-    // Cập nhật sản phẩm
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
-    if (!updatedProduct) {
-      return res.status(404).json({
-        message: "Cập nhật sản phẩm không thành công",
-      });
-    }
-
-    // Xử lý thay đổi danh mục
-    if (
-      req.body.categoryId &&
-      req.body.categoryId !== oldProduct.categoryId?.toString()
-    ) {
-      if (oldProduct.categoryId) {
-        await Category.findByIdAndUpdate(oldProduct.categoryId, {
-          $pull: { products: oldProduct._id },
-        });
-      }
-      const newCategory = await Category.findByIdAndUpdate(
-        req.body.categoryId,
-        { $addToSet: { products: updatedProduct._id } },
-        { new: true }
-      );
-      if (!newCategory) {
-        return res.status(404).json({
-          message: "Không tìm thấy danh mục mới để cập nhật",
-        });
-      }
-    }
-
-    return res.status(200).json({
-      message: "Cập nhật sản phẩm thành công",
-      data: updatedProduct,
-    });
+    res.status(200).json({ message: "Update sản phẩm thành công!", product });
   } catch (error) {
-    return res.status(500).json({
-      message: error.message,
-    });
+    console.error("Error updating product:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
