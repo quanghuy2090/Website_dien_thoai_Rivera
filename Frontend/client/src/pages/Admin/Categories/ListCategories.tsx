@@ -59,7 +59,7 @@ const ListCategories = () => {
   return (
     <div className='content'>
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="bi bi-tags me-2"></i> Quản lý Danh mục
+        <i className="fas fa-th-large me-2"></i> Quản lý Danh mục sản phẩm
       </h1>
       <p className="mb-4 text-secondary">
         Đây là danh sách các danh mục sản phẩm trong hệ thống. Bạn có thể thêm, sửa hoặc xóa danh mục theo nhu cầu.
@@ -70,14 +70,14 @@ const ListCategories = () => {
           {/* Phần chọn số lượng hiển thị */}
           <div>
             <label className="d-flex align-items-center">
-              Show
+              Hiển thị
               <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
               </select>
-              entries
+              mục
             </label>
           </div>
 
@@ -97,9 +97,9 @@ const ListCategories = () => {
           <thead className='thead-light'>
             <tr>
               <th scope="col">Id </th>
-              <th scope="col">Categories</th>
-              <th scope="col">Slug</th>
-              <th scope="col">Action</th>
+              <th scope="col">Danh mục</th>
+              <th scope="col">Mô tả</th>
+              <th scope="col">Tùy chọn</th>
             </tr>
           </thead>
           <tbody>

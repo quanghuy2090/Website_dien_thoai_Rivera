@@ -1,3 +1,4 @@
+import Joi from "joi";
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
 import { productValidation } from "../validation/product.js";

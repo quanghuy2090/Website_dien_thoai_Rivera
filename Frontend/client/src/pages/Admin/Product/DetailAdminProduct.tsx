@@ -18,59 +18,79 @@ const DetailAdminProduct = () => {
     <div>
       <div className="content">
         <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-          <i className="bi bi-box-seam me-2"></i> Chi Tiết Sản Phẩm
+          <i className="fas fa-cart-plus me-2"></i> Chi Tiết Sản Phẩm
         </h1>
         <p className="mb-4 text-secondary">
-          Đây là thông tin chi tiết của sản phẩm "<strong>{productDetail?.name}</strong>". Bạn có thể xem thông tin và quản lý sản phẩm tại đây.
+          Đây là thông tin chi tiết của sản phẩm "
+          <strong>{productDetail?.name}</strong>". Bạn có thể xem thông tin và
+          quản lý sản phẩm tại đây.
         </p>
 
         <div className="table-container">
           <table className="table table-bordered border-primary">
-
             <tbody>
               <tr>
                 <th>Id</th>
                 <td>{productDetail?._id}</td>
               </tr>
               <tr>
-                <th>Name</th>
+                <th>Tên sp</th>
                 <td>{productDetail?.name}</td>
               </tr>
               <tr>
-                <th>Price</th>
-                <td>{productDetail?.price}</td>
+                <th>Mô tả ngắn</th>
+                <td>{productDetail?.short_description}</td>
               </tr>
               <tr>
-                <th>Description</th>
-                <td>{productDetail?.description}</td>
+                <th>Mô tả chi tiết</th>
+                <td>{productDetail?.long_description}</td>
               </tr>
+
               <tr>
-                <th>Stock</th>
-                <td>{productDetail?.stock}</td>
-              </tr>
-              <tr>
-                <th>Color</th>
-                <td>{productDetail?.color}</td>
-              </tr>
-              <tr>
-                <th>Category name</th>
+                <th>Danh mục</th>
                 <td>
                   {typeof productDetail?.categoryId === "object" &&
-                    productDetail.categoryId !== null
+                  productDetail.categoryId !== null
                     ? productDetail?.categoryId.name
                     : productDetail?.categoryId}
                 </td>
               </tr>
               <tr>
-                <th>Product image</th>
+                <th>Ảnh sản phẩm</th>
                 {productDetail?.images.map((image) => (
                   <img src={image} alt="" width={100} />
                 ))}
               </tr>
+              <tr>
+                <th>Biến thể</th>
+                <td>
+                  <table className="table table-bordered border-primary">
+                    <thead>
+                      <tr>
+                        <th>Màu</th>
+                        <th>Giá</th>
+                        <th>Bộ nhớ</th>
+                        <th>Stock</th>
+                        <th>Sku</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productDetail?.variants.map((variant, index) => (
+                        <tr key={index}>
+                          <td>{variant.color}</td>
+                          <td>{variant.price}</td>
+                          <td>{variant.capacity}</td>
+                          <td>{variant.stock}</td>
+                          <td>{variant.sku}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );

@@ -33,5 +33,5 @@ export const updateStatus = (userId:string,status:string) => {
 }
 
 export const updateRole = (userId:string,role:number) => {
-  return http.put(`auth/user-role/${userId}`,{role})
+  return http.put(`auth/user/role/${userId}`,{role})
 }
