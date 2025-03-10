@@ -32,7 +32,7 @@ const AddCategories = () => {
         <div className="row justify-content-center w-100">
           <div className="col-lg-8 col-md-10">
             <div className="text-center">
-              <h2 className="fw-bold text-primary">Thêm Danh Mục Sản Phẩm</h2>
+              <h2 className="fw-bold text-primary">Thêm mới Danh mục Sản phẩm</h2>
               <p className="text-muted">Quản lý danh mục sản phẩm cho cửa hàng Rivera</p>
             </div>
 
@@ -51,7 +51,7 @@ const AddCategories = () => {
                 <input type="text" className="form-control form-control-lg" {...register("slug", { required: true })} />
                 {errors.slug && <p className="text-danger">{errors.slug.message}</p>}
               </div>
-              <div className="form-group mb-3">
+              <div className="form-group mb-3" >
                 <button className="btn btn-primary w-100 py-3 fs-5">Lưu</button>
               </div>
             </form>

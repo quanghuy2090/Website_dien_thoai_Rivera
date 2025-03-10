@@ -69,14 +69,14 @@ const ListProduct = () => {
           {/* Phần chọn số lượng hiển thị */}
           <div>
             <label className="d-flex align-items-center">
-              Show
+              Hiển thị
               <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
               </select>
-              entries
+              mục
             </label>
           </div>
 
@@ -98,13 +98,13 @@ const ListProduct = () => {
           <thead className="thead-light">
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>short_description</th>
-              <th>long_description</th>
-              <th>images</th>
-              <th> variants</th>
-              <th>Categories</th>
-              <th>Action</th>
+              <th>Tên sp</th>
+              <th>Mô tả ngắn</th>
+              <th>Mô tả chi tiết</th>
+              <th>Ảnh</th>
+              <th>Biến thể</th>
+              <th>Danh mục</th>
+              <th>Tùy chọn</th>
             </tr>
           </thead>
           <tbody>
@@ -149,7 +149,7 @@ const ListProduct = () => {
                   <table className="table table-bordered table-sm text-center">
                     <thead>
                       <tr className="bg-light">
-                        <th>Dung lượng</th>
+                        <th>Bộ nhớ</th>
                         <th>Màu sắc</th>
                         <th>Giá</th>
                         <th>Stock</th>

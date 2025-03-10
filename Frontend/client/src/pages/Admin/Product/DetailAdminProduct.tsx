@@ -34,20 +34,20 @@ const DetailAdminProduct = () => {
                 <td>{productDetail?._id}</td>
               </tr>
               <tr>
-                <th>Name</th>
+                <th>Tên sp</th>
                 <td>{productDetail?.name}</td>
               </tr>
               <tr>
-                <th>Price</th>
+                <th>Mô tả ngắn</th>
                 <td>{productDetail?.short_description}</td>
               </tr>
               <tr>
-                <th>Description</th>
+                <th>Mô tả chi tiết</th>
                 <td>{productDetail?.long_description}</td>
               </tr>
 
               <tr>
-                <th>Category name</th>
+                <th>Danh mục</th>
                 <td>
                   {typeof productDetail?.categoryId === "object" &&
                   productDetail.categoryId !== null
@@ -56,18 +56,18 @@ const DetailAdminProduct = () => {
                 </td>
               </tr>
               <tr>
-                <th>Product image</th>
+                <th>Ảnh sản phẩm</th>
                 {productDetail?.images.map((image) => (
                   <img src={image} alt="" width={100} />
                 ))}
               </tr>
               <tr>
-                <th>Product variants</th>
+                <th>Biến thể</th>
                 <td>
                   <table className="table table-bordered border-primary">
                     <thead>
                       <tr>
-                        <th>ID</th>
+                        <th>Màu</th>
                         <th>Giá</th>
                         <th>Bộ nhớ</th>
                         <th>Stock</th>

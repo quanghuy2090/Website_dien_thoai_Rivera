@@ -114,14 +114,15 @@ const AddProduct = () => {
   return (
 
     <div className="content">
-      <div className="container d-flex justify-content-center align-items-center vh-100">
+      <div className="container d-flex justify-content-center align-items-center mt-5">
         <div className="row justify-content-center w-100">
           <div className="col-lg-6 col-md-8"> {/* Giới hạn chiều rộng */}
             <div className="text-center">
+              <h2 className="fw-bold text-primary">Thêm mới Sản phẩm</h2>
               <p className="text-muted">Quản lý sản phẩm cho cửa hàng Rivera</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="p-4 border rounded shadow-sm bg-light">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-5 border rounded shadow-sm bg-light">
               {/* Tên sản phẩm */}
               <div className="mb-3">
                 <label className="fw-bold">Tên sản phẩm</label>
@@ -171,7 +172,7 @@ const AddProduct = () => {
                       {errors.variants?.[index]?.color && <p>{errors.variants[index]?.color?.message}</p>}
                     </div>
                     <div className="col-md-6">
-                      <label className="fw-bold">Dung lượng</label>
+                      <label className="fw-bold">Bộ nhớ</label>
                       <input type="text" className="form-control" {...register(`variants.${index}.capacity`)} />
                     </div>
                   </div>
@@ -213,7 +214,7 @@ const AddProduct = () => {
 
               {/* Nút Submit */}
               <div className="text-center mt-4">
-                <button type="submit" className="btn btn-primary w-100 py-3 fs-5">Thêm sản phẩm</button>
+                <button type="submit" className="btn btn-primary w-100 py-3 fs-5">Lưu</button>
               </div>
             </form>
           </div>
