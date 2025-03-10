@@ -147,7 +147,7 @@ const UpdateProduct = () => {
               <p className="text-muted">Chỉnh sửa thông tin sản phẩm của bạn</p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="p-4 border rounded bg-white shadow">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-5 border rounded bg-white shadow">
               {/* Tên và giá sản phẩm */}
               <div className="row">
                 <div className="col-md-6 mb-3">
@@ -159,19 +159,19 @@ const UpdateProduct = () => {
 
               {/* Mô tả */}
               <div className="mb-3">
-                <label htmlFor="short_description" className="fw-bold">Mô tả sản phẩm</label>
-                <textarea className="form-control"  {...register("long_description", { required: true })}></textarea>
-                {errors.long_description && <p className="text-danger">{errors.long_description.message}</p>}
-              </div>
-              <div className="mb-3">
-                <label htmlFor="description" className="fw-bold">Mô tả sản phẩm</label>
+                <label htmlFor="description" className="fw-bold">Mô tả ngắn</label>
                 <textarea className="form-control"  {...register("short_description", { required: true })}></textarea>
                 {errors.short_description && <p className="text-danger">{errors.short_description.message}</p>}
+              </div>
+              <div className="mb-3">
+                <label htmlFor="short_description" className="fw-bold">Mô tả chi tiết</label>
+                <textarea className="form-control"  {...register("long_description", { required: true })}></textarea>
+                {errors.long_description && <p className="text-danger">{errors.long_description.message}</p>}
               </div>
 
               {/* Hình ảnh */}
               <div className="mb-3">
-                <label className="fw-bold">Hình ảnh</label>
+                <label className="fw-bold">Ảnh sản phẩm</label>
                 {imageInputs.map((img, index) => (
                   <div key={index} className="d-flex align-items-center mb-2">
                     <input type="file" className="form-control" onChange={(e) => handleImageChange(e, index)} />
@@ -197,7 +197,7 @@ const UpdateProduct = () => {
                       {errors.variants?.[index]?.color && <p>{errors.variants[index]?.color?.message}</p>}
                     </div>
                     <div className="col-md-6">
-                      <label className="fw-bold">Dung lượng</label>
+                      <label className="fw-bold">Bộ nhớ</label>
                       <input type="text" className="form-control" {...register(`variants.${index}.capacity`)} />
                     </div>
                   </div>
@@ -239,7 +239,7 @@ const UpdateProduct = () => {
 
               {/* Nút submit */}
               <div className="text-center mt-4">
-                <button type="submit" className="btn btn-primary w-100 py-2">Lưu thay đổi</button>
+                <button type="submit" className="btn btn-primary w-100 py-2">Lưu</button>
               </div>
             </form>
           </div>
