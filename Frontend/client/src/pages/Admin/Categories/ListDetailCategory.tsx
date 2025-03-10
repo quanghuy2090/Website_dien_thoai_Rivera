@@ -38,18 +38,17 @@ const ListDetailCategory = () => {
                             <td>{categoryDetail?.slug}</td>
                         </tr>
                         <tr>
-                            <th >Products</th>
+                            <th >Sản phẩmphẩm</th>
                             <td>
                                 <table className="table table-bordered border-primary">
                                     <thead >
                                         <tr>
                                             <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Price</th>
-                                            <th>Description</th>
-                                            <th>Images</th>
-                                            <th>Stock</th>
-                                            <th>Color</th>
+                                            <th>Tên sp</th>
+                                            <th>Mô tả ngắn</th>
+                                            <th>Mô tả chi tiết</th>
+                                            <th>Ảnh</th>
+                                            <th>Biến thể</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -57,15 +56,37 @@ const ListDetailCategory = () => {
                                             <tr key={index}>
                                                 <td>{r._id}</td>
                                                 <td>{r.name}</td>
-                                                <td>${r.price}</td>
-                                                <td>{r.description}</td>
+                                                <td>${r.short_description}</td>
+                                                <td>{r.long_description}</td>
                                                 <td>
                                                     {r.images.map((image, i) => (
                                                         <img key={i} src={image} alt="" width={60} className="me-2 rounded" />
                                                     ))}
                                                 </td>
-                                                <td>{r.stock}</td>
-                                                <td>{r.color}</td>
+                                                <td>
+                                                    <table className="table table-bordered border-primary">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>MàuMàu</th>
+                                                                <th>Bộ nhớ</th>
+                                                                <th>Giá</th>
+                                                                <th>Stock</th>
+                                                                <th>SKU</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {r.variants.map((v, i) => (
+                                                                <tr key={i}>
+                                                                    <td>{v.color}</td>
+                                                                    <td>{v.capacity}</td>
+                                                                    <td>{v.price}</td>
+                                                                    <td>{v.stock}</td>
+                                                                    <td>{v.sku}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>

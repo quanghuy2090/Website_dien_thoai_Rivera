@@ -21,12 +21,13 @@ const DetailAdminProduct = () => {
           <i className="fas fa-cart-plus me-2"></i> Chi Tiết Sản Phẩm
         </h1>
         <p className="mb-4 text-secondary">
-          Đây là thông tin chi tiết của sản phẩm "<strong>{productDetail?.name}</strong>". Bạn có thể xem thông tin và quản lý sản phẩm tại đây.
+          Đây là thông tin chi tiết của sản phẩm "
+          <strong>{productDetail?.name}</strong>". Bạn có thể xem thông tin và
+          quản lý sản phẩm tại đây.
         </p>
 
         <div className="table-container">
           <table className="table table-bordered border-primary">
-
             <tbody>
               <tr>
                 <th>Id</th>
@@ -38,25 +39,18 @@ const DetailAdminProduct = () => {
               </tr>
               <tr>
                 <th>Price</th>
-                <td>{productDetail?.price}</td>
+                <td>{productDetail?.short_description}</td>
               </tr>
               <tr>
                 <th>Description</th>
-                <td>{productDetail?.description}</td>
+                <td>{productDetail?.long_description}</td>
               </tr>
-              <tr>
-                <th>Stock</th>
-                <td>{productDetail?.stock}</td>
-              </tr>
-              <tr>
-                <th>Color</th>
-                <td>{productDetail?.color}</td>
-              </tr>
+
               <tr>
                 <th>Category name</th>
                 <td>
                   {typeof productDetail?.categoryId === "object" &&
-                    productDetail.categoryId !== null
+                  productDetail.categoryId !== null
                     ? productDetail?.categoryId.name
                     : productDetail?.categoryId}
                 </td>
@@ -67,10 +61,36 @@ const DetailAdminProduct = () => {
                   <img src={image} alt="" width={100} />
                 ))}
               </tr>
+              <tr>
+                <th>Product variants</th>
+                <td>
+                  <table className="table table-bordered border-primary">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Giá</th>
+                        <th>Bộ nhớ</th>
+                        <th>Stock</th>
+                        <th>Sku</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productDetail?.variants.map((variant, index) => (
+                        <tr key={index}>
+                          <td>{variant.color}</td>
+                          <td>{variant.price}</td>
+                          <td>{variant.capacity}</td>
+                          <td>{variant.stock}</td>
+                          <td>{variant.sku}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
   );
