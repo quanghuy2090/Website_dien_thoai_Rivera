@@ -37,7 +37,7 @@ const UpdateCategories = () => {
                 <div className="row justify-content-center w-100">
                     <div className="col-lg-8 col-md-10">
                         <div className="text-center">
-                            <h2 className="fw-bold text-primary">Update Danh Mục Sản Phẩm</h2>
+                            <h2 className="fw-bold text-primary">Cập nhật Danh Mục Sản Phẩm</h2>
                             <p className="text-muted">Quản lý danh mục sản phẩm cho cửa hàng Rivera</p>
                         </div>
 
@@ -47,17 +47,17 @@ const UpdateCategories = () => {
                             style={{ minHeight: "500px" }}
                         >
                             <div className="form-group mb-5">
-                                <label htmlFor="name" className="fw-bold fs-5">Name</label>
+                                <label htmlFor="name" className="fw-bold fs-5">Tên danh mục</label>
                                 <input type="text" className="form-control form-control-lg" {...register("name", { required: true })} />
                                 {errors.name && <p className="text-danger">{errors.name.message}</p>}
                             </div>
                             <div className="form-group mb-5">
-                                <label htmlFor="slug" className="fw-bold fs-5">Slug</label>
+                                <label htmlFor="slug" className="fw-bold fs-5">Mô tả</label>
                                 <input type="text" className="form-control form-control-lg" {...register("slug", { required: true })} />
                                 {errors.slug && <p className="text-danger">{errors.slug.message}</p>}
                             </div>
                             <div className="form-group mb-5">
-                                <button className="btn btn-primary w-100 py-3 fs-5">Submit</button>
+                                <button className="btn btn-primary w-100 py-3 fs-5">Lưu</button>
                             </div>
                         </form>
                     </div>
