@@ -4,19 +4,22 @@ const variantSchema = new mongoose.Schema({
   color: {
     type: String,
     required: true, // Màu sắc là bắt buộc trong biến thể
+    enum: ["Red", "Blue","Black","White","Green"]
   },
   capacity: {
     type: String, // Dung lượng (có thể để trống nếu không áp dụng)
+    required: true,
+    enum: ["64GB","128GB","256GB","512GB","1TB"]
   },
   price: {
     type: Number,
     required: true,
-    min: 1, // Giá tối thiểu là 1
+    min: 1,
   },
   stock: {
     type: Number,
     required: true,
-    min: 0, // Số lượng tồn kho tối thiểu là 0
+    min: 0,
   },
   sku: {
     type: String,
@@ -29,46 +32,46 @@ const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true, // Sửa "require" thành "required"
+      required: true,
       minLength: 3,
     },
     images: {
       type: [String],
-      required: true, // Giữ nguyên mảng ảnh
+      required: true,
     },
     short_description: {
-      type: String, // Thêm mô tả ngắn
+      type: String, //Mô tả ngắn
     },
     long_description: {
-      type: String, // Thay "description" thành "long_description"
+      type: String, //Mô tả dài
     },
     status: {
       type: String,
-      enum: ["active", "banned"], // Giữ nguyên trạng thái
+      enum: ["active", "banned"], //Trạng thái
       default: "active",
     },
     is_hot: {
       type: String,
-      enum: ["yes", "no"], // Giữ nguyên
+      enum: ["yes", "no"], //SP Hót
       default: "no",
     },
     variants: {
       type: [variantSchema], // Thêm schema biến thể
-      required: true, // Đảm bảo sản phẩm phải có ít nhất 1 biến thể
+      required: true, //Sản phẩm phải có ít nhất 1 biến thể
     },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
-      required: true, // Sửa "require" thành "required"
+      required: true,
     },
   },
   {
-    timestamps: true, // Tự động thêm createdAt và updatedAt
-    versionKey: false, // Loại bỏ __v
+    timestamps: true,
+    versionKey: false,
   }
 );
 
-// Thêm text index để tìm kiếm theo name
+//Text index để tìm kiếm theo name
 productSchema.index({ name: "text" });
 
 productSchema.index({ categoryId: 1 });
