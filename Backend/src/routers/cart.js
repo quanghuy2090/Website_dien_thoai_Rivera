@@ -11,7 +11,7 @@ import { checkUserPermission } from "./../middlewares/checkUserPermission.js";
 const routerCart = express.Router();
 
 routerCart.post("/", checkUserPermission, createCart);
-routerCart.get("/:userId", getCart);
+routerCart.get("/", checkUserPermission, getCart);
 routerCart.put("/:userId", updateCart);
 routerCart.delete("/:userId/:productId", removeFromCart);
 
