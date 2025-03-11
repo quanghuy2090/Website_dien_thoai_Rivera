@@ -7,18 +7,18 @@ import { updateProduct } from '../../../services/product';
 import toast from 'react-hot-toast';
 import z from "zod";
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 const productSchema = z.object({
-  name: z.string().min(3).max(225),
+  name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
   images: z.array(z.string()).max(5, "Chỉ được tải lên tối đa 5 ảnh").optional(),
-  short_description: z.string().nonempty(),
-  long_description: z.string().nonempty(),
-  categoryId: z.string().nonempty(),
+  short_description: z.string().nonempty("Mô tả ngắn không được để trống"),
+  long_description: z.string().nonempty("Mô tả chi tiết không được để trống"),
+  categoryId: z.string().nonempty("Vui lòng chọn danh mục"),
   variants: z.array(
     z.object({
       color: z.string().min(1, "Màu sắc không được để trống"),
-      capacity: z.string().optional(),
+      capacity: z.string().nonempty("Bộ nhớ không được để trống"),
       price: z.number().min(1, "Giá phải lớn hơn 0"),
       stock: z.number().min(0, "Số lượng phải >= 0"),
       sku: z.string().min(1, "SKU không được để trống"),
@@ -100,7 +100,6 @@ const UpdateProduct = () => {
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
-      console.log(data);
       const images = Array.isArray(data.data.images) ? data.data.images.slice(0, 5) : [data.data.images];
       setImageInputs(images.map((img: string) => ({ file: null, preview: img })));
       reset({
@@ -130,8 +129,23 @@ const UpdateProduct = () => {
       await updateProduct(id!, product);
       toast.success("Product updated successfully");
       nav("/admin/products");
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      const error = err as AxiosError<{ message: string }>;
+
+      if (error.response) {
+        console.error("Phản hồi từ server:", error.response.data); // Log phản hồi từ server
+      }
+
+      if (error.response && error.response.status === 400) {
+        const errorMessage = error.response.data.message;
+
+        if (errorMessage.includes("SKU")) {
+          toast.error(errorMessage);
+        } else {
+          toast.error(errorMessage);
+        }
+        return;
+      }
       toast.error("Product update unsuccessful");
     }
   };
@@ -193,12 +207,28 @@ const UpdateProduct = () => {
                   <div className="row">
                     <div className="col-md-6">
                       <label className="fw-bold">Màu sắc</label>
-                      <input type="text" className="form-control" {...register(`variants.${index}.color`, { required: true })} />
-                      {errors.variants?.[index]?.color && <p>{errors.variants[index]?.color?.message}</p>}
+                      <select className='form-control'{...register(`variants.${index}.color`)}>
+                        <option disabled value="">Chọn màu</option>
+                        <option value="Red">Red</option>
+                        <option value="Blue">Blue</option>
+                        <option value="Black">Black</option>
+                        <option value="White">White</option>
+                        <option value="Green">Green</option>
+
+                      </select>
+                      {errors.variants?.[index]?.color && <p className='tex-danger'>{errors.variants[index]?.color?.message}</p>}
                     </div>
                     <div className="col-md-6">
                       <label className="fw-bold">Bộ nhớ</label>
-                      <input type="text" className="form-control" {...register(`variants.${index}.capacity`)} />
+                      <select className='form-control'{...register(`variants.${index}.capacity`)}>
+                        <option disabled value="">Chọn Bộ Nhớ</option>
+                        <option value="64GB">64GB</option>
+                        <option value="128GB">128GB</option>
+                        <option value="256GB">256GB</option>
+                        <option value="512GB">512GB</option>
+                        <option value="1TB">1TB</option>
+                      </select>
+                      {errors.variants?.[index]?.capacity && <p className='tex-danger'>{errors.variants[index]?.capacity?.message}</p>}
                     </div>
                   </div>
 
@@ -206,18 +236,18 @@ const UpdateProduct = () => {
                     <div className="col-md-4">
                       <label className="fw-bold">Giá</label>
                       <input type="number" className="form-control" {...register(`variants.${index}.price`, { required: true, valueAsNumber: true })} />
-                      {errors.variants?.[index]?.price && <p>{errors.variants[index]?.price?.message}</p>}
+                      {errors.variants?.[index]?.price && <p className='tex-danger'>{errors.variants[index]?.price?.message}</p>}
 
                     </div>
                     <div className="col-md-4">
                       <label className="fw-bold">Stock</label>
                       <input type="number" className="form-control" {...register(`variants.${index}.stock`, { required: true, valueAsNumber: true })} />
-                      {errors.variants?.[index]?.stock && <p>{errors.variants[index]?.stock?.message}</p>}
+                      {errors.variants?.[index]?.stock && <p className='tex-danger'>{errors.variants[index]?.stock?.message}</p>}
                     </div>
                     <div className="col-md-4">
                       <label className="fw-bold">SKU</label>
                       <input type="text" className="form-control" {...register(`variants.${index}.sku`, { required: true })} />
-                      {errors.variants?.[index]?.sku && <p>{errors.variants[index]?.sku?.message}</p>}
+                      {errors.variants?.[index]?.sku && <p className='tex-danger'>{errors.variants[index]?.sku?.message}</p>}
                     </div>
                   </div>
 
