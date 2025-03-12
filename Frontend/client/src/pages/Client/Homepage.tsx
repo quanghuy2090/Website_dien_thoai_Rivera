@@ -9,7 +9,8 @@ import "slick-carousel/slick/slick-theme.css";
 import "../../css/style.css";
 
 const HomePage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [hotProducts, setHotProducts] = useState<Product[]>([]);
+  const [newProducts, setNewProducts] = useState<Product[]>([]);
   const nav = useNavigate();
   const productSliderRef = useRef<Slider | null>(null); // Ref for the first slider
   const hotDealSliderRef = useRef<Slider | null>(null); // Ref for the second slider
@@ -17,32 +18,69 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       const res = await getAllProduct();
-      setProducts(res.data.data);
+      const allProducts = res.data.data;
+
+      // Get current date and subtract 1 month
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      // Filter products created within the last month
+      const recentProducts = allProducts.filter((product: Product) => {
+        const createdAtDate = new Date(product.createdAt);
+        return createdAtDate >= oneMonthAgo;
+      });
+
+      const bestSellingProducts = allProducts.filter((product: Product) => product.is_hot === "yes");
+
+      setNewProducts(recentProducts);
+      setHotProducts(bestSellingProducts);
     };
     fetchProducts();
   }, []);
-
   const addToCart = async (product: Product) => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      // Lấy thông tin user từ localStorage
+      const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
+
       if (!user || !user._id) {
-        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
         nav("/login");
         return;
       }
+
+      // Kiểm tra xem sản phẩm có biến thể không
+      if (!product.variants || product.variants.length === 0) {
+        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+        return;
+      }
+
+      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
+      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
+
+      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
       const cart: Carts = {
-        _id: "",
         userId: user._id,
-        quantity: 1,
-        productId: product._id,
+        items: [
+          {
+            productId: product._id,
+            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
+            quantity: 1,
+          },
+        ],
       };
+
+      // Gửi request lên API
       const { data } = await addCart(cart);
+      console.log("API Response:", data); // Log response để kiểm tra
+
+      // Thông báo thành công
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
     } catch (error) {
-      console.error("Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Error");
+      console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
+      toast.error("Thêm sản phẩm thất bại!");
     }
   };
+
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -84,6 +122,17 @@ const HomePage = () => {
 
   return (
     <>
+      {/* Banner SECTION */}
+      <div id="banner-deal" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="banner-deal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Product Section */}
       <div className="section">
         <div className="container">
@@ -100,7 +149,7 @@ const HomePage = () => {
                 {...sliderSettings}
                 className="products-slick"
               >
-                {products.map((product) => (
+                {newProducts.map((product) => (
                   <div className="product" key={product._id}>
                     <div className="product-img mt-3">
                       <Link className="img" to={`/product/${product._id}`}>
@@ -111,12 +160,17 @@ const HomePage = () => {
                       </div>
                     </div>
                     <div className="product-body">
+                      <p className="product-category">
+                        {product.categoryId.name}
+                      </p>
                       <h3 className="product-name">
-                        <Link to={`/product/${product._id}`}>{product.name}</Link>
+                        <Link to={`/product/${product._id}`}>
+                          {product.name}
+                        </Link>
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {formatPrice(product.price)}
+                          {formatPrice(product.variants[0].price)}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
@@ -175,39 +229,7 @@ const HomePage = () => {
         <div className="container">
           <div className="row">
             <div className="col-md-12">
-              <div className="hot-deal">
-                <ul className="hot-deal-countdown">
-                  <li>
-                    <div>
-                      <h3>02</h3>
-                      <span>Days</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div>
-                      <h3>10</h3>
-                      <span>Hours</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div>
-                      <h3>34</h3>
-                      <span>Mins</span>
-                    </div>
-                  </li>
-                  <li>
-                    <div>
-                      <h3>60</h3>
-                      <span>Secs</span>
-                    </div>
-                  </li>
-                </ul>
-                <h2 className="text-uppercase">hot deal this week</h2>
-                <p>New Collection Up to 50% OFF</p>
-                <a className="primary-btn cta-btn" href="#">
-                  Shop now
-                </a>
-              </div>
+              <div className="hot-deal"></div>
             </div>
           </div>
         </div>
@@ -218,12 +240,17 @@ const HomePage = () => {
         <div className="container">
           <div className="row">
             <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Sản phẩm bán chạy</h3>
+              </div>
+            </div>
+            <div className="col-md-12">
               <Slider
                 ref={hotDealSliderRef} // Pass the hotDealSliderRef
                 {...sliderSettings}
                 className="products-slick"
               >
-                {products.map((product) => (
+                {hotProducts.map((product) => (
                   <div className="product" key={product._id}>
                     <div className="product-img mt-3">
                       <Link className="img" to={`/product/${product._id}`}>
@@ -234,12 +261,17 @@ const HomePage = () => {
                       </div>
                     </div>
                     <div className="product-body">
+                      <p className="product-category">
+                        {product.categoryId.name}
+                      </p>
                       <h3 className="product-name">
-                        <Link to={`/product/${product._id}`}>{product.name}</Link>
+                        <Link to={`/product/${product._id}`}>
+                          {product.name}
+                        </Link>
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {formatPrice(product.price)}
+                          {formatPrice(product.variants[0].price)}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
@@ -288,7 +320,57 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-
+      {/* NEWSLETTER */}
+      <div id="newsletter" className="section">
+        {/* container */}
+        <div className="container">
+          {/* row */}
+          <div className="row">
+            <div className="col-md-12">
+              <div className="newsletter">
+                <p>
+                  Sign Up for the <strong>NEWSLETTER</strong>
+                </p>
+                <form>
+                  <input
+                    className="input"
+                    type="email"
+                    placeholder="Enter Your Email"
+                  />
+                  <button className="newsletter-btn">
+                    <i className="fa fa-envelope" /> Subscribe
+                  </button>
+                </form>
+                <ul className="newsletter-follow">
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-facebook" />
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-twitter" />
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-instagram" />
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-pinterest" />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          {/* /row */}
+        </div>
+        {/* /container */}
+      </div>
+      {/* /NEWSLETTER */}
     </>
   );
 };
