@@ -139,9 +139,10 @@ const ProductDetail = () => {
             </div>
           </div>
           <div className="col-lg-7 pb-5">
-            <h3 className="h4 font-weight-bold">{product?.name}</h3>
+          <h3 className="h4 font-weight-bold text-dark">{product?.name}</h3>
+
             <div className="d-flex align-items-center mb-2">
-              <div className="text-danger">
+              <div className="text-primary">
                 <i className="fas fa-star"> </i>
                 <i className="fas fa-star"> </i>
                 <i className="fas fa-star"> </i>
@@ -150,17 +151,19 @@ const ProductDetail = () => {
               </div>
               <span className="ml-2 text-muted">
                 (10 Review(s)) |
-                <a className="text-primary" href="#">
+                <a className="text-dark" href="#">
                   {" "}
                   Add your review{" "}
                 </a>
               </span>
             </div>
-            <h2 className="h3 text-danger font-weight-bold mb-2">
+
+            <h2 className="h3 font-weight-bold mb-2 text-primary">
               {formatPrice(product?.price ?? 0)}
             </h2>
+
             <div className="text-success font-weight-bold mb-4">IN STOCK</div>
-            <p className="mb-4">
+            <p className="mb-4 text-dark">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
               enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -168,9 +171,10 @@ const ProductDetail = () => {
             </p>
             <div className="product-options">
               <div className="row align-items-center mb-3">
-                <div className="col-auto">
-                  <label className="form-label fw-bold">Dung Lượng</label>
-                </div>
+              <div className="col-auto">
+  <label className="form-label fw-bold text-dark">Dung Lượng</label>
+</div>
+
                 <div className="col-auto">
                   <select className="form-select form-select-sm w-auto border-dark">
                     <option value="0">64GB</option>
@@ -179,8 +183,9 @@ const ProductDetail = () => {
                   </select>
                 </div>
                 <div className="col-auto">
-                  <label className="form-label fw-bold">Màu Sắc</label>
-                </div>
+  <label className="form-label fw-bold text-dark">Màu Sắc</label>
+</div>
+
                 <div className="col-auto">
                   <select className="form-select form-select-sm w-auto border-dark">
                     <option value="0">Đỏ</option>
@@ -301,7 +306,7 @@ const ProductDetail = () => {
             </div>
             <div className="tab-content">
               <div className="tab-pane fade show active" id="tab-pane-1">
-                <h4 className="mb-3">Additional Information</h4>
+                <h4 className="mb-3 text-dark">Additional Information</h4>
                 <div className="row">
                   <div className="col-md-6">
                     <ul className="list-group list-group-flush">
@@ -343,7 +348,7 @@ const ProductDetail = () => {
                   </div>
                 </div>
               </div>
-              <div className="tab-pane fade" id="tab-pane-2">
+              <div className="tab-pane fade text-dark" id="tab-pane-2">
                 <p>{product?.description}</p>
               </div>
               {/* <div className="tab-pane fade" id="tab-pane-3">

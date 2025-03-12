@@ -167,103 +167,95 @@ const Checkout = () => {
                         <div className="row">
                             <div className="col-lg-8">
                                 <div className="mb-4">
-                                    <h4 className="font-weight-semi-bold mb-4">
+                                    <h5 className="font-weight-semi-bold mb-4">
                                         Billing Address
-                                    </h4>
+                                    </h5>
                                     <div className="row">
-                                        <div>
-                                            <div className="form-group">
-                                                <label htmlFor="userName">Người dùng</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={userName}
-                                                    placeholder="Nhập tên người dùng"
-                                                />
-                                            </div>
+  <div className="col-md-6">
+    <div className="mb-3">
+      <label htmlFor="userName" className="form-label fw-medium">Người dùng</label>
+      <input
+        type="text"
+        className="form-control"
+        value={userName}
+        placeholder="Nhập tên người dùng"
+        disabled
+      />
+    </div>
 
-                                            <div className="form-group">
-                                                <label htmlFor="address">Email</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={email}
-                                                    placeholder="Nhập địa chỉ"
-                                                />
-                                            </div>
+    <div className="mb-3">
+      <label htmlFor="email" className="form-label fw-medium">Email</label>
+      <input
+        type="text"
+        className="form-control"
+        value={email}
+        placeholder="Nhập email"
+        disabled
+      />
+    </div>
 
-                                            <div className="form-group">
-                                                <label htmlFor="phone">Số điện thoại</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={phone}
-                                                    placeholder="Nhập số điện thoại"
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label htmlFor="phone">Địa chỉ</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={address}
-                                                    placeholder="Nhập số điện thoại"
-                                                />
-                                            </div>
-                                            <div className=" form-group">
-                                                <label htmlFor="city">Tỉnh / Thành phố</label>
-                                                <select className="form-control" {...register("city")}>
-                                                    <option value="">Chọn tỉnh / thành phố</option>
-                                                    {provinces.map((province) => (
-                                                        <option key={province.code} value={province.name}>
-                                                            {province.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
+    <div className="mb-3">
+      <label htmlFor="phone" className="form-label fw-medium">Số điện thoại</label>
+      <input
+        type="text"
+        className="form-control"
+        value={phone}
+        placeholder="Nhập số điện thoại"
+        disabled
+      />
+    </div>
 
-                                            <div className=" form-group">
-                                                <label htmlFor="district">Quận / Huyện</label>
-                                                <select
-                                                    className="form-control"
-                                                    {...register("district")}
-                                                    disabled={!districts.length}
-                                                >
-                                                    <option value="">Chọn quận / huyện</option>
-                                                    {districts.map((district) => (
-                                                        <option key={district.code} value={district.name}>
-                                                            {district.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
+    <div className="mb-3">
+      <label htmlFor="address" className="form-label fw-medium">Địa chỉ</label>
+      <input
+        type="text"
+        className="form-control"
+        value={address}
+        placeholder="Nhập địa chỉ"
+        disabled
+      />
+    </div>
+  </div>
 
-                                            <div className=" form-group">
-                                                <label htmlFor="ward">Phường / Xã</label>
-                                                <select
-                                                    className="form-control"
-                                                    {...register("ward")}
-                                                    disabled={!wards.length}
-                                                >
-                                                    <option value="">Chọn phường / xã</option>
-                                                    {wards.map((ward) => (
-                                                        <option key={ward.code} value={ward.name}>
-                                                            {ward.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
+  <div className="col-md-6">
+    <div className="mb-3">
+      <label htmlFor="city" className="form-label fw-medium">Tỉnh / Thành phố</label>
+      <select className="form-select" {...register("city")}>
+        <option value="">Chọn tỉnh / thành phố</option>
+        {provinces.map((province) => (
+          <option key={province.code} value={province.name}>
+            {province.name}
+          </option>
+        ))}
+      </select>
+    </div>
 
-                                            {/* <div className=" form-group">
-                                                <label htmlFor="address">Địa chỉ</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    {...register("address")}
-                                                />
-                                            </div> */}
-                                        </div>
-                                    </div>
+    <div className="mb-3">
+      <label htmlFor="district" className="form-label fw-medium">Quận / Huyện</label>
+      <select className="form-select" {...register("district")} disabled={!districts.length}>
+        <option value="">Chọn quận / huyện</option>
+        {districts.map((district) => (
+          <option key={district.code} value={district.name}>
+            {district.name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="mb-3">
+      <label htmlFor="ward" className="form-label fw-medium">Phường / Xã</label>
+      <select className="form-select" {...register("ward")} disabled={!wards.length}>
+        <option value="">Chọn phường / xã</option>
+        {wards.map((ward) => (
+          <option key={ward.code} value={ward.name}>
+            {ward.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+</div>
+
                                 </div>
                             </div>
                             <div className="col-lg-4">

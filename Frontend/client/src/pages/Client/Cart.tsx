@@ -144,7 +144,7 @@ const Cart = () => {
             <th scope="col">Giá bán</th>
             <th scope="col">Số lượng</th>
             <th scope="col">Thành tiền</th>
-            <th scope="col">Hủy</th>
+            <th scope="col">Chức năng</th>
           </tr>
         </thead>
         <tbody>
