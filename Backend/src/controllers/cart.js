@@ -129,73 +129,73 @@ export const getCart = async (req, res) => {
 };
 
 // Xóa sản phẩm khỏi giỏ hàng
-export const removeFromCart = async (req, res) => {
-  const { userId, productId } = req.params;
+// export const removeFromCart = async (req, res) => {
+//   const { userId, productId } = req.params;
 
-  try {
-    const cart = await Cart.findOne({ userId });
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
-    }
+//   try {
+//     const cart = await Cart.findOne({ userId });
+//     if (!cart) {
+//       return res.status(404).json({ message: "Cart not found" });
+//     }
 
-    // Lọc ra các sản phẩm không phải là sản phẩm cần xóa
-    cart.items = cart.items.filter((item) => item.productId != productId);
-    await cart.save();
+//     // Lọc ra các sản phẩm không phải là sản phẩm cần xóa
+//     cart.items = cart.items.filter((item) => item.productId != productId);
+//     await cart.save();
 
-    // Trả về giỏ hàng đã cập nhật
-    res.status(200).json(cart);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+//     // Trả về giỏ hàng đã cập nhật
+//     res.status(200).json(cart);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
 
-// Cập nhật sản phẩm trong giỏ hàng
-export const updateCart = async (req, res) => {
-  const { userId } = req.params;
-  const { productId, quantity } = req.body;
+// // Cập nhật sản phẩm trong giỏ hàng
+// export const updateCart = async (req, res) => {
+//   const { userId } = req.params;
+//   const { productId, quantity } = req.body;
 
-  try {
-    // Kiểm tra xem giỏ hàng có tồn tại không
-    let cart = await Cart.findOne({ userId }).populate("items.productId");
+//   try {
+//     // Kiểm tra xem giỏ hàng có tồn tại không
+//     let cart = await Cart.findOne({ userId }).populate("items.productId");
 
-    if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
-    }
+//     if (!cart) {
+//       return res.status(404).json({ message: "Cart not found" });
+//     }
 
-    // Kiểm tra sản phẩm có trong giỏ hàng hay không
-    const itemIndex = cart.items.findIndex(
-      (item) => item.productId._id == productId
-    );
+//     // Kiểm tra sản phẩm có trong giỏ hàng hay không
+//     const itemIndex = cart.items.findIndex(
+//       (item) => item.productId._id == productId
+//     );
 
-    if (itemIndex > -1) {
-      // Nếu tìm thấy sản phẩm, cập nhật số lượng
-      if (quantity <= 0) {
-        // Nếu số lượng <= 0 thì xóa sản phẩm
-        cart.items.splice(itemIndex, 1);
-      } else {
-        cart.items[itemIndex].quantity = quantity;
-      }
-    } else {
-      return res.status(404).json({ message: "Product not found in cart" });
-    }
+//     if (itemIndex > -1) {
+//       // Nếu tìm thấy sản phẩm, cập nhật số lượng
+//       if (quantity <= 0) {
+//         // Nếu số lượng <= 0 thì xóa sản phẩm
+//         cart.items.splice(itemIndex, 1);
+//       } else {
+//         cart.items[itemIndex].quantity = quantity;
+//       }
+//     } else {
+//       return res.status(404).json({ message: "Product not found in cart" });
+//     }
 
-    // Lưu lại giỏ hàng sau khi cập nhật
-    cart = await cart.save();
+//     // Lưu lại giỏ hàng sau khi cập nhật
+//     cart = await cart.save();
 
-    // Tính lại tổng tiền
-    const totalAmount = cart.items.reduce((total, item) => {
-      return total + item.productId.price * item.quantity;
-    }, 0);
+//     // Tính lại tổng tiền
+//     const totalAmount = cart.items.reduce((total, item) => {
+//       return total + item.productId.price * item.quantity;
+//     }, 0);
 
-    // Trả về giỏ hàng đã cập nhật và tổng tiền
-    return res.status(200).json({
-      message: "Cart updated successfully",
-      cart,
-      totalAmount,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+//     // Trả về giỏ hàng đã cập nhật và tổng tiền
+//     return res.status(200).json({
+//       message: "Cart updated successfully",
+//       cart,
+//       totalAmount,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };

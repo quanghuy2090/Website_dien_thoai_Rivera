@@ -40,19 +40,19 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     short_description: {
-      type: String, //Mô tả ngắn
+      type: String,
     },
     long_description: {
-      type: String, //Mô tả dài
+      type: String,
     },
     status: {
       type: String,
-      enum: ["active", "banned"], //Trạng thái
+      enum: ["active", "banned"],
       default: "active",
     },
     is_hot: {
       type: String,
-      enum: ["yes", "no"], //SP Hót
+      enum: ["yes", "no"],
       default: "no",
     },
     variants: {
