@@ -73,6 +73,15 @@ export const createProduct = async (req, res) => {
         message: `Sản phẩm "${req.body.name}" đã tồn tại`,
       });
     }
+    // Kiểm tra SKU có trùng lặp không
+    const existingVariant = await Product.findOne({ "variants.sku": { $in: req.body.variants.map(v => v.sku) } });
+
+    if (existingVariant) {
+      return res.status(400).json({
+        message: "SKU đã tồn tại, vui lòng chọn SKU khác",
+      });
+    }
+
 
     // Kiểm tra xem danh mục có tồn tại không trước khi tạo sản phẩm
     const category = await Category.findById(req.body.categoryId);
@@ -126,7 +135,7 @@ export const updateProduct = async (req, res) => {
     const updateData = req.body;
 
     // Validate dữ liệu đầu vào
-    const { error } = prod.validate(updateData, {
+    const { error } = productValidation.validate(updateData, {
       abortEarly: false,
     });
     if (error) {
