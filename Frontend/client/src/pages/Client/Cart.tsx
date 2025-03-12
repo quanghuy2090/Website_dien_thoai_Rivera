@@ -135,139 +135,123 @@ const Cart = () => {
       {/* Page Header End */}
       {/* Cart Start */}
       <div className="container-fluid pt-5">
-        <div className="row px-xl-5">
-          <div className="col-lg-8 table-responsive mb-5">
-            <table
-              className="table table-striped table-hover table-bordered text-center align-middle"
-              style={{ borderSpacing: "0 10px" }}
-            >
-              <thead className="bg-primary text-white">
-                <tr>
-                  <th scope="col">Sản phẩm</th>
-                  <th scope="col">Giá bán</th>
-                  <th scope="col">Số lượng</th>
-                  <th scope="col">Thành tiền</th>
-                  <th scope="col">Hủy</th>
-                </tr>
-              </thead>
-              <tbody>
-                {carts.map((item) => (
-                  <tr
-                    key={item.productId._id}
-                    style={{ borderBottom: "10px solid transparent" }}
+  <div className="row px-xl-5">
+    <div className="col-lg-8 table-responsive mb-5">
+      <table className="table table-striped table-hover table-bordered text-center align-middle">
+        <thead style={{ backgroundColor: "#357ABD", color: "white" }}>
+          <tr>
+            <th scope="col">Sản phẩm</th>
+            <th scope="col">Giá bán</th>
+            <th scope="col">Số lượng</th>
+            <th scope="col">Thành tiền</th>
+            <th scope="col">Hủy</th>
+          </tr>
+        </thead>
+        <tbody>
+          {carts.map((item) => (
+            <tr key={item.productId._id}>
+              <td className="align-middle">
+                {item.productId?.images && (
+                  <div className="d-flex align-items-center">
+                    <img
+                      src={item.productId.images[0]}
+                      alt={item.productId?.name || "Sản phẩm"}
+                      width={100}
+                      height={70}
+                      className="me-2 rounded border"
+                    />
+                    <Link
+                      className="text-decoration-none text-dark fw-medium"
+                      to={`/product/${item.productId._id}`}
+                    >
+                      {item.productId?.name}
+                    </Link>
+                  </div>
+                )}
+              </td>
+
+              <td className="align-middle">{formatPrice(item.productId?.price)}</td>
+
+              <td className="align-middle">
+                <div className="d-flex align-items-center justify-content-between mx-auto" style={{ width: 120 }}>
+                  <button
+                    className="btn btn-sm"
+                    style={{ backgroundColor: "#357ABD", color: "white" }}
+                    onClick={() => handleUpdateCart(item.productId._id, -1)}
+                    disabled={item.quantity <= 1}
                   >
-                    <td className="align-middle">
-                      {item.productId?.images && (
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={item.productId.images[0]}
-                            alt={item.productId?.name || "Sản phẩm"}
-                            width={100}
-                            height={70}
-                            className="me-2 rounded border"
-                          />
-                          <Link
-                            className="text-decoration-none text-dark fw-medium"
-                            to={`/product/${item.productId._id}`}
-                          >
-                            {item.productId?.name}
-                          </Link>
-                        </div>
-                      )}
-                    </td>
+                    <i className="fa fa-minus" />
+                  </button>
 
-                    <td className="align-middle">
-                      {formatPrice(item.productId?.price)}
-                    </td>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm text-center border-dark mx-2"
+                    value={item.quantity}
+                    readOnly
+                    style={{ width: 40 }}
+                  />
 
-                    <td className="align-middle">
-                      <div
-                        className="d-flex align-items-center justify-content-between mx-auto"
-                        style={{ width: 120 }}
-                      >
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() =>
-                            handleUpdateCart(item.productId._id, -1)
-                          }
-                          disabled={item.quantity <= 1}
-                        >
-                          <i className="fa fa-minus text-white" />
-                        </button>
-
-                        <input
-                          type="text"
-                          className="form-control form-control-sm text-center border-dark mx-2"
-                          value={item.quantity}
-                          readOnly
-                          style={{ width: 40 }}
-                        />
-
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() =>
-                            handleUpdateCart(item.productId._id, 1)
-                          }
-                        >
-                          <i className="fa fa-plus text-white" />
-                        </button>
-                      </div>
-                    </td>
-
-                    <td className="align-middle">
-                      {formatPrice(item.productId.price * item.quantity)}
-                    </td>
-
-                    <td className="align-middle">
-                      <button
-                        className="btn btn-sm btn-primary"
-                        onClick={() => removeCart(item.productId._id)}
-                      >
-                        <i className="fa fa-times text-white" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="col-lg-4">
-            <div className="card shadow-sm border-0 mb-4">
-              <div className="card-header bg-primary text-white text-center">
-                <h5 className="fw-bold m-0">Tổng quan</h5>
-              </div>
-
-              <div className="card-body">
-                <div className="d-flex justify-content-between mb-3">
-                  <h6 className="fw-medium text-dark">Tổng tiền hàng</h6>
-                  <h6 className="fw-medium text-dark">
-                    {formatPrice(totalAmount)}
-                  </h6>
+                  <button
+                    className="btn btn-sm"
+                    style={{ backgroundColor: "#357ABD", color: "white" }}
+                    onClick={() => handleUpdateCart(item.productId._id, 1)}
+                  >
+                    <i className="fa fa-plus" />
+                  </button>
                 </div>
-                <div className="d-flex justify-content-between">
-                  <h6 className="fw-medium text-dark">Phí vận chuyển</h6>
-                  <h6 className="fw-medium text-dark">Miễn phí</h6>
-                </div>
-              </div>
+              </td>
 
-              <div className="card-footer bg-light border-0">
-                <div className="d-flex justify-content-between">
-                  <h5 className="text-dark fw-bold">Tổng cộng</h5>
-                  <h5 className="text-dark fw-bold">
-                    {formatPrice(totalAmount)}
-                  </h5>
-                </div>
-                <Link
-                  to="/checkout"
-                  className="btn btn-primary w-100 mt-3 py-3 fw-bold text-white"
+              <td className="align-middle">{formatPrice(item.productId.price * item.quantity)}</td>
+
+              <td className="align-middle">
+                <button
+                  className="btn btn-sm"
+                  style={{ backgroundColor: "#357ABD", color: "white" }}
+                  onClick={() => removeCart(item.productId._id)}
                 >
-                  Thanh Toán
-                </Link>
-              </div>
-            </div>
+                  <i className="fa fa-times" />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Tổng quan */}
+    <div className="col-lg-4">
+      <div className="card shadow-sm border-0 mb-4">
+        <div className="card-header text-white text-center" style={{ backgroundColor: "#357ABD" }}>
+          <h5 className="fw-bold m-0">Tổng quan</h5>
+        </div>
+
+        <div className="card-body">
+          <div className="d-flex justify-content-between mb-3">
+            <h6 className="fw-medium text-dark">Tổng tiền hàng</h6>
+            <h6 className="fw-medium text-dark">{formatPrice(totalAmount)}</h6>
+          </div>
+          <div className="d-flex justify-content-between">
+            <h6 className="fw-medium text-dark">Phí vận chuyển</h6>
+            <h6 className="fw-medium text-dark">Miễn phí</h6>
           </div>
         </div>
+
+        <div className="card-footer bg-light border-0">
+          <div className="d-flex justify-content-between">
+            <h5 className="text-dark fw-bold">Tổng cộng</h5>
+            <h5 className="text-dark fw-bold">{formatPrice(totalAmount)}</h5>
+          </div>
+          <Link to="/checkout" className="btn w-100 mt-3 py-3 fw-bold text-white" style={{ backgroundColor: "#357ABD" }}>
+            Thanh Toán
+          </Link>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+
+
+
       {/* Cart End */}
     </div>
   );
