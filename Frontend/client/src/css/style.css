@@ -717,7 +717,7 @@ textarea.input {
     transform: translateX(0%);
     width: 100%;
   }
-  #responsive-nav.active>.navi{
+  #responsive-nav.active > .navi {
     display: flex;
     flex-direction: column;
   }
@@ -816,12 +816,13 @@ textarea.input {
 ===========================================================*/
 
 #hot-deal.section {
-  padding: 60px 0px;
   margin: 30px 0px;
-  background-color: #e4e7ed;
-  background-image: url("../../image/");
+  height: 385px;
+  background-color: #ffffff;
+  background-image: url("../../image/banner1.png");
   background-position: center;
   background-repeat: no-repeat;
+  background-size: 100% auto;
 }
 
 .hot-deal {
@@ -874,6 +875,67 @@ textarea.input {
   margin-top: 15px;
 }
 
+/*banner*/
+#banner-deal.section {
+  margin: 30px 0px;
+  height: 385px;
+  background-color: #ffffff;
+  background-image: url("../../image/banner1.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+}
+
+.banner-deal {
+  text-align: center;
+}
+
+.banner-deal .banner-deal-countdown {
+  margin-bottom: 30px;
+}
+
+.banner-deal .banner-deal-countdown > li {
+  position: relative;
+  display: inline-block;
+  width: 100px;
+  height: 100px;
+  background: #0171d3e6;
+  text-align: center;
+  border-radius: 50%;
+  margin: 0px 5px;
+}
+
+.banner-deal .banner-deal-countdown > li > div {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.banner-deal .banner-deal-countdown > li > div h3 {
+  color: #fff;
+  margin-bottom: 0px;
+}
+
+.banner-deal .banner-deal-countdown > li > div span {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.banner-deal p {
+  text-transform: uppercase;
+  font-size: 24px;
+}
+
+.banner-deal .cta-btn {
+  margin-top: 15px;
+}
+
 /*=========================================================
 	06 -> PRODUCT
 ===========================================================*/
@@ -885,7 +947,8 @@ textarea.input {
 .products-slick .product {
   width: 100%;
   max-width: 250px; /* Adjust as necessary */
-  height: 340px;
+  height: auto;
+  max-height: 450px;
   position: relative;
   margin: 15px;
   -webkit-box-shadow: 0px 0px 0px 0px #e4e7ed, 0px 0px 0px 1px #e4e7ed;
@@ -906,7 +969,6 @@ textarea.input {
 }
 
 .product {
-
 }
 
 .product:hover {
@@ -941,8 +1003,8 @@ textarea.input {
 }
 
 .product .product-img .product-label > span.new {
-  background-color: #D10024;
-  border-color: #D10024;
+  background-color: #d10024;
+  border-color: #d10024;
   color: #fff;
 }
 
@@ -984,7 +1046,7 @@ textarea.input {
   font-weight: 400;
   color: #8d99ae;
 }
-.product .product-body .product-btns>button {
+.product .product-body .product-btns > button {
   position: relative;
   width: 40px;
   height: 40px;
@@ -995,13 +1057,13 @@ textarea.input {
   transition: 0.2s all;
 }
 
-.product .product-body .product-btns>button:hover {
-  background-color: #E4E7ED;
+.product .product-body .product-btns > button:hover {
+  background-color: #e4e7ed;
   color: #0171d3;
   border-radius: 50%;
 }
 
-.product .product-body .product-btns>button .tooltipp {
+.product .product-body .product-btns > button .tooltipp {
   position: absolute;
   bottom: 100%;
   left: 50%;
@@ -1013,7 +1075,7 @@ textarea.input {
   font-size: 12px;
   line-height: 10px;
   background: #1e1f29;
-  color: #FFF;
+  color: #fff;
   text-transform: uppercase;
   z-index: 10;
   opacity: 0;
@@ -1022,7 +1084,7 @@ textarea.input {
   transition: 0.2s all;
 }
 
-.product .product-body .product-btns>button:hover .tooltipp {
+.product .product-body .product-btns > button:hover .tooltipp {
   opacity: 1;
   visibility: visible;
   -webkit-transform: translate(-50%, -5px);
@@ -1046,7 +1108,8 @@ textarea.input {
   z-index: 999;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out, transform 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
   transform: translate(-50%); /* Start slightly above */
 }
 
@@ -1070,7 +1133,6 @@ textarea.input {
 .product .add-to-cart .add-to-cart-btn:hover {
   background-color: #005eaf;
 }
-
 
 /*----------------------------*\
 	Widget product
@@ -1227,10 +1289,9 @@ textarea.input {
 /* Hover effect for the buttons */
 .custom-prev-btn:hover,
 .custom-next-btn:hover {
-  background: #005eaf; 
-  color: white;/* Change to a lighter red on hover */
+  background: #005eaf;
+  color: white; /* Change to a lighter red on hover */
 }
-
 
 /*=========================================================
 	07 -> PRODUCTS PAGE
