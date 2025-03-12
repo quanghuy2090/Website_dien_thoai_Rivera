@@ -269,9 +269,9 @@ const ProductPage = () => {
                           </Link>
                         </div>
                         <div className="product-body">
-                          <p className="product-category">
+                          {/* <p className="product-category">
                             {product.categoryId.name}
-                          </p>
+                          </p> */}
                           <h3 className="product-name">
                             <Link to={`/product/${product._id}`}>
                               {product.name}

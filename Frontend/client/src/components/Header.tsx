@@ -120,9 +120,9 @@ export function Header() {
           <div className="row">
             {/* LOGO */}
             <div className="col-md-3">
-              <div className="header-logo">
+              <div className="header-logo mt-3">
                 <a href="#" className="logo">
-                  <img src="../../image/logo.png" alt="Logo" />
+                  <img src="../../image/logo1.png"width={170} alt="Logo" />
                 </a>
               </div>
             </div>
