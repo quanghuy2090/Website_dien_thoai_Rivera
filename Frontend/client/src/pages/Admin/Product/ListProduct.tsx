@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getAllProduct, Product, searchProduct } from "../../../services/product";
+import {
+  getAllProduct,
+  Product,
+  searchProduct,
+} from "../../../services/product";
 import { Link } from "react-router-dom";
 import { removeProduct } from "../../../services/product";
-import toast from "react-hot-toast";
 import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
+import Swal from "sweetalert2";
 const ListProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -28,11 +32,21 @@ const ListProduct = () => {
           prevProducts.filter((product) => product._id !== _id)
         );
         await removeProduct(_id);
-        toast.success("Product deleted successfully");
+        Swal.fire({
+          title: "Thành công",
+          text: "Xóa sản phẩm thành công",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete product");
+      Swal.fire({
+        title: "Lỗi",
+        text: "Đã có lỗi xảy ra, vui lòng thử lại sau",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   };
 
@@ -60,7 +74,8 @@ const ListProduct = () => {
         <i className="fas fa-cube me-2"></i> Quản lý Sản phẩm
       </h1>
       <p className="mb-4 text-secondary">
-        Đây là danh sách sản phẩm trong cửa hàng. Bạn có thể quản lý, chỉnh sửa hoặc thêm mới sản phẩm.
+        Đây là danh sách sản phẩm trong cửa hàng. Bạn có thể quản lý, chỉnh sửa
+        hoặc thêm mới sản phẩm.
       </p>
       {/* Bảng danh sách sản phẩm */}
       <div className="table-container">
@@ -138,8 +153,12 @@ const ListProduct = () => {
                           transition: "transform 0.3s",
                           cursor: "pointer",
                         }}
-                        onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
-                        onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.transform = "scale(1.2)")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.transform = "scale(1)")
+                        }
                       />
                     ))}
                   </div>
@@ -172,20 +191,30 @@ const ListProduct = () => {
 
                 {/* Hiển thị danh mục sản phẩm */}
                 <td>
-                  {typeof product.categoryId === "object" && product.categoryId !== null
+                  {typeof product.categoryId === "object" &&
+                  product.categoryId !== null
                     ? product.categoryId.name
                     : product.categoryId}
                 </td>
 
                 {/* Nút hành động */}
                 <td>
-                  <button className="btn btn-danger me-2 " onClick={() => deleteProduct(product._id)}>
+                  <button
+                    className="btn btn-danger me-2 "
+                    onClick={() => deleteProduct(product._id)}
+                  >
                     <MdDelete />
                   </button>
-                  <Link to={`/admin/products/update/${product._id}`} className="btn btn-warning me-2">
+                  <Link
+                    to={`/admin/products/update/${product._id}`}
+                    className="btn btn-warning me-2"
+                  >
                     <GrUpdate />
                   </Link>
-                  <Link to={`/admin/products/detail/${product._id}`} className="btn btn-info mt-2">
+                  <Link
+                    to={`/admin/products/detail/${product._id}`}
+                    className="btn btn-info mt-2"
+                  >
                     <FaEye />
                   </Link>
                 </td>
