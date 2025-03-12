@@ -156,7 +156,7 @@ const AddProduct = () => {
 
       Swal.fire({
         title: "Lỗi",
-        text: "Đã có lỗi xảy ra, vui lòng thử lại sau",
+        text: "Đã có lỗi xảy ra, vui lòng thử lại",
         icon: "error",
         confirmButtonText: "OK",
       });
