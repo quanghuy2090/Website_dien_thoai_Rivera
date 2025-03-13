@@ -73,6 +73,15 @@ export const createProduct = async (req, res) => {
         message: `Sản phẩm "${req.body.name}" đã tồn tại`,
       });
     }
+    // Kiểm tra SKU có trùng lặp không
+    const existingVariant = await Product.findOne({ "variants.sku": { $in: req.body.variants.map(v => v.sku) } });
+
+    if (existingVariant) {
+      return res.status(400).json({
+        message: "SKU đã tồn tại, vui lòng chọn SKU khác",
+      });
+    }
+
 
     // Kiểm tra xem danh mục có tồn tại không trước khi tạo sản phẩm
     const category = await Category.findById(req.body.categoryId);
@@ -83,149 +92,114 @@ export const createProduct = async (req, res) => {
     }
 
     // Tạo sản phẩm mới
-    const product = await Product.create(req.body);
-    if (!product) {
-      return res.status(404).json({
+    const product = new Product(req.body);
+    const savedProduct = await product.save();
+    if (!savedProduct) {
+      return res.status(500).json({
         message: "Tạo sản phẩm mới không thành công",
       });
     }
 
     // Cập nhật sản phẩm vào danh mục
-    const updateCategory = await Category.findByIdAndUpdate(
+    const updatedCategory = await Category.findByIdAndUpdate(
       req.body.categoryId,
       {
-        $addToSet: {
-          products: product._id, // Thêm product._id vào mảng products của Category
-        },
+        $addToSet: { products: savedProduct._id }, // Thêm product._id vào mảng products của Category
       },
       { new: true } // Trả về document sau khi cập nhật
     );
 
-    // Nếu cập nhật danh mục thất bại (trường hợp hiếm, ví dụ lỗi concurrency)
-    if (!updateCategory) {
+    // Nếu cập nhật danh mục thất bại
+    if (!updatedCategory) {
       // Xóa sản phẩm vừa tạo để đảm bảo tính nhất quán
-      await Product.findByIdAndDelete(product._id);
+      await Product.findByIdAndDelete(savedProduct._id);
       return res.status(500).json({
         message: "Không thể cập nhật danh mục, sản phẩm đã bị hủy",
       });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Tạo sản phẩm mới thành công",
-      data: product,
+      data: savedProduct,
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
+      message: error.message || "Đã xảy ra lỗi khi tạo sản phẩm",
     });
   }
 };
 
 export const updateProduct = async (req, res) => {
   try {
-    // Lấy sản phẩm cũ trước khi cập nhật
-    const oldProduct = await Product.findById(req.params.id);
-    if (!oldProduct) {
+    const { id } = req.params; // Lấy ID sản phẩm từ params
+    const updateData = req.body;
+
+    // Validate dữ liệu đầu vào
+    const { error } = productValidation.validate(updateData, {
+      abortEarly: false,
+    });
+    if (error) {
+      return res.status(400).json({
+        message: error.details.map((detail) => detail.message).join(", "),
+      });
+    }
+
+    // Kiểm tra sản phẩm có tồn tại không
+    const product = await Product.findById(id);
+    if (!product) {
       return res.status(404).json({
         message: "Sản phẩm không tồn tại",
       });
     }
 
-    // Tạo object dữ liệu cập nhật
-    let updateData = {};
-
-    // Xử lý variants
-    if (req.body.variants) {
-      // Validate variants từ req.body
-      const variantSchema = productValidation.extract("variants").items[0];
-      const variantValidation = Joi.array().items(variantSchema);
-      const { error } = variantValidation.validate(req.body.variants, {
-        abortEarly: false,
-      });
-      if (error) {
+    // Nếu cập nhật name, kiểm tra trùng lặp (trừ chính sản phẩm đang cập nhật)
+    if (updateData.name && updateData.name !== product.name) {
+      const existingProduct = await Product.findOne({ name: updateData.name });
+      if (existingProduct) {
         return res.status(400).json({
-          message: error.details.map((detail) => detail.message).join(", "),
-        });
-      }
-
-      if (req.body.replaceVariants === true) {
-        // Thay thế toàn bộ variants
-        updateData.variants = req.body.variants;
-      } else {
-        // Chỉ thêm biến thể mới vào mảng cũ
-        const newVariants = req.body.variants;
-        updateData = {
-          $push: { variants: { $each: newVariants } }, // Thêm từng biến thể mới
-        };
-      }
-    }
-
-    // Thêm các trường khác từ req.body (ngoại trừ variants và replaceVariants)
-    Object.keys(req.body).forEach((key) => {
-      if (key !== "variants" && key !== "replaceVariants") {
-        updateData[key] = req.body[key];
-      }
-    });
-
-    // Nếu không dùng $push, validate toàn bộ dữ liệu
-    if (!updateData.$push) {
-      const fullUpdateData = {
-        ...oldProduct.toObject(), // Lấy dữ liệu cũ
-        ...updateData, // Ghi đè bằng dữ liệu mới
-      };
-      const { error } = productValidation.validate(fullUpdateData, {
-        abortEarly: false,
-      });
-      if (error) {
-        return res.status(400).json({
-          message: error.details.map((detail) => detail.message).join(", "),
+          message: `Sản phẩm "${updateData.name}" đã tồn tại`,
         });
       }
     }
 
-    // Kiểm tra trùng tên sản phẩm (nếu thay đổi tên)
-    if (req.body.name && req.body.name !== oldProduct.name) {
-      const existingProduct = await Product.findOne({ name: req.body.name });
-      if (existingProduct && existingProduct._id.toString() !== req.params.id) {
-        return res.status(400).json({
-          message: `Sản phẩm "${req.body.name}" đã tồn tại`,
+    // Nếu cập nhật categoryId, kiểm tra danh mục có tồn tại không
+    if (updateData.categoryId && updateData.categoryId !== product.categoryId.toString()) {
+      const category = await Category.findById(updateData.categoryId);
+      if (!category) {
+        return res.status(404).json({
+          message: "Danh mục không tồn tại",
         });
+      }
+
+      // Cập nhật mảng products trong Category
+      await Category.findByIdAndUpdate(product.categoryId, {
+        $pull: { products: product._id }, // Xóa sản phẩm khỏi danh mục cũ
+      });
+      await Category.findByIdAndUpdate(updateData.categoryId, {
+        $addToSet: { products: product._id }, // Thêm sản phẩm vào danh mục mới
+      });
+    }
+
+    // Nếu cập nhật variants, kiểm tra SKU duy nhất
+    if (updateData.variants) {
+      for (const variant of updateData.variants) {
+        if (variant.sku && variant.sku !== product.variants.find(v => v.sku === variant.sku)?.sku) {
+          const existingVariant = await Product.findOne({ "variants.sku": variant.sku });
+          if (existingVariant) {
+            return res.status(400).json({
+              message: `SKU "${variant.sku}" đã tồn tại trong một sản phẩm khác`,
+            });
+          }
+        }
       }
     }
 
     // Cập nhật sản phẩm
     const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true } // Trả về document mới và chạy validation của Mongoose
     );
-    if (!updatedProduct) {
-      return res.status(404).json({
-        message: "Cập nhật sản phẩm không thành công",
-      });
-    }
-
-    // Xử lý thay đổi danh mục
-    if (
-      req.body.categoryId &&
-      req.body.categoryId !== oldProduct.categoryId?.toString()
-    ) {
-      if (oldProduct.categoryId) {
-        await Category.findByIdAndUpdate(oldProduct.categoryId, {
-          $pull: { products: oldProduct._id },
-        });
-      }
-      const newCategory = await Category.findByIdAndUpdate(
-        req.body.categoryId,
-        { $addToSet: { products: updatedProduct._id } },
-        { new: true }
-      );
-      if (!newCategory) {
-        return res.status(404).json({
-          message: "Không tìm thấy danh mục mới để cập nhật",
-        });
-      }
-    }
 
     return res.status(200).json({
       message: "Cập nhật sản phẩm thành công",
@@ -233,10 +207,11 @@ export const updateProduct = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
+      message: error.message || "Đã xảy ra lỗi khi cập nhật sản phẩm",
     });
   }
 };
+
 
 export const removeProduct = async (req, res) => {
   try {

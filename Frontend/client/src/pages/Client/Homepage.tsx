@@ -1,239 +1,376 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getAllProduct, Product } from "../../services/product";
 import { addCart, Carts } from "../../services/cart";
 import toast from "react-hot-toast";
-// import { Footer } from "../components/Footer";
-import { Carousel } from "../../components/Carousel";
 import { Link, useNavigate } from "react-router-dom";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "../../css/style.css";
 
 const HomePage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [productsPerPage] = useState<number>(4);
+  const [hotProducts, setHotProducts] = useState<Product[]>([]);
+  const [newProducts, setNewProducts] = useState<Product[]>([]);
   const nav = useNavigate();
+  const productSliderRef = useRef<Slider | null>(null); // Ref for the first slider
+  const hotDealSliderRef = useRef<Slider | null>(null); // Ref for the second slider
 
   useEffect(() => {
     const fetchProducts = async () => {
       const res = await getAllProduct();
-      setProducts(res.data.data);
+      const allProducts = res.data.data;
+
+      // Get current date and subtract 1 month
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      // Filter products created within the last month
+      const recentProducts = allProducts.filter((product: Product) => {
+        const createdAtDate = new Date(product.createdAt);
+        return createdAtDate >= oneMonthAgo;
+      });
+
+      const bestSellingProducts = allProducts.filter((product: Product) => product.is_hot === "yes");
+
+      setNewProducts(recentProducts);
+      setHotProducts(bestSellingProducts);
     };
     fetchProducts();
   }, []);
-
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-
-  const totalPages = Math.ceil(products.length / productsPerPage);
   const addToCart = async (product: Product) => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      // Lấy thông tin user từ localStorage
+      const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
+
       if (!user || !user._id) {
-        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
         nav("/login");
         return;
       }
+
+      // Kiểm tra xem sản phẩm có biến thể không
+      if (!product.variants || product.variants.length === 0) {
+        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+        return;
+      }
+
+      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
+      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
+
+      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
       const cart: Carts = {
-        _id: "", // Backend tự tạo `_id`
-        userId: user._id, // Chỉ lấy `_id` của user
-        quantity: 1,
-        productId: product._id, // Đảm bảo có productId
+        userId: user._id,
+        items: [
+          {
+            productId: product._id,
+            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
+            quantity: 1,
+          },
+        ],
       };
-      // 🛠 Gửi request thêm vào giỏ hàng
+
+      // Gửi request lên API
       const { data } = await addCart(cart);
+      console.log("API Response:", data); // Log response để kiểm tra
 
-      // 🎉 Hiển thị thông báo thành công
+      // Thông báo thành công
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-
-      console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
-      console.error(" Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Error");
+      console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
+      toast.error("Thêm sản phẩm thất bại!");
     }
   };
 
+
   const formatPrice = (price: number) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    return price.toLocaleString("vi-VN") + " VND";
+  };
+
+  // Slick Slider Settings
+  const sliderSettings = {
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    autoplay: true, // Disable auto-slide to allow manual control
+    infinite: true,
+    speed: 300,
+    dots: false,
+    arrows: false, // Hide default arrows, we'll use custom buttons
+    responsive: [
+      {
+        breakpoint: 991,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
   };
 
   return (
     <>
-      <Carousel />
-      {/* Featured Start */}
-      <div className="container-fluid pt-5">
-        <div className="row px-xl-5 pb-3 text-center">
-          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
-            <div
-              className="d-flex align-items-center border mb-4"
-              style={{ padding: 30 }}
-            >
-              <h1 className="fa fa-check text-primary m-0 mr-3" />
-              <h5 className="font-weight-semi-bold m-0">
-                Sản phẩm chất lượng cao
-              </h5>
-            </div>
-          </div>
-          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
-            <div
-              className="d-flex align-items-center border mb-4"
-              style={{ padding: 30 }}
-            >
-              <h1 className="fa fa-shipping-fast text-primary m-0 mr-2" />
-              <h5 className="font-weight-semi-bold m-0">Miễn phí vận chuyển</h5>
-            </div>
-          </div>
-          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
-            <div
-              className="d-flex align-items-center border mb-4"
-              style={{ padding: 30 }}
-            >
-              <h1 className="fas fa-exchange-alt text-primary m-0 mr-3" />
-              <h5 className="font-weight-semi-bold m-0">
-                Hoàn trả trong 14 ngày
-              </h5>
-            </div>
-          </div>
-          <div className="col-lg-3 col-md-6 col-sm-12 pb-1">
-            <div
-              className="d-flex align-items-center border mb-4"
-              style={{ padding: 30 }}
-            >
-              <h1 className="fa fa-phone-volume text-primary m-0 mr-3" />
-              <h5 className="font-weight-semi-bold m-0">Hỗ trợ 24/7</h5>
+      {/* Banner SECTION */}
+      <div id="banner-deal" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="banner-deal"></div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Categories Start */}
-      {/* <div className="container-fluid pt-5">
-        <div className="row px-xl-5 pb-3">
-          <div className="col-lg-4 col-md-6 pb-1">
-            <div
-              className="cat-item d-flex flex-column border mb-4"
-              style={{ padding: 30 }}
-            >
-              <p className="text-right">15 Products</p>
-              <a
-                href="#"
-                className="cat-img position-relative overflow-hidden mb-3"
-              >
-                <img
-                  className="img-fluid"
-                  src="img/cat-1.jpg"
-                  alt="Category 1"
-                />
-              </a>
-              <h5 className="font-weight-semi-bold m-0">Women's Dresses</h5>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6 pb-1">
-            <div
-              className="cat-item d-flex flex-column border mb-4"
-              style={{ padding: 30 }}
-            >
-              <p className="text-right">10 Products</p>
-              <a
-                href="#"
-                className="cat-img position-relative overflow-hidden mb-3"
-              >
-                <img
-                  className="img-fluid"
-                  src="img/cat-2.jpg"
-                  alt="Category 2"
-                />
-              </a>
-              <h5 className="font-weight-semi-bold m-0">Men's Fashion</h5>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-6 pb-1">
-            <div
-              className="cat-item d-flex flex-column border mb-4"
-              style={{ padding: 30 }}
-            >
-              <p className="text-right">8 Products</p>
-              <a
-                href="#"
-                className="cat-img position-relative overflow-hidden mb-3"
-              >
-                <img
-                  className="img-fluid"
-                  src="img/cat-3.jpg"
-                  alt="Category 3"
-                />
-              </a>
-              <h5 className="font-weight-semi-bold m-0">Kids' Clothes</h5>
-            </div>
-          </div>
-        </div>
-      </div> */}
-      {/* Categories End */}
-
-      {/* Products Start */}
-      <div className="container-fluid pt-5">
-        <div className="text-center mb-4">
-          <h2 className="section-title px-5">
-            <span className="px-2">Sản phẩm bán chạy</span>
-          </h2>
-        </div>
-        <div className="row px-xl-5 pb-3">
-          {currentProducts.map((product) => (
-            <div key={product._id} className="col-lg-3 col-md-6 col-sm-12 pb-1">
-              <div className="card product-item border-0 mb-4">
-                <div className="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-                  <img
-                    className="img-fluid"
-                    src={product.images[0]}
-                    alt={product.name}
-                  />
-                </div>
-                <div className="card-body border-left border-right text-center p-0 pt-4 pb-3">
-                  <Link to={`/product/${product._id}`}>
-                    <h6 className="text-truncate mb-3">{product.name}</h6>
-                  </Link>
-                  <div className="d-flex justify-content-center">
-                    <h6>{formatPrice(product.price)}</h6>{" "}
-                    {/* Format the price here */}
-                  </div>
-                </div>
-                <div className="card-footer d-flex justify-content-between bg-light border">
-                  <button
-                    className="btn btn-sm text-dark p-0"
-                    onClick={() => addToCart(product)}
-                  >
-                    <i className="fas fa-shopping-cart text-primary mr-1" />
-                    Thêm giỏ hàng
-                  </button>
-                </div>
+      {/* Product Section */}
+      <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Sản phẩm mới ra mắt</h3>
               </div>
             </div>
-          ))}
-        </div>
-        {/* Pagination */}
-        <div className="d-flex justify-content-center mb-4">
-          <button
-            className="btn btn-primary"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          >
-            «
-          </button>
-          <span className="mx-2 mt-2">
-            {currentPage}/{totalPages}
-          </span>
-          <button
-            className="btn btn-primary"
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-          >
-            »
-          </button>
+
+            <div className="col-md-12">
+              <Slider
+                ref={productSliderRef} // Pass the productSliderRef
+                {...sliderSettings}
+                className="products-slick"
+              >
+                {newProducts.map((product) => (
+                  <div className="product" key={product._id}>
+                    <div className="product-img mt-3">
+                      <Link className="img" to={`/product/${product._id}`}>
+                        <img src={product.images[0]} alt={product.name} />
+                      </Link>
+                      <div className="product-label">
+                        <span className="new">NEW</span>
+                      </div>
+                    </div>
+                    <div className="product-body">
+                      <p className="product-category">
+                        {product.categoryId.name}
+                      </p>
+                      <h3 className="product-name">
+                        <Link to={`/product/${product._id}`}>
+                          {product.name}
+                        </Link>
+                      </h3>
+                      <div>
+                        <h4 className="product-price">
+                          {/* {formatPrice(product.variants[0].price)} */}
+                        </h4>
+                        <div className="product-btns">
+                          <button className="add-to-wishlist">
+                            <i className="fa fa-heart-o" />
+                            <span className="tooltipp">Thêm yêu thích</span>
+                          </button>
+                          {/* <button className="add-to-compare">
+                            <i className="fa fa-exchange" />
+                            <span className="tooltipp">add to compare</span>
+                          </button> */}
+                          <button className="quick-view">
+                            <Link to={`/product/${product._id}`}>
+                              <i className="fa fa-eye" />
+                            </Link>
+                            <span className="tooltipp">Xem chi tiết</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Add to Cart button - hidden initially */}
+                    <div className="add-to-cart">
+                      <button
+                        className="add-to-cart-btn"
+                        onClick={() => addToCart(product)}
+                      >
+                        <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+
+              {/* Custom Slider Controls BELOW and RIGHT */}
+              <div className="custom-slider-controls">
+                <button
+                  className="custom-prev-btn"
+                  onClick={() => productSliderRef.current?.slickPrev()}
+                >
+                  ❮
+                </button>
+                <button
+                  className="custom-next-btn"
+                  onClick={() => productSliderRef.current?.slickNext()}
+                >
+                  ❯
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      {/* Products End */}
+
+      {/* HOT DEAL SECTION */}
+      <div id="hot-deal" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="hot-deal"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hot Deal Slider */}
+      <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Sản phẩm bán chạy</h3>
+              </div>
+            </div>
+            <div className="col-md-12">
+              <Slider
+                ref={hotDealSliderRef} // Pass the hotDealSliderRef
+                {...sliderSettings}
+                className="products-slick"
+              >
+                {hotProducts.map((product) => (
+                  <div className="product" key={product._id}>
+                    <div className="product-img mt-3">
+                      <Link className="img" to={`/product/${product._id}`}>
+                        <img src={product.images[0]} alt={product.name} />
+                      </Link>
+                      <div className="product-label">
+                        <span className="new">HOT</span>
+                      </div>
+                    </div>
+                    <div className="product-body">
+                      <p className="product-category">
+                        {product.categoryId.name}
+                      </p>
+                      <h3 className="product-name">
+                        <Link to={`/product/${product._id}`}>
+                          {product.name}
+                        </Link>
+                      </h3>
+                      <div>
+                        <h4 className="product-price">
+                          {formatPrice(product.variants[0].price)}
+                        </h4>
+                        <div className="product-btns">
+                          <button className="add-to-wishlist">
+                            <i className="fa fa-heart-o" />
+                            <span className="tooltipp">Thêm yêu thích</span>
+                          </button>
+                          <button className="quick-view">
+                            <Link to={`/product/${product._id}`}>
+                              <i className="fa fa-eye" />
+                            </Link>
+                            <span className="tooltipp">Xem chi tiết</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Add to Cart button */}
+                    <div className="add-to-cart">
+                      <button
+                        className="add-to-cart-btn"
+                        onClick={() => addToCart(product)}
+                      >
+                        <i className="fa fa-shopping-cart" /> Add to cart
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </Slider>
+
+              {/* Custom Slider Controls BELOW and RIGHT */}
+              <div className="custom-slider-controls">
+                <button
+                  className="custom-prev-btn"
+                  onClick={() => hotDealSliderRef.current?.slickPrev()}
+                >
+                  ❮
+                </button>
+                <button
+                  className="custom-next-btn"
+                  onClick={() => hotDealSliderRef.current?.slickNext()}
+                >
+                  ❯
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* NEWSLETTER */}
+      <div id="newsletter" className="section">
+        {/* container */}
+        <div className="container">
+          {/* row */}
+          <div className="row">
+            <div className="col-md-12">
+              <div className="newsletter">
+                <p>
+                  Sign Up for the <strong>NEWSLETTER</strong>
+                </p>
+                <form>
+                  <input
+                    className="input"
+                    type="email"
+                    placeholder="Enter Your Email"
+                  />
+                  <button className="newsletter-btn">
+                    <i className="fa fa-envelope" /> Subscribe
+                  </button>
+                </form>
+                <ul className="newsletter-follow">
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-facebook" />
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-twitter" />
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-instagram" />
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i className="fa fa-pinterest" />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          {/* /row */}
+        </div>
+        {/* /container */}
+      </div>
+      {/* /NEWSLETTER */}
     </>
   );
 };

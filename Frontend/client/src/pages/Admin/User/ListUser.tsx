@@ -22,7 +22,7 @@ const ListUser = () => {
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-                <i className="bi bi-people me-2"></i> Quản lý Người dùng
+                <i className="fas fa-users me-2"></i> Quản lý Người dùng
             </h1>
             <p className="mb-4 text-secondary">
                 Đây là danh sách người dùng trong hệ thống. Bạn có thể quản lý tài khoản, cập nhật thông tin hoặc chặn người dùng vi phạm.

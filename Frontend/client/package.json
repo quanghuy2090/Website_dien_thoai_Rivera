@@ -12,7 +12,6 @@
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "axios": "^1.7.2",
-    "bootstrap": "^5.3.3",
     "concurrently": "^8.2.2",
     "i": "^0.3.7",
     "jquery": "^3.7.1",
@@ -28,7 +27,10 @@
     "react-pagination": "^1.0.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.23.1",
+    "react-slick": "^0.30.3",
     "react-toastify": "^10.0.6",
+    "slick-carousel": "^1.8.1",
+    "sweetalert2": "^11.17.2",
     "zod": "^3.24.1"
   },
   "devDependencies": {

@@ -23,7 +23,7 @@ const Orders = () => {
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="bi bi-receipt-cutoff me-2"></i> Quản lý Đơn hàng
+        <i className="fas fa-cart-plus me-2"></i> Quản lý Đơn hàng
       </h1>
       <p className="mb-4 text-secondary">
         Đây là danh sách các đơn hàng. Bạn có thể kiểm tra trạng thái, cập nhật thông tin vận chuyển hoặc hủy đơn hàng nếu cần.

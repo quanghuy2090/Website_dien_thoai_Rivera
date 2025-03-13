@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { User } from "../services/auth";
 import { useState } from "react";
+import "../css/auth.css";
 
 type FormProps = {
   onSubmit: (values: User) => void;

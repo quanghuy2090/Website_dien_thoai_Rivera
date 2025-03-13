@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getAllProduct, Product, searchProduct } from "../../../services/product";
+import {
+  getAllProduct,
+  Product,
+  searchProduct,
+} from "../../../services/product";
 import { Link } from "react-router-dom";
 import { removeProduct } from "../../../services/product";
-import toast from "react-hot-toast";
 import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
+import Swal from "sweetalert2";
 const ListProduct = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -28,11 +32,21 @@ const ListProduct = () => {
           prevProducts.filter((product) => product._id !== _id)
         );
         await removeProduct(_id);
-        toast.success("Product deleted successfully");
+        Swal.fire({
+          title: "Thành công",
+          text: "Xóa sản phẩm thành công",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete product");
+      Swal.fire({
+        title: "Lỗi",
+        text: "Đã có lỗi xảy ra, vui lòng thử lại sau",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
   };
 
@@ -57,10 +71,11 @@ const ListProduct = () => {
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="bi bi-box-seam me-2"></i> Quản lý Sản phẩm
+        <i className="fas fa-cube me-2"></i> Quản lý Sản phẩm
       </h1>
       <p className="mb-4 text-secondary">
-        Đây là danh sách sản phẩm trong cửa hàng. Bạn có thể quản lý, chỉnh sửa hoặc thêm mới sản phẩm.
+        Đây là danh sách sản phẩm trong cửa hàng. Bạn có thể quản lý, chỉnh sửa
+        hoặc thêm mới sản phẩm.
       </p>
       {/* Bảng danh sách sản phẩm */}
       <div className="table-container">
@@ -69,14 +84,14 @@ const ListProduct = () => {
           {/* Phần chọn số lượng hiển thị */}
           <div>
             <label className="d-flex align-items-center">
-              Show
+              Hiển thị
               <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
                 <option value="10">10</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
               </select>
-              entries
+              mục
             </label>
           </div>
 
@@ -91,21 +106,20 @@ const ListProduct = () => {
             />
           </div>
         </div>
-        <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
+        <Link to={`/admin/products/add`} className="btn btn-primary">
           <IoMdAdd />
         </Link>
         <table className="table table-bordered">
           <thead className="thead-light">
             <tr>
               <th>ID</th>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Image</th>
-              <th>Stock</th>
-              <th>Color</th>
-              <th>Description</th>
-              <th>Categories</th>
-              <th>Action</th>
+              <th>Tên sp</th>
+              <th>Mô tả ngắn</th>
+              <th>Mô tả chi tiết</th>
+              <th>Ảnh</th>
+              <th>Biến thể</th>
+              <th>Danh mục</th>
+              <th>Tùy chọn</th>
             </tr>
           </thead>
           <tbody>
@@ -113,8 +127,8 @@ const ListProduct = () => {
               <tr key={product._id}>
                 <td>{product._id}</td>
                 <td>{product.name}</td>
-                <td>{product.price}</td>
-
+                <td>{product.short_description}</td>
+                <td>{product.long_description}</td>
                 {/* Hiển thị ảnh sản phẩm */}
                 <td>
                   <div
@@ -139,46 +153,68 @@ const ListProduct = () => {
                           transition: "transform 0.3s",
                           cursor: "pointer",
                         }}
-                        onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.2)")}
-                        onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.transform = "scale(1.2)")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.transform = "scale(1)")
+                        }
                       />
                     ))}
                   </div>
                 </td>
 
-                <td>{product.stock}</td>
-
-                {/* Hiển thị màu sản phẩm */}
                 <td>
-                  <div
-                    className="rounded-circle border border-dark"
-                    style={{
-                      width: "30px",
-                      height: "30px",
-                      backgroundColor: product.color,
-                      display: "inline-block",
-                    }}
-                  ></div>
+                  <table className="table table-bordered table-sm text-center">
+                    <thead>
+                      <tr className="bg-light">
+                        <th>Bộ nhớ</th>
+                        <th>Màu sắc</th>
+                        <th>Giá</th>
+                        <th>Stock</th>
+                        <th>SKU</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {product.variants.map((v, index) => (
+                        <tr key={index}>
+                          <td>{v.capacity}</td>
+                          <td>{v.color}</td>
+                          <td>{v.price}</td>
+                          <td>{v.stock}</td>
+                          <td>{v.sku}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </td>
-
-                <td>{product.description}</td>
 
                 {/* Hiển thị danh mục sản phẩm */}
                 <td>
-                  {typeof product.categoryId === "object" && product.categoryId !== null
+                  {typeof product.categoryId === "object" &&
+                  product.categoryId !== null
                     ? product.categoryId.name
                     : product.categoryId}
                 </td>
 
                 {/* Nút hành động */}
                 <td>
-                  <button className="btn btn-danger me-2 " onClick={() => deleteProduct(product._id)}>
+                  <button
+                    className="btn btn-danger me-2 "
+                    onClick={() => deleteProduct(product._id)}
+                  >
                     <MdDelete />
                   </button>
-                  <Link to={`/admin/products/update/${product._id}`} className="btn btn-warning me-2">
+                  <Link
+                    to={`/admin/products/update/${product._id}`}
+                    className="btn btn-warning me-2"
+                  >
                     <GrUpdate />
                   </Link>
-                  <Link to={`/admin/products/detail/${product._id}`} className="btn btn-info mt-2">
+                  <Link
+                    to={`/admin/products/detail/${product._id}`}
+                    className="btn btn-info mt-2"
+                  >
                     <FaEye />
                   </Link>
                 </td>

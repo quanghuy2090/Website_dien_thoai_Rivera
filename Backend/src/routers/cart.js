@@ -1,17 +1,20 @@
 import {
-  addToCart,
+  createCart,
   getCart,
-  removeFromCart,
+  removeAll,
+  removeCart,
   updateCart,
 } from "../controllers/cart.js";
 
 import express from "express";
+import { checkUserPermission } from "./../middlewares/checkUserPermission.js";
 
 const routerCart = express.Router();
 
-routerCart.post("/", addToCart);
-routerCart.get("/:userId", getCart);
-routerCart.put("/:userId", updateCart);
-routerCart.delete("/:userId/:productId", removeFromCart);
+routerCart.post("/", checkUserPermission, createCart);
+routerCart.get("/", checkUserPermission, getCart);
+routerCart.put("/", checkUserPermission, updateCart);
+routerCart.delete("/:productId/:variantId", checkUserPermission, removeCart);
+routerCart.delete("/removeAll", checkUserPermission, removeAll);
 
 export default routerCart;
