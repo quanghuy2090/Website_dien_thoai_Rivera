@@ -98,25 +98,30 @@ const ProductDetail = () => {
 
   return (
     <>
-      {/* Page Header Start */}
-      <div className="container-fluid bg-secondary mb-5">
-        <div
-          className="d-flex flex-column align-items-center justify-content-center"
-          style={{ minHeight: 150 }}
-        >
-          <h1 className="font-weight-semi-bold text-uppercase mb-3">
-            Chi tiết sản phẩm
-          </h1>
-          <div className="d-inline-flex">
-            <p className="m-0">
-              <a href="/">Trang chủ</a>
-            </p>
-            <p className="m-0 px-2">-</p>
-            <p className="m-0">Chi tiết</p>
+      {/* BREADCRUMB */}
+      <div id="breadcrumb" className="section">
+        {/* container */}
+        <div className="container">
+          {/* row */}
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li>
+                  <a href="/product-page">Sản phẩm</a>
+                </li>
+                <li className="active">{product?.name}</li>
+              </ul>
+            </div>
           </div>
+          {/* /row */}
         </div>
+        {/* /container */}
       </div>
-      {/* Page Header End */}
+      {/* /BREADCRUMB */}
+
       {/* Shop Detail Start */}
       <div className="container-fluid py-5">
         <div className="row px-xl-5">
