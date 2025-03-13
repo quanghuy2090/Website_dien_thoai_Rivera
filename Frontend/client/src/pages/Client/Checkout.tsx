@@ -169,162 +169,282 @@ const Checkout = () => {
       {/* Page Header End */}
       {/* Checkout Start */}
       <div className="container">
-  <div className="row justify-content-center">
-    <div className="col-lg-10">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <h5 className="text-center text-dark fw-bold mb-4 fs-3">Billing Address</h5><br />
-
         <div className="row justify-content-center">
-          {/* Cột bên trái: Thông tin khách hàng */}
-          <div className="col-lg-7">
-          
-            <div className="card p-4 shadow-sm mx-auto" style={{ maxWidth: "500px" }}>
-            <div className="card-header bg-primary text-white text-center rounded-top py-2">
-                <h5 className="fw-bold m-0 fs-6" >Thông tin thanh toán</h5>
+          <div className="col-lg-10">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <h5 className="text-center text-dark fw-bold mb-4 fs-3">
+                Billing Address
+              </h5>
+              <br />
+
+              <div className="row justify-content-center">
+                {/* Cột bên trái: Thông tin khách hàng */}
+                <div className="col-lg-7">
+                  <div
+                    className="card p-4 shadow-sm mx-auto"
+                    style={{ maxWidth: "500px" }}
+                  >
+                    <div
+                      className="card-header text-white text-center rounded-top py-2"
+                      style={{ backgroundColor: "#0b5ed7" }}
+                    >
+                      <h5 className="fw-bold m-0 fs-6">Thông tin thanh toán</h5>
+                    </div>
+
+                    <div className="card-body">
+                      <div className="mb-3 d-flex align-items-center">
+                        <label
+                          className="form-label fw-bold me-3 text-dark text-nowrap"
+                          style={{ width: "150px" }}
+                        >
+                          Người dùng
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-dark"
+                          value={userName}
+                          disabled
+                        />
+                      </div>
+
+                      <div className="mb-3 d-flex align-items-center">
+                        <label
+                          className="form-label fw-bold me-3 text-dark text-nowrap"
+                          style={{ width: "150px" }}
+                        >
+                          Email
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-dark"
+                          value={email}
+                          disabled
+                        />
+                      </div>
+
+                      <div className="mb-3 d-flex align-items-center">
+                        <label
+                          className="form-label fw-bold me-3 text-dark text-nowrap"
+                          style={{ width: "150px" }}
+                        >
+                          Số điện thoại
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-dark"
+                          value={phone}
+                          disabled
+                        />
+                      </div>
+
+                      <div className="mb-3 d-flex align-items-center">
+                        <label
+                          className="form-label fw-bold me-3 text-dark text-nowrap"
+                          style={{ width: "150px" }}
+                        >
+                          Địa chỉ
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control text-dark"
+                          value={address}
+                          disabled
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label fw-bold text-dark">
+                          Tỉnh / Thành phố
+                        </label>
+                        <select
+                          className="form-select text-dark"
+                          {...register("city")}
+                        >
+                          <option value="">Chọn tỉnh / thành phố</option>
+                          {provinces.map((province) => (
+                            <option key={province.code} value={province.name}>
+                              {province.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label fw-bold text-dark">
+                          Quận / Huyện
+                        </label>
+                        <select
+                          className="form-select text-dark"
+                          {...register("district")}
+                          disabled={!districts.length}
+                        >
+                          <option value="">Chọn quận / huyện</option>
+                          {districts.map((district) => (
+                            <option key={district.code} value={district.name}>
+                              {district.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label fw-bold text-dark">
+                          Phường / Xã
+                        </label>
+                        <select
+                          className="form-select text-dark"
+                          {...register("ward")}
+                          disabled={!wards.length}
+                        >
+                          <option value="">Chọn phường / xã</option>
+                          {wards.map((ward) => (
+                            <option key={ward.code} value={ward.name}>
+                              {ward.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Cột bên phải: Thông tin thanh toán */}
+                <div className="col-lg-5">
+                  <div
+                    className="card shadow-sm mx-auto mb-4"
+                    style={{ maxWidth: "520px" }}
+                  >
+                    <div
+                      className="card-header text-white text-center rounded-top py-2"
+                      style={{ backgroundColor: "#0b5ed7" }}
+                    >
+                      <h5 className="fw-bold m-0 fs-6">Thanh toán</h5>
+                    </div>
+
+                    <div className="card-body p-3">
+                      <table className="table table-borderless text-center align-middle mb-0">
+                        <thead className="border-bottom">
+                          <tr>
+                            <th className="fw-semibold w-50 fs-7">Sản phẩm</th>
+                            <th className="fw-semibold w-25 fs-7">Số lượng</th>
+                            <th className="fw-semibold w-25 fs-7">Giá bán</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {carts.map((item, index) => (
+                            <tr key={index} className="border-bottom">
+                              <td className="text-start fs-7">
+                                {item.productId.name}
+                              </td>
+                              <td className="fs-7">{item.quantity}</td>
+                              <td className="text-end fs-7">
+                                {formatPrice(item.productId.price)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="card-footer bg-transparent rounded-bottom py-2">
+                      <div className="d-flex justify-content-between">
+                        <h6 className="fw-bold text-dark m-0">Thành tiền</h6>
+                        <h6 className="fw-bold text-dark m-0">
+                          {formatPrice(totalPrice)}
+                        </h6>
+                      </div>
+                    </div>
+                  </div>
+                  <br />
+                  {/* Phương thức thanh toán */}
+                  <div className="card shadow-sm mx-auto">
+                    <div
+                      className="card-header text-white text-center rounded-top py-2"
+                      style={{ backgroundColor: "#0b5ed7" }}
+                    >
+                      <h5 className="fw-bold m-0 fs-6">
+                        Phương thức thanh toán
+                      </h5>
+                    </div>
+
+                    <div className="card-body">
+                      <div className="form-group">
+                        <div className="form-check mb-3">
+                          {" "}
+                          {/* Tăng khoảng cách */}
+                          <input
+                            type="radio"
+                            className="form-check-input"
+                            id="payment-cod"
+                            value="COD"
+                            {...register("paymentMethod")}
+                          />
+                          <label
+                            htmlFor="payment-cod"
+                            className="form-check-label text-dark fs-6"
+                          >
+                            Thanh toán khi nhận hàng
+                          </label>
+                        </div>
+
+                        <div className="form-check mb-3">
+                          {" "}
+                          {/* Tăng khoảng cách */}
+                          <input
+                            type="radio"
+                            className="form-check-input"
+                            id="payment-credit-card"
+                            value="Credit Card"
+                            {...register("paymentMethod")}
+                          />
+                          <label
+                            htmlFor="payment-credit-card"
+                            className="form-check-label text-dark fs-6"
+                          >
+                            Thẻ tín dụng
+                          </label>
+                        </div>
+
+                        <div className="form-check mb-3">
+                          {" "}
+                          {/* Tăng khoảng cách */}
+                          <input
+                            type="radio"
+                            className="form-check-input"
+                            id="payment-bank-transfer"
+                            value="Bank Transfer"
+                            {...register("paymentMethod")}
+                          />
+                          <label
+                            htmlFor="payment-bank-transfer"
+                            className="form-check-label text-dark fs-6"
+                          >
+                            Chuyển khoản ngân hàng
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card-footer bg-transparent text-center p-3">
+                      <button
+                        type="submit"
+                        className="btn fw-bold px-4 py-2 fs-6"
+                        style={{
+                          width: "200px",
+                          backgroundColor: "#0b5ed7",
+                          color: "white",
+                        }}
+                      >
+                        Đặt hàng
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-
-              <div className="card-body">
-                <div className="mb-3 d-flex align-items-center">
-                  <label className="form-label fw-bold me-3 text-dark text-nowrap" style={{ width: "150px" }}>
-                    Người dùng
-                  </label>
-                  <input type="text" className="form-control text-dark" value={userName} disabled />
-                </div>
-
-                <div className="mb-3 d-flex align-items-center">
-                  <label className="form-label fw-bold me-3 text-dark text-nowrap" style={{ width: "150px" }}>
-                    Email
-                  </label>
-                  <input type="text" className="form-control text-dark" value={email} disabled />
-                </div>
-
-                <div className="mb-3 d-flex align-items-center">
-                  <label className="form-label fw-bold me-3 text-dark text-nowrap" style={{ width: "150px" }}>
-                    Số điện thoại
-                  </label>
-                  <input type="text" className="form-control text-dark" value={phone} disabled />
-                </div>
-
-                <div className="mb-3 d-flex align-items-center">
-                  <label className="form-label fw-bold me-3 text-dark text-nowrap" style={{ width: "150px" }}>
-                    Địa chỉ
-                  </label>
-                  <input type="text" className="form-control text-dark" value={address} disabled />
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label fw-bold text-dark">Tỉnh / Thành phố</label>
-                  <select className="form-select text-dark" {...register("city")}>
-                    <option value="">Chọn tỉnh / thành phố</option>
-                    {provinces.map((province) => (
-                      <option key={province.code} value={province.name}>
-                        {province.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label fw-bold text-dark">Quận / Huyện</label>
-                  <select className="form-select text-dark" {...register("district")} disabled={!districts.length}>
-                    <option value="">Chọn quận / huyện</option>
-                    {districts.map((district) => (
-                      <option key={district.code} value={district.name}>
-                        {district.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label fw-bold text-dark">Phường / Xã</label>
-                  <select className="form-select text-dark" {...register("ward")} disabled={!wards.length}>
-                    <option value="">Chọn phường / xã</option>
-                    {wards.map((ward) => (
-                      <option key={ward.code} value={ward.name}>
-                        {ward.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Cột bên phải: Thông tin thanh toán */}
-          <div className="col-lg-5">
-            <div className="card shadow-sm mx-auto mb-4" style={{ maxWidth: "520px" }}>
-              <div className="card-header bg-primary text-white text-center rounded-top py-2">
-                <h5 className="fw-bold m-0 fs-6">Thanh toán</h5>
-              </div>
-
-              <div className="card-body p-3">
-                <table className="table table-borderless text-center align-middle mb-0">
-                  <thead className="border-bottom">
-                    <tr>
-                      <th className="fw-semibold w-50 fs-7">Sản phẩm</th>
-                      <th className="fw-semibold w-25 fs-7">Số lượng</th>
-                      <th className="fw-semibold w-25 fs-7">Giá bán</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {carts.map((item, index) => (
-                      <tr key={index} className="border-bottom">
-                        <td className="text-start fs-7">{item.productId.name}</td>
-                        <td className="fs-7">{item.quantity}</td>
-                        <td className="text-end fs-7">{formatPrice(item.productId.price)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="card-footer bg-transparent rounded-bottom py-2">
-                <div className="d-flex justify-content-between">
-                  <h6 className="fw-bold text-dark m-0">Tổng</h6>
-                  <h6 className="fw-bold text-dark m-0">{formatPrice(totalPrice)}</h6>
-                </div>
-              </div>
-            </div>
-<br />
-            {/* Phương thức thanh toán */}
-            <div className="card shadow-sm mx-auto">
-  <div className="card-header bg-primary text-white text-center rounded-top py-2">
-    <h5 className="fw-bold m-0 fs-6">Phương thức thanh toán</h5>
-  </div>
-
-  <div className="card-body">
-    <div className="form-group">
-      <div className="form-check mb-3"> {/* Tăng khoảng cách */}
-        <input type="radio" className="form-check-input" id="payment-cod" value="COD" {...register("paymentMethod")} />
-        <label htmlFor="payment-cod" className="form-check-label text-dark fs-6">Thanh toán khi nhận hàng</label>
-      </div>
-
-      <div className="form-check mb-3"> {/* Tăng khoảng cách */}
-        <input type="radio" className="form-check-input" id="payment-credit-card" value="Credit Card" {...register("paymentMethod")} />
-        <label htmlFor="payment-credit-card" className="form-check-label text-dark fs-6">Thẻ tín dụng</label>
-      </div>
-
-      <div className="form-check mb-3"> {/* Tăng khoảng cách */}
-        <input type="radio" className="form-check-input" id="payment-bank-transfer" value="Bank Transfer" {...register("paymentMethod")} />
-        <label htmlFor="payment-bank-transfer" className="form-check-label text-dark fs-6">Chuyển khoản ngân hàng</label>
-      </div>
-    </div>
-  </div>
-
-  <div className="card-footer bg-transparent text-center p-3">
-    <button type="submit" className="btn btn-primary fw-bold px-4 py-2 fs-6" style={{ width: "200px" }}>
-      Đặt hàng
-    </button>
-  </div>
-</div>
-
+            </form>
           </div>
         </div>
-      </form>
-    </div>
-  </div>
-</div>
+      </div>
 
       {/* Checkout End */}
     </div>
