@@ -1,55 +1,110 @@
-import Cart from "../models/Cart.js";
-import Order from "../models/Order.js";
-import Product from "../models/Product.js";
+import Order from "../models/Order.js"; // Model Order
+import Cart from "../models/Cart.js"; // Model Cart
+import Product from "../models/Product.js"; // Model Product
 
-// Tạo đơn hàng từ giỏ hàng
 export const createOrder = async (req, res) => {
-  const { userId, paymentMethod, shippingAddress } = req.body;
-
   try {
-    // Lấy giỏ hàng của user
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    // Bước 1: Lấy thông tin user từ middleware checkUserPermission
+    const user = req.user;
+    const userId = user._id;
+
+    // Bước 2: Lấy thông tin giỏ hàng của user
+    const cart = await Cart.findOne({ userId }).populate({
+      path: "items.productId",
+      select: "variants",
+    });
+
     if (!cart || cart.items.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Giỏ hàng trống, không thể đặt hàng" });
+      return res.status(400).json({
+        message: "Giỏ hàng trống, không thể tạo đơn hàng",
+      });
     }
 
-    // Tính tổng tiền của đơn hàng
-    const totalPrice = cart.items.reduce((total, item) => {
-      return total + item.productId.price * item.quantity;
-    }, 0);
+    // Bước 3: Lấy thông tin địa chỉ giao hàng từ body request
+    const { shippingAddress } = req.body;
+    if (!shippingAddress) {
+      return res.status(400).json({
+        message: "Vui lòng cung cấp địa chỉ giao hàng",
+      });
+    }
 
-    // Tạo đơn hàng mới từ giỏ hàng
+    // Bước 4: Tạo danh sách items cho đơn hàng và tính tổng tiền
+    let totalAmount = 0;
+    const orderItems = [];
+
+    for (const cartItem of cart.items) {
+      const product = cartItem.productId;
+      const variant = product.variants.find((v) =>
+        v._id.equals(cartItem.variantId)
+      );
+
+      if (!variant) {
+        return res.status(400).json({
+          message: `Không tìm thấy biến thể cho sản phẩm ${product.name}`,
+        });
+      }
+
+      // Kiểm tra số lượng tồn kho
+      if (variant.stock < cartItem.quantity) {
+        return res.status(400).json({
+          message: `Sản phẩm ${product.name} (biến thể ${variant.sku}) không đủ hàng`,
+        });
+      }
+
+      const itemTotal = variant.price * cartItem.quantity;
+      totalAmount += itemTotal;
+
+      orderItems.push({
+        productId: cartItem.productId,
+        variantId: cartItem.variantId,
+        quantity: cartItem.quantity,
+        price: variant.price,
+      });
+    }
+
+    // Bước 5: Tạo đơn hàng mới với thanh toán COD
     const newOrder = new Order({
       userId,
-      orderItems: cart.items.map((item) => ({
-        productId: item.productId._id,
-        quantity: item.quantity,
-        price: item.productId.price,
-      })),
+      items: orderItems,
+      totalAmount,
       shippingAddress,
-      paymentMethod,
-      totalPrice,
-      orderStatus: "Chưa xác nhận",
+      paymentMethod: "COD",
+      paymentStatus: "Chưa thanh toán", // COD mặc định chưa thanh toán
+      status: "Chưa xác nhận", // Trạng thái ban đầu
     });
 
-    // Lưu đơn hàng vào database
-    await newOrder.save();
+    // Bước 6: Lưu đơn hàng
+    const savedOrder = await newOrder.save();
+
+    // Bước 7: Cập nhật số lượng tồn kho và xóa giỏ hàng
+    for (const item of orderItems) {
+      await Product.updateOne(
+        { _id: item.productId, "variants._id": item.variantId },
+        { $inc: { "variants.$.stock": -item.quantity } }
+      );
+    }
 
     // Xóa giỏ hàng sau khi tạo đơn hàng thành công
-    await Cart.findOneAndDelete({ userId });
+    await Cart.findOneAndUpdate(
+      { userId },
+      { $set: { items: [] } },
+      { new: true }
+    );
 
-    // Trả về thông tin đơn hàng
-    res.status(201).json({
+    // Bước 8: Trả về kết quả
+    return res.status(201).json({
       message: "Đơn hàng đã được tạo thành công",
-      order: newOrder,
+      order: savedOrder,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({
+      name: error.name,
+      message: error.message,
+    });
   }
 };
+
+
 
 // Cập nhật trạng thái đơn hàng
 export const updateOrder = async (req, res) => {
