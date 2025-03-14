@@ -8,6 +8,7 @@ export type Category = {
 };
 
 export type Variants = {
+  _id: string;
   color: string;
   capacity: string;
   price: number;
@@ -30,22 +31,22 @@ export type Product = {
 export const getAllProduct = () => {
   return http.get("/product");
 };
-export const addProduct = (product:Product) => {
-  return http.post("/product",product)
+export const addProduct = (product: Product) => {
+  return http.post("/product", product)
 }
-export const removeProduct = (_id:string) => {
-  return http.delete("/product/"+_id)
+export const removeProduct = (_id: string) => {
+  return http.delete("/product/" + _id)
 }
 
-export const getProductById = (_id: string ) => {
+export const getProductById = (_id: string) => {
   return http.get(`/product/${_id}`);
 };
 export const updateProduct = (_id: string, product: Product) => {
   return http.put("/product/" + _id, product);
 };
-export const searchProduct = async(name:string) => {
+export const searchProduct = async (name: string) => {
   try {
-    return http.post("/product/search",{name})
+    return http.post("/product/search", { name })
   } catch (error) {
     console.log(error)
   }

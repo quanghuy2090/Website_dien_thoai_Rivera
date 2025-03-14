@@ -1,13 +1,14 @@
 
 import React, { useEffect, useState } from "react";
-import { Carts, deleteCart, getCart, updateCart } from "../../services/cart";
-import toast from "react-hot-toast";
+import { Carts, deleteAllCart, deleteCart, getCart } from "../../services/cart";
 import { Link } from "react-router-dom";
 
 const Cart = () => {
   const [carts, setCarts] = useState<Carts[]>(() => []);
+  console.log(carts);
   const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [userId, setUserId] = useState<string | null>(null); // Lưu userId vào state
+  const [userId, setUserId] = useState<string | null>(null);
+  console.log(userId)// Lưu userId vào state
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -16,7 +17,7 @@ const Cart = () => {
         const user = JSON.parse(userData);
         if (user && user._id) {
           setUserId(user._id); // Lưu userId vào state
-          fetchCart(user._id);
+          fetchCart();
         }
       } catch (error) {
         console.error(" Lỗi khi parse user data:", error);
@@ -24,87 +25,53 @@ const Cart = () => {
     }
   }, []);
 
-  const fetchCart = async (userId: string) => {
+  const fetchCart = async () => {
     try {
-      console.log(" Fetching cart for user ID:", userId);
-      const { data } = await getCart(userId);
+      const { data } = await getCart();
       console.log("Dữ liệu giỏ hàng:", data);
-      setCarts(data.cart.items || []);
-      setTotalAmount(data.totalAmount || 0);
-    } catch (error) {
-      console.error(" Lỗi khi lấy giỏ hàng:", error);
-    }
-  };
-
-  const removeCart = async (productId: string) => {
-    if (!userId || !productId) {
-      console.error(" userId hoặc productId bị thiếu:", { userId, productId });
-      return;
-    }
-    try {
-      const isConfirmed = window.confirm("Bạn có chắc chắn muốn xóa sản phẩm?");
-      if (isConfirmed) {
-        // Lọc ra các sản phẩm còn lại sau khi xóa
-        const updatedCarts = carts.filter(
-          (cart) => cart.productId._id !== productId
-        );
-        setCarts(updatedCarts);
-
-        // Tính lại tổng tiền
-        const newTotalAmount = updatedCarts.reduce(
-          (sum, item) => sum + item.productId.price * item.quantity,
-          0
-        );
-        setTotalAmount(newTotalAmount);
-
-        // Gửi request xóa sản phẩm khỏi backend
-        await deleteCart(userId, productId);
-        toast.success("Cart deleted successfully");
-        console.log(
-          " Sản phẩm đã được xóa, tổng tiền cập nhật:",
-          newTotalAmount
-        );
+      if (data.data && data.data.items) {
+        setCarts(data.data.items);
+        setTotalAmount(data.data.total || 0);
+      } else {
+        console.error("Lỗi dữ liệu giỏ hàng: Không có items");
       }
     } catch (error) {
-      console.error(" Lỗi khi xóa sản phẩm khỏi giỏ hàng:", error);
-      toast.error("Error");
+      console.error("Lỗi khi gọi API giỏ hàng:", error);
     }
   };
 
-  const handleUpdateCart = async (productId: string, change: number) => {
-    const updatedCart = carts.map((item) =>
-      item.productId._id === productId
-        ? { ...item, quantity: Math.max(1, item.quantity + change) }
-        : item
-    );
-
-    setCarts(updatedCart);
-
-    const newTotalAmount = updatedCart.reduce(
-      (sum, item) => sum + item.productId.price * item.quantity,
-      0
-    );
-    setTotalAmount(newTotalAmount);
-
+  const handleRemoveFromCart = async (productId: string) => {
     try {
-      // Gửi request update lên backend
-      const quantity =
-        updatedCart.find((item) => item.productId?._id === productId)
-          ?.quantity ?? 1;
-      const newCartData = await updateCart(
-        String(userId),
-        productId,
-        Number(quantity)
-      );
-      toast.success("Updated quantity cart successfully");
-      if (newCartData.data && Array.isArray(newCartData.data.data)) {
-        setCarts(newCartData.data.cart); // Cập nhật lại state với dữ liệu từ server
+      if (confirm("xoá sản phẩm này khỏi giỏ hàng")) {
+        const { data } = await deleteCart(productId);
+        console.log(data);
+
+        // Cập nhật giỏ hàng
+        setCarts((prevItems) => {
+          const newCart = prevItems.filter((item) => item.productId !== productId);
+          // Tính lại tổng tiền
+          const newTotal = newCart.reduce((sum, item) => sum + item.subtotal, 0);
+          setTotalAmount(newTotal); // Giả sử bạn có state `total`
+          return newCart;
+        });
       }
+
+
     } catch (error) {
-      console.error("Lỗi cập nhật giỏ hàng", error);
-      toast.error("Error");
+      console.error("Lỗi khi xóa sản phẩm:", error);
     }
   };
+
+  const deleteAll = async (_id: string) => {
+    if (confirm("xoa tat ca")) {
+      const { data } = await deleteAllCart(_id);
+      console.log(data);
+      setCarts((prevCarts) => prevCarts.filter((cart) => cart._id !== _id))
+    }
+
+  }
+
+
 
   const formatPrice = (price: number) => {
     if (price === undefined || price === null) {
@@ -117,21 +84,7 @@ const Cart = () => {
     <div>
       {/* Page Header Start */}
       <div className="container-fluid bg-secondary mb-5">
-        <div
-          className="d-flex flex-column align-items-center justify-content-center"
-          style={{ minHeight: 150 }}
-        >
-          <h1 className="font-weight-semi-bold text-uppercase mb-3">
-            Giỏ hàng
-          </h1>
-          <div className="d-inline-flex">
-            <p className="m-0">
-              <a href="/">Trang chủ</a>
-            </p>
-            <p className="m-0 px-2">-</p>
-            <p className="m-0">Giỏ hàng</p>
-          </div>
-        </div>
+
       </div>
       {/* Page Header End */}
       {/* Cart Start */}
@@ -146,68 +99,37 @@ const Cart = () => {
                   <th>Số lượng</th>
                   <th>Thành giá</th>
                   <th>Hủy</th>
+                  <th>Xoa tat ca</th>
                 </tr>
               </thead>
               <tbody className="align-middle">
-                {carts.map((item) => (
+                {carts.map((item, index) => (
                   <tr>
-                    <td className="align-middle">
-                      {item.productId?.images && (
-                        <img src={item.productId.images[0]} alt="" width={50} />
+
+                    <td>
+                      <img src={item.image} alt="" width={50} />
+                      {item.name}/{item.variants.color}/{item.variants.capacity}
+                    </td>
+                    <td>{formatPrice(item.variants.price)}</td>
+                    <td>{item.quantity}</td>
+                    <td>{formatPrice(item.subtotal)}</td>
+                    <td>
+                      <button onClick={() => handleRemoveFromCart(item.productId)}>delete</button>
+
+                    </td>
+                    <td>
+                      {index === 0 && (
+                        <button onClick={() => deleteAll(item._id)} style={{ marginLeft: "10px", backgroundColor: "red", color: "white" }}>
+                          🗑 Delete All
+                        </button>
                       )}
-                      <Link className="table align-middle" to={`/product/${item.productId._id}`}>{item.productId?.name}</Link>
-                    </td>
-                    <td className="align-middle">
-                      {formatPrice(item.productId?.price)}
-                    </td>
-                    <td className="align-middle">
-                      <div
-                        className="input-group quantity mx-auto"
-                        style={{ width: 100 }}
-                      >
-                        <div className="input-group-btn">
-                          <button
-                            className="btn btn-sm btn-primary btn-minus"
-                            onClick={() =>
-                              handleUpdateCart(item.productId._id, -1)
-                            }
-                            disabled={item.quantity <= 1}
-                          >
-                            <i className="fa fa-minus" />
-                          </button>
-                        </div>
-                        <input
-                          type="text"
-                          className="form-control form-control-sm bg-secondary text-center"
-                          value={item.quantity}
-                        />
-                        <div className="input-group-btn">
-                          <button
-                            className="btn btn-sm btn-primary btn-plus"
-                            onClick={() =>
-                              handleUpdateCart(item.productId._id, 1)
-                            }
-                          >
-                            <i className="fa fa-plus" />
-                          </button>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="align-middle">
-                      {formatPrice(item.productId.price * item.quantity)}
-                    </td>
-                    <td className="align-middle">
-                      <button
-                        className="btn btn-sm btn-primary"
-                        onClick={() => removeCart(item.productId._id)}
-                      >
-                        <i className="fa fa-times" />
-                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
+
           </div>
           <div className="col-lg-4">
             {/* <form className="mb-5" action="">
