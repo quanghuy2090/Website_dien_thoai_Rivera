@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Category, getProductById, Product } from "../../../services/product";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getCategories } from "../../../services/category";
-import { updateProduct } from "../../../services/product";
 import toast from "react-hot-toast";
-import z, { string } from "zod";
+import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
-import Swal from "sweetalert2";
+import axios from "axios";
+import { ProductContext } from "../../../context/ProductContext";
 
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
@@ -60,7 +59,8 @@ const UpdateProduct = () => {
   const [imageInputs, setImageInputs] = useState<
     { file: File | null; preview: string }[]
   >([{ file: null, preview: "" }]);
-  const nav = useNavigate();
+  // const nav = useNavigate();
+  const { updateProducts } = useContext(ProductContext)
 
   // Xử lý khi chọn ảnh
   const handleImageChange = (
@@ -158,46 +158,11 @@ const UpdateProduct = () => {
       }
 
       product.images = imageUrls; // Gán danh sách ảnh đã cập nhật
-      await updateProduct(id!, product);
-      Swal.fire({
-        title: "Thành công",
-        text: "Sửa sản phẩm thành công",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        nav("/admin/products");
-      });
+      updateProducts(id!, product);
     } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
-
-      if (error.response) {
-        console.error("Phản hồi từ server:", error.response.data); // Log phản hồi từ server
-      }
-
-      if (error.response && error.response.status === 400) {
-        const errorMessage = error.response.data.message;
-
-        if (errorMessage.includes("SKU")) {
-          Swal.fire({
-            title: "Lỗi",
-            text: "SKU đã tồn tại",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        } else {
-          Swal.fire({
-            title: "Lỗi",
-            text: errorMessage,
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
-        return;
-      }
-      toast.error("Product update unsuccessful");
+      console.log(err)
     }
   };
-
   return (
     <div className="content">
       <div className="container d-flex justify-content-center align-items-center min-vh-100 ">

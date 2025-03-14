@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { getProductById, Product } from "../../../services/product";
+import React, { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import toast from "react-hot-toast";
+import { ProductContext } from "../../../context/ProductContext";
 
 const DetailAdminProduct = () => {
   const { id } = useParams();
-  const [productDetail, setProductDetail] = useState<Product | null>(null);
-
+  const { getDetailProduct, state } = useContext(ProductContext);
   useEffect(() => {
-    (async () => {
-      const { data } = await getProductById(id!);
-      setProductDetail(data.data);
-      toast.success("Product id successfully");
-    })();
-  }, []);
+    getDetailProduct(id!)
+  }, [])
   return (
     <div>
       <div className="content">
@@ -22,7 +16,7 @@ const DetailAdminProduct = () => {
         </h1>
         <p className="mb-4 text-secondary">
           Đây là thông tin chi tiết của sản phẩm "
-          <strong>{productDetail?.name}</strong>". Bạn có thể xem thông tin và
+          <strong>{state.selectedProduct?.name}</strong>". Bạn có thể xem thông tin và
           quản lý sản phẩm tại đây.
         </p>
 
@@ -31,33 +25,35 @@ const DetailAdminProduct = () => {
             <tbody>
               <tr>
                 <th>Id</th>
-                <td>{productDetail?._id}</td>
+                <td>{state.selectedProduct?._id}</td>
               </tr>
               <tr>
                 <th>Tên sp</th>
-                <td>{productDetail?.name}</td>
+                <td>{state.selectedProduct?.name}</td>
               </tr>
               <tr>
                 <th>Mô tả ngắn</th>
-                <td>{productDetail?.short_description}</td>
+                <td>{state.selectedProduct?.short_description}</td>
               </tr>
               <tr>
                 <th>Mô tả chi tiết</th>
-                <td>{productDetail?.long_description}</td>
+                <td>{state.selectedProduct?.long_description}</td>
               </tr>
 
               <tr>
                 <th>Danh mục</th>
                 <td>
-                  {typeof productDetail?.categoryId === "object" &&
-                  productDetail.categoryId !== null
-                    ? productDetail?.categoryId.name
-                    : productDetail?.categoryId}
+                  <td>
+                    {typeof state.selectedProduct?.categoryId === "object"
+                      ? state.selectedProduct.categoryId.name
+                      : "Không có danh mục"}
+                  </td>
+
                 </td>
               </tr>
               <tr>
                 <th>Ảnh sản phẩm</th>
-                {productDetail?.images.map((image) => (
+                {state.selectedProduct?.images.map((image) => (
                   <img src={image} alt="" width={100} />
                 ))}
               </tr>
@@ -75,7 +71,7 @@ const DetailAdminProduct = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {productDetail?.variants.map((variant, index) => (
+                      {state.selectedProduct?.variants.map((variant, index) => (
                         <tr key={index}>
                           <td>{variant.color}</td>
                           <td>{variant.price}</td>

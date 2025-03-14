@@ -1,24 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import { getUser, User } from '../../../services/auth'
-
+import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 
 import { FaEye } from "react-icons/fa";
+import { AuthContext } from '../../../context/AuthContext';
 const ListUser = () => {
-    const [user, setUser] = useState<User[]>([])
-
-    console.log(user)
-    useEffect(() => {
-        (async () => {
-            fetchUsers();
-        })()
-    }, [])
-    const fetchUsers = async () => {
-        const res = await getUser();
-        setUser(res.data.data);
-    }
-
-
+    const { state } = useContext(AuthContext)
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -44,7 +30,7 @@ const ListUser = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {user.map((u) => (
+                        {state.users.map((u) => (
                             <tr>
                                 <td>{u._id}</td>
                                 <td>{u.userName}</td>

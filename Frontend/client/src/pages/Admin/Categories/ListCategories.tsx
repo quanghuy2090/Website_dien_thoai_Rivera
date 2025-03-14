@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
@@ -9,6 +8,12 @@ import { CategoryContext } from "../../../context/CategoryContext";
 
 const ListCategories = () => {
   const { state, removeCategory } = useContext(CategoryContext);
+  const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
+
+  // Lọc danh mục theo tên (case-insensitive)
+  const filteredCategories = state.categorys.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -36,15 +41,15 @@ const ListCategories = () => {
           </div>
 
           {/* Ô tìm kiếm căn phải */}
-          {/* <div>
+          <div>
             <input
               type="text"
               className="form-control form-control-sm"
-              placeholder="Nhập tên Danh mục..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Nhập tên danh mục..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div> */}
+          </div>
         </div>
         <Link to={`/admin/category/add`} className="btn btn-primary mb-3 w-100">
           {" "}
@@ -60,7 +65,7 @@ const ListCategories = () => {
             </tr>
           </thead>
           <tbody>
-            {state.categorys.map((category) => (
+            {filteredCategories.map((category) => (
               <tr>
                 <td>{category._id}</td>
                 <td>{category.name}</td>

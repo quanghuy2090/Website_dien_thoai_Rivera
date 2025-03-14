@@ -1,0 +1,65 @@
+import { Product } from "../services/product"
+type State = {
+    products: Product[];
+    selectedProduct?: Product
+    // searchResults: Product[]
+}
+type Action =
+    | { type: "GET_PRODUCTS"; payload: Product[] }
+    | { type: "ADD_PRODUCTS"; payload: Product }
+    | { type: "REMOVE_PRODUCTS"; payload: string }
+    | { type: "UPDATE_PRODUCTS"; payload: Product }
+    | { type: "SET_SELECTED_PRODUCTS"; payload: Product | undefined }
+// | { type: "SEARCH_PRODUCTS"; payload: Product[] }
+
+const ProductReducer = (state: State, action: Action): State => {
+    switch (action.type) {
+        case "GET_PRODUCTS":
+            return {
+                ...state,
+                products: action.payload
+            };
+        case "ADD_PRODUCTS":
+            return {
+                ...state,
+                products: [...state.products, {
+                    ...action.payload,
+                    categoryId: typeof action.payload.categoryId === "string"
+                        ? { _id: action.payload.categoryId, name: "Đang cập nhật..." } // Tạm hiển thị tên danh mục
+                        : action.payload.categoryId
+                }]
+            };
+        case "UPDATE_PRODUCTS":
+            return {
+                ...state,
+                products: state.products.map((product) =>
+                    product._id === action.payload._id
+                        ? {
+                            ...action.payload,
+                            categoryId: typeof action.payload.categoryId === "string"
+                                ? { _id: action.payload.categoryId, name: "Đang cập nhật..." }
+                                : action.payload.categoryId
+                        }
+                        : product
+                )
+            };
+        case "REMOVE_PRODUCTS":
+            return {
+                ...state,
+                products: state.products.filter((product) => product._id !== action.payload)
+            };
+        case "SET_SELECTED_PRODUCTS":
+            return {
+                ...state, selectedProduct: action.payload
+            };
+        // case "SEARCH_PRODUCTS":
+        //     return {
+        //         ...state,
+        //         searchResults: action.payload
+        //     }
+        default:
+            return state;
+    }
+}
+
+export default ProductReducer;
