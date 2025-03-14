@@ -1,21 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Category,
   getCategoriesById,
-  updateCategories,
+
 } from "../../../services/category";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Swal from "sweetalert2";
+import { CategoryContext } from "../../../context/CategoryContext";
 
 const categorySchema = z.object({
   name: z.string().min(3).max(225),
   slug: z.string().min(3).max(225),
 });
 const UpdateCategories = () => {
+  const { updateCategory } = useContext(CategoryContext);
   const {
     register,
     handleSubmit,
@@ -25,8 +26,7 @@ const UpdateCategories = () => {
     resolver: zodResolver(categorySchema),
   });
 
-  const { id } = useParams();
-  const nav = useNavigate();
+  const { id } = useParams<{ id: string }>();
   useEffect(() => {
     (async () => {
       const { data } = await getCategoriesById(id!);
@@ -36,17 +36,6 @@ const UpdateCategories = () => {
       toast.success("categories id successfully");
     })();
   }, []);
-  const onSubmit = async (category: Category) => {
-    await updateCategories(id!, category);
-    Swal.fire({
-      title: "Thành công",
-      text: "Sửa danh mục thành công",
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then(() => {
-      nav("/admin/category");
-    });
-  };
   return (
     <div className="content">
       <div className="container  d-flex justify-content-center align-items-center mt-5">
@@ -62,9 +51,16 @@ const UpdateCategories = () => {
             </div>
 
             <form
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit((data) => {
+                if (!id) {
+                  console.error("ID is undefined");
+                  return;
+                }
+                updateCategory(id, data);
+              })}
+
               className="p-5 border rounded shadow-sm bg-light"
-              // style={{ width: "1000px" }}
+            // style={{ width: "1000px" }}
             >
               <div className="form-group mb-5">
                 <label htmlFor="name" className="fw-bold fs-5">

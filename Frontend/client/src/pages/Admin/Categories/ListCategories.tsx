@@ -1,79 +1,14 @@
-import React, { useEffect, useState } from "react";
-import {
-  Category,
-  deleteCategories,
-  getCategories,
-  searchCategory,
-} from "../../../services/category";
+import React, { useContext } from "react";
+
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
 import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
-import Swal from "sweetalert2";
+import { CategoryContext } from "../../../context/CategoryContext";
+
 const ListCategories = () => {
-  const [category, setCategory] = useState<Category[]>([]);
-  const [search, setSearch] = useState<string>("");
-  console.log(category);
-  useEffect(() => {
-    (async () => {
-      fetchCategory();
-    })();
-  }, []);
-
-  const fetchCategory = async () => {
-    const res = await getCategories();
-    setCategory(res.data.data);
-  };
-  const remove = async (_id: string) => {
-    const isConfirmed = confirm("Are you sure you want to remove?");
-    if (isConfirmed) {
-      try {
-        // Optimistically update the UI by removing the category from the state
-        setCategory((prevCategories) =>
-          prevCategories.filter((category) => category._id !== _id)
-        );
-
-        // Call the backend to delete the category
-        await deleteCategories(_id);
-        Swal.fire({
-          title: "Thành công",
-          text: "Xóa danh mục thành công",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-      } catch (error) {
-        // If an error occurs, revert the UI change or show an error message
-        console.error("Error removing category:", error);
-        Swal.fire({
-          title: "Lỗi",
-          text: "Đã có lỗi xảy ra, vui lòng thử lại sau",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-        // Optionally, re-fetch categories if necessary
-      }
-    }
-  };
-  useEffect(() => {
-    const fetchSearchResults = async () => {
-      if (!search.trim()) {
-        fetchCategory(); // Nếu ô tìm kiếm trống, hiển thị tất cả sản phẩm
-        return;
-      }
-      try {
-        const result = await searchCategory(search);
-        setCategory(result?.data?.data || []);
-      } catch (error) {
-        console.log("Error searching products:", error);
-      }
-    };
-
-    // Debounce (tránh gọi API quá nhiều lần)
-    const delayDebounce = setTimeout(fetchSearchResults, 500); // Chờ 500ms sau khi nhập xong mới gọi API
-    return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
-  }, [search]);
+  const { state, removeCategory } = useContext(CategoryContext);
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -101,7 +36,7 @@ const ListCategories = () => {
           </div>
 
           {/* Ô tìm kiếm căn phải */}
-          <div>
+          {/* <div>
             <input
               type="text"
               className="form-control form-control-sm"
@@ -109,7 +44,7 @@ const ListCategories = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-          </div>
+          </div> */}
         </div>
         <Link to={`/admin/category/add`} className="btn btn-primary mb-3 w-100">
           {" "}
@@ -125,7 +60,7 @@ const ListCategories = () => {
             </tr>
           </thead>
           <tbody>
-            {category.map((category) => (
+            {state.categorys.map((category) => (
               <tr>
                 <td>{category._id}</td>
                 <td>{category.name}</td>
@@ -133,7 +68,7 @@ const ListCategories = () => {
                 <td>
                   <button
                     className="btn btn-danger me-2"
-                    onClick={() => remove(category._id)}
+                    onClick={() => removeCategory(category._id)}
                   >
                     {" "}
                     <MdDelete />

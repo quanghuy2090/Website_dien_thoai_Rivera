@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getCategories } from "../../../services/category";
 import { updateProduct } from "../../../services/product";
 import toast from "react-hot-toast";
-import z from "zod";
+import z, { string } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 import Swal from "sweetalert2";

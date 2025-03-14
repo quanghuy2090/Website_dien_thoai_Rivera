@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { addProduct, Category, Product } from "../../../services/product";
+import { addProduct, Category, Product, Variants } from "../../../services/product";
 import { getCategories } from "../../../services/category";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -129,7 +129,7 @@ const AddProduct = () => {
         nav("/admin/products");
       });
       console.log(data);
-      
+
     } catch (err) {
       const error = err as AxiosError<{ message: string }>;
 
