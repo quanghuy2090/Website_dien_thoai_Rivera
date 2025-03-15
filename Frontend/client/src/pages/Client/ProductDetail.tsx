@@ -72,6 +72,7 @@ const ProductDetail = () => {
   const nav = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     (async () => {
       const { data } = await getProductById(id!);
       setProduct(data.data);
@@ -584,7 +585,7 @@ const ProductDetail = () => {
               </h3>
             </div>
             <Slider
-              ref={(slider) => (productDetailSliderRef.current = slider)}
+              ref={productDetailSliderRef}
               {...sliderSettings}
               className="products-slick"
             >
