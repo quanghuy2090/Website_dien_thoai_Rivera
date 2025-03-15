@@ -77,6 +77,10 @@ const ProductDetail = () => {
       setProduct(data.data);
       setRelatedProducts(data.relatedProducts);
       setMainImage(data.data.images[0]);
+
+      if (data.data.variants.length > 0) {
+        setSelectedVariant(data.data.variants[0]);
+      }
     })();
   }, [id]);
 
@@ -97,10 +101,13 @@ const ProductDetail = () => {
 
       const cartItem: Carts = {
         userId: user._id,
-        items: {
-          productId: selectedProductId,
-          quantity: quantity,
-        },
+        items: [
+          {
+            productId: product?._id,
+            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
+            quantity: quantity,
+          },
+        ],
       };
 
       const { data } = await addCart(cartItem);
@@ -134,10 +141,7 @@ const ProductDetail = () => {
   };
 
   const formatPrice = (price: number) => {
-    if (price === undefined || price === null) {
-      return "0 VND"; // Return a default value if price is undefined
-    }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    return price.toLocaleString("vi-VN") + " VND";
   };
 
   const handleVariantChange = (variant: Product["variants"][0]) => {
@@ -237,8 +241,12 @@ const ProductDetail = () => {
                 <h2 className="h3 font-weight-bold mb-2">
                   {formatPrice(selectedVariant?.price ?? 0)}
                 </h2>
-                <div className="text-success font-weight-bold mb-4">
-                  IN STOCK
+                <div
+                  className={`font-weight-bold mb-4 ${
+                    selectedVariant?.stock > 0 ? "text-success" : "text-danger"
+                  }`}
+                >
+                  {selectedVariant?.stock > 0 ? "IN STOCK" : "OUT OF STOCK"}
                 </div>
                 <div className="product-options">
                   <label>
@@ -569,11 +577,17 @@ const ProductDetail = () => {
           </div>
 
           {/* Related Products Section */}
-          <div className="col-md-12 mb-5">
+          <div className="col-md-12 mb-5 mt-5">
             <div className="section-title">
-              <h3 className="title">Sản phẩm cùng danh mục</h3>
+              <h3 className="title d-flex justify-content-center">
+                Sản phẩm cùng danh mục
+              </h3>
             </div>
-            <Slider {...sliderSettings} className="products-slick">
+            <Slider
+              ref={(slider) => (productDetailSliderRef.current = slider)}
+              {...sliderSettings}
+              className="products-slick"
+            >
               {relatedProducts.map((item) => (
                 <div key={item._id} className="product">
                   <div className="product-img">

@@ -129,7 +129,7 @@ const ProductPage = () => {
   };
 
   const formatPrice = (price: number) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    return price.toLocaleString("vi-VN") + " VND";
   };
 
   return (
@@ -206,7 +206,8 @@ const ProductPage = () => {
                       />
                       <label htmlFor={`price-${index}`}>
                         <span></span>
-                        {min.toLocaleString()} - {max.toLocaleString()} VND
+                        {min.toLocaleString("vi-VN")} -{" "}
+                        {max.toLocaleString("vi-VN")} VND
                       </label>
                     </div>
                   ))}
@@ -232,19 +233,14 @@ const ProductPage = () => {
                     </div>
                     <div className="col">
                       <form action="">
-                        <div className="input-group">
+                        <div className="search-container">
                           <input
                             type="text"
-                            className="form-control"
-                            placeholder="Tìm kiếm sản phẩm"
+                            className="search-input"
+                            placeholder="Tìm kiếm sản phẩm..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                           />
-                          <div className="input-group-append">
-                            <span className="input-group-text bg-transparent text-primary">
-                              <i className="fa fa-search" />
-                            </span>
-                          </div>
                         </div>
                       </form>
                     </div>

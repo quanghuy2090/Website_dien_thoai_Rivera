@@ -92,6 +92,8 @@ const HomePage = () => {
   const sliderSettings = {
     slidesToShow: 4,
     slidesToScroll: 1,
+    swipe: true,
+    draggable: true,
     autoplay: true, // Disable auto-slide to allow manual control
     infinite: true,
     speed: 300,
