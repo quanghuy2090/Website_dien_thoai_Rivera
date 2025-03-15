@@ -946,7 +946,7 @@ textarea.input {
 
 .products-slick .product {
   width: 100%;
-  max-width: 250px; /* Adjust as necessary */
+  max-width: 250px;
   height: auto;
   max-height: 450px;
   position: relative;
@@ -978,10 +978,14 @@ textarea.input {
 
 .product .product-img {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .product .product-img > .img > img {
   width: 100%;
+  max-height: 200px;
 }
 
 .product .product-img .product-label {
@@ -1010,6 +1014,7 @@ textarea.input {
 
 .product .product-body {
   position: relative;
+  width: 249px;
   padding: 15px;
   background-color: #fff;
   text-align: center;
@@ -1023,6 +1028,9 @@ textarea.input {
 }
 
 .product .product-body .product-name {
+  white-space: nowrap; /* Prevents wrapping */
+  overflow: hidden; /* Hides anything that overflows */
+  text-overflow: ellipsis;
   text-transform: uppercase;
   font-size: 14px;
 }
@@ -1485,81 +1493,59 @@ textarea.input {
 	Product view
 \*----------------------------*/
 
-#product-main-img .slick-prev {
-  -webkit-transform: translateX(-15px);
-  -ms-transform: translateX(-15px);
-  transform: translateX(-15px);
-  left: 15px;
+#product-main-img {
+  max-width: 400px;
 }
 
-#product-main-img .slick-next {
-  -webkit-transform: translateX(15px);
-  -ms-transform: translateX(15px);
-  transform: translateX(15px);
-  right: 15px;
-}
-
-#product-main-img .slick-prev,
-#product-main-img .slick-next {
-  opacity: 0;
-  visibility: hidden;
-  -webkit-transition: 0.2s all;
-  transition: 0.2s all;
-}
-
-#product-main-img:hover .slick-prev,
-#product-main-img:hover .slick-next {
-  -webkit-transform: translateX(0%);
-  -ms-transform: translateX(0%);
-  transform: translateX(0%);
-  opacity: 1;
-  visibility: visible;
-}
-
-#product-main-img .zoomImg {
-  background-color: #fff;
+#product-imgs {
+  max-height: 400px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #product-imgs .product-preview {
-  margin: 0px 5px;
-  border: 1px solid #e4e7ed;
+  padding: 5px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.3s ease-in-out;
 }
 
-#product-imgs .product-preview.slick-current {
-  border-color: #0171d3;
+#product-imgs .product-preview img.active {
+  border: 2px solid #0171d3; /* Highlight active image */
 }
 
-#product-imgs .slick-prev {
-  top: -20px;
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  transform: translateX(-50%);
+/* Optional: Change the border color or size of the active thumbnail */
+#product-imgs .product-preview img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  border-radius: 5px;
 }
-
-#product-imgs .slick-next {
-  top: calc(100% - 20px);
-  left: 50%;
-  -webkit-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  transform: translateX(-50%);
-}
-
-#product-imgs .slick-prev:before {
-  content: "\f106";
-}
-
-#product-imgs .slick-next:before {
-  content: "\f107";
-}
-
 .product-preview img {
   width: 100%;
 }
 
+/* Navigation Buttons */
+
+
 /*----------------------------*\
 	Product details
 \*----------------------------*/
+.variant-btn {
+  padding: 8px 16px;
+  margin-right: 8px;
+  border: 1px solid #e4e7ed;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.variant-btn.active {
+  background-color: #0171d3;
+  color: #fff;
+  border-color: #0171d3;
+}
 
 .product-details .product-name {
   text-transform: uppercase;
@@ -1631,7 +1617,7 @@ textarea.input {
   border: 2px solid transparent;
   height: 40px;
   padding: 0 30px;
-  background-color: #ef233c;
+  background-color: #0171d3;
   color: #fff;
   text-transform: uppercase;
   font-weight: 700;
@@ -1732,6 +1718,7 @@ textarea.input {
   display: inline-block;
   background: #fff;
   padding: 0px 15px;
+  cursor: pointer;
 }
 
 #product-tab .tab-nav li + li {
@@ -1762,6 +1749,14 @@ textarea.input {
 #product-tab .tab-nav li a:focus:after,
 #product-tab .tab-nav li.active a:after {
   width: 100%;
+}
+
+.tab-pane {
+  display: none; /* Hide tabs by default */
+}
+
+.tab-pane.active {
+  display: block; /* Show only active tab */
 }
 
 /*-- Rating --*/

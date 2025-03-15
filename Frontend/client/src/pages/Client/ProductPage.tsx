@@ -10,8 +10,7 @@ import "../../css/style.css";
 const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [productsPerPage] = useState<number>(6);
-  const [sortOption, setSortOption] = useState<string>("Latest");
+  const [productsPerPage] = useState<number>(9);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [selectedCategory, setSelectdCategory] =
     useState<string>("Tất cả sản phẩm");
@@ -66,16 +65,6 @@ const ProductPage = () => {
       }
     })();
   }, []);
-
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
-
-  const handleSortChange = (option: string) => {
-    setSortOption(option);
-    setDropdownOpen(false);
-    // Add sorting logic here if needed
-  };
 
   // Calculate the current products to display
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -269,28 +258,30 @@ const ProductPage = () => {
                           </Link>
                         </div>
                         <div className="product-body">
-                          {/* <p className="product-category">
+                          <p className="product-category">
                             {product.categoryId.name}
-                          </p> */}
+                          </p>
                           <h3 className="product-name">
                             <Link to={`/product/${product._id}`}>
                               {product.name}
                             </Link>
                           </h3>
-                          <h4 className="product-price">
-                            {formatPrice(product.variants[0].price)}
-                          </h4>
-                          <div className="product-btns">
-                            <button className="add-to-wishlist">
-                              <i className="fa fa-heart-o" />
-                              <span className="tooltipp">Thêm yêu thích</span>
-                            </button>
-                            <button className="quick-view">
-                              <Link to={`/product/${product._id}`}>
-                                <i className="fa fa-eye" />
-                              </Link>
-                              <span className="tooltipp">Xem chi tiết</span>
-                            </button>
+                          <div className="price-section">
+                            <h4 className="product-price">
+                              {formatPrice(product.variants[0].price)}
+                            </h4>
+                            <div className="product-btns">
+                              <button className="add-to-wishlist">
+                                <i className="fa fa-heart-o" />
+                                <span className="tooltipp">Thêm yêu thích</span>
+                              </button>
+                              <button className="quick-view">
+                                <Link to={`/product/${product._id}`}>
+                                  <i className="fa fa-eye" />
+                                </Link>
+                                <span className="tooltipp">Xem chi tiết</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                         {/* Add to Cart button */}
@@ -310,61 +301,59 @@ const ProductPage = () => {
                 <div className="store-filter clearfix">
                   {/* <span className="store-qty">Showing 20-100 products</span> */}
                   <ul className="store-pagination">
-                  <li
-                        className={`page-item ${
-                          currentPage === 1 ? "disabled" : ""
-                        }`}
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
+                      <a
+                        className="page-link"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        href="#"
+                        aria-label="Previous"
                       >
-                        <a
-                          className="page-link"
-                          onClick={() => handlePageChange(currentPage - 1)}
-                          href="#"
-                          aria-label="Previous"
-                        >
-                          <span aria-hidden="true">«</span>
-                          <span className="sr-only">Previous</span>
-                        </a>
-                      </li>
-                      {Array.from({ length: totalPages }, (_, index) => (
-                        <li
-                          key={index}
-                          className={`page-item ${
-                            currentPage === index + 1 ? "active" : ""
-                          }`}
-                        >
-                          <a
-                            className="page-link"
-                            onClick={() => handlePageChange(index + 1)}
-                            href="#"
-                          >
-                            {index + 1}
-                          </a>
-                        </li>
-                      ))}
+                        <span aria-hidden="true">«</span>
+                        <span className="sr-only">Previous</span>
+                      </a>
+                    </li>
+                    {Array.from({ length: totalPages }, (_, index) => (
                       <li
+                        key={index}
                         className={`page-item ${
-                          currentPage === totalPages ? "disabled" : ""
+                          currentPage === index + 1 ? "active" : ""
                         }`}
                       >
                         <a
                           className="page-link"
-                          onClick={() => handlePageChange(currentPage + 1)}
+                          onClick={() => handlePageChange(index + 1)}
                           href="#"
-                          aria-label="Next"
                         >
-                          <span aria-hidden="true">»</span>
-                          <span className="sr-only">Next</span>
+                          {index + 1}
                         </a>
                       </li>
+                    ))}
+                    <li
+                      className={`page-item ${
+                        currentPage === totalPages ? "disabled" : ""
+                      }`}
+                    >
+                      <a
+                        className="page-link"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        href="#"
+                        aria-label="Next"
+                      >
+                        <span aria-hidden="true">»</span>
+                        <span className="sr-only">Next</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
 
                 {/* Pagination */}
                 <div className="col-12 pb-1">
                   <nav aria-label="Page navigation">
-                    <ul className="pagination justify-content-center mb-3">
-                      
-                    </ul>
+                    <ul className="pagination justify-content-center mb-3"></ul>
                   </nav>
                 </div>
               </div>
