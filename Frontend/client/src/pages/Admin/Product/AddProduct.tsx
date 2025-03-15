@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { addProduct, Category, Product } from "../../../services/product";
+import { Category, Product } from "../../../services/product";
 import { getCategories } from "../../../services/category";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Swal from "sweetalert2";
+
+import { ProductContext } from "../../../context/ProductContext";
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
   images: z
@@ -54,7 +54,7 @@ const AddProduct = () => {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [inputFiles, setInputFiles] = useState<File[]>([]);
   const [inputs, setInputs] = useState<number[]>([0]);
-  const nav = useNavigate();
+  const { createProduct } = useContext(ProductContext)
 
   const handleImageChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -119,47 +119,9 @@ const AddProduct = () => {
         const imageUrls = await uploadImages(inputFiles);
         product.images = imageUrls;
       }
-      const { data } = await addProduct(product);
-      Swal.fire({
-        title: "Thành công",
-        text: "Thêm sản phẩm thành công",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        nav("/admin/products");
-      });
-      console.log(data);
-      
+      createProduct(product);
     } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
-
-      if (error.response && error.response.status === 400) {
-        const errorMessage = error.response.data.message;
-
-        if (errorMessage.includes("SKU")) {
-          Swal.fire({
-            title: "Lỗi",
-            text: "SKU đã tồn tại",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        } else {
-          Swal.fire({
-            title: "Lỗi",
-            text: errorMessage,
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
-        return;
-      }
-
-      Swal.fire({
-        title: "Lỗi",
-        text: "Đã có lỗi xảy ra, vui lòng thử lại",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      console.log(err)
     }
   };
   return (

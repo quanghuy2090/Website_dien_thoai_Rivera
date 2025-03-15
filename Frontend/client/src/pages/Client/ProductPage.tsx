@@ -84,28 +84,47 @@ const ProductPage = () => {
 
   const addToCart = async (product: Product) => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      // Lấy thông tin user từ localStorage
+      const user = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")!)
+        : null;
+
       if (!user || !user._id) {
-        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
         nav("/login");
         return;
       }
+
+      // Kiểm tra xem sản phẩm có biến thể không
+      if (!product.variants || product.variants.length === 0) {
+        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+        return;
+      }
+
+      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
+      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
+
+      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
       const cart: Carts = {
-        _id: "", // Backend tự tạo `_id`
-        userId: user._id, // Chỉ lấy `_id` của user
-        quantity: 1,
-        productId: product._id, // Đảm bảo có productId
+        userId: user._id,
+        items: [
+          {
+            productId: product._id,
+            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
+            quantity: 1,
+          },
+        ],
       };
-      // 🛠 Gửi request thêm vào giỏ hàng
+
+      // Gửi request lên API
       const { data } = await addCart(cart);
+      console.log("API Response:", data); // Log response để kiểm tra
 
-      // 🎉 Hiển thị thông báo thành công
+      // Thông báo thành công
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-
-      console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
-      console.error(" Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Error");
+      // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
+      toast.error("Thêm sản phẩm thất bại!");
     }
   };
 
@@ -259,7 +278,10 @@ const ProductPage = () => {
                         </div>
                         <div className="product-body">
                           <p className="product-category">
-                            {product.categoryId.name}
+                            {typeof product.categoryId === "object" &&
+                            product.categoryId !== null
+                              ? product.categoryId.name
+                              : product.categoryId}
                           </p>
                           <h3 className="product-name">
                             <Link to={`/product/${product._id}`}>

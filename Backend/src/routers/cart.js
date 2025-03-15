@@ -1,8 +1,9 @@
 import {
   createCart,
   getCart,
-  // removeFromCart,
-  // updateCart,
+  removeAll,
+  removeCart,
+  updateCart,
 } from "../controllers/cart.js";
 
 import express from "express";
@@ -12,7 +13,8 @@ const routerCart = express.Router();
 
 routerCart.post("/", checkUserPermission, createCart);
 routerCart.get("/", checkUserPermission, getCart);
-// routerCart.put("/:userId", updateCart);
-// routerCart.delete("/:userId/:productId", removeFromCart);
+routerCart.put("/", checkUserPermission, updateCart);
+routerCart.delete("/:productId", checkUserPermission, removeCart);
+routerCart.delete("/removeAll/:id", checkUserPermission, removeAll);
 
 export default routerCart;
