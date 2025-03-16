@@ -121,6 +121,7 @@ const UpdateProduct = () => {
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
+      toast.success("Lấy chi tiết sản phẩm  thành công!");
       const images = Array.isArray(data.data.images)
         ? data.data.images.slice(0, 5)
         : [data.data.images];

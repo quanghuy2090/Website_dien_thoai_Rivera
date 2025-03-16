@@ -33,7 +33,7 @@ const UpdateCategories = () => {
       console.log(data.data);
       setValue("name", data.data.name);
       setValue("slug", data.data.slug);
-      toast.success("categories id successfully");
+      toast.success("Lấy danh mục thành công");
     })();
   }, []);
   return (

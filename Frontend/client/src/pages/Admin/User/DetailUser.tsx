@@ -1,13 +1,19 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-
 import { AuthContext } from '../../../context/AuthContext';
+import { User } from '../../../services/auth';
 const DetailUser = () => {
     const { id } = useParams();
     const { getDetailUsers, state, handleStatusChange, handleRoleChange } = useContext(AuthContext);
+    const [lockedEmails, setLockedEmails] = useState<User[]>([]);
+    console.log(lockedEmails)
     useEffect(() => {
-        getDetailUsers(id!)
+        getDetailUsers(id!);
+        const storedEmails = JSON.parse(localStorage.getItem("user") || "[]"); // Đảm bảo không parse null
+        setLockedEmails(storedEmails);
     }, [])
+    // const isEmailLocked = Array.isArray(lockedEmails) && lockedEmails.includes(state.selectedUsers?.email);
+    const isAdmin = state.selectedUsers?.role === 1; // 
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -29,11 +35,14 @@ const DetailUser = () => {
                         </tr>
                         <tr>
                             <th>Email</th>
-                            <td>{state.selectedUsers?.email}</td>
-                        </tr>
-                        <tr>
-                            <th>Password</th>
-                            <td>{state.selectedUsers?.password}</td>
+                            <td>
+                                <input
+                                    type="email"
+                                    className="form-control"
+                                    value={state.selectedUsers?.email}
+                                    disabled
+                                />
+                            </td>
                         </tr>
                         <tr>
                             <th>Địa Chỉ</th>
@@ -50,6 +59,7 @@ const DetailUser = () => {
                                 <select className='form-select'
                                     value={state.selectedUsers?.status || ""}
                                     onChange={(e) => state.selectedUsers?._id && handleStatusChange(state.selectedUsers._id, e.target.value)}
+                                    disabled={isAdmin} // Không cho chỉnh sửa nếu là Admin
                                 >
                                     <option value="active">Active</option>
                                     <option value="banned">Banned</option>
@@ -62,10 +72,11 @@ const DetailUser = () => {
                                 <select className='form-select'
                                     value={state.selectedUsers?.role || 0}
                                     onChange={(e) => state.selectedUsers?._id && handleRoleChange(state.selectedUsers._id, Number(e.target.value))}
+                                    disabled={isAdmin} // Không cho chỉnh sửa nếu là Admin
                                 >
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
+                                    <option value="1">Admin</option>
+                                    <option value="2">Quản lý</option>
+                                    <option value="3">Người dùng</option>
                                 </select>
                             </td>
                         </tr>

@@ -1,15 +1,15 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { GrUpdate } from "react-icons/gr";
+
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
+import { FaPen } from "react-icons/fa";
 import { CategoryContext } from "../../../context/CategoryContext";
-
 const ListCategories = () => {
   const { state, removeCategory } = useContext(CategoryContext);
   const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
-
+  const [itemsPerPage, setItemsPerPage] = useState(5)
   // Lọc danh mục theo tên (case-insensitive)
   const filteredCategories = state.categorys.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -30,11 +30,13 @@ const ListCategories = () => {
           <div>
             <label className="d-flex align-items-center">
               Hiển thị
-              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
+              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              >
+                <option value="5">5</option>
                 <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
               </select>
               mục
             </label>
@@ -58,16 +60,16 @@ const ListCategories = () => {
         <table className="table table-bordered">
           <thead className="thead-light">
             <tr>
-              <th scope="col">Id </th>
+              <th scope="col">Stt</th>
               <th scope="col">Danh mục</th>
               <th scope="col">Mô tả</th>
               <th scope="col">Tùy chọn</th>
             </tr>
           </thead>
           <tbody>
-            {filteredCategories.map((category) => (
-              <tr>
-                <td>{category._id}</td>
+            {filteredCategories.slice(0, itemsPerPage).map((category, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
                 <td>{category.name}</td>
                 <td>{category.slug}</td>
                 <td>
@@ -83,7 +85,7 @@ const ListCategories = () => {
                     className="btn btn-warning me-2"
                   >
                     {" "}
-                    <GrUpdate />
+                    <FaPen />
                   </Link>
                   <Link
                     to={`/admin/category/detail/${category._id}`}

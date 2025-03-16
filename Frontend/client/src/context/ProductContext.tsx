@@ -37,6 +37,7 @@ export const ProductProvider = ({ children }: Children) => {
             }
         } catch (error) {
             console.log(error);
+            toast.error("Sản phẩm bị lỗi khi xóa")
         }
     };
     const updateProducts = async (_id: string, product: Product) => {
@@ -62,7 +63,7 @@ export const ProductProvider = ({ children }: Children) => {
             // Fetch lại danh sách sản phẩm để cập nhật danh mục đầy đủ
             const updatedProducts = await getAllProduct();
             dispatch({ type: "GET_PRODUCTS", payload: updatedProducts.data.data });
-
+            toast.success("Thêm thành công!");
             nav("/admin/products");
         } catch (err) {
             console.log(err);
@@ -72,6 +73,7 @@ export const ProductProvider = ({ children }: Children) => {
         try {
             const { data } = await getProductById(_id);
             dispatch({ type: "SET_SELECTED_PRODUCTS", payload: data.data })
+            toast.success("Lấy chi tiết sản phẩm  thành công!");
         } catch (error) {
             console.log(error)
         }

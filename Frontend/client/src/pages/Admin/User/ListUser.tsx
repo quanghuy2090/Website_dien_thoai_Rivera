@@ -4,7 +4,19 @@ import { Link } from 'react-router-dom'
 import { FaEye } from "react-icons/fa";
 import { AuthContext } from '../../../context/AuthContext';
 const ListUser = () => {
-    const { state } = useContext(AuthContext)
+    const { state } = useContext(AuthContext);
+    const getRoleName = (role: number) => {
+        switch (role) {
+            case 1:
+                return "Admin";
+            case 2:
+                return "Quản lý";
+            case 3:
+                return "Người dùng";
+            default:
+                return "Không xác định";
+        }
+    };
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -18,7 +30,7 @@ const ListUser = () => {
                 <table className="table table-bordered">
                     <thead>
                         <tr>
-                            <th scope="col">id</th>
+                            <th scope="col">Stt</th>
                             <th scope="col">username</th>
                             <th scope="col">email</th>
                             <th scope="col">address</th>
@@ -30,14 +42,14 @@ const ListUser = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {state.users.map((u) => (
-                            <tr>
-                                <td>{u._id}</td>
+                        {state.users.map((u, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
                                 <td>{u.userName}</td>
                                 <td>{u.email}</td>
                                 <td>{u.address}</td>
                                 <td>{u.phone}</td>
-                                <td>{u.role}</td>
+                                <td>{getRoleName(u.role)}</td>
                                 <td>
 
                                     <Link to={`/admin/user/${u._id}`} className='btn btn-warning'><FaEye /></Link>

@@ -1,14 +1,15 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
-
+import { FaPen } from "react-icons/fa";
 import { ProductContext } from "../../../context/ProductContext";
 const ListProduct = () => {
   const { removeProducts, state } = useContext(ProductContext);
   const [searchTerm, setSearchTerm] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const filteredProducts = state.products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -29,11 +30,13 @@ const ListProduct = () => {
           <div>
             <label className="d-flex align-items-center">
               Hiển thị
-              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
+              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              >
                 <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
               </select>
               mục
             </label>
@@ -43,7 +46,7 @@ const ListProduct = () => {
             <input
               type="text"
               className="form-control form-control-sm"
-              placeholder="Nhập tên danh mục..."
+              placeholder="Nhập tên sản phẩm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -55,10 +58,10 @@ const ListProduct = () => {
         <table className="table table-bordered">
           <thead className="thead-light">
             <tr>
-              <th>ID</th>
+              <th>Stt</th>
               <th>Tên sp</th>
-              <th>Mô tả ngắn</th>
-              <th>Mô tả chi tiết</th>
+              {/* <th>Mô tả ngắn</th>
+              <th>Mô tả chi tiết</th> */}
               <th>Ảnh</th>
               <th>Biến thể</th>
               <th>Danh mục</th>
@@ -66,12 +69,12 @@ const ListProduct = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map((product) => (
-              <tr key={product._id}>
-                <td>{product._id}</td>
+            {filteredProducts.slice(0, itemsPerPage).map((product, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
                 <td>{product.name}</td>
-                <td>{product.short_description}</td>
-                <td>{product.long_description}</td>
+                {/* <td>{product.short_description}</td>
+                <td>{product.long_description}</td> */}
                 {/* Hiển thị ảnh sản phẩm */}
                 <td>
                   <div
@@ -152,11 +155,11 @@ const ListProduct = () => {
                     to={`/admin/products/update/${product._id}`}
                     className="btn btn-warning me-2"
                   >
-                    <GrUpdate />
+                    <FaPen />
                   </Link>
                   <Link
                     to={`/admin/products/detail/${product._id}`}
-                    className="btn btn-info mt-2"
+                    className="btn btn-info me-2"
                   >
                     <FaEye />
                   </Link>
