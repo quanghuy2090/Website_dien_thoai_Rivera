@@ -139,9 +139,9 @@ export function Header() {
             <div className="col-md-6">
               <div className="header-search">
                 <form>
-                  <select className="input-select">
+                  {/* <select className="input-select">
                     <option value={0}>Danh mục</option>
-                  </select>
+                  </select> */}
                   <input className="input" placeholder="Tìm kiếm tại đây" />
                   <button className="search-btn">Tìm kiếm</button>
                 </form>

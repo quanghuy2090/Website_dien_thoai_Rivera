@@ -110,7 +110,7 @@ const ProductDetail = () => {
         items: [
           {
             productId: selectedProduct._id,
-            variantId: selectedProduct.variants[0]._id,
+            variantId: selectedVariant._id,
             quantity: quantity,
           },
         ],

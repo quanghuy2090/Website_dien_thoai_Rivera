@@ -222,7 +222,7 @@ const ProductPage = () => {
               <div className="store-filter clearfix">
                 <div className="store-sort">
                   <div className="row">
-                    <div className="col">
+                    {/* <div className="col">
                       <label>
                         Sort By:
                         <select className="ms-2 input-select">
@@ -230,7 +230,7 @@ const ProductPage = () => {
                           <option value={1}>Position</option>
                         </select>
                       </label>
-                    </div>
+                    </div> */}
                     <div className="col">
                       <form action="">
                         <div className="search-container">
