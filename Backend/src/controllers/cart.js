@@ -173,7 +173,7 @@ export const getCart = async (req, res) => {
     // Xử lý dữ liệu trả về để bao gồm thông tin biến thể cụ thể
     const cartItems = cart.items.map((item) => {
       const product = item.productId;
-      
+
       // Tìm variant tương ứng trong mảng variants của product
       const variant = product.variants.find(
         (v) => v._id.toString() === item.variantId.toString()
@@ -187,7 +187,7 @@ export const getCart = async (req, res) => {
         productId: product._id,
         name: product.name,
         image: product.images[0], // Lấy ảnh đầu tiên
-        variant: {
+        variants: {
           color: variant.color,
           capacity: variant.capacity,
           price: variant.price,
@@ -353,7 +353,7 @@ export const updateCart = async (req, res) => {
 export const removeCart = async (req, res) => {
   try {
     const userId = req.user._id; // Lấy từ middleware checkUserPermission
-    const { productId, variantId } = req.params; // Lấy productId và variantId từ params
+    const { productId } = req.params; // Lấy productId và variantId từ params
 
     // Tìm giỏ hàng của user
     const cart = await Cart.findOne({ userId });
@@ -367,8 +367,8 @@ export const removeCart = async (req, res) => {
     const initialItemCount = cart.items.length;
     cart.items = cart.items.filter(
       (item) =>
-        item.productId.toString() !== productId ||
-        item.variantId.toString() !== variantId
+        item.productId.toString() !== productId
+        
     );
 
     if (initialItemCount === cart.items.length) {

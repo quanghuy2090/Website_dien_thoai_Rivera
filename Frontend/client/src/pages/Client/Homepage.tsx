@@ -75,8 +75,10 @@ const HomePage = () => {
 
       // Thông báo thành công
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
+
+
     } catch (error) {
-      console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
+      // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
       toast.error("Thêm sản phẩm thất bại!");
     }
   };
@@ -90,6 +92,8 @@ const HomePage = () => {
   const sliderSettings = {
     slidesToShow: 4,
     slidesToScroll: 1,
+    swipe: true,
+    draggable: true,
     autoplay: true, // Disable auto-slide to allow manual control
     infinite: true,
     speed: 300,
@@ -161,7 +165,10 @@ const HomePage = () => {
                     </div>
                     <div className="product-body">
                       <p className="product-category">
-                        {product.categoryId.name}
+                        {typeof product.categoryId === "object" &&
+                          product.categoryId !== null
+                          ? product.categoryId.name
+                          : product.categoryId}
                       </p>
                       <h3 className="product-name">
                         <Link to={`/product/${product._id}`}>
@@ -262,7 +269,10 @@ const HomePage = () => {
                     </div>
                     <div className="product-body">
                       <p className="product-category">
-                        {product.categoryId.name}
+                        {typeof product.categoryId === "object" &&
+                          product.categoryId !== null
+                          ? product.categoryId.name
+                          : product.categoryId}
                       </p>
                       <h3 className="product-name">
                         <Link to={`/product/${product._id}`}>

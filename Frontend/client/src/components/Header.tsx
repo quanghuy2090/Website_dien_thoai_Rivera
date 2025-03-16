@@ -5,11 +5,19 @@ import "../css/nouislider.min.css";
 import "../css/slick-theme.css";
 import "../css/slick.css";
 import "../css/style.css";
+import { getDetailUser, User } from "../services/auth";
 
 export function Header() {
   const [isNavActive, setIsNavActive] = useState<boolean>(false);
   const [isCartDropdownOpen, setIsCartDropdownOpen] = useState<boolean>(false);
   const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
+
+  let userName = "";
+  if (user) {
+    const parsedUser = JSON.parse(user);
+    userName = parsedUser.userName || "User";  // Change 'userName' if necessary based on your user data structure
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -86,7 +94,7 @@ export function Header() {
               <>
                 <li>
                   <a href="#">
-                    <i className="fa fa-user-o" /> Tài khoản
+                    <i className="fa fa-user-o" /> {userName}
                   </a>
                 </li>
                 <li>
@@ -120,9 +128,9 @@ export function Header() {
           <div className="row">
             {/* LOGO */}
             <div className="col-md-3">
-              <div className="header-logo">
-                <a href="#" className="logo">
-                  <img src="../../image/logo.png" alt="Logo" />
+              <div className="header-logo mt-3">
+                <a href="/" className="logo">
+                  <img src="../../image/logo1.png" width={170} alt="Logo" />
                 </a>
               </div>
             </div>
@@ -131,9 +139,9 @@ export function Header() {
             <div className="col-md-6">
               <div className="header-search">
                 <form>
-                  <select className="input-select">
+                  {/* <select className="input-select">
                     <option value={0}>Danh mục</option>
-                  </select>
+                  </select> */}
                   <input className="input" placeholder="Tìm kiếm tại đây" />
                   <button className="search-btn">Tìm kiếm</button>
                 </form>

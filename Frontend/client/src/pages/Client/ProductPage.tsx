@@ -10,8 +10,7 @@ import "../../css/style.css";
 const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [productsPerPage] = useState<number>(6);
-  const [sortOption, setSortOption] = useState<string>("Latest");
+  const [productsPerPage] = useState<number>(9);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [selectedCategory, setSelectdCategory] =
     useState<string>("Tất cả sản phẩm");
@@ -67,16 +66,6 @@ const ProductPage = () => {
     })();
   }, []);
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
-
-  const handleSortChange = (option: string) => {
-    setSortOption(option);
-    setDropdownOpen(false);
-    // Add sorting logic here if needed
-  };
-
   // Calculate the current products to display
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
@@ -95,33 +84,52 @@ const ProductPage = () => {
 
   const addToCart = async (product: Product) => {
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      // Lấy thông tin user từ localStorage
+      const user = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")!)
+        : null;
+
       if (!user || !user._id) {
-        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!", {});
+        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
         nav("/login");
         return;
       }
+
+      // Kiểm tra xem sản phẩm có biến thể không
+      if (!product.variants || product.variants.length === 0) {
+        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+        return;
+      }
+
+      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
+      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
+
+      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
       const cart: Carts = {
-        _id: "", // Backend tự tạo `_id`
-        userId: user._id, // Chỉ lấy `_id` của user
-        quantity: 1,
-        productId: product._id, // Đảm bảo có productId
+        userId: user._id,
+        items: [
+          {
+            productId: product._id,
+            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
+            quantity: 1,
+          },
+        ],
       };
-      // 🛠 Gửi request thêm vào giỏ hàng
+
+      // Gửi request lên API
       const { data } = await addCart(cart);
+      console.log("API Response:", data); // Log response để kiểm tra
 
-      // 🎉 Hiển thị thông báo thành công
+      // Thông báo thành công
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-
-      console.log(" Thêm vào giỏ hàng:", data);
     } catch (error) {
-      console.error(" Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Error");
+      // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
+      toast.error("Thêm sản phẩm thất bại!");
     }
   };
 
   const formatPrice = (price: number) => {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    return price.toLocaleString("vi-VN") + " VND";
   };
 
   return (
@@ -198,7 +206,8 @@ const ProductPage = () => {
                       />
                       <label htmlFor={`price-${index}`}>
                         <span></span>
-                        {min.toLocaleString()} - {max.toLocaleString()} VND
+                        {min.toLocaleString("vi-VN")} -{" "}
+                        {max.toLocaleString("vi-VN")} VND
                       </label>
                     </div>
                   ))}
@@ -213,7 +222,7 @@ const ProductPage = () => {
               <div className="store-filter clearfix">
                 <div className="store-sort">
                   <div className="row">
-                    <div className="col">
+                    {/* <div className="col">
                       <label>
                         Sort By:
                         <select className="ms-2 input-select">
@@ -221,22 +230,17 @@ const ProductPage = () => {
                           <option value={1}>Position</option>
                         </select>
                       </label>
-                    </div>
+                    </div> */}
                     <div className="col">
                       <form action="">
-                        <div className="input-group">
+                        <div className="search-container">
                           <input
                             type="text"
-                            className="form-control"
-                            placeholder="Tìm kiếm sản phẩm"
+                            className="search-input"
+                            placeholder="Tìm kiếm sản phẩm..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                           />
-                          <div className="input-group-append">
-                            <span className="input-group-text bg-transparent text-primary">
-                              <i className="fa fa-search" />
-                            </span>
-                          </div>
                         </div>
                       </form>
                     </div>
@@ -270,27 +274,32 @@ const ProductPage = () => {
                         </div>
                         <div className="product-body">
                           <p className="product-category">
-                            {product.categoryId.name}
+                            {typeof product.categoryId === "object" &&
+                            product.categoryId !== null
+                              ? product.categoryId.name
+                              : product.categoryId}
                           </p>
                           <h3 className="product-name">
                             <Link to={`/product/${product._id}`}>
                               {product.name}
                             </Link>
                           </h3>
-                          <h4 className="product-price">
-                            {formatPrice(product.variants[0].price)}
-                          </h4>
-                          <div className="product-btns">
-                            <button className="add-to-wishlist">
-                              <i className="fa fa-heart-o" />
-                              <span className="tooltipp">Thêm yêu thích</span>
-                            </button>
-                            <button className="quick-view">
-                              <Link to={`/product/${product._id}`}>
-                                <i className="fa fa-eye" />
-                              </Link>
-                              <span className="tooltipp">Xem chi tiết</span>
-                            </button>
+                          <div className="price-section">
+                            <h4 className="product-price">
+                              {formatPrice(product.variants[0].price)}
+                            </h4>
+                            <div className="product-btns">
+                              <button className="add-to-wishlist">
+                                <i className="fa fa-heart-o" />
+                                <span className="tooltipp">Thêm yêu thích</span>
+                              </button>
+                              <button className="quick-view">
+                                <Link to={`/product/${product._id}`}>
+                                  <i className="fa fa-eye" />
+                                </Link>
+                                <span className="tooltipp">Xem chi tiết</span>
+                              </button>
+                            </div>
                           </div>
                         </div>
                         {/* Add to Cart button */}
@@ -310,61 +319,59 @@ const ProductPage = () => {
                 <div className="store-filter clearfix">
                   {/* <span className="store-qty">Showing 20-100 products</span> */}
                   <ul className="store-pagination">
-                  <li
-                        className={`page-item ${
-                          currentPage === 1 ? "disabled" : ""
-                        }`}
+                    <li
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
+                    >
+                      <a
+                        className="page-link"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        href="#"
+                        aria-label="Previous"
                       >
-                        <a
-                          className="page-link"
-                          onClick={() => handlePageChange(currentPage - 1)}
-                          href="#"
-                          aria-label="Previous"
-                        >
-                          <span aria-hidden="true">«</span>
-                          <span className="sr-only">Previous</span>
-                        </a>
-                      </li>
-                      {Array.from({ length: totalPages }, (_, index) => (
-                        <li
-                          key={index}
-                          className={`page-item ${
-                            currentPage === index + 1 ? "active" : ""
-                          }`}
-                        >
-                          <a
-                            className="page-link"
-                            onClick={() => handlePageChange(index + 1)}
-                            href="#"
-                          >
-                            {index + 1}
-                          </a>
-                        </li>
-                      ))}
+                        <span aria-hidden="true">«</span>
+                        <span className="sr-only">Previous</span>
+                      </a>
+                    </li>
+                    {Array.from({ length: totalPages }, (_, index) => (
                       <li
+                        key={index}
                         className={`page-item ${
-                          currentPage === totalPages ? "disabled" : ""
+                          currentPage === index + 1 ? "active" : ""
                         }`}
                       >
                         <a
                           className="page-link"
-                          onClick={() => handlePageChange(currentPage + 1)}
+                          onClick={() => handlePageChange(index + 1)}
                           href="#"
-                          aria-label="Next"
                         >
-                          <span aria-hidden="true">»</span>
-                          <span className="sr-only">Next</span>
+                          {index + 1}
                         </a>
                       </li>
+                    ))}
+                    <li
+                      className={`page-item ${
+                        currentPage === totalPages ? "disabled" : ""
+                      }`}
+                    >
+                      <a
+                        className="page-link"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        href="#"
+                        aria-label="Next"
+                      >
+                        <span aria-hidden="true">»</span>
+                        <span className="sr-only">Next</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
 
                 {/* Pagination */}
                 <div className="col-12 pb-1">
                   <nav aria-label="Page navigation">
-                    <ul className="pagination justify-content-center mb-3">
-                      
-                    </ul>
+                    <ul className="pagination justify-content-center mb-3"></ul>
                   </nav>
                 </div>
               </div>
