@@ -1,6 +1,8 @@
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
 import { productValidation } from "../validation/product.js";
+import Color from "../models/Color.js";
+import Capacity from "../models/Capacity.js";
 
 export const getAllProduct = async (req, res) => {
   try {
@@ -54,6 +56,26 @@ export const getDetailProduct = async (req, res) => {
   }
 };
 
+// Hàm tạo SKU tự động
+const generateSKU = async (productName, colorId, capacityId) => {
+  // Lấy thông tin color và capacity từ _id
+  const color = await Color.findById(colorId);
+  const capacity = await Capacity.findById(capacityId);
+
+  // Tạo prefix từ tên sản phẩm (lấy 3 ký tự đầu, uppercase)
+  const namePrefix = productName.slice(0, 3).toUpperCase();
+
+  // Tạo mã từ color và capacity (uppercase, lấy ngắn gọn)
+  const colorCode = color.name.slice(0, 3).toUpperCase();
+  const capacityCode = capacity.value.replace(/[^0-9]/g, ""); // Chỉ lấy số (64GB -> 64)
+
+  // Thêm timestamp hoặc random string để đảm bảo độc nhất
+  const uniqueCode = Date.now().toString().slice(-4); // Lấy 4 số cuối của timestamp
+
+  // Kết hợp thành SKU
+  return `${namePrefix}-${colorCode}-${capacityCode}-${uniqueCode}`;
+};
+
 export const createProduct = async (req, res) => {
   try {
     // Validate dữ liệu từ req.body bằng productValidation
@@ -73,21 +95,39 @@ export const createProduct = async (req, res) => {
         message: `Sản phẩm "${req.body.name}" đã tồn tại`,
       });
     }
-    // Kiểm tra SKU có trùng lặp không
-    const existingVariant = await Product.findOne({ "variants.sku": { $in: req.body.variants.map(v => v.sku) } });
 
-    if (existingVariant) {
-      return res.status(400).json({
-        message: "SKU đã tồn tại, vui lòng chọn SKU khác",
-      });
-    }
-
-
-    // Kiểm tra xem danh mục có tồn tại không trước khi tạo sản phẩm
+    // Kiểm tra danh mục có tồn tại không
     const category = await Category.findById(req.body.categoryId);
     if (!category) {
       return res.status(404).json({
         message: "Danh mục không tồn tại",
+      });
+    }
+
+    // Kiểm tra tính hợp lệ của color và capacity trong variants + sinh SKU
+    const variantErrors = [];
+    for (const variant of req.body.variants) {
+      // Kiểm tra color
+      const color = await Color.findById(variant.color);
+      if (!color) {
+        variantErrors.push(`Color ID "${variant.color}" không tồn tại`);
+      }
+
+      // Kiểm tra capacity
+      const capacity = await Capacity.findById(variant.capacity);
+      if (!capacity) {
+        variantErrors.push(`Capacity ID "${variant.capacity}" không tồn tại`);
+      }
+
+      // Nếu không có lỗi, sinh SKU tự động
+      if (color && capacity) {
+        variant.sku = await generateSKU(req.body.name, variant.color, variant.capacity);
+      }
+    }
+
+    if (variantErrors.length > 0) {
+      return res.status(400).json({
+        message: variantErrors.join(", "),
       });
     }
 
@@ -104,14 +144,13 @@ export const createProduct = async (req, res) => {
     const updatedCategory = await Category.findByIdAndUpdate(
       req.body.categoryId,
       {
-        $addToSet: { products: savedProduct._id }, // Thêm product._id vào mảng products của Category
+        $addToSet: { products: savedProduct._id },
       },
-      { new: true } // Trả về document sau khi cập nhật
+      { new: true }
     );
 
     // Nếu cập nhật danh mục thất bại
     if (!updatedCategory) {
-      // Xóa sản phẩm vừa tạo để đảm bảo tính nhất quán
       await Product.findByIdAndDelete(savedProduct._id);
       return res.status(500).json({
         message: "Không thể cập nhật danh mục, sản phẩm đã bị hủy",
@@ -163,7 +202,10 @@ export const updateProduct = async (req, res) => {
     }
 
     // Nếu cập nhật categoryId, kiểm tra danh mục có tồn tại không
-    if (updateData.categoryId && updateData.categoryId !== product.categoryId.toString()) {
+    if (
+      updateData.categoryId &&
+      updateData.categoryId !== product.categoryId.toString()
+    ) {
       const category = await Category.findById(updateData.categoryId);
       if (!category) {
         return res.status(404).json({
@@ -183,8 +225,14 @@ export const updateProduct = async (req, res) => {
     // Nếu cập nhật variants, kiểm tra SKU duy nhất
     if (updateData.variants) {
       for (const variant of updateData.variants) {
-        if (variant.sku && variant.sku !== product.variants.find(v => v.sku === variant.sku)?.sku) {
-          const existingVariant = await Product.findOne({ "variants.sku": variant.sku });
+        if (
+          variant.sku &&
+          variant.sku !==
+            product.variants.find((v) => v.sku === variant.sku)?.sku
+        ) {
+          const existingVariant = await Product.findOne({
+            "variants.sku": variant.sku,
+          });
           if (existingVariant) {
             return res.status(400).json({
               message: `SKU "${variant.sku}" đã tồn tại trong một sản phẩm khác`,
@@ -211,7 +259,6 @@ export const updateProduct = async (req, res) => {
     });
   }
 };
-
 
 export const removeProduct = async (req, res) => {
   try {

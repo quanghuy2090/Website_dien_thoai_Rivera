@@ -3,26 +3,26 @@ import Joi from "joi";
 // Validation cho từng variant
 const variantValidation = Joi.object({
   color: Joi.string()
-    .trim()
-    .valid("Red", "Blue", "Black", "White", "Green")
+    .length(24)
+    .pattern(/^[0-9a-fA-F]{24}$/)
     .required()
     .messages({
       "string.base": "Màu sắc phải là một chuỗi ký tự.",
       "string.empty": "Màu sắc không được để trống.",
+      "string.length": "Màu sắc phải có đúng 24 ký tự (ObjectId).",
+      "string.pattern.base": "Màu sắc phải là một ObjectId hợp lệ (hexadecimal).",
       "any.required": "Màu sắc là bắt buộc.",
-      "any.only":
-        "Màu sắc phải là một trong các giá trị: Red, Blue, Black, White, Green.",
     }),
   capacity: Joi.string()
-    .trim()
-    .valid("64GB", "128GB", "256GB", "512GB", "1TB")
+    .length(24)
+    .pattern(/^[0-9a-fA-F]{24}$/)
     .required()
     .messages({
       "string.base": "Dung lượng phải là một chuỗi ký tự.",
       "string.empty": "Dung lượng không được để trống.",
+      "string.length": "Dung lượng phải có đúng 24 ký tự (ObjectId).",
+      "string.pattern.base": "Dung lượng phải là một ObjectId hợp lệ (hexadecimal).",
       "any.required": "Dung lượng là bắt buộc.",
-      "any.only":
-        "Dung lượng phải là một trong các giá trị: 64GB, 128GB, 256GB, 512GB, 1TB.",
     }),
   price: Joi.number().min(1).required().messages({
     "any.required": "Giá sản phẩm là bắt buộc.",
@@ -35,11 +35,7 @@ const variantValidation = Joi.object({
     "number.integer": "Stock phải là số nguyên.",
     "any.required": "Trường stock là bắt buộc.",
   }),
-  sku: Joi.string().trim().required().messages({
-    "string.base": "SKU phải là một chuỗi ký tự.",
-    "string.empty": "SKU không được để trống.",
-    "any.required": "SKU là bắt buộc.",
-  }),
+
 });
 
 // Validation cho sản phẩm
@@ -82,8 +78,14 @@ export const productValidation = Joi.object({
     "array.min": "Phải có ít nhất một biến thể.",
     "any.required": "Trường variants là bắt buộc.",
   }),
-  categoryId: Joi.string().required().messages({
-    "any.required": "CategoryId là bắt buộc.",
-    "string.empty": "CategoryId không được để trống.",
-  }),
+  categoryId: Joi.string()
+    .length(24) 
+    .pattern(/^[0-9a-fA-F]{24}$/) 
+    .required()
+    .messages({
+      "any.required": "CategoryId là bắt buộc.",
+      "string.empty": "CategoryId không được để trống.",
+      "string.length": "CategoryId phải có đúng 24 ký tự (ObjectId).",
+      "string.pattern.base": "CategoryId phải là một ObjectId hợp lệ (hexadecimal).",
+    }),
 });
