@@ -2,14 +2,14 @@ import mongoose from "mongoose";
 
 const variantSchema = new mongoose.Schema({
   color: {
-    type: String,
-    required: true, // Màu sắc là bắt buộc trong biến thể
-    enum: ["Red", "Blue","Black","White","Green"]
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Color",
+    required: true,
   },
   capacity: {
-    type: String, // Dung lượng (có thể để trống nếu không áp dụng)
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Capacity",
     required: true,
-    enum: ["64GB","128GB","256GB","512GB","1TB"]
   },
   price: {
     type: Number,
@@ -23,7 +23,7 @@ const variantSchema = new mongoose.Schema({
   },
   sku: {
     type: String,
-    unique: true, // Mã SKU duy nhất cho từng biến thể
+    unique: true,
     required: true,
   },
 });
@@ -56,8 +56,8 @@ const productSchema = new mongoose.Schema(
       default: "no",
     },
     variants: {
-      type: [variantSchema], // Thêm schema biến thể
-      required: true, //Sản phẩm phải có ít nhất 1 biến thể
+      type: [variantSchema],
+      required: true,
     },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -71,9 +71,7 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-//Text index để tìm kiếm theo name
 productSchema.index({ name: "text" });
-
 productSchema.index({ categoryId: 1 });
 
 export default mongoose.model("Product", productSchema);

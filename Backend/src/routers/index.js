@@ -5,6 +5,8 @@ import routerProduct from "./product.js";
 import routerFile from "./upload.js";
 import routerCart from "./cart.js";
 import routerOrder from "./order.js";
+import routerColor from "./color.js";
+import routerCapacity from "./capacity.js";
 const router = express.Router();
 
 router.use("/product", routerProduct);
@@ -13,5 +15,7 @@ router.use("/auth", routerAuth);
 router.use("/file", routerFile);
 router.use("/cart", routerCart);
 router.use("/order", routerOrder);
+router.use("/color", routerColor);
+router.use("/capacity", routerCapacity);
 
 export default router;
