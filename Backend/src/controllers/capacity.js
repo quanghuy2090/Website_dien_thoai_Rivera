@@ -26,6 +26,23 @@ export const getAllCapacities = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+export const getCapacityDetail = async (req, res) => {
+  try {
+    const capacity = await Capacity.findById(req.params.id);
+    if (!capacity) {
+      return res.status(404).json({ error: "Không tìm thấy dung lượng" });
+    }
+    res.status(200).json({
+      message: "Thông tin chi tiết dung lượng!",
+      data: capacity,
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({ error: "ID dung lượng không hợp lệ" });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const updateCapacity = async (req, res) => {
   const { value } = req.body;

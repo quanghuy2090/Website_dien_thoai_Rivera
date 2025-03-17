@@ -27,6 +27,24 @@ export const getAllColors = async (req, res) => {
   }
 };
 
+export const getColorDetail = async (req, res) => {
+  try {
+    const color = await Color.findById(req.params.id);
+    if (!color) {
+      return res.status(404).json({ error: "Không tìm thấy màu" });
+    }
+    res.status(200).json({
+      message: "Thông tin chi tiết màu!",
+      data: color,
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({ error: "ID màu không hợp lệ" });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const updateColor = async (req, res) => {
   const { name } = req.body;
   try {
