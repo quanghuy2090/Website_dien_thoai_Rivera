@@ -47,7 +47,7 @@ const ListColor = () => {
                     className="btn btn-danger me-2"
                     onClick={() => removeColor(color._id)}
                   >
-                    Xoá
+
                     <MdDelete />
                   </button>
                   <button className="btn btn-warning">Sửa</button>

@@ -4,12 +4,12 @@ import { useForm } from "react-hook-form";
 import { Color } from "../../../services/color";
 
 const AddColor = () => {
-    const { createColor } = useContext(ColorContext);
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<Color>()
+  const { createColor } = useContext(ColorContext);
+  const {
+    register,
+    handleSubmit,
+    // formState: { errors },
+  } = useForm<Color>()
 
   return (
     <div className="content">
@@ -38,9 +38,9 @@ const AddColor = () => {
                   className="form-control form-control-lg"
                   {...register("name")}
                 />
-               
+
               </div>
-              
+
               <div className="form-group mb-3">
                 <button className="btn btn-primary w-100 py-3 fs-5">Lưu</button>
               </div>

@@ -1,16 +1,15 @@
 
 import { http } from "../config/axios";
-
-
+import { Capacity } from "./capacity";
+import { Color } from "./color";
 export type Category = {
   _id: string;
   name: string;
-};
-
+}
 export type Variants = {
   _id: string;
-  color: string;
-  capacity: string;
+  color: string | Color;
+  capacity: string | Capacity;
   price: number;
   stock: number;
   sku: string;

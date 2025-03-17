@@ -6,6 +6,7 @@ import { CategoryProvider } from "./context/CategoryContext.tsx";
 import { ProductProvider } from "./context/ProductContext.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { ColorProvider } from "./context/ColorContext.tsx";
+import { CapacityProvider } from "./context/CapacityContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <ProductProvider>
           <AuthProvider>
             <ColorProvider>
-            <App />
+              <CapacityProvider>
+                <App />
+              </CapacityProvider>
             </ColorProvider>
           </AuthProvider>
         </ProductProvider>

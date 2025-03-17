@@ -6,8 +6,9 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { ProductContext } from "../../../context/ProductContext";
+import { CapacityContext } from "../../../context/CapacityContext";
+import { ColorContext } from "../../../context/ColorContext";
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
   images: z
@@ -24,7 +25,7 @@ const productSchema = z.object({
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
-        sku: z.string().min(1, "SKU không được để trống"),
+        sku: z.string().optional(),
       })
     )
     .min(1, "Cần ít nhất 1 biến thể"),
@@ -55,7 +56,8 @@ const AddProduct = () => {
   const [inputFiles, setInputFiles] = useState<File[]>([]);
   const [inputs, setInputs] = useState<number[]>([0]);
   const { createProduct } = useContext(ProductContext)
-
+  const { states } = useContext(CapacityContext);
+  const { state } = useContext(ColorContext)
   const handleImageChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     index: number
@@ -237,11 +239,12 @@ const AddProduct = () => {
                         <option disabled value="">
                           Chọn màu
                         </option>
-                        <option value="Red">Red</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Black">Black</option>
-                        <option value="White">White</option>
-                        <option value="Green">Green</option>
+
+                        {state.colors.map((color) => (
+                          <option key={color._id} value={color._id}>
+                            {color.name}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.color && (
                         <p className="text-danger">
@@ -258,11 +261,11 @@ const AddProduct = () => {
                         <option disabled value="">
                           Chọn Bộ Nhớ
                         </option>
-                        <option value="64GB">64GB</option>
-                        <option value="128GB">128GB</option>
-                        <option value="256GB">256GB</option>
-                        <option value="512GB">512GB</option>
-                        <option value="1TB">1TB</option>
+                        {states.capacitys.map((capacity) => (
+                          <option key={capacity._id} value={capacity._id}>
+                            {capacity.value}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.capacity && (
                         <p className="text-danger">
@@ -305,10 +308,10 @@ const AddProduct = () => {
                         </p>
                       )}
                     </div>
-                    <div className="col-md-4">
+                    {/* <div className="col-md-4">
                       <label className="fw-bold">SKU</label>
                       <input
-                        type="text"
+                        type="text" disabled
                         className="form-control"
                         {...register(`variants.${index}.sku`, {
                           required: true,
@@ -319,7 +322,7 @@ const AddProduct = () => {
                           {errors.variants[index]?.sku?.message}
                         </p>
                       )}
-                    </div>
+                    </div> */}
                   </div>
 
                   <button
@@ -340,7 +343,7 @@ const AddProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: "",
+                    sku: `SKU-${Date.now()}`
                   })
                 }
               >

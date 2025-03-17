@@ -7,8 +7,8 @@ import Capacity from "../models/Capacity.js";
 export const getAllProduct = async (req, res) => {
   try {
     // Lấy tất cả sản phẩm và populate categoryId
-    const products = await Product.find().populate("categoryId");
-
+    const products = await Product.find().populate("categoryId").populate('variants.color', 'name')
+      .populate('variants.capacity', 'value');
     // Kiểm tra nếu không có sản phẩm
     if (!products || products.length === 0) {
       return res.status(404).json({
@@ -32,7 +32,8 @@ export const getDetailProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate(
       "categoryId"
-    );
+    ).populate('variants.color', 'name')
+      .populate('variants.capacity', 'value');;
     if (!product) {
       return res.status(404).json({
         message: "Khong co san pham",
@@ -228,7 +229,7 @@ export const updateProduct = async (req, res) => {
         if (
           variant.sku &&
           variant.sku !==
-            product.variants.find((v) => v.sku === variant.sku)?.sku
+          product.variants.find((v) => v.sku === variant.sku)?.sku
         ) {
           const existingVariant = await Product.findOne({
             "variants.sku": variant.sku,

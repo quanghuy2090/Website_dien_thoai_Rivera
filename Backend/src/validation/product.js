@@ -35,6 +35,11 @@ const variantValidation = Joi.object({
     "number.integer": "Stock phải là số nguyên.",
     "any.required": "Trường stock là bắt buộc.",
   }),
+  sku: Joi.string().allow("").optional().messages({
+    "string.base": "SKU phải là một chuỗi ký tự.",
+    "string.empty": "SKU có thể để trống nhưng phải là chuỗi.",
+  }),
+
 
 });
 
@@ -79,8 +84,8 @@ export const productValidation = Joi.object({
     "any.required": "Trường variants là bắt buộc.",
   }),
   categoryId: Joi.string()
-    .length(24) 
-    .pattern(/^[0-9a-fA-F]{24}$/) 
+    .length(24)
+    .pattern(/^[0-9a-fA-F]{24}$/)
     .required()
     .messages({
       "any.required": "CategoryId là bắt buộc.",

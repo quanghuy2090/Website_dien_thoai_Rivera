@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { Category, getProductById, Product } from "../../../services/product";
+import { Category, getProductById, Product, Variants } from "../../../services/product";
 import { useParams } from "react-router-dom";
 import { getCategories } from "../../../services/category";
 import toast from "react-hot-toast";
@@ -8,6 +8,8 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { ProductContext } from "../../../context/ProductContext";
+import { ColorContext } from "../../../context/ColorContext";
+import { CapacityContext } from "../../../context/CapacityContext";
 
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
@@ -25,7 +27,7 @@ const productSchema = z.object({
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
-        sku: z.string().min(1, "SKU không được để trống"),
+        sku: z.string().nonempty("SKU không được để trống"), // Bắt buộc SKU phải có giá trị
       })
     )
     .min(1, "Cần ít nhất 1 biến thể"),
@@ -61,6 +63,8 @@ const UpdateProduct = () => {
   >([{ file: null, preview: "" }]);
   // const nav = useNavigate();
   const { updateProducts } = useContext(ProductContext)
+  const { states } = useContext(CapacityContext);
+  const { state } = useContext(ColorContext)
 
   // Xử lý khi chọn ảnh
   const handleImageChange = (
@@ -133,11 +137,18 @@ const UpdateProduct = () => {
         short_description: data.data.short_description,
         long_description: data.data.long_description,
         categoryId: data.data.categoryId?._id || data.data.categoryId,
-        variants:
-          data.data.variants.length > 0
-            ? data.data.variants
-            : [{ color: "", capacity: "", price: 1, stock: 0, sku: "" }],
+        variants: data.data.variants.length > 0
+          ? data.data.variants.map((v: Variants) => ({ // 🔥 Định nghĩa kiểu dữ liệu cho v
+            ...v,
+            color: typeof v.color === "object" ? v.color._id : v.color,
+            capacity: typeof v.capacity === "object" ? v.capacity._id : v.capacity,
+            sku: v.sku && v.sku !== "null" ? v.sku : `SKU-${Date.now()}`
+          }))
+          : [{ color: "", capacity: "", price: 1, stock: 0, sku: `SKU-${Date.now()}` }]
       });
+
+
+
     })();
   }, []);
 
@@ -281,11 +292,12 @@ const UpdateProduct = () => {
                         <option disabled value="">
                           Chọn màu
                         </option>
-                        <option value="Red">Red</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Black">Black</option>
-                        <option value="White">White</option>
-                        <option value="Green">Green</option>
+
+                        {state.colors.map((color) => (
+                          <option key={color._id} value={color._id}>
+                            {color.name}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.color && (
                         <p className="tex-danger">
@@ -302,11 +314,11 @@ const UpdateProduct = () => {
                         <option disabled value="">
                           Chọn Bộ Nhớ
                         </option>
-                        <option value="64GB">64GB</option>
-                        <option value="128GB">128GB</option>
-                        <option value="256GB">256GB</option>
-                        <option value="512GB">512GB</option>
-                        <option value="1TB">1TB</option>
+                        {states.capacitys.map((capacity) => (
+                          <option key={capacity._id} value={capacity._id}>
+                            {capacity.value}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.capacity && (
                         <p className="tex-danger">
@@ -349,10 +361,10 @@ const UpdateProduct = () => {
                         </p>
                       )}
                     </div>
-                    <div className="col-md-4">
+                    {/* <div className="col-md-4">
                       <label className="fw-bold">SKU</label>
                       <input
-                        type="text"
+                        type="text" disabled
                         className="form-control"
                         {...register(`variants.${index}.sku`, {
                           required: true,
@@ -363,7 +375,7 @@ const UpdateProduct = () => {
                           {errors.variants[index]?.sku?.message}
                         </p>
                       )}
-                    </div>
+                    </div> */}
                   </div>
 
                   <button
@@ -384,7 +396,7 @@ const UpdateProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: "",
+                    sku: `SKU-${Date.now()}`
                   })
                 }
               >
