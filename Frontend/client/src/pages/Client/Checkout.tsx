@@ -15,7 +15,7 @@ import {
 } from "../../services/order";
 
 const Checkout = () => {
-  const { register, handleSubmit, setValue, watch } = useForm<
+  const { register, handleSubmit, setValue, watch, } = useForm<
     IShippingAddress & { paymentMethod: Order["paymentMethod"] }
   >({});
   const [carts, setCarts] = useState<Carts[]>([]);
@@ -24,10 +24,10 @@ const Checkout = () => {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [userName, setUserName] = useState<string>("");
-  const [address, setAddress] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [street, setStreet] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [totalAmount, setTotalAmount] = useState<number>(0);
   const nav = useNavigate();
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -47,10 +47,9 @@ const Checkout = () => {
         const user = JSON.parse(userData);
         if (user && user._id) {
           setUsetId(user._id);
-          fetchCart(user._id);
-          setEmail(user.email || "");
-          setUserName(user.userName || "");
-          setAddress(user.address || "");
+          fetchCart();
+          setName(user.userName || "");
+          setStreet(user.address || "");
           setPhone(user.phone || "");
         }
       } catch (error) {
@@ -83,25 +82,18 @@ const Checkout = () => {
     }
   }, [selectedDistrict, districts, setValue]);
 
-  const fetchCart = async (userId: string) => {
+  const fetchCart = async () => {
     try {
-      const { data } = await getCart(userId);
-      if (data?.cart?.items) {
-        setCarts(data.cart.items);
-        const total = data.cart.items.reduce(
-          (sum: number, item: Carts) =>
-            sum + item.productId.price * item.quantity,
-          0
-        );
-        setTotalPrice(total);
-      } else {
-        setCarts([]);
-        setTotalPrice(0);
+      const { data } = await getCart();
+      if (data.data && data.data.items) {
+        setCarts(data.data.items);
+        setTotalAmount(data.data.total || 0);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Lỗi khi gọi API giỏ hàng:", error);
     }
   };
+
 
   const onSubmit = async (
     formData: IShippingAddress & { paymentMethod: Order["paymentMethod"] }
@@ -115,9 +107,9 @@ const Checkout = () => {
         userId,
         orderItems: carts,
         shippingAddress: {
-          // fullName: formData.fullName,
-          // phone: formData.phone,
-          // address: formData.address,
+          name: formData.name,
+          street: formData.street,
+          phone: formData.phone,
           ward: formData.ward,
           district: formData.district,
           city: formData.city,
@@ -189,42 +181,31 @@ const Checkout = () => {
                           <label htmlFor="userName">Người dùng</label>
                           <input
                             type="text"
-                            disabled
+
                             className="form-control"
-                            value={userName}
+                            value={name}
                             placeholder="Nhập tên người dùng"
+                            onChange={(e) => setName(e.target.value)}
                           />
                         </div>
-
-                        <div className="form-group">
-                          <label htmlFor="address">Email</label>
-                          <input
-                            type="text"
-                            disabled
-                            className="form-control"
-                            value={email}
-                            placeholder="Nhập địa chỉ"
-                          />
-                        </div>
-
                         <div className="form-group">
                           <label htmlFor="phone">Số điện thoại</label>
                           <input
                             type="text"
-                            disabled
                             className="form-control"
                             value={phone}
                             placeholder="Nhập số điện thoại"
+                            onChange={(e) => setPhone(e.target.value)}
                           />
                         </div>
                         <div className="form-group">
                           <label htmlFor="phone">Địa chỉ</label>
                           <input
                             type="text"
-                            disabled
                             className="form-control"
-                            value={address}
-                            placeholder="Nhập số điện thoại"
+                            value={street}
+                            placeholder="Nhập số dia chi "
+                            onChange={(e) => setStreet(e.target.value)}
                           />
                         </div>
                         <div className=" form-group">
@@ -273,15 +254,6 @@ const Checkout = () => {
                             ))}
                           </select>
                         </div>
-
-                        {/* <div className=" form-group">
-                                                <label htmlFor="address">Địa chỉ</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    {...register("address")}
-                                                />
-                                            </div> */}
                       </div>
                     </div>
                   </div>
@@ -297,8 +269,8 @@ const Checkout = () => {
                       <h5 className="font-weight-medium mb-3">Sản phẩm</h5>
                       {carts.map((item) => (
                         <div className="d-flex justify-content-between">
-                          <p>{item.productId.name}</p>
-                          <p>{formatPrice(item.productId.price)}</p>
+                          <p>{item.name}/{item.variants.color}/{item.variants.capacity}</p>
+                          <p>{formatPrice(item.variants.price)}</p>
                           <p>{item.quantity}</p>
                         </div>
                       ))}
@@ -316,7 +288,7 @@ const Checkout = () => {
                       <div className="d-flex justify-content-between mt-2">
                         <h5 className="font-weight-bold">Tổng</h5>
                         <h5 className="font-weight-bold">
-                          {formatPrice(totalPrice)}
+                          {formatPrice(totalAmount)}
                         </h5>
                       </div>
                     </div>
@@ -397,3 +369,7 @@ const Checkout = () => {
 };
 
 export default Checkout;
+
+
+
+

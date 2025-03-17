@@ -2,10 +2,11 @@ import { http } from "../config/axios";
 import { User } from "./auth";
 import { Carts } from "./cart";
 
+
 export type IShippingAddress = {
-  // fullName: string;
-  // phone: string;
-  // address: string;
+  name: string;
+  phone: string;
+  street: string;
   ward: string;
   district: string;
   city: string;
@@ -13,20 +14,19 @@ export type IShippingAddress = {
 export type Order = {
   _id: string;
   userId: User;
-  orderItems: Carts[];
+  items: Carts[];
   shippingAddress: IShippingAddress;
   paymentMethod: "COD" | "Credit Card" | "Bank Transfer";
   paymentStatus: "Chưa thanh toán" | "Đã thanh toán";
-  totalPrice: number;
-  orderStatus:
-    | "Chưa xác nhận"
-    | "Đã xác nhận"
-    | "Đang giao hàng"
-    | "Đã giao hàng"
-    | "Hoàn thành"
-    | "Đã huỷ";
-  cancellationReason?: string;
-  cancelledByAdmin?: string;
+  totalAmount: number;
+  status:
+  | "Chưa xác nhận"
+  | "Đã xác nhận"
+  | "Đang giao hàng"
+  | "Đã giao hàng"
+  | "Hoàn thành"
+  | "Đã huỷ";
+  cancelReason: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -63,7 +63,7 @@ export const getDetailOrder = (orderId: string) => {
 };
 export const updateStatusOrder = (
   orderId: string,
-  orderStatus: Order["orderStatus"],
+  orderStatus: Order["status"],
   cancellationReason: string
 ) => {
   return http.put(`/order/${orderId}`, { orderStatus, cancellationReason });

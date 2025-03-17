@@ -37,18 +37,18 @@ const orderSchema = new mongoose.Schema(
     shippingAddress: {
       name: {
         type: String,
-        required: true,
+        // required: true,
         maxlength: 100, // Tên người nhận hàng
         trim: true,
       },
       phone: {
         type: String,
-        required: true,
+        // required: true,
         match: [/^[0-9]{10,15}$/, "Số điện thoại phải từ 10 đến 15 chữ số"], // Số điện thoại
       },
       street: {
         type: String,
-        required: true,
+        // required: true,
         maxlength: 255, // Địa chỉ cụ thể (số nhà, đường)
         trim: true,
       },
