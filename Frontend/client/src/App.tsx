@@ -26,6 +26,8 @@ import DetailAdminProduct from "./pages/Admin/Product/DetailAdminProduct";
 import ProductPage from "./pages/Client/ProductPage";
 import Checkout from "./pages/Client/Checkout";
 import Login from "./pages/Client/Login";
+import ListColor from "./pages/Admin/Colors/ListColor";
+import AddColor from "./pages/Admin/Colors/AddColor";
 function App() {
   const routes = useRoutes([
     {
@@ -60,7 +62,9 @@ function App() {
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
         { path: "/admin/order", element: <Orders /> },
-        { path: "/admin/order/:id", element: <OrderDetail /> }
+        { path: "/admin/order/:id", element: <OrderDetail /> },
+        { path: "/admin/color", element: <ListColor /> },
+        { path: "/admin/color/add", element: <AddColor /> }
       ],
     },
   ]);
