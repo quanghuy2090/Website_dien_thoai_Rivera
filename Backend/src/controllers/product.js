@@ -110,13 +110,13 @@ export const createProduct = async (req, res) => {
       // Kiểm tra color
       const color = await Color.findById(variant.color);
       if (!color) {
-        variantErrors.push(`Color ID "${variant.color}" không tồn tại`);
+        variantErrors.push(`Color không tồn tại`);
       }
 
       // Kiểm tra capacity
       const capacity = await Capacity.findById(variant.capacity);
       if (!capacity) {
-        variantErrors.push(`Capacity ID "${variant.capacity}" không tồn tại`);
+        variantErrors.push(`Capacity không tồn tại`);
       }
 
       // Nếu không có lỗi, sinh SKU tự động
