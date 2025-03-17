@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { CategoryProvider } from "./context/CategoryContext.tsx";
 import { ProductProvider } from "./context/ProductContext.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
+import { ColorProvider } from "./context/ColorContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -12,7 +13,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <CategoryProvider>
         <ProductProvider>
           <AuthProvider>
+            <ColorProvider>
             <App />
+            </ColorProvider>
           </AuthProvider>
         </ProductProvider>
       </CategoryProvider>
