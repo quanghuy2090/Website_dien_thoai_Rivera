@@ -74,9 +74,9 @@ const ListDetailCategory = () => {
                                     {product.variants.map((variant, index) => (
                                       <tr key={index}>
                                         <th>Color</th>
-                                        <td>{variant.color}</td>
+                                        <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
                                         <th>Capacity</th>
-                                        <td>{variant.capacity}</td>
+                                        <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"} </td>
                                         <th>Price</th>
                                         <td>{variant.price}</td>
                                         <th>Stock</th>

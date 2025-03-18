@@ -23,7 +23,13 @@ export const getAll = async (req, res) => {
 };
 export const getDetail = async (req, res) => {
   try {
-    const data = await Category.findById(req.params.id).populate("products");
+    const data = await Category.findById(req.params.id).populate({
+      path: "products",
+      populate: [
+        { path: "variants.color" },   // Populate color trong variants
+        { path: "variants.capacity" } // Populate capacity trong variants
+      ],
+    });
 
     if (!data) {
       return res.status(404).json({

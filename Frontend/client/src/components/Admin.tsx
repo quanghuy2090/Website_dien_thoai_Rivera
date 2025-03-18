@@ -66,11 +66,15 @@ const Admin = () => {
             <i className="fa-solid fa-palette"></i>
             Màu sắc
           </a>
+          <a className="nav-link d-flex align-items-center" href="/admin/capacity">
+            <i className="fa-solid fa-microchip"></i>
+            Bộ nhớ
+          </a>
           <a
             className="nav-link d-flex align-items-center"
             href="/admin/category"
           >
-            <i className="fas fa-list mr-2"></i>
+            <i className="fa-solid fa-list"></i>
             Danh mục
           </a>
           <a

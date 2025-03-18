@@ -52,7 +52,7 @@ const ListProduct = () => {
             />
           </div>
         </div>
-        <Link to={`/admin/products/add`} className="btn btn-primary">
+        <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
           <IoMdAdd />
         </Link>
         <table className="table table-bordered">
@@ -124,8 +124,8 @@ const ListProduct = () => {
                     <tbody>
                       {product.variants.map((v, index) => (
                         <tr key={index}>
-                          <td>{v.capacity}</td>
-                          <td>{v.color}</td>
+                          <td>{v.color && typeof v.color === "object" ? v.color.name : v.color ?? "Không xác định"}</td>
+                          <td>{v.capacity && typeof v.capacity === "object" ? v.capacity.value : v.capacity ?? "Không xác định"}</td>
                           <td>{v.price}</td>
                           <td>{v.stock}</td>
                           <td>{v.sku}</td>
