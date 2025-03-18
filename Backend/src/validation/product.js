@@ -29,6 +29,11 @@ const variantValidation = Joi.object({
     "number.min": "Giá sản phẩm không thể nhỏ hơn 1.",
     "number.base": "Giá sản phẩm phải là số.",
   }),
+  sale: Joi.number().min(0).max(100).default(0).required().messages({
+    "number.min": "Sale phải lớn hơn hoặc bằng 0",
+    "number.max": "Sale phải nhỏ hơn hoặc bằng 100",
+    "any.required": "Sale là bắt buộc",
+  }),
   stock: Joi.number().integer().min(0).required().messages({
     "number.base": "Stock phải là một số.",
     "number.min": "Stock không được nhỏ hơn 0.",
