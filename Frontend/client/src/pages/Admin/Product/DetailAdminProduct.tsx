@@ -73,9 +73,9 @@ const DetailAdminProduct = () => {
                     <tbody>
                       {state.selectedProduct?.variants.map((variant, index) => (
                         <tr key={index}>
-                          <td>{variant.color}</td>
+                          <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
                           <td>{variant.price}</td>
-                          <td>{variant.capacity}</td>
+                          <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"}</td>
                           <td>{variant.stock}</td>
                           <td>{variant.sku}</td>
                         </tr>

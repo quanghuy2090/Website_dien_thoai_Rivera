@@ -3,6 +3,7 @@ import { ColorContext } from "../../../context/ColorContext";
 import { Link } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
+import { FaPen } from "react-icons/fa";
 const ListColor = () => {
   // const { state } = useContext(ColorContext);
   const { state, removeColor } = useContext(ColorContext);
@@ -50,7 +51,8 @@ const ListColor = () => {
 
                     <MdDelete />
                   </button>
-                  <button className="btn btn-warning">Sửa</button>
+
+                  <Link to={`/admin/color/update/${color._id}`} className="btn btn-warning">  <FaPen /></Link>
                 </td>
               </tr>
             ))}

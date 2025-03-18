@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { addColors, Color, deleteColors, getColors } from "../services/color";
+import { addColors, Color, deleteColors, getColors, getColorsById, updateColors } from "../services/color";
 import ColorReducer from "../reducers/ColorReducer";
 import { useEffect, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,8 @@ type ColorContextType = {
   state: { colors: Color[]; selectedColor?: Color };
   createColor: (color: Color) => void;
   removeColor: (_id: string) => void;
+  updateColor: (_id: string, color: Color) => void;
+  getDetailColor: (_id: string) => void;
 };
 
 export const ColorContext = createContext({} as ColorContextType);
@@ -52,8 +54,27 @@ export const ColorProvider = ({ children }: Children) => {
       toast.error("Xóa màu thất bại");
     }
   };
+  const updateColor = async (_id: string, color: Color) => {
+    try {
+      const { data } = await updateColors(_id, color)
+      dispatch({ type: "UPDATE_COLORS", payload: data.data })
+      nav("/admin/color");
+      toast.success("Sửa màu thành công")
+    } catch (error) {
+      console.log(error);
+      toast.error("Sửa màu thất bại")
+    }
+  }
+  const getDetailColor = async (_id: string) => {
+    try {
+      const { data } = await getColorsById(_id);
+      dispatch({ type: "SET_SELECTED_COLOR", payload: data.data })
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
-    <ColorContext.Provider value={{ state, createColor, removeColor }}>
+    <ColorContext.Provider value={{ state, createColor, removeColor, updateColor, getDetailColor }}>
       {children}
     </ColorContext.Provider>
   );

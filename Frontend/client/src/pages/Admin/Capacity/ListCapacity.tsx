@@ -3,6 +3,7 @@ import { IoMdAdd } from 'react-icons/io'
 import { Link } from 'react-router-dom'
 import { CapacityContext } from '../../../context/CapacityContext'
 import { MdDelete } from 'react-icons/md'
+import { FaPen } from 'react-icons/fa'
 
 const ListCapacity = () => {
     const { states, removeCapacity } = useContext(CapacityContext);
@@ -49,6 +50,7 @@ const ListCapacity = () => {
 
                                         <MdDelete />
                                     </button>
+                                    <Link to={`/admin/capacity/update/${capacity._id}`} className="btn btn-warning">  <FaPen /></Link>
                                 </td>
                             </tr>
                         ))}

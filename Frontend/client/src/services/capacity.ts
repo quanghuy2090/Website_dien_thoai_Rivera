@@ -16,3 +16,9 @@ export const addCapacity = async (capacity: Capacity) => {
 export const deleteCapacity = async (_id: string) => {
     return http.delete("/capacity/" + _id);
 }
+export const getCapacityById = async (_id: string) => {
+    return http.get("/capacity/" + _id);
+}
+export const updateCapacity = async (_id: string, capacity: Capacity) => {
+    return http.put("/capacity/" + _id, capacity);
+}
