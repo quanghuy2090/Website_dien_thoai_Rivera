@@ -296,8 +296,10 @@ export const updateProduct = async (req, res) => {
 
 export const removeProduct = async (req, res) => {
   try {
+    const { id } = req.params; // Lấy ID từ params
+
     // Tìm sản phẩm trước khi xóa
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({
         message: "Sản phẩm không tồn tại",
@@ -306,27 +308,21 @@ export const removeProduct = async (req, res) => {
 
     // Xóa sản phẩm khỏi danh mục (nếu có categoryId)
     if (product.categoryId) {
-      const category = await Category.findByIdAndUpdate(
+      const updatedCategory = await Category.findByIdAndUpdate(
         product.categoryId,
-        {
-          $pull: { products: product._id }, // Xóa product._id khỏi mảng products
-        },
-        { new: true }
+        { $pull: { products: product._id } }, // Xóa product._id khỏi mảng products
+        { new: true } // Trả về document sau khi cập nhật
       );
-      if (!category) {
-        return res.status(404).json({
-          message: "Không tìm thấy danh mục liên quan để cập nhật",
-        });
+
+      // Nếu danh mục không tồn tại, ghi nhận nhưng không chặn quá trình xóa sản phẩm
+      if (!updatedCategory) {
+        console.warn(`Danh mục ${product.categoryId} không tồn tại để cập nhật`);
       }
     }
 
     // Xóa sản phẩm
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-    if (!deletedProduct) {
-      return res.status(404).json({
-        message: "Xóa sản phẩm không thành công",
-      });
-    }
+    const deletedProduct = await Product.findByIdAndDelete(id);
+    // Không cần kiểm tra deletedProduct vì đã kiểm tra product trước đó
 
     return res.status(200).json({
       message: "Xóa sản phẩm thành công",
@@ -334,7 +330,57 @@ export const removeProduct = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      message: error.message,
+      message: error.message || "Đã xảy ra lỗi khi xóa sản phẩm",
+    });
+  }
+};
+export const statusProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Kiểm tra trạng thái đầu vào
+    if (!status || !["active", "banned"].includes(status)) {
+      return res.status(400).json({
+        message: "Trạng thái không hợp lệ. Chỉ chấp nhận 'active' hoặc 'banned'",
+      });
+    }
+
+    // Tìm sản phẩm
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        message: "Sản phẩm không tồn tại",
+      });
+    }
+
+    // Kiểm tra nếu trạng thái không thay đổi
+    if (product.status === status) {
+      return res.status(400).json({
+        message: `Sản phẩm đã ở trạng thái "${status}"`,
+      });
+    }
+
+    // Cập nhật trạng thái sản phẩm
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { $set: { status } },
+      { new: true, runValidators: true } // Trả về document mới và chạy validation
+    );
+
+    if (!updatedProduct) {
+      return res.status(500).json({
+        message: "Cập nhật trạng thái sản phẩm không thành công",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Chuyển trạng thái sản phẩm thành công",
+      data: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Đã xảy ra lỗi khi chuyển trạng thái sản phẩm",
     });
   }
 };
