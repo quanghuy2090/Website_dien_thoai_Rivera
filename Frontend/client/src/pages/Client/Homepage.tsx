@@ -30,7 +30,9 @@ const HomePage = () => {
         return createdAtDate >= oneMonthAgo;
       });
 
-      const bestSellingProducts = allProducts.filter((product: Product) => product.is_hot === "yes");
+      const bestSellingProducts = allProducts.filter(
+        (product: Product) => product.is_hot === "yes"
+      );
 
       setNewProducts(recentProducts);
       setHotProducts(bestSellingProducts);
@@ -40,7 +42,9 @@ const HomePage = () => {
   const addToCart = async (product: Product) => {
     try {
       // Lấy thông tin user từ localStorage
-      const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
+      const user = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user")!)
+        : null;
 
       if (!user || !user._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
@@ -75,14 +79,11 @@ const HomePage = () => {
 
       // Thông báo thành công
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-
-
     } catch (error) {
       // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
       toast.error("Thêm sản phẩm thất bại!");
     }
   };
-
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -162,11 +163,14 @@ const HomePage = () => {
                       <div className="product-label">
                         <span className="new">NEW</span>
                       </div>
+                      <div className="product-label2">
+                        <span className="new">{product.variants[0].sale}%</span>
+                      </div>
                     </div>
                     <div className="product-body">
                       <p className="product-category">
                         {typeof product.categoryId === "object" &&
-                          product.categoryId !== null
+                        product.categoryId !== null
                           ? product.categoryId.name
                           : product.categoryId}
                       </p>
@@ -177,7 +181,14 @@ const HomePage = () => {
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {formatPrice(product.variants[0].price)}
+                          {formatPrice(product.variants[0].salePrice)}
+                          <br />
+                          {product.variants[0]?.salePrice !==
+                            product.variants[0]?.price && (
+                            <del className="product-old-price">
+                              {formatPrice(product.variants[0]?.price ?? 0)}
+                            </del>
+                          )}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
@@ -266,11 +277,14 @@ const HomePage = () => {
                       <div className="product-label">
                         <span className="new">HOT</span>
                       </div>
+                      <div className="product-label2">
+                        <span className="new">{product.variants[0].sale}%</span>
+                      </div>
                     </div>
                     <div className="product-body">
                       <p className="product-category">
                         {typeof product.categoryId === "object" &&
-                          product.categoryId !== null
+                        product.categoryId !== null
                           ? product.categoryId.name
                           : product.categoryId}
                       </p>
@@ -281,7 +295,14 @@ const HomePage = () => {
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {formatPrice(product.variants[0].price)}
+                          {formatPrice(product.variants[0].salePrice)}
+                          <br />
+                          {product.variants[0]?.salePrice !==
+                            product.variants[0]?.price && (
+                            <del className="product-old-price">
+                              {formatPrice(product.variants[0]?.price ?? 0)}
+                            </del>
+                          )}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">

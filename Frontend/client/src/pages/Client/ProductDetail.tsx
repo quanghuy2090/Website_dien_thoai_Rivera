@@ -96,7 +96,8 @@ const ProductDetail = () => {
         return;
       }
 
-      const selectedProduct = relatedProducts.find(p => p._id === productId) || product;
+      const selectedProduct =
+        relatedProducts.find((p) => p._id === productId) || product;
 
       if (!selectedProduct) {
         toast.error("Không tìm thấy sản phẩm!");
@@ -122,7 +123,6 @@ const ProductDetail = () => {
       toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
     }
   };
-
 
   // Pagination logic
 
@@ -215,31 +215,54 @@ const ProductDetail = () => {
                   {product?.variants.map((variant, index) => (
                     <button
                       key={index}
-                      className={`variant-btn ${variant === selectedVariant ? "active" : ""
-                        }`}
+                      className={`variant-btn ${
+                        variant === selectedVariant ? "active" : ""
+                      }`}
                       onClick={() => handleVariantChange(variant)}
                     >
-                      {typeof variant.color === 'string' ? variant.color : variant.color.name} - {typeof variant.capacity === 'string' ? variant.capacity : variant.capacity.value}
+                      {typeof variant.color === "string"
+                        ? variant.color
+                        : variant.color.name}{" "}
+                      -{" "}
+                      {typeof variant.capacity === "string"
+                        ? variant.capacity
+                        : variant.capacity.value}
                     </button>
                   ))}
                 </div>
-                <h2 className="h3 font-weight-bold mb-2">
-                  {formatPrice(selectedVariant?.price ?? 0)}
+                <h2 className="h3 font-weight-bold mb-2 product-price">
+                  {formatPrice(selectedVariant?.salePrice ?? 0)}
+                  <br />
+                  {selectedVariant?.salePrice !== selectedVariant?.price && (
+                    <del className="product-old-price">
+                      {formatPrice(selectedVariant?.price ?? 0)}
+                    </del>
+                  )}
                 </h2>
                 <div
-                  className={`font-weight-bold mb-4 ${selectedVariant?.stock > 0 ? "text-success" : "text-danger"
-                    }`}
+                  className={`font-weight-bold mb-4 ${
+                    selectedVariant?.stock > 0 ? "text-success" : "text-danger"
+                  }`}
                 >
-                  {selectedVariant?.stock > 0 ? "IN STOCK" : "OUT OF STOCK"}: {selectedVariant?.stock}
+                  {selectedVariant?.stock > 0 ? "IN STOCK" : "OUT OF STOCK"}:{" "}
+                  {selectedVariant?.stock}
                 </div>
                 <div className="product-options">
                   <label>
                     Dung lượng:{" "}
-                    <span className="ms-2">{typeof selectedVariant?.capacity === 'string' ? selectedVariant.capacity : selectedVariant?.capacity.value}</span>
+                    <span className="ms-2">
+                      {typeof selectedVariant?.capacity === "string"
+                        ? selectedVariant.capacity
+                        : selectedVariant?.capacity.value}
+                    </span>
                   </label>
                   <label>
                     Màu sắc:{" "}
-                    <span className="ms-2">{typeof selectedVariant?.color === 'string' ? selectedVariant.color : selectedVariant?.color.name}</span>
+                    <span className="ms-2">
+                      {typeof selectedVariant?.color === "string"
+                        ? selectedVariant.color
+                        : selectedVariant?.color.name}
+                    </span>
                   </label>
                 </div>
 
@@ -286,8 +309,9 @@ const ProductDetail = () => {
                   {/* Tab 1: Description */}
                   <div
                     id="tab01"
-                    className={`tab-pane ${activeTab === "tab01" ? "active" : "fade"
-                      }`}
+                    className={`tab-pane ${
+                      activeTab === "tab01" ? "active" : "fade"
+                    }`}
                   >
                     <div className="row">
                       <div className="col-md-12">
@@ -299,8 +323,9 @@ const ProductDetail = () => {
                   {/* Tab 2: Details */}
                   <div
                     id="tab02"
-                    className={`tab-pane ${activeTab === "tab02" ? "active" : "fade"
-                      }`}
+                    className={`tab-pane ${
+                      activeTab === "tab02" ? "active" : "fade"
+                    }`}
                   >
                     <div className="row">
                       <div className="col-md-12">
@@ -312,8 +337,9 @@ const ProductDetail = () => {
                   {/* Tab 3: Reviews */}
                   <div
                     id="tab03"
-                    className={`tab-pane ${activeTab === "tab03" ? "active" : "fade"
-                      }`}
+                    className={`tab-pane ${
+                      activeTab === "tab03" ? "active" : "fade"
+                    }`}
                   >
                     <div className="row">
                       {/* Rating */}
