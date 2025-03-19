@@ -23,11 +23,13 @@ const productSchema = z.object({
   variants: z
     .array(
       z.object({
+
         color: z.string().min(1, "Màu sắc không được để trống"),
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
         sku: z.string().nonempty("SKU không được để trống"), // Bắt buộc SKU phải có giá trị
+        sale: z.number().max(100, "sale max 100%"),
       })
     )
     .min(1, "Cần ít nhất 1 biến thể"),
@@ -48,7 +50,7 @@ const UpdateProduct = () => {
       long_description: "",
       images: [],
       categoryId: "",
-      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "" }],
+      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "", sale: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -144,13 +146,13 @@ const UpdateProduct = () => {
             capacity: typeof v.capacity === "object" ? v.capacity._id : v.capacity,
             sku: v.sku && v.sku !== "null" ? v.sku : `SKU-${Date.now()}`
           }))
-          : [{ color: "", capacity: "", price: 1, stock: 0, sku: `SKU-${Date.now()}` }]
+          : [{ color: "", capacity: "", price: 1, stock: 0, sku: `SKU-${Date.now()}`, sale: 0 }]
       });
 
 
 
     })();
-  }, []);
+  }, [id, reset]);
 
   const onSubmit = async (product: Product) => {
     try {
@@ -346,6 +348,22 @@ const UpdateProduct = () => {
                       )}
                     </div>
                     <div className="col-md-4">
+                      <label className="fw-bold">Giá sale</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        {...register(`variants.${index}.sale`, {
+                          required: true,
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {errors.variants?.[index]?.sale && (
+                        <p className="tex-danger">
+                          {errors.variants[index]?.sale?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="col-md-4">
                       <label className="fw-bold">Stock</label>
                       <input
                         type="number"
@@ -396,7 +414,8 @@ const UpdateProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: `SKU-${Date.now()}`
+                    sku: `SKU-${Date.now()}`,
+                    sale: 0,
                   })
                 }
               >

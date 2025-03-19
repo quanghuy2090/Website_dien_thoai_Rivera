@@ -13,6 +13,8 @@ export type Variants = {
   price: number;
   stock: number;
   sku: string;
+  sale: number;
+  salePrice: number;
 }
 export type Product = {
   _id: string;
@@ -24,6 +26,7 @@ export type Product = {
   categoryId?: string | Category; // Hỗ trợ cả string và object
   createdAt: Date;
   is_hot: string;
+  status: string;
 };
 
 
@@ -49,5 +52,8 @@ export const searchProduct = async (name: string) => {
   } catch (error) {
     console.log(error)
   }
+};
+export const updateProductStatus = async (_id: string, status: string) => {
+  return http.put(`/product/status/${_id}`, { status })
 }
 

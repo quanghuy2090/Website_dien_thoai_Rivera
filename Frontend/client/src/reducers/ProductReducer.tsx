@@ -2,7 +2,7 @@ import { Product } from "../services/product"
 type State = {
     products: Product[];
     selectedProduct?: Product
-    // searchResults: Product[]
+
 }
 type Action =
     | { type: "GET_PRODUCTS"; payload: Product[] }
@@ -10,7 +10,7 @@ type Action =
     | { type: "REMOVE_PRODUCTS"; payload: string }
     | { type: "UPDATE_PRODUCTS"; payload: Product }
     | { type: "SET_SELECTED_PRODUCTS"; payload: Product | undefined }
-// | { type: "SEARCH_PRODUCTS"; payload: Product[] }
+    | { type: "UPDATE_STATUS"; payload: { _id: string, status: string } }
 
 const ProductReducer = (state: State, action: Action): State => {
     switch (action.type) {
@@ -52,11 +52,23 @@ const ProductReducer = (state: State, action: Action): State => {
             return {
                 ...state, selectedProduct: action.payload
             };
-        // case "SEARCH_PRODUCTS":
-        //     return {
-        //         ...state,
-        //         searchResults: action.payload
-        //     }
+        case "UPDATE_STATUS":
+            return {
+                ...state,
+                selectedProduct: state.selectedProduct
+                    ? {
+                        ...state.selectedProduct,
+                        status: action.payload.status,
+                    }
+                    : undefined,
+
+                products: state.products.map((product) =>
+                    product._id === action.payload._id
+                        ? { ...product, status: action.payload.status }
+                        : product
+                ),
+            };
+
         default:
             return state;
     }

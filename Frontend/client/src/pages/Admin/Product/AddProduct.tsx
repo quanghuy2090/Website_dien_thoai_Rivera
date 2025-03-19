@@ -26,6 +26,7 @@ const productSchema = z.object({
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
         sku: z.string().optional(),
+        sale: z.number().max(100, "sale max 100%"),
       })
     )
     .min(1, "Cần ít nhất 1 biến thể"),
@@ -44,7 +45,7 @@ const AddProduct = () => {
       long_description: "",
       images: [],
       categoryId: "",
-      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "" }],
+      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "", sale: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -293,6 +294,22 @@ const AddProduct = () => {
                       )}
                     </div>
                     <div className="col-md-4">
+                      <label className="fw-bold">Giá sale</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        {...register(`variants.${index}.sale`, {
+                          required: true,
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {errors.variants?.[index]?.sale && (
+                        <p className="tex-danger">
+                          {errors.variants[index]?.sale?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="col-md-4">
                       <label className="fw-bold">Stock</label>
                       <input
                         type="number"
@@ -343,7 +360,8 @@ const AddProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: `SKU-${Date.now()}`
+                    sku: `SKU-${Date.now()}`,
+                    sale: 0,
                   })
                 }
               >
