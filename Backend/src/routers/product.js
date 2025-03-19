@@ -3,6 +3,7 @@ import {
   createProduct,
   getAllProduct,
   getDetailProduct,
+  isHotProduct,
   removeProduct,
   searchProductByName,
   statusProduct,
