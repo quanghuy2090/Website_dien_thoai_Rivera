@@ -301,10 +301,9 @@ export const updateProduct = async (req, res) => {
       product.categoryId = updateData.categoryId; // Cập nhật categoryId
     }
 
-    // Nếu cập nhật variants, xử lý giữ biến thể cũ và thêm biến thể mới
+    // Nếu cập nhật variants, xóa toàn bộ biến thể cũ và thay bằng biến thể mới
     if (updateData.variants) {
       const variantErrors = [];
-      const existingVariants = product.variants || [];
 
       // Kiểm tra trùng lặp trong dữ liệu gửi lên
       const seenNewVariants = new Set();
@@ -371,28 +370,8 @@ export const updateProduct = async (req, res) => {
         });
       }
 
-      // Gộp biến thể cũ và mới: giữ tất cả biến thể cũ, chỉ cập nhật hoặc thêm mới
-      const updatedVariants = [...existingVariants]; // Sao chép toàn bộ biến thể cũ
-      preparedVariants.forEach((newVariant) => {
-        const variantKey = `${newVariant.color}-${newVariant.capacity}`;
-        const existingIndex = updatedVariants.findIndex(
-          (v) => `${v.color}-${v.capacity}` === variantKey
-        );
-
-        if (existingIndex >= 0) {
-          // Nếu biến thể đã tồn tại, cập nhật thông tin
-          updatedVariants[existingIndex].price = newVariant.price;
-          updatedVariants[existingIndex].sale = newVariant.sale;
-          updatedVariants[existingIndex].stock = newVariant.stock;
-          updatedVariants[existingIndex].sku = newVariant.sku;
-        } else {
-          // Nếu không trùng, thêm biến thể mới
-          updatedVariants.push(newVariant);
-        }
-      });
-
-      // Gán lại variants cho product
-      product.variants = updatedVariants;
+      // Thay thế toàn bộ variants cũ bằng variants mới
+      product.variants = preparedVariants;
     }
 
     // Lưu sản phẩm để chạy middleware pre('save')
