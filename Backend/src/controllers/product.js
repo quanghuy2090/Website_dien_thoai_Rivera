@@ -6,11 +6,21 @@ import Capacity from "../models/Capacity.js";
 
 export const getAllProduct = async (req, res) => {
   try {
-    // Lấy tất cả sản phẩm và populate categoryId
     const products = await Product.find()
-      .populate("categoryId")
-      .populate("variants.color", "name")
-      .populate("variants.capacity", "value");
+      .populate({
+        path: "categoryId",
+        select: "name",
+      })
+      .populate({
+        path: "variants.color",
+        select: "name",
+      })
+      .populate({
+        path: "variants.capacity",
+        select: "value",
+      })
+      .lean();
+
     // Kiểm tra nếu không có sản phẩm
     if (!products || products.length === 0) {
       return res.status(404).json({
@@ -26,35 +36,70 @@ export const getAllProduct = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: error.message || "Đã xảy ra lỗi khi lấy danh sách sản phẩm",
+      error: error.message,
     });
   }
 };
 
 export const getDetailProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id)
-      .populate("categoryId")
-      .populate("variants.color", "name")
-      .populate("variants.capacity", "value");
+    // Lấy ID từ params
+    const { id } = req.params;
+
+    // Tìm sản phẩm theo ID và populate các trường liên quan
+    const product = await Product.findById(id)
+      .populate({
+        path: "categoryId",
+        select: "name",
+      })
+      .populate({
+        path: "variants.color",
+        select: "name",
+      })
+      .populate({
+        path: "variants.capacity",
+        select: "value",
+      })
+      .lean();
+
+    // Kiểm tra nếu không tìm thấy sản phẩm
     if (!product) {
       return res.status(404).json({
-        message: "Khong co san pham",
+        message: "Không tìm thấy sản phẩm",
       });
     }
-    // Tìm sản phẩm liên quan, chỉ lấy các trường cần thiết
+
+    // Tìm sản phẩm liên quan, lấy tất cả thông tin
     const relatedProducts = await Product.find({
       categoryId: product.categoryId,
       _id: { $ne: product._id },
       status: "active",
-    }).limit(5);
+    })
+      .populate({
+        path: "categoryId",
+        select: "name",
+      })
+      .populate({
+        path: "variants.color",
+        select: "name",
+      })
+      .populate({
+        path: "variants.capacity",
+        select: "value",
+      })
+      .limit(5)
+      .lean();
+
+    // Trả về kết quả
     return res.status(200).json({
-      message: "Lay chi tiet san pham thanh cong!",
+      message: "Lấy chi tiết sản phẩm thành công",
       data: product,
       relatedProducts,
     });
   } catch (error) {
     return res.status(500).json({
-      message: error,
+      message: error.message || "Đã xảy ra lỗi khi lấy chi tiết sản phẩm",
+      error: error.message,
     });
   }
 };
@@ -366,36 +411,33 @@ export const updateProduct = async (req, res) => {
 
 export const removeProduct = async (req, res) => {
   try {
-    const { id } = req.params; // Lấy ID từ params
+    const { id } = req.params;
 
-    // Tìm sản phẩm trước khi xóa
-    const product = await Product.findById(id);
-    if (!product) {
+    // Tìm và xóa sản phẩm trong một bước
+    const deletedProduct = await Product.findByIdAndDelete(id);
+    if (!deletedProduct) {
       return res.status(404).json({
         message: "Sản phẩm không tồn tại",
       });
     }
 
-    // Xóa sản phẩm khỏi danh mục (nếu có categoryId)
-    if (product.categoryId) {
+    // Nếu sản phẩm có categoryId, cập nhật danh mục
+    if (deletedProduct.categoryId) {
       const updatedCategory = await Category.findByIdAndUpdate(
-        product.categoryId,
-        { $pull: { products: product._id } }, // Xóa product._id khỏi mảng products
+        deletedProduct.categoryId,
+        { $pull: { products: deletedProduct._id } }, // Xóa product._id khỏi mảng products trong Category
         { new: true } // Trả về document sau khi cập nhật
       );
 
-      // Nếu danh mục không tồn tại, ghi nhận nhưng không chặn quá trình xóa sản phẩm
+      // Ghi nhận nếu danh mục không tồn tại, nhưng không làm gián đoạn quá trình
       if (!updatedCategory) {
         console.warn(
-          `Danh mục ${product.categoryId} không tồn tại để cập nhật`
+          `Danh mục ${deletedProduct.categoryId} không tồn tại để cập nhật`
         );
       }
     }
 
-    // Xóa sản phẩm
-    const deletedProduct = await Product.findByIdAndDelete(id);
-    // Không cần kiểm tra deletedProduct vì đã kiểm tra product trước đó
-
+    // Trả về kết quả thành công
     return res.status(200).json({
       message: "Xóa sản phẩm thành công",
       data: deletedProduct,
@@ -403,9 +445,11 @@ export const removeProduct = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: error.message || "Đã xảy ra lỗi khi xóa sản phẩm",
+      error: error.message, // Thêm chi tiết lỗi để debug
     });
   }
 };
+
 
 export const statusProduct = async (req, res) => {
   try {
@@ -465,7 +509,7 @@ export const searchProductByName = async (req, res) => {
     const { name } = req.body; //nhap tu khoa va kiem tra da nhap chua
     if (!name) {
       return res.status(400).json({
-        message: "Ban can phai nhap ten san pham can tim",
+        message: "Nhập tên sản phẩm!",
       });
     }
     //tim kiem name
@@ -475,18 +519,18 @@ export const searchProductByName = async (req, res) => {
     //neu khong co san pham ton tai
     if (products.length === 0) {
       return res.status(404).json({
-        message: "Khong tim thay san pham",
+        message: "Không tìm thấy sản phẩm!",
       });
     }
 
     //tim thay thi in ra
     res.status(200).json({
-      message: "tim thay san pham",
+      message: "Tìm kiếm sản phẩm thành công!",
       data: products,
     });
   } catch (error) {
     res.status(500).json({
-      message: "Da say ra loi khi tim kiem san pham",
+      message: "Lỗi khi tìm kiếm sản phẩm!",
       error: error.message,
     });
   }
