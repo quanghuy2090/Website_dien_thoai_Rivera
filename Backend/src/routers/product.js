@@ -18,7 +18,6 @@ routerProduct.post("/", checkAdminPermission, createProduct);
 routerProduct.put("/:id", checkAdminPermission, updateProduct);
 routerProduct.delete("/:id", checkAdminPermission, removeProduct);
 routerProduct.put("/status/:id", checkAdminPermission, statusProduct);
-
 // tim kiem san pham
 routerProduct.post("/search", searchProductByName);
 

@@ -13,6 +13,9 @@ const ListProduct = () => {
   const filteredProducts = state.products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const formatPrice = (price: number) => {
+    return price.toLocaleString("vi-VN") + " VND";
+  };
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -65,6 +68,7 @@ const ListProduct = () => {
               <th>Ảnh</th>
               <th>Biến thể</th>
               <th>Danh mục</th>
+              <th>Trạng thái</th>
               <th>Tùy chọn</th>
             </tr>
           </thead>
@@ -117,6 +121,8 @@ const ListProduct = () => {
                         <th>Bộ nhớ</th>
                         <th>Màu sắc</th>
                         <th>Giá</th>
+                        <th>Sale</th>
+                        <th>Giá Sale</th>
                         <th>Stock</th>
                         <th>SKU</th>
                       </tr>
@@ -126,7 +132,9 @@ const ListProduct = () => {
                         <tr key={index}>
                           <td>{v.color && typeof v.color === "object" ? v.color.name : v.color ?? "Không xác định"}</td>
                           <td>{v.capacity && typeof v.capacity === "object" ? v.capacity.value : v.capacity ?? "Không xác định"}</td>
-                          <td>{v.price}</td>
+                          <td>{formatPrice(v.price)}</td>
+                          <td>{v.sale}%</td>
+                          <td>{formatPrice(v.salePrice)}</td>
                           <td>{v.stock}</td>
                           <td>{v.sku}</td>
                         </tr>
@@ -142,6 +150,7 @@ const ListProduct = () => {
                     ? product.categoryId.name
                     : product.categoryId}
                 </td>
+                <td>{product.status}</td>
 
                 {/* Nút hành động */}
                 <td>
