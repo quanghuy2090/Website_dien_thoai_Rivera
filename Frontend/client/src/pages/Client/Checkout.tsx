@@ -15,7 +15,7 @@ import {
 } from "../../services/order";
 
 const Checkout = () => {
-  const { register, handleSubmit, setValue, watch, } = useForm<
+  const { register, handleSubmit, setValue, watch } = useForm<
     IShippingAddress & { paymentMethod: Order["paymentMethod"] }
   >({});
   const [carts, setCarts] = useState<Carts[]>([]);
@@ -94,7 +94,6 @@ const Checkout = () => {
     }
   };
 
-
   const onSubmit = async (
     formData: IShippingAddress & { paymentMethod: Order["paymentMethod"] }
   ) => {
@@ -132,10 +131,7 @@ const Checkout = () => {
     }
   };
   const formatPrice = (price: number) => {
-    if (price === undefined || price === null) {
-      return "0 VND"; // Return a default value if price is undefined
-    }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    return price.toLocaleString("vi-VN") + " VND";
   };
 
   return (
@@ -165,211 +161,251 @@ const Checkout = () => {
       {/* /BREADCRUMB */}
       <div>
         {/* Page Header End */}
-        {/* Checkout Start */}
-        <div className="container-fluid pt-5">
-          <div className="row px-xl-5">
+        {/* SECTION */}
+        <div className="section">
+          {/* container */}
+          <div className="container">
+            {/* row */}
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="row">
-                <div className="col-lg-8">
-                  <div className="mb-4">
-                    <h4 className="font-weight-semi-bold mb-4">
-                      Billing Address
-                    </h4>
-                    <div className="row">
-                      <div>
-                        <div className="form-group">
-                          <label htmlFor="userName">Người dùng</label>
-                          <input
-                            type="text"
+                <div className="col-md-7">
+                  {/* Billing Details */}
+                  <div className="billing-details">
+                    <div className="section-title">
+                      <h3 className="title">Thông tin thanh toán</h3>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="userName">Tên người dùng</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={name}
+                        placeholder="Nhập tên người dùng"
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="phone">Số điện thoại</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={phone}
+                        placeholder="Nhập số điện thoại"
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="street">Địa chỉ</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={street}
+                        placeholder="Nhập địa chỉ"
+                        onChange={(e) => setStreet(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="city">Tỉnh / Thành phố</label>
+                      <select className="input" {...register("city")}>
+                        <option value="">Chọn tỉnh / thành phố</option>
+                        {provinces.map((province) => (
+                          <option key={province.code} value={province.name}>
+                            {province.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                            className="form-control"
-                            value={name}
-                            placeholder="Nhập tên người dùng"
-                            onChange={(e) => setName(e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="phone">Số điện thoại</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={phone}
-                            placeholder="Nhập số điện thoại"
-                            onChange={(e) => setPhone(e.target.value)}
-                          />
-                        </div>
-                        <div className="form-group">
-                          <label htmlFor="phone">Địa chỉ</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            value={street}
-                            placeholder="Nhập số dia chi "
-                            onChange={(e) => setStreet(e.target.value)}
-                          />
-                        </div>
-                        <div className=" form-group">
-                          <label htmlFor="city">Tỉnh / Thành phố</label>
-                          <select
-                            className="form-control"
-                            {...register("city")}
-                          >
-                            <option value="">Chọn tỉnh / thành phố</option>
-                            {provinces.map((province) => (
-                              <option key={province.code} value={province.name}>
-                                {province.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                    <div className=" form-group">
+                      <label htmlFor="district">Quận / Huyện</label>
+                      <select
+                        className="input"
+                        {...register("district")}
+                        disabled={!districts.length}
+                      >
+                        <option value="">Chọn quận / huyện</option>
+                        {districts.map((district) => (
+                          <option key={district.code} value={district.name}>
+                            {district.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                        <div className=" form-group">
-                          <label htmlFor="district">Quận / Huyện</label>
-                          <select
-                            className="form-control"
-                            {...register("district")}
-                            disabled={!districts.length}
-                          >
-                            <option value="">Chọn quận / huyện</option>
-                            {districts.map((district) => (
-                              <option key={district.code} value={district.name}>
-                                {district.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div className=" form-group">
-                          <label htmlFor="ward">Phường / Xã</label>
-                          <select
-                            className="form-control"
-                            {...register("ward")}
-                            disabled={!wards.length}
-                          >
-                            <option value="">Chọn phường / xã</option>
-                            {wards.map((ward) => (
-                              <option key={ward.code} value={ward.name}>
-                                {ward.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                    <div className=" form-group">
+                      <label htmlFor="ward">Phường / Xã</label>
+                      <select
+                        className="input"
+                        {...register("ward")}
+                        disabled={!wards.length}
+                      >
+                        <option value="">Chọn phường / xã</option>
+                        {wards.map((ward) => (
+                          <option key={ward.code} value={ward.name}>
+                            {ward.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {/* <div className="form-group">
+                    <div className="input-checkbox">
+                      <input type="checkbox" id="create-account" />
+                      <label htmlFor="create-account">
+                        <span />
+                        Create Account?
+                      </label>
+                      <div className="caption">
+                        <p>
+                          Lorem ipsum dolor sit amet, consectetur adipisicing
+                          elit, sed do eiusmod tempor incididunt.
+                        </p>
+                        <input
+                          className="input"
+                          type="password"
+                          name="password"
+                          placeholder="Enter Your Password"
+                        />
                       </div>
                     </div>
+                  </div> */}
                   </div>
+                  {/* /Billing Details */}
+                  {/* Shiping Details */}
+                  {/* /Shiping Details */}
+                  {/* Order notes */}
+                  {/* <div className="order-notes">
+                  <textarea
+                    className="input"
+                    placeholder="Order Notes"
+                    defaultValue={""}
+                  />
+                </div> */}
+                  {/* /Order notes */}
                 </div>
-                <div className="col-lg-4">
-                  <div className="card border-secondary mb-5">
-                    <div className="card-header bg-secondary border-0">
-                      <h4 className="font-weight-semi-bold m-0">
-                        Tổng thanh toán
-                      </h4>
+                {/* Order Details */}
+                <div className="col-md-5 order-details">
+                  <div className="section-title text-center">
+                    <h3 className="title">Đơn hàng</h3>
+                  </div>
+                  <div className="order-summary">
+                    <div className="order-col">
+                      <div>
+                        <strong>Sản phẩm</strong>
+                      </div>
+                      <div>
+                        <strong>Giá</strong>
+                      </div>
                     </div>
-                    <div className="card-body">
-                      <h5 className="font-weight-medium mb-3">Sản phẩm</h5>
+                    <div className="order-products">
                       {carts.map((item) => (
-                        <div className="d-flex justify-content-between">
-                          <p>{item.name}/{item.variants.color}/{item.variants.capacity}</p>
-                          <p>{formatPrice(item.variants.price)}</p>
-                          <p>{item.quantity}</p>
+                        <div className="order-col">
+                          <div>
+                            {item.quantity}x {item.name}
+                            <br />
+                            {item.variants.color}/{item.variants.capacity}
+                          </div>
+                          <div>{formatPrice(item.variants.price)}</div>
                         </div>
                       ))}
-                      <hr className="mt-0" />
-                      {/* <div className="d-flex justify-content-between mb-3 pt-1">
-                  <h6 className="font-weight-medium">Subtotal</h6>
-                  <h6 className="font-weight-medium">$150</h6>
-                </div>
-                <div className="d-flex justify-content-between">
-                  <h6 className="font-weight-medium">Shipping</h6>
-                  <h6 className="font-weight-medium">$10</h6>
-                </div> */}
                     </div>
-                    <div className="card-footer border-secondary bg-transparent">
-                      <div className="d-flex justify-content-between mt-2">
-                        <h5 className="font-weight-bold">Tổng</h5>
-                        <h5 className="font-weight-bold">
+                    <div className="order-col">
+                      <div>Phí giao hàng</div>
+                      <div>
+                        <strong>FREE</strong>
+                      </div>
+                    </div>
+                    <div className="order-col">
+                      <div>
+                        <strong>Tổng</strong>
+                      </div>
+                      <div>
+                        <strong className="order-total">
                           {formatPrice(totalAmount)}
-                        </h5>
+                        </strong>
                       </div>
                     </div>
                   </div>
-                  <div className="card border-secondary mb-5">
-                    <div className="card-header bg-secondary border-0">
-                      <h4 className="font-weight-semi-bold m-0">
-                        Phương thức thanh toán
-                      </h4>
-                    </div>
-                    <div className="card-body">
-                      <div className="form-group">
-                        <div className="custom-control custom-radio mb-2">
-                          <input
-                            type="radio"
-                            value="COD"
-                            className="custom-control-input"
-                            id="payment-cod"
-                            {...register("paymentMethod")}
-                          />
-                          <label
-                            htmlFor="payment-cod"
-                            className="custom-control-label"
-                          >
-                            Thanh toán khi nhận hàng
-                          </label>
-                        </div>
-                        <div className="custom-control custom-radio mb-2">
-                          <input
-                            type="radio"
-                            className="custom-control-input"
-                            id="payment-credit-card"
-                            value="Credit Card"
-                            {...register("paymentMethod")}
-                          />
-                          <label
-                            htmlFor="payment-credit-card"
-                            className="custom-control-label"
-                          >
-                            Thẻ tín dụng
-                          </label>
-                        </div>
-                        <div className="custom-control custom-radio mb-2">
-                          <input
-                            type="radio"
-                            className="custom-control-input"
-                            id="payment-bank-transfer"
-                            value="Bank Transfer"
-                            {...register("paymentMethod")}
-                          />
-                          <label
-                            htmlFor="payment-bank-transfer"
-                            className="custom-control-label"
-                          >
-                            Chuyển khoản ngân hàng
-                          </label>
-                        </div>
+                  <div className="payment-method">
+                    <div className="input-radio">
+                      <input
+                        type="radio"
+                        value="COD"
+                        id="payment-cod"
+                        {...register("paymentMethod")}
+                      />
+                      <label htmlFor="payment-cod">
+                        <span />
+                        Thanh toán khi nhận hàng
+                      </label>
+                      <div className="caption">
+                        <p>
+                          Lorem ipsum dolor sit amet, consectetur adipisicing
+                          elit, sed do eiusmod tempor incididunt ut labore et
+                          dolore magna aliqua.
+                        </p>
                       </div>
                     </div>
-                    <div className="card-footer border-secondary bg-transparent">
-                      <button
-                        type="submit"
-                        className="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3"
-                      >
-                        Đặt hàng
-                      </button>
+                    <div className="input-radio">
+                      <input
+                        type="radio"
+                        id="payment-credit-card"
+                        value="Credit Card"
+                        {...register("paymentMethod")}
+                      />
+                      <label htmlFor="payment-credit-card">
+                        <span />
+                        Thẻ tín dụng
+                      </label>
+                      <div className="caption">
+                        <p>
+                          Lorem ipsum dolor sit amet, consectetur adipisicing
+                          elit, sed do eiusmod tempor incididunt ut labore et
+                          dolore magna aliqua.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="input-radio">
+                      <input
+                        type="radio"
+                        id="payment-bank-transfer"
+                        value="Bank Transfer"
+                        {...register("paymentMethod")}
+                      />
+                      <label htmlFor="payment-bank-transfer">
+                        <span />
+                        Chuyển khoản ngân hàng
+                      </label>
+                      <div className="caption">
+                        <p>
+                          Lorem ipsum dolor sit amet, consectetur adipisicing
+                          elit, sed do eiusmod tempor incididunt ut labore et
+                          dolore magna aliqua.
+                        </p>
+                      </div>
                     </div>
                   </div>
+                  {/* <div className="input-checkbox">
+                  <input type="checkbox" id="terms" />
+                  <label htmlFor="terms">
+                    <span />
+                    I've read and accept the{" "}
+                    <a href="#">terms &amp; conditions</a>
+                  </label>
+                </div> */}
+                  <button type="submit" className="primary-btn order-submit">
+                    Place order
+                  </button>
                 </div>
+                {/* /Order Details */}
               </div>
             </form>
+            {/* /row */}
           </div>
+          {/* /container */}
         </div>
-        {/* Checkout End */}
       </div>
     </>
   );
 };
 
 export default Checkout;
-
-
-
-

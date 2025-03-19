@@ -6,7 +6,7 @@ export type Carts = {
     productId: string; // Đúng với API
     name: string; // Bổ sung để phù hợp với API
     image: string; // API có trả về image
-    variants: Variants; // Đổi variantId thành object Variants (API đã gửi đầy đủ)
+    variants: Variants[]; // Đổi variantId thành object Variants (API đã gửi đầy đủ)
     quantity: number;
     subtotal: number; // API có subtotal
 };

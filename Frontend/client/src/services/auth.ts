@@ -2,14 +2,15 @@ import { http } from "../config/axios";
 
 export type User = {
   _id: string;
-  userName:string
+  userName: string;
   email: string;
   password: string;
-  address: string;
-  phone: string;
+  address: string | null;
+  phone: string | null;
   role: number;
   status: string;
   confirmPassword: string;
+  img: string;
 };
 
 export const registerUser = (data: User) => {
@@ -24,14 +25,14 @@ export const getUser = () => {
   return http.get("/auth/user");
 };
 
-export const getDetailUser = (_id:string) => {
+export const getDetailUser = (_id: string) => {
   return http.get(`/auth/user/${_id}`);
-}
+};
 
-export const updateStatus = (userId:string,status:string) => {
-  return http.put(`auth/user/${userId}`,{status});
-}
+export const updateStatus = (userId: string, status: string) => {
+  return http.put(`auth/user/${userId}`, { status });
+};
 
-export const updateRole = (userId:string,role:number) => {
-  return http.put(`auth/user/role/${userId}`,{role})
-}
+export const updateRole = (userId: string, role: number) => {
+  return http.put(`auth/user/role/${userId}`, { role });
+};

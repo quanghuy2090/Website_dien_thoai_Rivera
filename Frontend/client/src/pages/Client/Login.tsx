@@ -14,7 +14,7 @@ const Login = () => {
         console.log("data:", data)
         localStorage.setItem("token", data.data.accessToken);
         localStorage.setItem(`user`, JSON.stringify(data.data.user));
-        toast.success("Dang nhap thanh cong");
+        toast.success("Đăng nhập thành công");
         nav("/");
       })
       .catch((err) => {

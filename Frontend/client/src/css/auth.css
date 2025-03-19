@@ -224,3 +224,56 @@ a.google span {
 .product-details .product-options .input-select {
   width: 90px;
 }
+
+.account-dashboard-container.center-page {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+}
+
+.dashboard-content {
+  max-width: 800px;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-content h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.profile-card {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.profile-avatar img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-row {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.profile-label {
+  width: 150px;
+  font-weight: bold;
+  color: #333;
+}
+
+.profile-value {
+  color: #555;
+}

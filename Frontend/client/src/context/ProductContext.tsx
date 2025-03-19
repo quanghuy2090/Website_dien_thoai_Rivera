@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useReducer } from "react";
-import { addProduct, getAllProduct, getProductById, Product, removeProduct, updateProduct } from "../services/product"
+import { addProduct, getAllProduct, getProductById, Product, removeProduct, updateProduct, updateProductStatus } from "../services/product"
 import ProductReducer from "../reducers/ProductReducer";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -10,6 +10,7 @@ type ProductContextType = {
     updateProducts: (_id: string, product: Product) => void;
     createProduct: (product: Product) => void;
     getDetailProduct: (_id: string) => void;
+    updateStatus: (_id: string, status: string) => void;
 }
 
 export const ProductContext = createContext({} as ProductContextType)
@@ -78,7 +79,17 @@ export const ProductProvider = ({ children }: Children) => {
             console.log(error)
         }
     }
+    const updateStatus = async (_id: string, status: string) => {
+        try {
+            const { data } = await updateProductStatus(_id, status);
+            dispatch({ type: "UPDATE_STATUS", payload: data.data })
+            toast.success("cập nhật trạng thái thành công")
+        } catch (error) {
+            console.log(error);
+            toast.error("cập nhậ trạng thái thất bại")
+        }
+    }
     return (
-        <ProductContext.Provider value={{ state, removeProducts, updateProducts, createProduct, getDetailProduct }}>{children}</ProductContext.Provider>
+        <ProductContext.Provider value={{ state, removeProducts, updateProducts, createProduct, getDetailProduct, updateStatus }}>{children}</ProductContext.Provider>
     )
 }

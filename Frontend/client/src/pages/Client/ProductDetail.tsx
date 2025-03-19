@@ -14,8 +14,6 @@ const ProductDetail = () => {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [quantity, setQuantity] = useState(1);
-  const itemsPerPage = 4; // Number of items to display per page
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(product?.variants[0]);
   const [activeTab, setActiveTab] = useState("tab01"); // Default active tab
   const productDetailSliderRef = useRef<Slider | null>(null); // Ref for the first slider
@@ -127,25 +125,6 @@ const ProductDetail = () => {
 
 
   // Pagination logic
-  const indexOfLastProduct = currentPage * itemsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
-  const currentProducts = relatedProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-  const totalPages = Math.ceil(relatedProducts.length / itemsPerPage);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -240,7 +219,7 @@ const ProductDetail = () => {
                         }`}
                       onClick={() => handleVariantChange(variant)}
                     >
-                      {variant.color} - {variant.capacity}
+                      {typeof variant.color === 'string' ? variant.color : variant.color.name} - {typeof variant.capacity === 'string' ? variant.capacity : variant.capacity.value}
                     </button>
                   ))}
                 </div>
@@ -251,16 +230,16 @@ const ProductDetail = () => {
                   className={`font-weight-bold mb-4 ${selectedVariant?.stock > 0 ? "text-success" : "text-danger"
                     }`}
                 >
-                  {selectedVariant?.stock > 0 ? "IN STOCK" : "OUT OF STOCK"}
+                  {selectedVariant?.stock > 0 ? "IN STOCK" : "OUT OF STOCK"}: {selectedVariant?.stock}
                 </div>
                 <div className="product-options">
                   <label>
                     Dung lượng:{" "}
-                    <span className="ms-2">{selectedVariant?.capacity}</span>
+                    <span className="ms-2">{typeof selectedVariant?.capacity === 'string' ? selectedVariant.capacity : selectedVariant?.capacity.value}</span>
                   </label>
                   <label>
                     Màu sắc:{" "}
-                    <span className="ms-2">{selectedVariant?.color}</span>
+                    <span className="ms-2">{typeof selectedVariant?.color === 'string' ? selectedVariant.color : selectedVariant?.color.name}</span>
                   </label>
                 </div>
 
