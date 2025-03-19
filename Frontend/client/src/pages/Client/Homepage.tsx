@@ -170,7 +170,7 @@ const HomePage = () => {
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {/* {formatPrice(product.variants[0].price)} */}
+                          {formatPrice(product.variants[0].price)}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
