@@ -482,6 +482,57 @@ export const statusProduct = async (req, res) => {
   }
 };
 
+export const isHotProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { is_hot } = req.body;
+
+    // Kiểm tra trạng thái is_hot đầu vào
+    if (!is_hot || !["yes", "no"].includes(is_hot)) {
+      return res.status(400).json({
+        message: "Trạng thái is_hot không hợp lệ. Chỉ chấp nhận 'yes' hoặc 'no'",
+      });
+    }
+
+    // Tìm sản phẩm
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        message: "Sản phẩm không tồn tại",
+      });
+    }
+
+    // Kiểm tra nếu trạng thái is_hot không thay đổi
+    if (product.is_hot === is_hot) {
+      return res.status(400).json({
+        message: `Sản phẩm đã ở trạng thái is_hot"${is_hot}"`,
+      });
+    }
+
+    // Cập nhật trạng thái is_hot của sản phẩmgit 
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { $set: { is_hot } },
+      { new: true, runValidators: true } // Trả về document mới và chạy validation
+    );
+
+    if (!updatedProduct) {
+      return res.status(500).json({
+        message: "Cập nhật trạng thái is_hot không thành công",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Chuyển trạng thái is_hot thành công",
+      data: updatedProduct,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message || "Đã xảy ra lỗi khi chuyển trạng thái is_hot",
+    });
+  }
+};
+
 // API tim kiem san pham theo name
 export const searchProductByName = async (req, res) => {
   try {
