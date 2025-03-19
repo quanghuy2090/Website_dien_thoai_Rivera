@@ -120,7 +120,13 @@ const Cart = () => {
                       <div>
                         <strong>{item.name}</strong>
                         <p>
-                          {item.variants.color} / {item.variants.capacity}
+                          {typeof item.variants?.color === "string"
+                            ? item.variants.color
+                            : item.variants.color.name}{" "}
+                          /{" "}
+                          {typeof item.variants?.capacity === "string"
+                            ? item.variants.capacity
+                            : item.variants.capacity.value}
                         </p>
                       </div>
                     </td>

@@ -93,7 +93,7 @@ export function Header() {
             {token && (
               <>
                 <li>
-                  <a href="#">
+                  <a href="/profile">
                     <i className="fa fa-user-o" /> {userName}
                   </a>
                 </li>

@@ -32,6 +32,7 @@ import ListCapacity from "./pages/Admin/Capacity/ListCapacity";
 import AddCapacity from "./pages/Admin/Capacity/AddCapacity";
 import UpdateColor from "./pages/Admin/Colors/UpdateColor";
 import UpdateCapacity from "./pages/Admin/Capacity/UpdateCapacity";
+import Profile from "./pages/Client/Profile";
 function App() {
   const routes = useRoutes([
     {
@@ -44,7 +45,8 @@ function App() {
         { path: "/product/:id", element: <ProductDetail /> },
         { path: "/checkout", element: <Checkout /> },
         { path: "/bill", element: <Bill /> },
-        { path: "/history", element: <HistoryUser /> }
+        { path: "/history", element: <HistoryUser /> },
+        { path: "/profile", element: <Profile /> }
       ],
     },
     { path: "/login", element: <Login /> },
