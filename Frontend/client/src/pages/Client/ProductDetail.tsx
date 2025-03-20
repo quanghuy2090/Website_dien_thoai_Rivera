@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getProductById, Product } from "../../services/product";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
 import { addCart, Carts } from "../../services/cart";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -11,8 +14,46 @@ const ProductDetail = () => {
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [quantity, setQuantity] = useState(1);
-  const itemsPerPage = 4; // Number of items to display per page
-  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState(product?.variants[0]);
+  const [activeTab, setActiveTab] = useState("tab01"); // Default active tab
+  const productDetailSliderRef = useRef<Slider | null>(null); // Ref for the first slider
+
+  const handleTabClick = (tabId) => {
+    setActiveTab(tabId);
+  };
+
+  const sliderSettings = {
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    autoplay: true,
+    infinite: true,
+    speed: 300,
+    dots: false,
+    arrows: false,
+    responsive: [
+      {
+        breakpoint: 991,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 2,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
 
   // Handle quantity increase
   const increaseQuantity = () => {
@@ -29,16 +70,20 @@ const ProductDetail = () => {
   const nav = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     (async () => {
       const { data } = await getProductById(id!);
-      toast.success("Product id Successfully");
       setProduct(data.data);
       setRelatedProducts(data.relatedProducts);
       setMainImage(data.data.images[0]);
+
+      if (data.data.variants.length > 0) {
+        setSelectedVariant(data.data.variants[0]);
+      }
     })();
   }, [id]);
 
-  const addToCart = async (productId?: string) => {
+  const addToCart = async (productId: string) => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (!user || !user._id) {
@@ -46,17 +91,27 @@ const ProductDetail = () => {
         return nav("/login");
       }
 
-      const selectedProductId = productId || product?._id; // Use productId if provided
-
-      if (!selectedProductId) {
+      if (!productId) {
         toast.error("Sản phẩm không hợp lệ!");
+        return;
+      }
+
+      const selectedProduct = relatedProducts.find(p => p._id === productId) || product;
+
+      if (!selectedProduct) {
+        toast.error("Không tìm thấy sản phẩm!");
         return;
       }
 
       const cartItem: Carts = {
         userId: user._id,
-        productId: selectedProductId,
-        quantity: quantity,
+        items: [
+          {
+            productId: selectedProduct._id,
+            variantId: selectedVariant._id,
+            quantity: quantity,
+          },
+        ],
       };
 
       const { data } = await addCart(cartItem);
@@ -68,81 +123,76 @@ const ProductDetail = () => {
     }
   };
 
+
   // Pagination logic
-  const indexOfLastProduct = currentPage * itemsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
-  const currentProducts = relatedProducts.slice(
-    indexOfFirstProduct,
-    indexOfLastProduct
-  );
-  const totalPages = Math.ceil(relatedProducts.length / itemsPerPage);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  };
 
   const formatPrice = (price: number) => {
-    if (price === undefined || price === null) {
-      return "0 VND"; // Return a default value if price is undefined
-    }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    return price.toLocaleString("vi-VN") + " VND";
+  };
+
+  const handleVariantChange = (variant: Product["variants"][0]) => {
+    setSelectedVariant(variant);
   };
 
   return (
     <>
-      {/* Page Header Start */}
-      <div className="container-fluid bg-secondary mb-5">
-        <div
-          className="d-flex flex-column align-items-center justify-content-center"
-          style={{ minHeight: 150 }}
-        >
-          <h1 className="font-weight-semi-bold text-uppercase mb-3">
-            Chi tiết sản phẩm
-          </h1>
-          <div className="d-inline-flex">
-            <p className="m-0">
-              <a href="/">Trang chủ</a>
-            </p>
-            <p className="m-0 px-2">-</p>
-            <p className="m-0">Chi tiết</p>
+      {/* BREADCRUMB */}
+      <div id="breadcrumb" className="section">
+        {/* container */}
+        <div className="container">
+          {/* row */}
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li>
+                  <a href="/product-page">Sản phẩm</a>
+                </li>
+                <li className="active">{product?.name}</li>
+              </ul>
+            </div>
           </div>
+          {/* /row */}
         </div>
+        {/* /container */}
       </div>
-      {/* Page Header End */}
+      {/* /BREADCRUMB */}
+
       {/* Shop Detail Start */}
-      <div className="container-fluid py-5">
-        <div className="row px-xl-5">
-          <div className="col-lg-5 pb-5">
-            <div className="product-images">
-              <div className="thumbnail-images">
-                {product?.images.map((img, index) => (
-                  <div
-                    key={index}
-                    className={`${img === mainImage ? "active" : ""}`} // Active class logic
-                    onClick={() => setMainImage(img)}
-                  >
-                    <img src={img} alt={`${index + 1}`} />
-                  </div>
-                ))}
+      <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-5 col-md-push-2 d-flex justify-content-center">
+              <div id="product-main-img">
+                <div className="product-preview">
+                  <img src={mainImage!} alt="" />
+                </div>
               </div>
-              <div className="main-image">
-                <img src={mainImage!} alt="" />
+            </div>
+            {/* /Product main img */}
+            {/* Product thumb imgs */}
+            <div className="col-md-2 col-md-pull-5">
+              <div id="product-imgs">
+                <div className="product-preview">
+                  {product?.images.map((img, index) => (
+                    <div
+                      key={index}
+                      className={` ${img === mainImage ? "active" : ""}`}
+                      onClick={() => setMainImage(img)}
+                    >
+                      <img src={img} alt={`Thumbnail ${index + 1}`} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
           <div className="col-lg-7 pb-5">
-          <h3 className="h4 font-weight-bold text-dark">{product?.name}</h3>
-
+            <h3 className="h4 font-weight-bold">{product?.name}</h3>
             <div className="d-flex align-items-center mb-2">
-              <div className="text-primary">
+              <div className="text-danger">
                 <i className="fas fa-star"> </i>
                 <i className="fas fa-star"> </i>
                 <i className="fas fa-star"> </i>
@@ -151,19 +201,17 @@ const ProductDetail = () => {
               </div>
               <span className="ml-2 text-muted">
                 (10 Review(s)) |
-                <a className="text-dark" href="#">
+                <a className="text-primary" href="#">
                   {" "}
                   Add your review{" "}
                 </a>
               </span>
             </div>
-
-            <h2 className="h3 font-weight-bold mb-2 text-primary">
+            <h2 className="h3 text-danger font-weight-bold mb-2">
               {formatPrice(product?.price ?? 0)}
             </h2>
-
             <div className="text-success font-weight-bold mb-4">IN STOCK</div>
-            <p className="mb-4 text-dark">
+            <p className="mb-4">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
               enim ad minim veniam, quis nostrud exercitation ullamco laboris
@@ -171,10 +219,9 @@ const ProductDetail = () => {
             </p>
             <div className="product-options">
               <div className="row align-items-center mb-3">
-              <div className="col-auto">
-  <label className="form-label fw-bold text-dark">Dung Lượng</label>
-</div>
-
+                <div className="col-auto">
+                  <label className="form-label fw-bold">Dung Lượng</label>
+                </div>
                 <div className="col-auto">
                   <select className="form-select form-select-sm w-auto border-dark">
                     <option value="0">64GB</option>
@@ -183,9 +230,8 @@ const ProductDetail = () => {
                   </select>
                 </div>
                 <div className="col-auto">
-  <label className="form-label fw-bold text-dark">Màu Sắc</label>
-</div>
-
+                  <label className="form-label fw-bold">Màu Sắc</label>
+                </div>
                 <div className="col-auto">
                   <select className="form-select form-select-sm w-auto border-dark">
                     <option value="0">Đỏ</option>
@@ -256,57 +302,10 @@ const ProductDetail = () => {
                   </button>
                 </div>
               </div>
-              <button className="btn btn-primary px-3">
-                <i className="fa fa-shopping-cart mr-1" /> Thêm giỏ hàng
-              </button>
-            </div> */}
-            {/* <div className="d-flex pt-2">
-        <p className="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
-        <div className="d-inline-flex">
-          <a className="text-dark px-2" href="">
-            <i className="fab fa-facebook-f" />
-          </a>
-          <a className="text-dark px-2" href="">
-            <i className="fab fa-twitter" />
-          </a>
-          <a className="text-dark px-2" href="">
-            <i className="fab fa-linkedin-in" />
-          </a>
-          <a className="text-dark px-2" href="">
-            <i className="fab fa-pinterest" />
-          </a>
-        </div>
-      </div> */}
-          </div>
-        </div>
-        <div className="row px-xl-5">
-          <div className="col">
-            <div className="nav nav-tabs justify-content-center border-secondary mb-4">
-              <a
-                className="nav-item nav-link active"
-                data-toggle="tab"
-                href="#tab-pane-1"
-              >
-                Giới thiệu
-              </a>
-              <a
-                className="nav-item nav-link"
-                data-toggle="tab"
-                href="#tab-pane-2"
-              >
-                Thông tin sản phẩm
-              </a>
-              <a
-                className="nav-item nav-link"
-                data-toggle="tab"
-                href="#tab-pane-3"
-              >
-                Đánh giá (0)
-              </a>
             </div>
             <div className="tab-content">
               <div className="tab-pane fade show active" id="tab-pane-1">
-                <h4 className="mb-3 text-dark">Additional Information</h4>
+                <h4 className="mb-3">Additional Information</h4>
                 <div className="row">
                   <div className="col-md-6">
                     <ul className="list-group list-group-flush">
@@ -348,7 +347,7 @@ const ProductDetail = () => {
                   </div>
                 </div>
               </div>
-              <div className="tab-pane fade text-dark" id="tab-pane-2">
+              <div className="tab-pane fade" id="tab-pane-2">
                 <p>{product?.description}</p>
               </div>
               {/* <div className="tab-pane fade" id="tab-pane-3">
@@ -387,127 +386,341 @@ const ProductDetail = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="col-md-6">
-                    <h4 className="mb-4">Leave a review</h4>
-                    <small>
-                      Your email address will not be published. Required fields
-                      are marked *
-                    </small>
-                    <div className="d-flex my-3">
-                      <p className="mb-0 mr-2">Your Rating * :</p>
-                      <div className="text-primary">
-                        <i className="far fa-star" />
-                        <i className="far fa-star" />
-                        <i className="far fa-star" />
-                        <i className="far fa-star" />
-                        <i className="far fa-star" />
+
+                  {/* Tab 2: Details */}
+                  <div
+                    id="tab02"
+                    className={`tab-pane ${activeTab === "tab02" ? "active" : "fade"
+                      }`}
+                  >
+                    <div className="row">
+                      <div className="col-md-12">
+                        <p>{product?.long_description}</p>
                       </div>
                     </div>
-                    <form>
-                      <div className="form-group">
-                        <label htmlFor="message">Your Review *</label>
-                        <textarea
-                          id="message"
-                          cols={30}
-                          rows={5}
-                          className="form-control"
-                          defaultValue={""}
-                        />
+                  </div>
+
+                  {/* Tab 3: Reviews */}
+                  <div
+                    id="tab03"
+                    className={`tab-pane ${activeTab === "tab03" ? "active" : "fade"
+                      }`}
+                  >
+                    <div className="row">
+                      {/* Rating */}
+                      <div className="col-md-3">
+                        <div id="rating">
+                          <div className="rating-avg">
+                            <span>4.5</span>
+                            <div className="rating-stars">
+                              <i className="fa fa-star" />
+                              <i className="fa fa-star" />
+                              <i className="fa fa-star" />
+                              <i className="fa fa-star" />
+                              <i className="fa fa-star-o" />
+                            </div>
+                          </div>
+                          <ul className="rating">
+                            <li>
+                              <div className="rating-stars">
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                              </div>
+                              <div className="rating-progress">
+                                <div style={{ width: "80%" }} />
+                              </div>
+                              <span className="sum">3</span>
+                            </li>
+                            <li>
+                              <div className="rating-stars">
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star-o" />
+                              </div>
+                              <div className="rating-progress">
+                                <div style={{ width: "60%" }} />
+                              </div>
+                              <span className="sum">2</span>
+                            </li>
+                            <li>
+                              <div className="rating-stars">
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star-o" />
+                                <i className="fa fa-star-o" />
+                              </div>
+                              <div className="rating-progress">
+                                <div />
+                              </div>
+                              <span className="sum">0</span>
+                            </li>
+                            <li>
+                              <div className="rating-stars">
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star-o" />
+                                <i className="fa fa-star-o" />
+                                <i className="fa fa-star-o" />
+                              </div>
+                              <div className="rating-progress">
+                                <div />
+                              </div>
+                              <span className="sum">0</span>
+                            </li>
+                            <li>
+                              <div className="rating-stars">
+                                <i className="fa fa-star" />
+                                <i className="fa fa-star-o" />
+                                <i className="fa fa-star-o" />
+                                <i className="fa fa-star-o" />
+                                <i className="fa fa-star-o" />
+                              </div>
+                              <div className="rating-progress">
+                                <div />
+                              </div>
+                              <span className="sum">0</span>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
-                      <div className="form-group">
-                        <label htmlFor="name">Your Name *</label>
-                        <input type="text" className="form-control" id="name" />
+                      {/* /Rating */}
+                      {/* Reviews */}
+                      <div className="col-md-6">
+                        <div id="reviews">
+                          <ul className="reviews">
+                            <li>
+                              <div className="review-heading">
+                                <h5 className="name">John</h5>
+                                <p className="date">27 DEC 2018, 8:0 PM</p>
+                                <div className="review-rating">
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star-o empty" />
+                                </div>
+                              </div>
+                              <div className="review-body">
+                                <p>
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipisicing elit, sed do eiusmod tempor
+                                  incididunt ut labore et dolore magna aliqua
+                                </p>
+                              </div>
+                            </li>
+                            <li>
+                              <div className="review-heading">
+                                <h5 className="name">John</h5>
+                                <p className="date">27 DEC 2018, 8:0 PM</p>
+                                <div className="review-rating">
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star-o empty" />
+                                </div>
+                              </div>
+                              <div className="review-body">
+                                <p>
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipisicing elit, sed do eiusmod tempor
+                                  incididunt ut labore et dolore magna aliqua
+                                </p>
+                              </div>
+                            </li>
+                            <li>
+                              <div className="review-heading">
+                                <h5 className="name">John</h5>
+                                <p className="date">27 DEC 2018, 8:0 PM</p>
+                                <div className="review-rating">
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star" />
+                                  <i className="fa fa-star-o empty" />
+                                </div>
+                              </div>
+                              <div className="review-body">
+                                <p>
+                                  Lorem ipsum dolor sit amet, consectetur
+                                  adipisicing elit, sed do eiusmod tempor
+                                  incididunt ut labore et dolore magna aliqua
+                                </p>
+                              </div>
+                            </li>
+                          </ul>
+                          <ul className="reviews-pagination">
+                            <li className="active">1</li>
+                            <li>
+                              <a href="#">2</a>
+                            </li>
+                            <li>
+                              <a href="#">3</a>
+                            </li>
+                            <li>
+                              <a href="#">4</a>
+                            </li>
+                            <li>
+                              <a href="#">
+                                <i className="fa fa-angle-right" />
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
-                      <div className="form-group">
-                        <label htmlFor="email">Your Email *</label>
-                        <input
-                          type="email"
-                          className="form-control"
-                          id="email"
-                        />
+                      {/* /Reviews */}
+                      {/* Review Form */}
+                      <div className="col-md-3">
+                        <div id="review-form">
+                          <form className="review-form">
+                            <input
+                              className="input"
+                              type="text"
+                              placeholder="Your Name"
+                            />
+                            <input
+                              className="input"
+                              type="email"
+                              placeholder="Your Email"
+                            />
+                            <textarea
+                              className="input"
+                              placeholder="Your Review"
+                              defaultValue={""}
+                            />
+                            <div className="input-rating">
+                              <span>Your Rating: </span>
+                              <div className="stars">
+                                <input
+                                  id="star5"
+                                  name="rating"
+                                  defaultValue={5}
+                                  type="radio"
+                                />
+                                <label htmlFor="star5" />
+                                <input
+                                  id="star4"
+                                  name="rating"
+                                  defaultValue={4}
+                                  type="radio"
+                                />
+                                <label htmlFor="star4" />
+                                <input
+                                  id="star3"
+                                  name="rating"
+                                  defaultValue={3}
+                                  type="radio"
+                                />
+                                <label htmlFor="star3" />
+                                <input
+                                  id="star2"
+                                  name="rating"
+                                  defaultValue={2}
+                                  type="radio"
+                                />
+                                <label htmlFor="star2" />
+                                <input
+                                  id="star1"
+                                  name="rating"
+                                  defaultValue={1}
+                                  type="radio"
+                                />
+                                <label htmlFor="star1" />
+                              </div>
+                            </div>
+                            <button className="primary-btn">Submit</button>
+                          </form>
+                        </div>
                       </div>
-                      <div className="form-group mb-0">
-                        <input
-                          type="submit"
-                          defaultValue="Leave Your Review"
-                          className="btn btn-primary px-3"
-                        />
-                      </div>
-                    </form>
+                      {/* /Review Form */}
+                    </div>
                   </div>
                 </div>
-              </div> */}
-            </div>
-          </div>
-        </div>
 
-        {/* Related Products Section */}
-        <div className="container-fluid py-5">
-          <div className="text-center mb-4">
-            <h2 className="section-title px-5">
-              <span className="px-2">Sản phẩm cùng danh mục</span>
-            </h2>
-          </div>
-          <div className="row px-xl-5">
-            <div className="col">
-              <div className="owl-carousel related-carousel">
-                <div className="row">
-                  {currentProducts.map((item) => (
-                    <div
-                      key={item._id}
-                      className="col-lg-3 col-md-6 col-sm-12 pb-1"
-                    >
-                      <div className="card product-item border-0 mb-4">
-                        <div className="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-                          <img
-                            className="img-fluid"
-                            src={item.images[0]}
-                            alt={item.name}
-                          />
-                        </div>
-                        <div className="card-body border-left border-right text-center p-0 pt-4 pb-3">
-                          <Link to={`/product/${item._id}`}>
-                            <h6 className="text-truncate mb-3">{item.name}</h6>
-                          </Link>
-                          <div className="d-flex justify-content-center">
-                            <h6>{formatPrice(item.price)}</h6>
-                          </div>
-                        </div>
-                        <div className="card-footer d-flex justify-content-between bg-light border">
-                          <button
-                            className="btn btn-sm text-dark p-0"
-                            onClick={() => addToCart(item._id)}
-                          >
-                            <i className="fas fa-shopping-cart text-primary mr-1" />
-                            Thêm giỏ hàng
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {/* /product tab content  */}
               </div>
             </div>
           </div>
-          {/* Pagination Controls */}
-          <div className="col-12 d-flex justify-content-center mt-3">
-            <button
-              className="btn btn-primary mx-2"
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
+
+          {/* Related Products Section */}
+          <div className="col-md-12 mb-5 mt-5">
+            <div className="section-title">
+              <h3 className="title d-flex justify-content-center">
+                Sản phẩm cùng danh mục
+              </h3>
+            </div>
+            <Slider
+              ref={productDetailSliderRef}
+              {...sliderSettings}
+              className="products-slick"
             >
-              «
-            </button>
-            <span className="mt-2">
-              {currentPage} / {totalPages}
-            </span>
-            <button
-              className="btn btn-primary mx-2"
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-            >
-              »
-            </button>
+              {relatedProducts.map((item) => (
+                <div key={item._id} className="product">
+                  <div className="product-img">
+                    <Link className="img" to={`/product/${item._id}`}>
+                      <img src={item.images[0]} alt={item.name} />
+                    </Link>
+                  </div>
+                  <div className="product-body">
+                    <h5 className="product-name">
+                      <Link to={`/product/${item._id}`}>{item.name}</Link>
+                    </h5>
+                    <div>
+                      <h4 className="product-price">
+                        {formatPrice(item.variants[0].price)}
+                      </h4>
+                      <div className="product-btns">
+                        <button className="add-to-wishlist">
+                          <i className="fa fa-heart-o" />
+                          <span className="tooltipp">Thêm yêu thích</span>
+                        </button>
+                        {/* <button className="add-to-compare">
+                            <i className="fa fa-exchange" />
+                            <span className="tooltipp">add to compare</span>
+                          </button> */}
+                        <button className="quick-view">
+                          <Link to={`/product/${item._id}`}>
+                            <i className="fa fa-eye" />
+                          </Link>
+                          <span className="tooltipp">Xem chi tiết</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Add to Cart button - hidden initially */}
+                  <div className="add-to-cart">
+                    <button
+                      className="add-to-cart-btn"
+                      onClick={() => addToCart(item._id)}
+                    >
+                      <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </Slider>
+
+            {/* Custom Slider Controls BELOW and RIGHT */}
+            <div className="custom-slider-controls">
+              <button
+                className="custom-prev-btn"
+                onClick={() => productDetailSliderRef.current?.slickPrev()}
+              >
+                ❮
+              </button>
+              <button
+                className="custom-next-btn"
+                onClick={() => productDetailSliderRef.current?.slickNext()}
+              >
+                ❯
+              </button>
+            </div>
           </div>
         </div>
       </div>

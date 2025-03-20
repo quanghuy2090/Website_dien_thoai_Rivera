@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { addProduct, Category, Product } from "../../../services/product";
+import { Category, Product } from "../../../services/product";
 import { getCategories } from "../../../services/category";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Swal from "sweetalert2";
+import { ProductContext } from "../../../context/ProductContext";
+import { CapacityContext } from "../../../context/CapacityContext";
+import { ColorContext } from "../../../context/ColorContext";
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
   images: z
@@ -24,7 +25,8 @@ const productSchema = z.object({
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
-        sku: z.string().min(1, "SKU không được để trống"),
+        sku: z.string().optional(),
+        sale: z.number().max(100, "sale max 100%"),
       })
     )
     .min(1, "Cần ít nhất 1 biến thể"),
@@ -43,7 +45,7 @@ const AddProduct = () => {
       long_description: "",
       images: [],
       categoryId: "",
-      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "" }],
+      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "", sale: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -54,8 +56,9 @@ const AddProduct = () => {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [inputFiles, setInputFiles] = useState<File[]>([]);
   const [inputs, setInputs] = useState<number[]>([0]);
-  const nav = useNavigate();
-
+  const { createProduct } = useContext(ProductContext)
+  const { states } = useContext(CapacityContext);
+  const { state } = useContext(ColorContext)
   const handleImageChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     index: number
@@ -119,47 +122,9 @@ const AddProduct = () => {
         const imageUrls = await uploadImages(inputFiles);
         product.images = imageUrls;
       }
-      const { data } = await addProduct(product);
-      Swal.fire({
-        title: "Thành công",
-        text: "Thêm sản phẩm thành công",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        nav("/admin/products");
-      });
-      console.log(data);
-      
+      createProduct(product);
     } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
-
-      if (error.response && error.response.status === 400) {
-        const errorMessage = error.response.data.message;
-
-        if (errorMessage.includes("SKU")) {
-          Swal.fire({
-            title: "Lỗi",
-            text: "SKU đã tồn tại",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        } else {
-          Swal.fire({
-            title: "Lỗi",
-            text: errorMessage,
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
-        return;
-      }
-
-      Swal.fire({
-        title: "Lỗi",
-        text: "Đã có lỗi xảy ra, vui lòng thử lại",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
+      console.log(err)
     }
   };
   return (
@@ -275,11 +240,12 @@ const AddProduct = () => {
                         <option disabled value="">
                           Chọn màu
                         </option>
-                        <option value="Red">Red</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Black">Black</option>
-                        <option value="White">White</option>
-                        <option value="Green">Green</option>
+
+                        {state.colors.map((color) => (
+                          <option key={color._id} value={color._id}>
+                            {color.name}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.color && (
                         <p className="text-danger">
@@ -296,11 +262,11 @@ const AddProduct = () => {
                         <option disabled value="">
                           Chọn Bộ Nhớ
                         </option>
-                        <option value="64GB">64GB</option>
-                        <option value="128GB">128GB</option>
-                        <option value="256GB">256GB</option>
-                        <option value="512GB">512GB</option>
-                        <option value="1TB">1TB</option>
+                        {states.capacitys.map((capacity) => (
+                          <option key={capacity._id} value={capacity._id}>
+                            {capacity.value}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.capacity && (
                         <p className="text-danger">
@@ -328,6 +294,22 @@ const AddProduct = () => {
                       )}
                     </div>
                     <div className="col-md-4">
+                      <label className="fw-bold">Giá sale</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        {...register(`variants.${index}.sale`, {
+                          required: true,
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {errors.variants?.[index]?.sale && (
+                        <p className="tex-danger">
+                          {errors.variants[index]?.sale?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="col-md-4">
                       <label className="fw-bold">Stock</label>
                       <input
                         type="number"
@@ -343,10 +325,10 @@ const AddProduct = () => {
                         </p>
                       )}
                     </div>
-                    <div className="col-md-4">
+                    {/* <div className="col-md-4">
                       <label className="fw-bold">SKU</label>
                       <input
-                        type="text"
+                        type="text" disabled
                         className="form-control"
                         {...register(`variants.${index}.sku`, {
                           required: true,
@@ -357,7 +339,7 @@ const AddProduct = () => {
                           {errors.variants[index]?.sku?.message}
                         </p>
                       )}
-                    </div>
+                    </div> */}
                   </div>
 
                   <button
@@ -378,7 +360,8 @@ const AddProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: "",
+                    sku: `SKU-${Date.now()}`,
+                    sale: 0,
                   })
                 }
               >

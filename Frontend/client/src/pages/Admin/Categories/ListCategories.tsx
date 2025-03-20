@@ -1,79 +1,19 @@
-import React, { useEffect, useState } from "react";
-import {
-  Category,
-  deleteCategories,
-  getCategories,
-  searchCategory,
-} from "../../../services/category";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
-import { GrUpdate } from "react-icons/gr";
+
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
-import Swal from "sweetalert2";
+import { FaPen } from "react-icons/fa";
+import { CategoryContext } from "../../../context/CategoryContext";
 const ListCategories = () => {
-  const [category, setCategory] = useState<Category[]>([]);
-  const [search, setSearch] = useState<string>("");
-  console.log(category);
-  useEffect(() => {
-    (async () => {
-      fetchCategory();
-    })();
-  }, []);
-
-  const fetchCategory = async () => {
-    const res = await getCategories();
-    setCategory(res.data.data);
-  };
-  const remove = async (_id: string) => {
-    const isConfirmed = confirm("Are you sure you want to remove?");
-    if (isConfirmed) {
-      try {
-        // Optimistically update the UI by removing the category from the state
-        setCategory((prevCategories) =>
-          prevCategories.filter((category) => category._id !== _id)
-        );
-
-        // Call the backend to delete the category
-        await deleteCategories(_id);
-        Swal.fire({
-          title: "Thành công",
-          text: "Xóa danh mục thành công",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-      } catch (error) {
-        // If an error occurs, revert the UI change or show an error message
-        console.error("Error removing category:", error);
-        Swal.fire({
-          title: "Lỗi",
-          text: "Đã có lỗi xảy ra, vui lòng thử lại sau",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-        // Optionally, re-fetch categories if necessary
-      }
-    }
-  };
-  useEffect(() => {
-    const fetchSearchResults = async () => {
-      if (!search.trim()) {
-        fetchCategory(); // Nếu ô tìm kiếm trống, hiển thị tất cả sản phẩm
-        return;
-      }
-      try {
-        const result = await searchCategory(search);
-        setCategory(result?.data?.data || []);
-      } catch (error) {
-        console.log("Error searching products:", error);
-      }
-    };
-
-    // Debounce (tránh gọi API quá nhiều lần)
-    const delayDebounce = setTimeout(fetchSearchResults, 500); // Chờ 500ms sau khi nhập xong mới gọi API
-    return () => clearTimeout(delayDebounce); // Xóa timeout nếu người dùng tiếp tục nhập
-  }, [search]);
+  const { state, removeCategory } = useContext(CategoryContext);
+  const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
+  const [itemsPerPage, setItemsPerPage] = useState(5)
+  // Lọc danh mục theo tên (case-insensitive)
+  const filteredCategories = state.categorys.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -90,11 +30,13 @@ const ListCategories = () => {
           <div>
             <label className="d-flex align-items-center">
               Hiển thị
-              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
+              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              >
+                <option value="5">5</option>
                 <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
               </select>
               mục
             </label>
@@ -105,9 +47,9 @@ const ListCategories = () => {
             <input
               type="text"
               className="form-control form-control-sm"
-              placeholder="Nhập tên Danh mục..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Nhập tên danh mục..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
@@ -118,22 +60,22 @@ const ListCategories = () => {
         <table className="table table-bordered">
           <thead className="thead-light">
             <tr>
-              <th scope="col">Id </th>
+              <th scope="col">Stt</th>
               <th scope="col">Danh mục</th>
               <th scope="col">Mô tả</th>
               <th scope="col">Tùy chọn</th>
             </tr>
           </thead>
           <tbody>
-            {category.map((category) => (
-              <tr>
-                <td>{category._id}</td>
+            {filteredCategories.slice(0, itemsPerPage).map((category, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
                 <td>{category.name}</td>
                 <td>{category.slug}</td>
                 <td>
                   <button
                     className="btn btn-danger me-2"
-                    onClick={() => remove(category._id)}
+                    onClick={() => removeCategory(category._id)}
                   >
                     {" "}
                     <MdDelete />
@@ -143,7 +85,7 @@ const ListCategories = () => {
                     className="btn btn-warning me-2"
                   >
                     {" "}
-                    <GrUpdate />
+                    <FaPen />
                   </Link>
                   <Link
                     to={`/admin/category/detail/${category._id}`}

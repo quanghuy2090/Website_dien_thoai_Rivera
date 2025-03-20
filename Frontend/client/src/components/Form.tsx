@@ -75,49 +75,6 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                         </span>
                       )}
                     </div>
-
-                    <div className="field input-field mb-3 col-md-6">
-                      <input
-                        type="text"
-                        placeholder="Số điện thoại"
-                        className="input mb-2"
-                        {...register("phone", {
-                          required: "Không để trống số điện thoại",
-                          maxLength: {
-                            value: 15,
-                            message: "Nhiều nhất 15 ký tự",
-                          },
-                          minLength: {
-                            value: 10,
-                            message: "Ít nhất 10 ký tự",
-                          },
-                        })}
-                      />
-                      {errors?.phone && (
-                        <span className="text-danger mt-5">
-                          *{errors.phone.message}
-                        </span>
-                      )}
-                    </div>
-                    <div className="field input-field mb-3 col-md-6">
-                      <input
-                        type="text"
-                        placeholder="Địa chỉ"
-                        className="input mb-2"
-                        {...register("address", {
-                          required: "Không để trống địa chỉ",
-                          maxLength: {
-                            value: 255,
-                            message: "Nhiều nhất 255 ký tự",
-                          },
-                        })}
-                      />
-                      {errors?.address && (
-                        <span className="text-danger mt-5">
-                          *{errors.address.message}
-                        </span>
-                      )}
-                    </div>
                   </div>
                   <div className="field input-field mb-5">
                     <input

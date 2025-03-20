@@ -1,12 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useForm } from "react-hook-form";
-import { addCategories, Category } from "../../../services/category";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { Category } from "../../../services/category";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Swal from "sweetalert2";
-
+import { CategoryContext } from "../../../context/CategoryContext";
 const categorySchema = z.object({
   name: z.string().min(3).max(225),
   slug: z.string().min(3).max(225),
@@ -19,30 +16,8 @@ const AddCategories = () => {
   } = useForm<Category>({
     resolver: zodResolver(categorySchema),
   });
-  const nav = useNavigate();
-  const onSubmit = async (category: Category) => {
-    try {
-      const res = await addCategories(category);
-      console.log(res.data);
-      Swal.fire({
-        title: "Thành công",
-        text: "Thêm danh mục thành công",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        nav("/admin/category");
-      });
-    } catch (error) {
-      // console.log(error);
-      // toast.error("Error adding categories");
-      Swal.fire({
-        title: "Lỗi",
-        text: "Đã có lỗi xảy ra, vui lòng thử lại",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  };
+
+  const { createCategory } = useContext(CategoryContext);
   return (
     <div className="content">
       <div className="container  d-flex justify-content-center align-items-center mt-5">
@@ -58,9 +33,8 @@ const AddCategories = () => {
             </div>
 
             <form
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit((data) => createCategory(data))}
               className="p-5 border rounded shadow-sm bg-light"
-              // style={{ minHeight: "500px" }}
             >
               <div className="form-group mb-5">
                 <label htmlFor="name" className="fw-bold fs-5">

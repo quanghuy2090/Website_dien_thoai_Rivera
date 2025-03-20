@@ -2,19 +2,30 @@ import mongoose from "mongoose";
 
 const variantSchema = new mongoose.Schema({
   color: {
-    type: String,
-    required: true, // Màu sắc là bắt buộc trong biến thể
-    enum: ["Red", "Blue","Black","White","Green"]
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Color",
+    required: true,
   },
   capacity: {
-    type: String, // Dung lượng (có thể để trống nếu không áp dụng)
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Capacity",
     required: true,
-    enum: ["64GB","128GB","256GB","512GB","1TB"]
   },
   price: {
     type: Number,
     required: true,
     min: 1,
+  },
+  sale: {
+    type: Number,
+    min: 0,
+    max: 100,
+    default: 0,
+    required: true,
+  },
+  salePrice: {
+    type: Number,
+    min: 0,
   },
   stock: {
     type: Number,
@@ -23,8 +34,9 @@ const variantSchema = new mongoose.Schema({
   },
   sku: {
     type: String,
-    unique: true, // Mã SKU duy nhất cho từng biến thể
+    unique: true,
     required: true,
+    match: [/^[A-Z]{3}-[A-Z]{3}-[0-9]+-[0-9]{4}$/, "SKU phải có định dạng hợp lệ"],
   },
 });
 
@@ -56,8 +68,8 @@ const productSchema = new mongoose.Schema(
       default: "no",
     },
     variants: {
-      type: [variantSchema], // Thêm schema biến thể
-      required: true, //Sản phẩm phải có ít nhất 1 biến thể
+      type: [variantSchema],
+      required: true,
     },
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -70,10 +82,19 @@ const productSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+// Tính salePrice cho tất cả variants và làm tròn 2 chữ số
+productSchema.pre('save', function(next) {
+  this.variants.forEach(variant => {
+    if (variant.isModified('price') || variant.isModified('sale')) {
+      const calculatedSalePrice = variant.price * (1 - variant.sale / 100);
+      variant.salePrice = Number(calculatedSalePrice.toFixed(2)); // Làm tròn 2 số sau dấu phẩy
+      if (variant.salePrice < 0) variant.salePrice = 0; // Đảm bảo không âm
+    }
+  });
+  next();
+});
 
-//Text index để tìm kiếm theo name
 productSchema.index({ name: "text" });
-
 productSchema.index({ categoryId: 1 });
 
 export default mongoose.model("Product", productSchema);

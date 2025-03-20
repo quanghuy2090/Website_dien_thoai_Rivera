@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Category, getCategoriesById } from "../../../services/category";
+import React, { useContext, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import toast from "react-hot-toast";
+import { CategoryContext } from "../../../context/CategoryContext";
 
 const ListDetailCategory = () => {
   const { id } = useParams();
-  const [categoryDetail, setCategoryDetail] = useState<Category | null>(null);
-
+  const { getDetailCategory, state } = useContext(CategoryContext);
   useEffect(() => {
-    (async () => {
-      const { data } = await getCategoriesById(id!);
-      setCategoryDetail(data.data);
-      toast.success("Category id successfully");
-    })();
+    getDetailCategory(id!)
   }, []);
   return (
     <div className="content">
@@ -21,88 +15,93 @@ const ListDetailCategory = () => {
       </h1>
       <p className="mb-4 text-secondary">
         Đây là thông tin chi tiết của danh mục "
-        <strong>{categoryDetail?.name}</strong>". Bạn có thể xem thông tin và
+        <strong>{state.selectedCategory?.name}</strong>". Bạn có thể xem thông tin và
         quản lý danh mục<cite></cite> tại đây.
       </p>
       <div className="table-container">
-        <table className="table table-bordered border-primary">
+        <table className="table">
           <tbody>
-            <tr>
-              <th>Id</th>
-              <td>{categoryDetail?._id}</td>
-            </tr>
-            <tr>
-              <th>Tên danh mục</th>
-              <td>{categoryDetail?.name}</td>
-            </tr>
-            <tr>
-              <th>Mô tả</th>
-              <td>{categoryDetail?.slug}</td>
-            </tr>
-            <tr>
-              <th>Sản phẩm</th>
-              <td>
-                <table className="table table-bordered border-primary">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Tên sp</th>
-                      <th>Mô tả ngắn</th>
-                      <th>Mô tả chi tiết</th>
-                      <th>Ảnh</th>
-                      <th>Biến thể</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categoryDetail?.products?.map((r, index) => (
-                      <tr key={index}>
-                        <td>{r._id}</td>
-                        <td>{r.name}</td>
-                        <td>${r.short_description}</td>
-                        <td>{r.long_description}</td>
-                        <td>
-                          {r.images.map((image, i) => (
-                            <img
-                              key={i}
-                              src={image}
-                              alt=""
-                              width={60}
-                              className="me-2 rounded"
-                            />
-                          ))}
-                        </td>
-                        <td>
-                          <table className="table table-bordered border-primary">
-                            <thead>
-                              <tr>
-                                <th>Màu</th>
-                                <th>Bộ nhớ</th>
-                                <th>Giá</th>
-                                <th>Stock</th>
-                                <th>SKU</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {r.variants.map((v, i) => (
-                                <tr key={i}>
-                                  <td>{v.color}</td>
-                                  <td>{v.capacity}</td>
-                                  <td>{v.price}</td>
-                                  <td>{v.stock}</td>
-                                  <td>{v.sku}</td>
-                                </tr>
+            {state.selectedCategory && (
+              <>
+                <tr>
+                  <th>ID</th>
+                  <td>{state.selectedCategory._id}</td>
+                </tr>
+                <tr>
+                  <th>Categories</th>
+                  <td>{state.selectedCategory.name}</td>
+                </tr>
+                <tr>
+                  <th>Slug</th>
+                  <td>{state.selectedCategory.slug}</td>
+                </tr>
+                <tr>
+                  <th>Products</th>
+                  <td>
+                    {state.selectedCategory.products?.map((product) => (
+                      <table key={product._id} className="table table-bordered">
+                        <tbody>
+                          <tr>
+                            <th>Product ID</th>
+                            <td>{product._id}</td>
+                          </tr>
+                          <tr>
+                            <th>Product Name</th>
+                            <td>{product.name}</td>
+                          </tr>
+                          <tr>
+                            <th>Short Description</th>
+                            <td>{product.short_description}</td>
+                          </tr>
+                          <tr>
+                            <th>Long Description</th>
+                            <td>{product.long_description}</td>
+                          </tr>
+                          <tr>
+                            <th>Images</th>
+                            <td>
+                              {product.images.map((image, index) => (
+                                <img key={index} src={image} alt="product" style={{ width: "50px", height: "50px", marginRight: "5px" }} />
                               ))}
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th>Variants</th>
+                            <td>
+                              {product.variants.length > 0 ? (
+                                <table className="table table-bordered">
+                                  <tbody>
+                                    {product.variants.map((variant, index) => (
+                                      <tr key={index}>
+                                        <th>Color</th>
+                                        <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
+                                        <th>Capacity</th>
+                                        <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"} </td>
+                                        <th>Price</th>
+                                        <td>{variant.price}</td>
+                                        <th>Stock</th>
+                                        <td>{variant.stock}</td>
+                                        <th>SKU</th>
+                                        <td>{variant.sku}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              ) : (
+                                "No Variants"
+                              )}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     ))}
-                  </tbody>
-                </table>
-              </td>
-            </tr>
+                  </td>
+                </tr>
+              </>
+            )}
           </tbody>
         </table>
+
       </div>
     </div>
   );

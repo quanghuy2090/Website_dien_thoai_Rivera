@@ -5,13 +5,16 @@ const orderSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
-    orderItems: [
+    items: [
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
+          required: true,
+        },
+        variantId: {
+          type: mongoose.Schema.Types.ObjectId,
           required: true,
         },
         quantity: {
@@ -22,35 +25,54 @@ const orderSchema = new mongoose.Schema(
         price: {
           type: Number,
           required: true,
+          min: 1,
         },
       },
     ],
-    shippingAddress: {
-      // fullName: { type: String, required: true },
-      // phone: { type: String, required: true },
-      // address: { type: String, required: true },
-      ward: { type: String, required: true },
-      district: { type: String, required: true },
-      city: { type: String, required: true },
-    },
-    paymentMethod: {
-      type: String,
-      required: true,
-      enum: ["COD", "Online"],
-    },
-    paymentStatus: {
-      type: String,
-      required: true,
-      enum: ["Chưa thanh toán", "Đã thanh toán"],
-      default: "Chưa thanh toán",
-    },
-    totalPrice: {
+    totalAmount: {
       type: Number,
       required: true,
+      min: 0,
     },
-    orderStatus: {
+    shippingAddress: {
+      name: {
+        type: String,
+        // required: true,
+        maxlength: 100, // Tên người nhận hàng
+        trim: true,
+      },
+      phone: {
+        type: String,
+        // required: true,
+        match: [/^[0-9]{10,15}$/, "Số điện thoại phải từ 10 đến 15 chữ số"], // Số điện thoại
+      },
+      street: {
+        type: String,
+        // required: true,
+        maxlength: 255, // Địa chỉ cụ thể (số nhà, đường)
+        trim: true,
+      },
+      ward: {
+        type: String,
+        required: true,
+        maxlength: 100, // Phường/xã
+        trim: true,
+      },
+      district: {
+        type: String,
+        required: true,
+        maxlength: 100, // Quận/huyện
+        trim: true,
+      },
+      city: {
+        type: String,
+        required: true,
+        maxlength: 100, // Tỉnh/thành phố
+        trim: true,
+      },
+    },
+    status: {
       type: String,
-      required: true,
       enum: [
         "Chưa xác nhận",
         "Đã xác nhận",
@@ -61,12 +83,38 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "Chưa xác nhận",
     },
-    cancellationReason: { type: String }, // Lý do huỷ đơn
-    cancelledByAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" }, // Lưu tài khoản admin huỷ đơn (nếu có)
+    paymentMethod: {
+      type: String,
+      enum: ["COD", "Online"],
+      required: true,
+    },
+    paymentStatus: {
+      type: String,
+      required: true,
+      enum: ["Chưa thanh toán", "Đã thanh toán", "Không đạt"],
+      default: "Chưa thanh toán",
+    },
+
+    cancelReason: {
+      type: String,
+      maxlength: 500,
+      trim: true,
+      default: null,
+    },
+    cancelledBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   {
     timestamps: true,
+    versionKey: false,
   }
 );
+
+// Index để tối ưu hóa tìm kiếm theo userId và status
+orderSchema.index({ userId: 1 });
+orderSchema.index({ status: 1 });
 
 export default mongoose.model("Order", orderSchema);

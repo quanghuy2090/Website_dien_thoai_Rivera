@@ -3,8 +3,10 @@ import {
   createProduct,
   getAllProduct,
   getDetailProduct,
+  isHotProduct,
   removeProduct,
   searchProductByName,
+  statusProduct,
   updateProduct,
 } from "../controllers/product.js";
 import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
@@ -16,6 +18,8 @@ routerProduct.get("/:id", getDetailProduct);
 routerProduct.post("/", checkAdminPermission, createProduct);
 routerProduct.put("/:id", checkAdminPermission, updateProduct);
 routerProduct.delete("/:id", checkAdminPermission, removeProduct);
+routerProduct.put("/status/:id", checkAdminPermission, statusProduct);
+routerProduct.patch("/isHot/:id", checkAdminPermission, isHotProduct);
 
 // tim kiem san pham
 routerProduct.post("/search", searchProductByName);

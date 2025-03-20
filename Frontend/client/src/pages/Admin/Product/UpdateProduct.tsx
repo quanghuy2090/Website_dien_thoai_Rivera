@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { Category, getProductById, Product } from "../../../services/product";
-import { useNavigate, useParams } from "react-router-dom";
+import { Category, getProductById, Product, Variants } from "../../../services/product";
+import { useParams } from "react-router-dom";
 import { getCategories } from "../../../services/category";
-import { updateProduct } from "../../../services/product";
 import toast from "react-hot-toast";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
-import Swal from "sweetalert2";
+import axios from "axios";
+import { ProductContext } from "../../../context/ProductContext";
+import { ColorContext } from "../../../context/ColorContext";
+import { CapacityContext } from "../../../context/CapacityContext";
 
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
@@ -22,11 +23,13 @@ const productSchema = z.object({
   variants: z
     .array(
       z.object({
+
         color: z.string().min(1, "Màu sắc không được để trống"),
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
-        sku: z.string().min(1, "SKU không được để trống"),
+        sku: z.string().nonempty("SKU không được để trống"), // Bắt buộc SKU phải có giá trị
+        sale: z.number().max(100, "sale max 100%"),
       })
     )
     .min(1, "Cần ít nhất 1 biến thể"),
@@ -47,7 +50,7 @@ const UpdateProduct = () => {
       long_description: "",
       images: [],
       categoryId: "",
-      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "" }],
+      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "", sale: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -60,7 +63,10 @@ const UpdateProduct = () => {
   const [imageInputs, setImageInputs] = useState<
     { file: File | null; preview: string }[]
   >([{ file: null, preview: "" }]);
-  const nav = useNavigate();
+  // const nav = useNavigate();
+  const { updateProducts } = useContext(ProductContext)
+  const { states } = useContext(CapacityContext);
+  const { state } = useContext(ColorContext)
 
   // Xử lý khi chọn ảnh
   const handleImageChange = (
@@ -121,6 +127,7 @@ const UpdateProduct = () => {
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
+      toast.success("Lấy chi tiết sản phẩm  thành công!");
       const images = Array.isArray(data.data.images)
         ? data.data.images.slice(0, 5)
         : [data.data.images];
@@ -132,13 +139,20 @@ const UpdateProduct = () => {
         short_description: data.data.short_description,
         long_description: data.data.long_description,
         categoryId: data.data.categoryId?._id || data.data.categoryId,
-        variants:
-          data.data.variants.length > 0
-            ? data.data.variants
-            : [{ color: "", capacity: "", price: 1, stock: 0, sku: "" }],
+        variants: data.data.variants.length > 0
+          ? data.data.variants.map((v: Variants) => ({ // 🔥 Định nghĩa kiểu dữ liệu cho v
+            ...v,
+            color: typeof v.color === "object" ? v.color._id : v.color,
+            capacity: typeof v.capacity === "object" ? v.capacity._id : v.capacity,
+            sku: v.sku && v.sku !== "null" ? v.sku : `SKU-${Date.now()}`
+          }))
+          : [{ color: "", capacity: "", price: 1, stock: 0, sku: `SKU-${Date.now()}`, sale: 0 }]
       });
+
+
+
     })();
-  }, []);
+  }, [id, reset]);
 
   const onSubmit = async (product: Product) => {
     try {
@@ -158,46 +172,11 @@ const UpdateProduct = () => {
       }
 
       product.images = imageUrls; // Gán danh sách ảnh đã cập nhật
-      await updateProduct(id!, product);
-      Swal.fire({
-        title: "Thành công",
-        text: "Sửa sản phẩm thành công",
-        icon: "success",
-        confirmButtonText: "OK",
-      }).then(() => {
-        nav("/admin/products");
-      });
+      updateProducts(id!, product);
     } catch (err) {
-      const error = err as AxiosError<{ message: string }>;
-
-      if (error.response) {
-        console.error("Phản hồi từ server:", error.response.data); // Log phản hồi từ server
-      }
-
-      if (error.response && error.response.status === 400) {
-        const errorMessage = error.response.data.message;
-
-        if (errorMessage.includes("SKU")) {
-          Swal.fire({
-            title: "Lỗi",
-            text: "SKU đã tồn tại",
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        } else {
-          Swal.fire({
-            title: "Lỗi",
-            text: errorMessage,
-            icon: "error",
-            confirmButtonText: "OK",
-          });
-        }
-        return;
-      }
-      toast.error("Product update unsuccessful");
+      console.log(err)
     }
   };
-
   return (
     <div className="content">
       <div className="container d-flex justify-content-center align-items-center min-vh-100 ">
@@ -315,11 +294,12 @@ const UpdateProduct = () => {
                         <option disabled value="">
                           Chọn màu
                         </option>
-                        <option value="Red">Red</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Black">Black</option>
-                        <option value="White">White</option>
-                        <option value="Green">Green</option>
+
+                        {state.colors.map((color) => (
+                          <option key={color._id} value={color._id}>
+                            {color.name}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.color && (
                         <p className="tex-danger">
@@ -336,11 +316,11 @@ const UpdateProduct = () => {
                         <option disabled value="">
                           Chọn Bộ Nhớ
                         </option>
-                        <option value="64GB">64GB</option>
-                        <option value="128GB">128GB</option>
-                        <option value="256GB">256GB</option>
-                        <option value="512GB">512GB</option>
-                        <option value="1TB">1TB</option>
+                        {states.capacitys.map((capacity) => (
+                          <option key={capacity._id} value={capacity._id}>
+                            {capacity.value}
+                          </option>
+                        ))}
                       </select>
                       {errors.variants?.[index]?.capacity && (
                         <p className="tex-danger">
@@ -368,6 +348,22 @@ const UpdateProduct = () => {
                       )}
                     </div>
                     <div className="col-md-4">
+                      <label className="fw-bold">Giá sale</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        {...register(`variants.${index}.sale`, {
+                          required: true,
+                          valueAsNumber: true,
+                        })}
+                      />
+                      {errors.variants?.[index]?.sale && (
+                        <p className="tex-danger">
+                          {errors.variants[index]?.sale?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="col-md-4">
                       <label className="fw-bold">Stock</label>
                       <input
                         type="number"
@@ -383,10 +379,10 @@ const UpdateProduct = () => {
                         </p>
                       )}
                     </div>
-                    <div className="col-md-4">
+                    {/* <div className="col-md-4">
                       <label className="fw-bold">SKU</label>
                       <input
-                        type="text"
+                        type="text" disabled
                         className="form-control"
                         {...register(`variants.${index}.sku`, {
                           required: true,
@@ -397,7 +393,7 @@ const UpdateProduct = () => {
                           {errors.variants[index]?.sku?.message}
                         </p>
                       )}
-                    </div>
+                    </div> */}
                   </div>
 
                   <button
@@ -418,7 +414,8 @@ const UpdateProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: "",
+                    sku: `SKU-${Date.now()}`,
+                    sale: 0,
                   })
                 }
               >

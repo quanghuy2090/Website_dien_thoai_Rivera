@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Carts, deleteCart, getCart, updateCart } from "../../services/cart";
-import toast from "react-hot-toast";
+import { Carts, deleteAllCart, deleteCart, getCart } from "../../services/cart";
 import { Link } from "react-router-dom";
+import "../../css/style.css";
 
 const Cart = () => {
-  const [carts, setCarts] = useState<Carts[]>(() => []);
+  const [carts, setCarts] = useState<Carts[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [userId, setUserId] = useState<string | null>(null); // Lưu userId vào state
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -14,213 +14,149 @@ const Cart = () => {
       try {
         const user = JSON.parse(userData);
         if (user && user._id) {
-          setUserId(user._id); // Lưu userId vào state
-          fetchCart(user._id);
+          setUserId(user._id);
+          fetchCart();
         }
       } catch (error) {
-        console.error(" Lỗi khi parse user data:", error);
+        console.error("Lỗi khi parse user data:", error);
       }
     }
   }, []);
 
-  const fetchCart = async (userId: string) => {
+  const fetchCart = async () => {
     try {
-      console.log(" Fetching cart for user ID:", userId);
-      const { data } = await getCart(userId);
-      console.log("Dữ liệu giỏ hàng:", data);
-      setCarts(data.cart.items || []);
-      setTotalAmount(data.totalAmount || 0);
+      const { data } = await getCart();
+      if (data.data && data.data.items) {
+        setCarts(data.data.items);
+        setTotalAmount(data.data.total || 0);
+      }
     } catch (error) {
-      console.error(" Lỗi khi lấy giỏ hàng:", error);
+      console.error("Lỗi khi gọi API giỏ hàng:", error);
     }
   };
 
-  const removeCart = async (productId: string) => {
-    if (!userId || !productId) {
-      console.error(" userId hoặc productId bị thiếu:", { userId, productId });
-      return;
-    }
+  const handleRemoveFromCart = async (productId: string) => {
     try {
-      const isConfirmed = window.confirm("Bạn có chắc chắn muốn xóa sản phẩm?");
-      if (isConfirmed) {
-        // Lọc ra các sản phẩm còn lại sau khi xóa
-        const updatedCarts = carts.filter(
-          (cart) => cart.productId._id !== productId
+      if (window.confirm("Xoá sản phẩm này khỏi giỏ hàng?")) {
+        await deleteCart(productId);
+        setCarts((prevItems) =>
+          prevItems.filter((item) => item.productId !== productId)
         );
-        setCarts(updatedCarts);
-
-        // Tính lại tổng tiền
-        const newTotalAmount = updatedCarts.reduce(
-          (sum, item) => sum + item.productId.price * item.quantity,
-          0
-        );
-        setTotalAmount(newTotalAmount);
-
-        // Gửi request xóa sản phẩm khỏi backend
-        await deleteCart(userId, productId);
-        toast.success("Cart deleted successfully");
-        console.log(
-          " Sản phẩm đã được xóa, tổng tiền cập nhật:",
-          newTotalAmount
+        // Update total price
+        setTotalAmount(
+          (prevTotal) =>
+            prevTotal -
+              carts.find((item) => item.productId === productId)?.subtotal || 0
         );
       }
     } catch (error) {
-      console.error(" Lỗi khi xóa sản phẩm khỏi giỏ hàng:", error);
-      toast.error("Error");
+      console.error("Lỗi khi xóa sản phẩm:", error);
     }
   };
 
-  const handleUpdateCart = async (productId: string, change: number) => {
-    const updatedCart = carts.map((item) =>
-      item.productId._id === productId
-        ? { ...item, quantity: Math.max(1, item.quantity + change) }
-        : item
-    );
-
-    setCarts(updatedCart);
-
-    const newTotalAmount = updatedCart.reduce(
-      (sum, item) => sum + item.productId.price * item.quantity,
-      0
-    );
-    setTotalAmount(newTotalAmount);
-
-    try {
-      // Gửi request update lên backend
-      const quantity =
-        updatedCart.find((item) => item.productId?._id === productId)
-          ?.quantity ?? 1;
-      const newCartData = await updateCart(
-        String(userId),
-        productId,
-        Number(quantity)
-      );
-      toast.success("Updated quantity cart successfully");
-      if (newCartData.data && Array.isArray(newCartData.data.data)) {
-        setCarts(newCartData.data.cart); // Cập nhật lại state với dữ liệu từ server
-      }
-    } catch (error) {
-      console.error("Lỗi cập nhật giỏ hàng", error);
-      toast.error("Error");
+  const deleteAll = async (_id: string) => {
+    if (window.confirm("Bạn có chắc chắn muốn xoá toàn bộ giỏ hàng?")) {
+      await deleteAllCart(_id);
+      setCarts([]);
+      setTotalAmount(0);
     }
   };
 
   const formatPrice = (price: number) => {
-    if (price === undefined || price === null) {
-      return "0 VND"; // Return a default value if price is undefined
-    }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
+    if (!price) return "0 VND";
+    return price.toLocaleString("vi-VN") + " VND";
   };
 
   return (
-    <div>
-      {/* Page Header Start */}
-      <div className="container-fluid bg-secondary mb-5">
-        <div
-          className="d-flex flex-column align-items-center justify-content-center"
-          style={{ minHeight: 150 }}
-        >
-          <h1 className="font-weight-semi-bold text-uppercase mb-3">
-            Giỏ hàng
-          </h1>
-          <div className="d-inline-flex">
-            <p className="m-0">
-              <a href="/">Trang chủ</a>
-            </p>
-            <p className="m-0 px-2">-</p>
-            <p className="m-0">Giỏ hàng</p>
+    <>
+      {/* BREADCRUMB */}
+      <div id="breadcrumb" className="section">
+        {/* container */}
+        <div className="container">
+          {/* row */}
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li className="active">Giỏ hàng</li>
+              </ul>
+            </div>
           </div>
+          {/* /row */}
         </div>
+        {/* /container */}
       </div>
       {/* Page Header End */}
       {/* Cart Start */}
       <div className="container-fluid pt-5">
         <div className="row px-xl-5">
           <div className="col-lg-8 table-responsive mb-5">
-            <table className="table table-striped table-hover table-bordered text-center align-middle">
-              <thead style={{ backgroundColor: "#0b5ed7", color: "white" }}>
+            <table className="table table-bordered text-center mb-0">
+              <thead className="bg-secondary text-dark">
                 <tr>
-                  <th scope="col">Sản phẩm</th>
-                  <th scope="col">Giá bán</th>
-                  <th scope="col">Số lượng</th>
-                  <th scope="col">Thành tiền</th>
-                  <th scope="col">Chức năng </th>
+                  <th>Sản phẩm</th>
+                  <th>Giá gốc</th>
+                  <th>Số lượng</th>
+                  <th>Thành giá</th>
+                  <th>Hủy</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="align-middle">
                 {carts.map((item) => (
-                  <tr key={item.productId._id}>
+                  <tr>
                     <td className="align-middle">
                       {item.productId?.images && (
-                        <div className="d-flex align-items-center">
-                          <img
-                            src={item.productId.images[0]}
-                            alt={item.productId?.name || "Sản phẩm"}
-                            width={100}
-                            height={70}
-                            className="me-2 rounded border"
-                          />
-                          <Link
-                            className="text-decoration-none text-dark fw-medium"
-                            to={`/product/${item.productId._id}`}
-                          >
-                            {item.productId?.name}
-                          </Link>
-                        </div>
+                        <img src={item.productId.images[0]} alt="" width={50} />
                       )}
+                      <Link className="table align-middle" to={`/product/${item.productId._id}`}>{item.productId?.name}</Link>
                     </td>
-
                     <td className="align-middle">
                       {formatPrice(item.productId?.price)}
                     </td>
-
                     <td className="align-middle">
                       <div
-                        className="d-flex align-items-center justify-content-between mx-auto"
-                        style={{ width: 120 }}
+                        className="input-group quantity mx-auto"
+                        style={{ width: 100 }}
                       >
-                        <button
-                          className="btn btn-sm"
-                          style={{ backgroundColor: "#0b5ed7", color: "white" }}
-                          onClick={() =>
-                            handleUpdateCart(item.productId._id, -1)
-                          }
-                          disabled={item.quantity <= 1}
-                        >
-                          <i className="fa fa-minus" />
-                        </button>
-
+                        <div className="input-group-btn">
+                          <button
+                            className="btn btn-sm btn-primary btn-minus"
+                            onClick={() =>
+                              handleUpdateCart(item.productId._id, -1)
+                            }
+                            disabled={item.quantity <= 1}
+                          >
+                            <i className="fa fa-minus" />
+                          </button>
+                        </div>
                         <input
                           type="text"
-                          className="form-control form-control-sm text-center border-dark mx-2"
+                          className="form-control form-control-sm bg-secondary text-center"
                           value={item.quantity}
-                          readOnly
-                          style={{ width: 40 }}
                         />
-
-                        <button
-                          className="btn btn-sm"
-                          style={{ backgroundColor: "#0b5ed7", color: "white" }}
-                          onClick={() =>
-                            handleUpdateCart(item.productId._id, 1)
-                          }
-                        >
-                          <i className="fa fa-plus" />
-                        </button>
+                        <div className="input-group-btn">
+                          <button
+                            className="btn btn-sm btn-primary btn-plus"
+                            onClick={() =>
+                              handleUpdateCart(item.productId._id, 1)
+                            }
+                          >
+                            <i className="fa fa-plus" />
+                          </button>
+                        </div>
                       </div>
                     </td>
-
                     <td className="align-middle">
                       {formatPrice(item.productId.price * item.quantity)}
                     </td>
-
                     <td className="align-middle">
                       <button
-                        className="btn btn-sm"
-                        style={{ backgroundColor: "#0b5ed7", color: "white" }}
+                        className="btn btn-sm btn-primary"
                         onClick={() => removeCart(item.productId._id)}
                       >
-                        <i className="fa fa-times" />
+                        ❌
                       </button>
                     </td>
                   </tr>
@@ -228,50 +164,66 @@ const Cart = () => {
               </tbody>
             </table>
           </div>
-
-          {/* Tổng quan */}
           <div className="col-lg-4">
-            <div className="card shadow-sm border-0 mb-4">
-              <div
-                className="card-header text-white text-center"
-                style={{ backgroundColor: "#0b5ed7"}}
-              >
-                <h5 className="fw-bold m-0">Tổng quan</h5>
-              </div>
-
-              <div className="card-body">
-                <div className="d-flex justify-content-between mb-3">
-                  <h6 className="fw-medium text-dark">Tổng tiền hàng</h6>
-                  <h6 className="fw-medium text-dark">
-                    {formatPrice(totalAmount)}
-                  </h6>
-                </div>
-                <div className="d-flex justify-content-between">
-                  <h6 className="fw-medium text-dark">Phí vận chuyển</h6>
-                  <h6 className="fw-medium text-dark">Miễn phí</h6>
+            {/* <form className="mb-5" action="">
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control p-4"
+                  placeholder="Coupon Code"
+                />
+                <div className="input-group-append">
+                  <button className="btn btn-primary">Apply Coupon</button>
                 </div>
               </div>
-
-              <div className="card-footer bg-light border-0">
+            </form> */}
+            <div className="card border-secondary mb-5">
+              <div className="card-header bg-secondary border-0">
+                <h4 className="font-weight-semi-bold m-0">Tổng quan</h4>
+              </div>
+              {/* <div className="card-body">
+                <div className="d-flex justify-content-between mb-3 pt-1">
+                  <h6 className="font-weight-medium">Subtotal</h6>
+                  <h6 className="font-weight-medium">$150</h6>
+                </div>
                 <div className="d-flex justify-content-between">
-                  <h5 className="text-dark fw-bold">Tổng cộng</h5>
-                  <h5 className="text-dark fw-bold">
+                  <h6 className="font-weight-medium">Shipping</h6>
+                  <h6 className="font-weight-medium">$10</h6>
+                </div>
+              </div> */}
+              <div className="card-footer border-secondary bg-transparent">
+                <div className="d-flex justify-content-between mt-2">
+                  <h5 className="font-weight-bold">Tổng</h5>
+                  <h5 className="font-weight-bold">
                     {formatPrice(totalAmount)}
                   </h5>
                 </div>
                 <Link
-                  to="/checkout"
-                  className="btn w-100 mt-3 py-3 fw-bold text-white"
-                  style={{ backgroundColor: "#0b5ed7" }}
+                  to={`/checkout`}
+                  className="btn btn-block btn-primary my-3 py-3"
                 >
                   Thanh Toán
                 </Link>
               </div>
             </div>
-          </div>
+          )}
+        </div>
+        <div className="delete-all-container">
+          <button
+            className="delete-all-btn"
+            onClick={() => deleteAll(carts._id)}
+          >
+            🗑 Xóa tất cả
+          </button>
+        </div>
+        {/* 💰 Cart Summary */}
+        <div className="cart-summary">
+          <h3>Tổng tiền: {formatPrice(totalAmount)}</h3>
+          <Link to="/checkout" className="checkout-btn">
+            🛍 Thanh toán ngay
+          </Link>
         </div>
       </div>
-
       {/* Cart End */}
     </div>
   );

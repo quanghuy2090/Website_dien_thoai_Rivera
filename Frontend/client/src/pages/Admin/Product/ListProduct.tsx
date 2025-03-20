@@ -1,73 +1,21 @@
-import React, { useEffect, useState } from "react";
-import {
-  getAllProduct,
-  Product,
-  searchProduct,
-} from "../../../services/product";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { removeProduct } from "../../../services/product";
-import { GrUpdate } from "react-icons/gr";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
-import Swal from "sweetalert2";
+import { FaPen } from "react-icons/fa";
+import { ProductContext } from "../../../context/ProductContext";
 const ListProduct = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [search, setSearch] = useState<string>("");
+  const { removeProducts, state } = useContext(ProductContext);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  useEffect(() => {
-    fetchProduct();
-  }, []);
-
-  const fetchProduct = async () => {
-    const res = await getAllProduct();
-    setProducts(res.data.data);
+  const filteredProducts = state.products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const formatPrice = (price: number) => {
+    return price.toLocaleString("vi-VN") + " VND";
   };
-
-  const deleteProduct = async (_id: string) => {
-    try {
-      const isConfirmed = window.confirm(`Are you sure you want to delete?`);
-      if (isConfirmed) {
-        setProducts((prevProducts) =>
-          prevProducts.filter((product) => product._id !== _id)
-        );
-        await removeProduct(_id);
-        Swal.fire({
-          title: "Thành công",
-          text: "Xóa sản phẩm thành công",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-      }
-    } catch (error) {
-      console.error(error);
-      Swal.fire({
-        title: "Lỗi",
-        text: "Đã có lỗi xảy ra, vui lòng thử lại sau",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    }
-  };
-
-  useEffect(() => {
-    const fetchSearchResults = async () => {
-      if (!search.trim()) {
-        fetchProduct();
-        return;
-      }
-      try {
-        const result = await searchProduct(search);
-        setProducts(result?.data?.data || []);
-      } catch (error) {
-        console.error("Error searching products:", error);
-      }
-    };
-
-    const delayDebounce = setTimeout(fetchSearchResults, 500);
-    return () => clearTimeout(delayDebounce);
-  }, [search]);
-
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -85,50 +33,52 @@ const ListProduct = () => {
           <div>
             <label className="d-flex align-items-center">
               Hiển thị
-              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2">
+              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              >
                 <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
               </select>
               mục
             </label>
           </div>
 
-          {/* Ô tìm kiếm căn phải */}
           <div>
             <input
               type="text"
               className="form-control form-control-sm"
               placeholder="Nhập tên sản phẩm..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
-        <Link to={`/admin/products/add`} className="btn btn-primary">
+        <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
           <IoMdAdd />
         </Link>
         <table className="table table-bordered">
           <thead className="thead-light">
             <tr>
-              <th>ID</th>
+              <th>Stt</th>
               <th>Tên sp</th>
-              <th>Mô tả ngắn</th>
-              <th>Mô tả chi tiết</th>
+              {/* <th>Mô tả ngắn</th>
+              <th>Mô tả chi tiết</th> */}
               <th>Ảnh</th>
               <th>Biến thể</th>
               <th>Danh mục</th>
+              <th>Trạng thái</th>
               <th>Tùy chọn</th>
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
-              <tr key={product._id}>
-                <td>{product._id}</td>
+            {filteredProducts.slice(0, itemsPerPage).map((product, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
                 <td>{product.name}</td>
-                <td>{product.short_description}</td>
-                <td>{product.long_description}</td>
+                {/* <td>{product.short_description}</td>
+                <td>{product.long_description}</td> */}
                 {/* Hiển thị ảnh sản phẩm */}
                 <td>
                   <div
@@ -171,6 +121,8 @@ const ListProduct = () => {
                         <th>Bộ nhớ</th>
                         <th>Màu sắc</th>
                         <th>Giá</th>
+                        <th>Sale</th>
+                        <th>Giá Sale</th>
                         <th>Stock</th>
                         <th>SKU</th>
                       </tr>
@@ -178,9 +130,11 @@ const ListProduct = () => {
                     <tbody>
                       {product.variants.map((v, index) => (
                         <tr key={index}>
-                          <td>{v.capacity}</td>
-                          <td>{v.color}</td>
-                          <td>{v.price}</td>
+                          <td>{v.color && typeof v.color === "object" ? v.color.name : v.color ?? "Không xác định"}</td>
+                          <td>{v.capacity && typeof v.capacity === "object" ? v.capacity.value : v.capacity ?? "Không xác định"}</td>
+                          <td>{formatPrice(v.price)}</td>
+                          <td>{v.sale}%</td>
+                          <td>{formatPrice(v.salePrice)}</td>
                           <td>{v.stock}</td>
                           <td>{v.sku}</td>
                         </tr>
@@ -192,16 +146,17 @@ const ListProduct = () => {
                 {/* Hiển thị danh mục sản phẩm */}
                 <td>
                   {typeof product.categoryId === "object" &&
-                  product.categoryId !== null
+                    product.categoryId !== null
                     ? product.categoryId.name
                     : product.categoryId}
                 </td>
+                <td>{product.status}</td>
 
                 {/* Nút hành động */}
                 <td>
                   <button
                     className="btn btn-danger me-2 "
-                    onClick={() => deleteProduct(product._id)}
+                    onClick={() => removeProducts(product._id)}
                   >
                     <MdDelete />
                   </button>
@@ -209,11 +164,11 @@ const ListProduct = () => {
                     to={`/admin/products/update/${product._id}`}
                     className="btn btn-warning me-2"
                   >
-                    <GrUpdate />
+                    <FaPen />
                   </Link>
                   <Link
                     to={`/admin/products/detail/${product._id}`}
-                    className="btn btn-info mt-2"
+                    className="btn btn-info me-2"
                   >
                     <FaEye />
                   </Link>
