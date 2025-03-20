@@ -1,82 +1,81 @@
-import Order from "../models/Order.js"; // Model Order
-import Cart from "../models/Cart.js"; // Model Cart
-import Product from "../models/Product.js"; // Model Product
+import Order from "../models/Order.js";
+import Product from "../models/Product.js";
+import Cart from "../models/Cart.js";
+import User from "../models/User.js"; // Import model User để lấy thông tin
 
 export const createOrder = async (req, res) => {
   try {
-    // Bước 1: Lấy thông tin user từ middleware checkUserPermission
-    const user = req.user;
-    const userId = user._id;
+    const userId = req.user._id;
+    const { shippingAddress, paymentMethod } = req.body;
 
-    // Bước 2: Lấy thông tin giỏ hàng của user
+    // Bước 1: Lấy giỏ hàng của user
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
-      select: "variants",
+      select: "name variants",
     });
 
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({
-        message: "Giỏ hàng trống, không thể tạo đơn hàng",
+        message: "Giỏ hàng trống",
       });
     }
 
-    // Bước 3: Lấy thông tin địa chỉ giao hàng từ body request
-    const { shippingAddress } = req.body;
-    if (!shippingAddress) {
-      return res.status(400).json({
-        message: "Vui lòng cung cấp địa chỉ giao hàng",
-      });
-    }
-
-    // Bước 4: Tạo danh sách items cho đơn hàng và tính tổng tiền
-    let totalAmount = 0;
+    // Bước 2: Kiểm tra và chuẩn bị dữ liệu cho order items
     const orderItems = [];
-
     for (const cartItem of cart.items) {
       const product = cartItem.productId;
-      const variant = product.variants.find((v) =>
-        v._id.equals(cartItem.variantId)
+      const variant = product.variants.find(v => 
+        v._id.toString() === cartItem.variantId.toString()
       );
 
       if (!variant) {
         return res.status(400).json({
-          message: `Không tìm thấy biến thể cho sản phẩm ${product.name}`,
+          message: `Không tìm thấy variant cho sản phẩm ${product.name}`,
         });
       }
 
-      // Kiểm tra số lượng tồn kho
       if (variant.stock < cartItem.quantity) {
         return res.status(400).json({
-          message: `Sản phẩm ${product.name} (biến thể ${variant.sku}) không đủ hàng`,
+          message: `Sản phẩm ${product.name} (${variant.color}/${variant.capacity}) không đủ hàng`,
         });
       }
 
-      const itemTotal = variant.price * cartItem.quantity;
-      totalAmount += itemTotal;
-
       orderItems.push({
-        productId: cartItem.productId,
-        variantId: cartItem.variantId,
+        productId: product._id,
+        variantId: variant._id,
         quantity: cartItem.quantity,
         price: variant.price,
+        salePrice: variant.salePrice,
+        color: cartItem.color,
+        capacity: cartItem.capacity,
       });
     }
 
-    // Bước 5: Tạo đơn hàng mới với thanh toán COD
-    const newOrder = new Order({
+    // Bước 3: Tính totalAmount
+    const totalAmount = orderItems.reduce((sum, item) => {
+      return sum + (item.salePrice || 0) * (item.quantity || 0);
+    }, 0);
+
+    // Bước 4: Lấy thông tin user để điền name và phone nếu thiếu
+    const user = await User.findById(userId).select("userName phone");
+    const finalShippingAddress = {
+      ...shippingAddress,
+      userName: shippingAddress.userName || user.userName,
+      phone: shippingAddress.phone || user.phone,
+    };
+
+    // Bước 5: Tạo đơn hàng
+    const order = new Order({
       userId,
       items: orderItems,
-      totalAmount,
-      shippingAddress,
-      paymentMethod: "COD",
-      paymentStatus: "Chưa thanh toán", // COD mặc định chưa thanh toán
-      status: "Chưa xác nhận", // Trạng thái ban đầu
+      shippingAddress: finalShippingAddress,
+      paymentMethod,
+      status: "Chưa xác nhận",
+      paymentStatus: "Chưa thanh toán",
+      totalAmount: Number(totalAmount.toFixed(2)),
     });
 
-    // Bước 6: Lưu đơn hàng
-    const savedOrder = await newOrder.save();
-
-    // Bước 7: Cập nhật số lượng tồn kho và xóa giỏ hàng
+    // Bước 6: Cập nhật số lượng tồn kho
     for (const item of orderItems) {
       await Product.updateOne(
         { _id: item.productId, "variants._id": item.variantId },
@@ -84,18 +83,24 @@ export const createOrder = async (req, res) => {
       );
     }
 
-    // Xóa giỏ hàng sau khi tạo đơn hàng thành công
+    // Bước 7: Lưu đơn hàng và xóa giỏ hàng
+    await order.save();
     await Cart.findOneAndUpdate(
       { userId },
-      { $set: { items: [] } },
-      { new: true }
+      { $set: { items: [], totalPrice: 0, totalSalePrice: 0 } }
     );
 
-    // Bước 8: Trả về kết quả
+    // Bước 8: Populate thêm thông tin để trả về đầy đủ
+    const populatedOrder = await Order.findById(order._id)
+      .populate("userId", "name email") // Populate thông tin user
+      .populate("items.productId", "name"); // Populate tên sản phẩm
+
+    // Bước 9: Trả về tất cả thông tin đơn hàng
     return res.status(201).json({
-      message: "Đơn hàng đã được tạo thành công",
-      order: savedOrder,
+      message: "Tạo đơn hàng thành công",
+      order: populatedOrder, // Trả về toàn bộ thông tin đơn hàng đã populate
     });
+
   } catch (error) {
     return res.status(500).json({
       name: error.name,
@@ -103,7 +108,6 @@ export const createOrder = async (req, res) => {
     });
   }
 };
-
 
 
 // Cập nhật trạng thái đơn hàng
@@ -220,7 +224,8 @@ export const getAllOrders = async (req, res) => {
   try {
     // Truy vấn tất cả đơn hàng, sắp xếp theo thời gian mới nhất
     const orders = await Order.find()
-      .populate("userId", "userName email phone address").populate("orderItems.productId", "name price images") // Lấy thông tin user đặt đơn
+      .populate("userId", "userName email phone address")
+      .populate("orderItems.productId", "name price images") // Lấy thông tin user đặt đơn
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -242,10 +247,9 @@ export const getAllOrdersByUser = async (req, res) => {
 
   try {
     // Tìm tất cả đơn hàng theo userId và populate để lấy thông tin user
-    const orders = await Order.find({ userId }).populate(
-      "userId",
-      "userName email phone address"
-    ).populate("orderItems.productId", "name price images");
+    const orders = await Order.find({ userId })
+      .populate("userId", "userName email phone address")
+      .populate("orderItems.productId", "name price images");
 
     if (!orders || orders.length === 0) {
       return res
@@ -277,7 +281,9 @@ export const getOrderDetails = async (req, res) => {
       .populate("orderItems.productId", "name price images"); // Lấy thông tin sản phẩm
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Đơn hàng không tồn tại" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Đơn hàng không tồn tại" });
     }
 
     return res.status(200).json({
@@ -290,4 +296,3 @@ export const getOrderDetails = async (req, res) => {
     return res.status(500).json({ success: false, message: "Lỗi server" });
   }
 };
-
