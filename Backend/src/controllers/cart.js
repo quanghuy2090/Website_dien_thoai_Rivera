@@ -21,11 +21,11 @@ export const createCart = async (req, res) => {
 
     // Bước 1: Kiểm tra sản phẩm có tồn tại không
     const product = await Product.findById(productObjectId).populate("variants");
+    console.log('Found product:', product);  // Log sản phẩm
     if (!product) {
-      return res.status(404).json({
-        message: "Sản phẩm không tồn tại",
-      });
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
     }
+
 
     // Bước 2: Kiểm tra trạng thái sản phẩm
     if (product.status === "banned") {
@@ -298,7 +298,7 @@ export const removeAllCart = async (req, res) => {
 export const getAllCart = async (req, res) => {
   try {
     const userId = req.user._id;
-    
+
     // Bước 1: Tìm giỏ hàng của user
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
@@ -306,34 +306,32 @@ export const getAllCart = async (req, res) => {
     });
 
     if (!cart) {
-      return res.status(404).json({
-        message: "Giỏ hàng không tồn tại",
-      });
+      return res.status(404).json({ message: "Giỏ hàng không tồn tại" });
     }
 
-    // Bước 2: Kiểm tra nếu giỏ hàng trống
     if (cart.items.length === 0) {
       return res.status(200).json({
         message: "Giỏ hàng hiện đang trống",
-        cart: {
-          userId: cart.userId,
-          items: [],
-          totalPrice: 0,
-          totalSalePrice: 0,
-        },
+        cart: { userId: cart.userId, items: [], totalPrice: 0, totalSalePrice: 0 },
       });
     }
 
-    // Bước 3: Lấy thông tin chi tiết của từng sản phẩm và biến thể
+    // Bước 2: Lấy thông tin chi tiết của từng sản phẩm và biến thể
     const cartItems = await Promise.all(
       cart.items.map(async (item) => {
-        const product = await Product.findById(item.productId).populate({
-          path: "variants",
-          match: { _id: item.variantId },
-          select: "color capacity price sale salePrice stock sku",
-        });
+        // 👉 Sửa lỗi populate tại đây: Gọi trên `Product.findById()`
+        const product = await Product.findById(item.productId)
+          .populate({
+            path: "variants",
+            match: { _id: item.variantId },
+            populate: [
+              { path: "color", select: "name" },  // Lấy tên màu sắc
+              { path: "capacity", select: "value" }, // Lấy giá trị dung lượng
+            ],
+            select: "color capacity price sale salePrice stock sku",
+          });
 
-        const variant = product.variants[0]; // Lấy variant khớp với variantId
+        const variant = product?.variants[0]; // Lấy variant khớp với variantId
 
         return {
           productId: item.productId,
@@ -341,19 +339,18 @@ export const getAllCart = async (req, res) => {
           quantity: item.quantity,
           price: item.price,
           salePrice: item.salePrice,
-          color: variant.color,
-          capacity: variant.capacity,
-          stock: variant.stock,
-          sku: variant.sku,
-          productName: product.name,
-          productImage: product.images[0], // Lấy ảnh đầu tiên
-          shortDescription: product.short_description,
-          status: product.status,
+          color: variant?.color?.name || "N/A", // Tránh lỗi null
+          capacity: variant?.capacity?.value || "N/A",
+          stock: variant?.stock,
+          sku: variant?.sku,
+          productName: product?.name,
+          productImage: product?.images?.[0], // Lấy ảnh đầu tiên
+          shortDescription: product?.short_description,
+          status: product?.status,
         };
       })
     );
 
-    // Bước 4: Trả về thông tin giỏ hàng
     return res.status(200).json({
       message: "Lấy thông tin giỏ hàng thành công",
       cart: {
@@ -364,9 +361,6 @@ export const getAllCart = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({
-      name: error.name,
-      message: error.message,
-    });
+    return res.status(500).json({ name: error.name, message: error.message });
   }
 };

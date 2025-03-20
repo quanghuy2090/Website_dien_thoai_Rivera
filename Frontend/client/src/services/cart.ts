@@ -1,15 +1,29 @@
 import { http } from "../config/axios";
-import { Variants } from "./product";
-export type Carts = {
+export interface CartItem {
+    productId: {
+        _id: string;
+        name: string;
+        images: string;
+    };  // Mongoose ObjectId (string trên frontend
+    variantId: string;
+    quantity: number;
+    price: number;
+    salePrice: number;
+    color: string;  // Chuyển thành string để tránh lỗi kiểu dữ liệu
+    capacity: string;  // Chuyển thành string để tránh lỗi kiểu dữ liệu
+    subtotal: number;  // Tổng giá trị (quantity * salePrice)
+}
+
+// Định nghĩa Carts chính
+export interface Carts {
     _id: string;
     userId: string;
-    productId: string; // Đúng với API
-    name: string; // Bổ sung để phù hợp với API
-    image: string; // API có trả về image
-    variants: Variants[]; // Đổi variantId thành object Variants (API đã gửi đầy đủ)
-    quantity: number;
-    subtotal: number; // API có subtotal
-};
+    items: CartItem[];
+    totalPrice: number;
+    totalSalePrice: number;
+    createdAt?: string; // Thêm nếu backend có
+    updatedAt?: string; // Thêm nếu backend có
+}
 
 export const addCart = (cart: Carts) => {
     return http.post("/cart", cart);
@@ -17,13 +31,14 @@ export const addCart = (cart: Carts) => {
 export const getCart = () => {
     return http.get(`/cart`);
 }
-export const deleteCart = (productId: string) => {
-    return http.delete(`/cart/${productId}`);
+export const deleteCart = (productId: string, variantId: string) => {
+    return http.delete(`/cart`, { data: { productId, variantId } });
+};
+
+export const deleteAllCart = () => {
+    return http.delete(`/cart/removeAll`)
 }
-export const deleteAllCart = (_id: string) => {
-    return http.delete(`/cart/removeAll/${_id}`)
-}
-export const updateCart = (userId: string, productId: string, quantity: number) => {
-    return http.put(`/cart/${userId}`, { productId, quantity });
-}
+export const updateCart = (productId: string, variantId: string, quantity: number) => {
+    return http.put(`/cart/`, { productId, variantId, quantity });
+};
 

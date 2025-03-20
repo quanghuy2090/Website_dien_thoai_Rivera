@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { getAllProduct, Product } from "../../services/product";
 import { addCart, Carts } from "../../services/cart";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -11,7 +11,7 @@ import "../../css/style.css";
 const HomePage = () => {
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
-  const nav = useNavigate();
+  // const nav = useNavigate();
   const productSliderRef = useRef<Slider | null>(null); // Ref for the first slider
   const hotDealSliderRef = useRef<Slider | null>(null); // Ref for the second slider
 
@@ -39,49 +39,36 @@ const HomePage = () => {
   }, []);
   const addToCart = async (product: Product) => {
     try {
-      // Lấy thông tin user từ localStorage
-      const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
-
-      if (!user || !user._id) {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      if (!user?._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
-        nav("/login");
         return;
       }
 
-      // Kiểm tra xem sản phẩm có biến thể không
-      if (!product.variants || product.variants.length === 0) {
-        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+      const selectedVariant = product.variants?.[0];
+      if (!selectedVariant) {
+        toast.error("Sản phẩm không có biến thể hợp lệ!");
         return;
       }
 
-      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
-      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
-
-      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
-      const cart: Carts = {
+      const cartItem: Carts = {
         userId: user._id,
-        items: [
-          {
-            productId: product._id,
-            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
-            quantity: 1,
-          },
-        ],
+        productId: product._id,
+        variantId: selectedVariant._id,
+        quantity: 1,
+        price: selectedVariant.price,
+        salePrice: selectedVariant.salePrice,
+        color: typeof selectedVariant.color === "object" ? selectedVariant.color.name : selectedVariant.color, // Kiểm tra nếu color là object
+        capacity: typeof selectedVariant.capacity === "object" ? selectedVariant.capacity.value : selectedVariant.capacity, // Kiểm tra nếu capacity là object
+        subtotal: selectedVariant.salePrice * 1,
       };
 
-      // Gửi request lên API
-      const { data } = await addCart(cart);
-      console.log("API Response:", data); // Log response để kiểm tra
-
-      // Thông báo thành công
+      await addCart(cartItem)
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-
-
     } catch (error) {
-      // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
       toast.error("Thêm sản phẩm thất bại!");
     }
-  };
+  }
 
 
   const formatPrice = (price: number) => {
@@ -177,7 +164,7 @@ const HomePage = () => {
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {formatPrice(product.variants[0].price)}
+                          {formatPrice(product.variants[0].salePrice)}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
