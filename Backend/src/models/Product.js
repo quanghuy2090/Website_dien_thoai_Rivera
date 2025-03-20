@@ -85,11 +85,9 @@ const productSchema = new mongoose.Schema(
 // Tính salePrice cho tất cả variants và làm tròn 2 chữ số
 productSchema.pre('save', function(next) {
   this.variants.forEach(variant => {
-    if (variant.isModified('price') || variant.isModified('sale')) {
-      const calculatedSalePrice = variant.price * (1 - variant.sale / 100);
-      variant.salePrice = Number(calculatedSalePrice.toFixed(2)); // Làm tròn 2 số sau dấu phẩy
-      if (variant.salePrice < 0) variant.salePrice = 0; // Đảm bảo không âm
-    }
+    const calculatedSalePrice = variant.price * (1 - variant.sale / 100);
+    variant.salePrice = Number(calculatedSalePrice.toFixed(2));
+    if (variant.salePrice < 0) variant.salePrice = 0;
   });
   next();
 });
