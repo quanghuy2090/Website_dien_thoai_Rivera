@@ -94,8 +94,8 @@ const Cart = () => {
           ? {
             ...cart,
             quantity: newQuantity,
-            salePrice: data.cart.items.find(i => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice,
-            subtotal: newQuantity * (data.cart.items.find(i => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice)
+            salePrice: data.cart.items.find((i: CartItem) => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice,
+            subtotal: newQuantity * (data.cart.items.find((i: CartItem) => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice)
           }
           : cart
       );

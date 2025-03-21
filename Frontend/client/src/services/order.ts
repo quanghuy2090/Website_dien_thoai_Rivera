@@ -16,7 +16,7 @@ export type Order = {
   userId: User;
   items: Carts[];
   shippingAddress: IShippingAddress;
-  paymentMethod: "COD" | "Credit Card" | "Bank Transfer";
+  paymentMethod: "COD" | "Online" | "Credit Card" | "Bank Transfer";
   paymentStatus: "Chưa thanh toán" | "Đã thanh toán";
   totalAmount: number;
   status:
@@ -48,7 +48,13 @@ export type Province = {
 export const createOrder = (
   order: Omit<Order, "_id" | "createdAt" | "updatedAt">
 ) => {
-  return http.post("/order", order);
+  return http.post("/order/cod", order);
+};
+
+export const createOrderOnline = (
+  order: Omit<Order, "_id" | "createdAt" | "updatedAt" | "paymentStatus" | "status" | "totalAmount" | "items"> & { orderItems: Carts[] }
+) => {
+  return http.post<{ paymentUrl: string; order: Order }>("/order/online", order); // Backend trả về paymentUrl
 };
 
 export const getOrderUser = (userId: string) => {

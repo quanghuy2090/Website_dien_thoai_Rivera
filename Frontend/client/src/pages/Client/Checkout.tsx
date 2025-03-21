@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { Carts, getCart } from "../../services/cart";
+import { CartItem, getCart } from "../../services/cart";
 import {
   createOrder,
+  createOrderOnline, // Import hàm mới
   District,
   IShippingAddress,
   Order,
@@ -15,32 +15,35 @@ import {
 } from "../../services/order";
 
 const Checkout = () => {
-  const { register, handleSubmit, setValue, watch } = useForm<
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<  // Thêm errors
     IShippingAddress & { paymentMethod: Order["paymentMethod"] }
-  >({});
-  const [carts, setCarts] = useState<Carts[]>([]);
-  const [totalPrice, setTotalPrice] = useState<number>(0);
+  >({
+    mode: "onBlur", // Thêm cái mode để validation
+  });
+  const [carts, setCarts] = useState<CartItem[]>([]);
+  // const [totalPrice, setTotalPrice] = useState<number>(0); // Không dùng nữa
   const [userId, setUsetId] = useState<string | null>(null);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [street, setStreet] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [totalAmount, setTotalAmount] = useState<number>(0); // Dùng cái này
   const nav = useNavigate();
+
+  // Lấy thông tin tỉnh/thành phố (giữ nguyên)
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
         const { data } = await axios.get(
           "https://provinces.open-api.vn/api/?depth=3"
         );
-        console.log(data);
         setProvinces(data);
       } catch (error) {
         console.log(error);
       }
     };
+    fetchProvinces();
+
+    // Lấy thông tin user, giỏ hàng
     const userData = localStorage.getItem("user");
     if (userData) {
       try {
@@ -48,46 +51,46 @@ const Checkout = () => {
         if (user && user._id) {
           setUsetId(user._id);
           fetchCart();
-          setName(user.userName || "");
-          setStreet(user.address || "");
-          setPhone(user.phone || "");
+          // Set giá trị mặc định cho form (từ user)
+          setValue("name", user.userName || "");
+          setValue("street", user.address || ""); // Sửa thành street
+          setValue("phone", user.phone || "");
         }
       } catch (error) {
         console.log(error);
       }
     }
-    fetchProvinces();
+
   }, []);
+
 
   const selectedProvince = watch("city");
   const selectedDistrict = watch("district");
 
-  // Khi chọn tỉnh/thành phố, cập nhật danh sách quận/huyện
   useEffect(() => {
     if (selectedProvince) {
       const province = provinces.find((p) => p.name === selectedProvince);
       setDistricts(province ? province.districts : []);
-      setWards([]); // Reset danh sách phường/xã khi chọn tỉnh mới
-      setValue("district", ""); // Reset giá trị quận/huyện
-      setValue("ward", ""); // Reset giá trị phường/xã
+      setWards([]);
+      setValue("district", "");
+      setValue("ward", "");
     }
   }, [selectedProvince, provinces, setValue]);
 
-  // Khi chọn quận/huyện, cập nhật danh sách phường/xã
   useEffect(() => {
     if (selectedDistrict) {
       const district = districts.find((d) => d.name === selectedDistrict);
       setWards(district ? district.wards : []);
-      setValue("ward", ""); // Reset giá trị phường/xã
+      setValue("ward", "");
     }
   }, [selectedDistrict, districts, setValue]);
 
   const fetchCart = async () => {
     try {
       const { data } = await getCart();
-      if (data.data && data.data.items) {
-        setCarts(data.data.items);
-        setTotalAmount(data.data.total || 0);
+      if (data.cart && data.cart.items) {
+        setCarts(data.cart.items);
+        setTotalAmount(data.cart.totalSalePrice || 0);
       }
     } catch (error) {
       console.error("Lỗi khi gọi API giỏ hàng:", error);
@@ -98,13 +101,14 @@ const Checkout = () => {
     formData: IShippingAddress & { paymentMethod: Order["paymentMethod"] }
   ) => {
     if (!userId) {
-      alert("Vui lòng đăng nhập để đặt hàng!");
+      toast.error("Vui lòng đăng nhập để đặt hàng!"); // Dùng toast
       return;
     }
+
     try {
-      const newOrder: Omit<Order, "_id" | "createdAt" | "updatedAt"> = {
-        userId,
-        orderItems: carts,
+      const newOrder: Omit<Order, "_id" | "createdAt" | "updatedAt" | "paymentStatus" | "status" | "totalAmount" | "items"> & { orderItems: CartItem[] } = {
+        userId: userId,
+        orderItems: carts,  // Dùng carts trực tiếp
         shippingAddress: {
           name: formData.name,
           street: formData.street,
@@ -114,26 +118,35 @@ const Checkout = () => {
           city: formData.city,
         },
         paymentMethod: formData.paymentMethod,
-        paymentStatus: "Chưa thanh toán",
-        totalPrice,
-        orderStatus: "Chưa xác nhận",
       };
-      const { data } = await createOrder(newOrder);
 
-      toast.success("Checkout successfully");
-      nav("/bill");
-      console.log(data);
-      setCarts([]);
-      setTotalPrice(0);
+      if (formData.paymentMethod === "Online") {
+        // Gọi API tạo đơn hàng online
+        const { data } = await createOrderOnline(newOrder);
+        // Chuyển hướng đến URL thanh toán VNPay
+        window.location.href = data.paymentUrl;
+
+      } else {
+        // Xử lý cho COD (hoặc các phương thức khác nếu có)
+        const { data } = await createOrder(newOrder);
+        console.log(data)
+        toast.success("Checkout successfully");
+        nav("/bill"); // Chuyển hướng đến trang hóa đơn
+        setCarts([]);
+        setTotalAmount(0);
+      }
+
     } catch (error) {
       console.log(error);
-      toast.error("Error creating");
+      // toast.error(
+      //   // error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
+      // );
     }
   };
+
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
   };
-
   return (
     <>
       {/* BREADCRUMB */}
@@ -175,38 +188,44 @@ const Checkout = () => {
                       <h3 className="title">Thông tin thanh toán</h3>
                     </div>
                     <div className="form-group">
-                      <label htmlFor="userName">Tên người dùng</label>
+                      <label htmlFor="name">Tên người dùng</label>
                       <input
                         type="text"
-                        className="input"
-                        value={name}
+                        className={`input ${errors.name ? 'is-invalid' : ''}`}
                         placeholder="Nhập tên người dùng"
-                        onChange={(e) => setName(e.target.value)}
+                        {...register("name", { required: "Vui lòng nhập tên" })}
                       />
+                      {errors.name && <p className="invalid-feedback">{errors.name.message}</p>}
                     </div>
                     <div className="form-group">
                       <label htmlFor="phone">Số điện thoại</label>
                       <input
                         type="text"
-                        className="input"
-                        value={phone}
+                        className={`input ${errors.phone ? 'is-invalid' : ''}`}
                         placeholder="Nhập số điện thoại"
-                        onChange={(e) => setPhone(e.target.value)}
+                        {...register("phone", {
+                          required: "Vui lòng nhập số điện thoại",
+                          pattern: {
+                            value: /^[0-9]{10}$/, // VD: Yêu cầu 10 chữ số
+                            message: "Số điện thoại không hợp lệ",
+                          },
+                        })}
                       />
+                      {errors.phone && <p className="invalid-feedback">{errors.phone.message}</p>}
                     </div>
                     <div className="form-group">
                       <label htmlFor="street">Địa chỉ</label>
                       <input
                         type="text"
-                        className="input"
-                        value={street}
+                        className={`input ${errors.street ? 'is-invalid' : ''}`}
                         placeholder="Nhập địa chỉ"
-                        onChange={(e) => setStreet(e.target.value)}
+                        {...register("street", { required: "Vui lòng nhập địa chỉ" })}
                       />
+                      {errors.street && <p className="invalid-feedback">{errors.street.message}</p>}
                     </div>
                     <div className="form-group">
                       <label htmlFor="city">Tỉnh / Thành phố</label>
-                      <select className="input" {...register("city")}>
+                      <select className={`input ${errors.city ? 'is-invalid' : ''}`} {...register("city", { required: "Vui lòng chọn tỉnh/thành phố" })}>
                         <option value="">Chọn tỉnh / thành phố</option>
                         {provinces.map((province) => (
                           <option key={province.code} value={province.name}>
@@ -214,13 +233,14 @@ const Checkout = () => {
                           </option>
                         ))}
                       </select>
+                      {errors.city && <p className="invalid-feedback">{errors.city.message}</p>}
                     </div>
 
                     <div className=" form-group">
                       <label htmlFor="district">Quận / Huyện</label>
                       <select
-                        className="input"
-                        {...register("district")}
+                        className={`input ${errors.district ? 'is-invalid' : ''}`}
+                        {...register("district", { required: "Vui lòng chọn quận/huyện" })}
                         disabled={!districts.length}
                       >
                         <option value="">Chọn quận / huyện</option>
@@ -230,13 +250,14 @@ const Checkout = () => {
                           </option>
                         ))}
                       </select>
+                      {errors.district && <p className="invalid-feedback">{errors.district.message}</p>}
                     </div>
 
                     <div className=" form-group">
                       <label htmlFor="ward">Phường / Xã</label>
                       <select
-                        className="input"
-                        {...register("ward")}
+                        className={`input ${errors.ward ? 'is-invalid' : ''}`}
+                        {...register("ward", { required: "Vui lòng chọn phường/xã" })}
                         disabled={!wards.length}
                       >
                         <option value="">Chọn phường / xã</option>
@@ -246,42 +267,11 @@ const Checkout = () => {
                           </option>
                         ))}
                       </select>
+                      {errors.ward && <p className="invalid-feedback">{errors.ward.message}</p>}
                     </div>
-                    {/* <div className="form-group">
-                    <div className="input-checkbox">
-                      <input type="checkbox" id="create-account" />
-                      <label htmlFor="create-account">
-                        <span />
-                        Create Account?
-                      </label>
-                      <div className="caption">
-                        <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit, sed do eiusmod tempor incididunt.
-                        </p>
-                        <input
-                          className="input"
-                          type="password"
-                          name="password"
-                          placeholder="Enter Your Password"
-                        />
-                      </div>
-                    </div>
-                  </div> */}
                   </div>
-                  {/* /Billing Details */}
-                  {/* Shiping Details */}
-                  {/* /Shiping Details */}
-                  {/* Order notes */}
-                  {/* <div className="order-notes">
-                  <textarea
-                    className="input"
-                    placeholder="Order Notes"
-                    defaultValue={""}
-                  />
-                </div> */}
-                  {/* /Order notes */}
                 </div>
+                {/* /Billing Details */}
                 {/* Order Details */}
                 <div className="col-md-5 order-details">
                   <div className="section-title text-center">
@@ -289,29 +279,30 @@ const Checkout = () => {
                   </div>
                   <div className="order-summary">
                     <div className="order-col">
-                      <div>
-                        <strong>Sản phẩm</strong>
-                      </div>
-                      <div>
-                        <strong>Giá</strong>
-                      </div>
+
+
                     </div>
                     <div className="order-products">
-                      {carts.map((item) => (
-                        <div className="order-col">
-                          <div>
-                            {item.quantity}x {item.name}
-                            <br />
-                            {item.variants.color}/{item.variants.capacity}
-                          </div>
-                          <div>{formatPrice(item.variants.price)}</div>
+                      {carts.map((cart) => (
+                        <div key={`${cart.productId._id}-${cart.variantId}`}>
+                          <tr>
+                            <div>
+                              <strong>Sản phẩm</strong>
+                              <td>{cart.productId.name}-{cart.color}-{cart.capacity}</td>
+                            </div>
+                            <div>
+                              <strong>Giá</strong>
+                              <td className="text-center">{formatPrice(cart.salePrice)}</td>
+                            </div>
+                          </tr>
                         </div>
                       ))}
+
                     </div>
                     <div className="order-col">
                       <div>Phí giao hàng</div>
                       <div>
-                        <strong>FREE</strong>
+                        {/* <strong>FREE</strong> */}
                       </div>
                     </div>
                     <div className="order-col">
@@ -331,7 +322,7 @@ const Checkout = () => {
                         type="radio"
                         value="COD"
                         id="payment-cod"
-                        {...register("paymentMethod")}
+                        {...register("paymentMethod", { required: "Vui lòng chọn phương thức thanh toán" })}
                       />
                       <label htmlFor="payment-cod">
                         <span />
@@ -339,61 +330,28 @@ const Checkout = () => {
                       </label>
                       <div className="caption">
                         <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua.
+                          Thanh toán khi nhận hàng
                         </p>
                       </div>
                     </div>
+
                     <div className="input-radio">
                       <input
                         type="radio"
-                        id="payment-credit-card"
-                        value="Credit Card"
-                        {...register("paymentMethod")}
+                        id="payment-online"
+                        value="Online"
+                        {...register("paymentMethod", { required: "Vui lòng chọn phương thức thanh toán" })}
                       />
-                      <label htmlFor="payment-credit-card">
+                      <label htmlFor="payment-online">
                         <span />
-                        Thẻ tín dụng
+                        Thanh Toán VNPay
                       </label>
-                      <div className="caption">
-                        <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="input-radio">
-                      <input
-                        type="radio"
-                        id="payment-bank-transfer"
-                        value="Bank Transfer"
-                        {...register("paymentMethod")}
-                      />
-                      <label htmlFor="payment-bank-transfer">
-                        <span />
-                        Chuyển khoản ngân hàng
-                      </label>
-                      <div className="caption">
-                        <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua.
-                        </p>
-                      </div>
+                      {errors.paymentMethod && <p className="text-danger" >{errors.paymentMethod.message}</p>}
                     </div>
                   </div>
-                  {/* <div className="input-checkbox">
-                  <input type="checkbox" id="terms" />
-                  <label htmlFor="terms">
-                    <span />
-                    I've read and accept the{" "}
-                    <a href="#">terms &amp; conditions</a>
-                  </label>
-                </div> */}
+
                   <button type="submit" className="primary-btn order-submit">
-                    Place order
+                    Đặt hàng
                   </button>
                 </div>
                 {/* /Order Details */}
