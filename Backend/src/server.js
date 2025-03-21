@@ -3,6 +3,7 @@ import { connect } from "mongoose";
 import router from "./routers/index.js";
 import cors from "cors";
 import dotenvn from "dotenv";
+import { setupCronJobs } from "./jobs/cronJobs.js";
 
 const app = express();
 dotenvn.config();
@@ -15,6 +16,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api", router);
+
+// Khởi động cron jobs
+setupCronJobs();
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
