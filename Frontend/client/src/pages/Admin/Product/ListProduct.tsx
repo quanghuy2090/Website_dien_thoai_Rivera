@@ -69,6 +69,7 @@ const ListProduct = () => {
               <th>Biến thể</th>
               <th>Danh mục</th>
               <th>Trạng thái</th>
+              <th>Hot</th>
               <th>Tùy chọn</th>
             </tr>
           </thead>
@@ -133,8 +134,8 @@ const ListProduct = () => {
                           <td>{v.color && typeof v.color === "object" ? v.color.name : v.color ?? "Không xác định"}</td>
                           <td>{v.capacity && typeof v.capacity === "object" ? v.capacity.value : v.capacity ?? "Không xác định"}</td>
                           <td>{formatPrice(v.price)}</td>
-                          <td>{v.sale}%</td>
-                          <td>{formatPrice(v.salePrice)}</td>
+                          <td className="badge bg-danger">{v.sale}%</td>
+                          <td className="text-warning fw-bold">{formatPrice(v.salePrice)}</td>
                           <td>{v.stock}</td>
                           <td>{v.sku}</td>
                         </tr>
@@ -151,6 +152,7 @@ const ListProduct = () => {
                     : product.categoryId}
                 </td>
                 <td>{product.status}</td>
+                <td>{product.is_hot}</td>
 
                 {/* Nút hành động */}
                 <td>

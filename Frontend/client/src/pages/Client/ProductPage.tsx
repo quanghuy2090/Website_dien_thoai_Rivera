@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getAllProduct, Product } from "../../services/product";
 import { addCart, Carts } from "../../services/cart";
 import "slick-carousel/slick/slick.css";
@@ -11,7 +11,7 @@ const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [productsPerPage] = useState<number>(9);
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  // const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [selectedCategory, setSelectdCategory] =
     useState<string>("Tất cả sản phẩm");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -19,7 +19,7 @@ const ProductPage = () => {
     [number, number] | null
   >(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const nav = useNavigate();
+  // const nav = useNavigate();
   const categories = [
     "Tất cả sản phẩm",
     ...new Set(
@@ -48,7 +48,7 @@ const ProductPage = () => {
     // Kiểm tra nếu sản phẩm nằm trong khoảng giá đã chọn
     const priceMatch = selectedPriceRange
       ? p.variants[0].price >= selectedPriceRange[0] &&
-        p.variants[0].price <= selectedPriceRange[1]
+      p.variants[0].price <= selectedPriceRange[1]
       : true;
     return categoryMatch && searchMatch && priceMatch;
   });
@@ -84,49 +84,36 @@ const ProductPage = () => {
 
   const addToCart = async (product: Product) => {
     try {
-      // Lấy thông tin user từ localStorage
-      const user = localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
-        : null;
-
-      if (!user || !user._id) {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      if (!user?._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
-        nav("/login");
         return;
       }
 
-      // Kiểm tra xem sản phẩm có biến thể không
-      if (!product.variants || product.variants.length === 0) {
-        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+      const selectedVariant = product.variants?.[0];
+      if (!selectedVariant) {
+        toast.error("Sản phẩm không có biến thể hợp lệ!");
         return;
       }
 
-      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
-      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
-
-      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
-      const cart: Carts = {
+      const cartItem: Carts = {
         userId: user._id,
-        items: [
-          {
-            productId: product._id,
-            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
-            quantity: 1,
-          },
-        ],
+        productId: product._id,
+        variantId: selectedVariant._id,
+        quantity: 1,
+        price: selectedVariant.price,
+        salePrice: selectedVariant.salePrice,
+        color: typeof selectedVariant.color === "object" ? selectedVariant.color.name : selectedVariant.color, // Kiểm tra nếu color là object
+        capacity: typeof selectedVariant.capacity === "object" ? selectedVariant.capacity.value : selectedVariant.capacity, // Kiểm tra nếu capacity là object
+        subtotal: selectedVariant.salePrice * 1,
       };
 
-      // Gửi request lên API
-      const { data } = await addCart(cart);
-      console.log("API Response:", data); // Log response để kiểm tra
-
-      // Thông báo thành công
+      await addCart(cartItem)
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
     } catch (error) {
-      // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
       toast.error("Thêm sản phẩm thất bại!");
     }
-  };
+  }
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -275,7 +262,7 @@ const ProductPage = () => {
                         <div className="product-body">
                           <p className="product-category">
                             {typeof product.categoryId === "object" &&
-                            product.categoryId !== null
+                              product.categoryId !== null
                               ? product.categoryId.name
                               : product.categoryId}
                           </p>
@@ -320,9 +307,8 @@ const ProductPage = () => {
                   {/* <span className="store-qty">Showing 20-100 products</span> */}
                   <ul className="store-pagination">
                     <li
-                      className={`page-item ${
-                        currentPage === 1 ? "disabled" : ""
-                      }`}
+                      className={`page-item ${currentPage === 1 ? "disabled" : ""
+                        }`}
                     >
                       <a
                         className="page-link"
@@ -337,9 +323,8 @@ const ProductPage = () => {
                     {Array.from({ length: totalPages }, (_, index) => (
                       <li
                         key={index}
-                        className={`page-item ${
-                          currentPage === index + 1 ? "active" : ""
-                        }`}
+                        className={`page-item ${currentPage === index + 1 ? "active" : ""
+                          }`}
                       >
                         <a
                           className="page-link"
@@ -351,9 +336,8 @@ const ProductPage = () => {
                       </li>
                     ))}
                     <li
-                      className={`page-item ${
-                        currentPage === totalPages ? "disabled" : ""
-                      }`}
+                      className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                        }`}
                     >
                       <a
                         className="page-link"

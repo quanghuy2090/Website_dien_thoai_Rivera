@@ -1,8 +1,9 @@
 import React, { createContext, useEffect, useReducer } from "react";
-import { addProduct, getAllProduct, getProductById, Product, removeProduct, updateProduct, updateProductStatus } from "../services/product"
+import { addProduct, getAllProduct, getProductById, Product, removeProduct, updateProduct, updateProductIs_Hot, updateProductStatus } from "../services/product"
 import ProductReducer from "../reducers/ProductReducer";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 
 type ProductContextType = {
     state: { products: Product[]; selectedProduct?: Product };
@@ -11,6 +12,7 @@ type ProductContextType = {
     createProduct: (product: Product) => void;
     getDetailProduct: (_id: string) => void;
     updateStatus: (_id: string, status: string) => void;
+    updateIs_Hot: (_id: string, is_hot: string) => void;
 }
 
 export const ProductContext = createContext({} as ProductContextType)
@@ -53,7 +55,15 @@ export const ProductProvider = ({ children }: Children) => {
             toast.success("Cập nhật thành công!");
             nav("/admin/products");
         } catch (err) {
-            console.log(err);
+            console.log(err)
+            if (err instanceof AxiosError) {
+                toast.error(err.response?.data?.message || "Lỗi cập nhật sản phẩm!");
+            } else if (err instanceof Error) {
+                toast.error(`Lỗi: ${err.message}`);
+            } else {
+                toast.error("Không thể kết nối đến server!");
+            }
+
         }
     };
     const createProduct = async (product: Product) => {
@@ -66,8 +76,25 @@ export const ProductProvider = ({ children }: Children) => {
             dispatch({ type: "GET_PRODUCTS", payload: updatedProducts.data.data });
             toast.success("Thêm thành công!");
             nav("/admin/products");
-        } catch (err) {
+        } catch (err: unknown) {
             console.log(err);
+            if (err instanceof AxiosError) {
+                const { status, data } = err.response || {};
+
+                if (status === 400) {
+                    toast.error(`Lỗi: ${data?.message}`);
+                } else if (status === 404) {
+                    toast.error("Danh mục không tồn tại!");
+                } else if (status === 500) {
+                    toast.error("Lỗi máy chủ! Vui lòng thử lại sau.");
+                } else {
+                    toast.error("Đã xảy ra lỗi không xác định.");
+                }
+            } else if (err instanceof Error) {
+                toast.error(`Lỗi: ${err.message}`);
+            } else {
+                toast.error("Không thể kết nối đến server!");
+            }
         }
     };
     const getDetailProduct = async (_id: string) => {
@@ -86,10 +113,20 @@ export const ProductProvider = ({ children }: Children) => {
             toast.success("cập nhật trạng thái thành công")
         } catch (error) {
             console.log(error);
+            toast.error("cập nhật trạng thái thất bại")
+        }
+    }
+    const updateIs_Hot = async (_id: string, is_hot: string) => {
+        try {
+            const { data } = await updateProductIs_Hot(_id, is_hot);
+            dispatch({ type: "UPDATE_IS_HOT", payload: data.data })
+            toast.success("cập nhật trạng thái thành công")
+        } catch (error) {
+            console.log(error)
             toast.error("cập nhậ trạng thái thất bại")
         }
     }
     return (
-        <ProductContext.Provider value={{ state, removeProducts, updateProducts, createProduct, getDetailProduct, updateStatus }}>{children}</ProductContext.Provider>
+        <ProductContext.Provider value={{ state, removeProducts, updateProducts, createProduct, getDetailProduct, updateStatus, updateIs_Hot }}>{children}</ProductContext.Provider>
     )
 }

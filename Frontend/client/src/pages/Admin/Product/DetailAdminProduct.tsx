@@ -6,27 +6,11 @@ import { ProductContext } from "../../../context/ProductContext";
 
 const DetailAdminProduct = () => {
   const { id } = useParams();
-  const { getDetailProduct, state, updateStatus } = useContext(ProductContext);
-  // const [loading, setLoading] = useState(false);
-  // const [status, setStatus] = useState(state.selectedProduct?.status || "active");
+  const { getDetailProduct, state, updateStatus, updateIs_Hot } = useContext(ProductContext);
   useEffect(() => {
     getDetailProduct(id!)
   }, []);
-  // const handleStatusChange = async () => {
-  //   if (!id) return;
 
-  //   try {
-  //     setLoading(true);
-  //     const newStatus = status === "active" ? "banned" : "active";
-  //     await updateProductStatus(id, newStatus);
-  //     setStatus(newStatus);
-  //     toast.success(`Sản phẩm đã chuyển sang trạng thái "${newStatus}"`);
-  //   } catch (error) {
-  //     // toast.error(error.response?.data?.message || "Lỗi khi cập nhật trạng thái");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   return (
     <div>
       <div className="content">
@@ -81,6 +65,28 @@ const DetailAdminProduct = () => {
                 </td>
               </tr>
 
+              <tr>
+                <th>is_hot</th>
+                <td>
+                  <div className="form-check form-switch">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      role="switch"
+                      checked={state.selectedProduct?.is_hot === "yes"}
+                      onChange={() =>
+                        updateIs_Hot(
+                          state.selectedProduct?._id as string,
+                          state.selectedProduct?.is_hot === "yes" ? "no" : "yes"
+                        )
+                      }
+                    />
+                    <label className="form-check-label ms-2">
+                      {state.selectedProduct?.is_hot === "yes" ? "🔥 Hot" : "❌ Not Hot"}
+                    </label>
+                  </div>
+                </td>
+              </tr>
 
               <tr>
                 <th>Danh mục</th>

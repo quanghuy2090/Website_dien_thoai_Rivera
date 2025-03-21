@@ -28,7 +28,6 @@ const productSchema = z.object({
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
-        sku: z.string().nonempty("SKU không được để trống"), // Bắt buộc SKU phải có giá trị
         sale: z.number().max(100, "sale max 100%"),
       })
     )
@@ -50,7 +49,7 @@ const UpdateProduct = () => {
       long_description: "",
       images: [],
       categoryId: "",
-      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "", sale: 0 }],
+      variants: [{ color: "", capacity: "", price: 1, stock: 0, sale: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -146,7 +145,7 @@ const UpdateProduct = () => {
             capacity: typeof v.capacity === "object" ? v.capacity._id : v.capacity,
             sku: v.sku && v.sku !== "null" ? v.sku : `SKU-${Date.now()}`
           }))
-          : [{ color: "", capacity: "", price: 1, stock: 0, sku: `SKU-${Date.now()}`, sale: 0 }]
+          : [{ color: "", capacity: "", price: 1, stock: 0, sale: 0 }]
       });
 
 
@@ -181,7 +180,7 @@ const UpdateProduct = () => {
     <div className="content">
       <div className="container d-flex justify-content-center align-items-center min-vh-100 ">
         <div className="row justify-content-center w-100">
-          <div className="col-lg-6 col-md-8 col-sm-10">
+          <div className="col-lg-8 col-md-10">
             <div className="text-center mt-5">
               <h2 className="fw-bold text-primary">Cập nhật sản phẩm</h2>
               <p className="text-muted">Chỉnh sửa thông tin sản phẩm của bạn</p>
@@ -414,7 +413,6 @@ const UpdateProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: `SKU-${Date.now()}`,
                     sale: 0,
                   })
                 }

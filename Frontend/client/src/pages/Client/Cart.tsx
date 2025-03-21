@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Carts, deleteAllCart, deleteCart, getCart } from "../../services/cart";
+import { CartItem, deleteAllCart, deleteCart, getCart, updateCart } from "../../services/cart";
 import { Link } from "react-router-dom";
 import "../../css/style.css";
+import toast from "react-hot-toast";
 
 const Cart = () => {
-  const [carts, setCarts] = useState<Carts[]>([]);
+  const [carts, setCarts] = useState<CartItem[]>([]);
+  console.log(carts);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [userId, setUserId] = useState<string | null>(null);
-
+  console.log(userId)
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -26,41 +28,92 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       const { data } = await getCart();
-      if (data.data && data.data.items) {
-        setCarts(data.data.items);
-        setTotalAmount(data.data.total || 0);
+      if (data.cart && data.cart.items) {  // Kiểm tra đúng key
+        setCarts(data.cart.items);
+        setTotalAmount(data.cart.totalSalePrice || 0); // Cập nhật đúng giá trị tổng
       }
     } catch (error) {
       console.error("Lỗi khi gọi API giỏ hàng:", error);
     }
   };
+  const handleDeleteCartItem = async (productId: string, variantId: string) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
+      try {
+        await deleteCart(productId, variantId);
 
-  const handleRemoveFromCart = async (productId: string) => {
-    try {
-      if (window.confirm("Xoá sản phẩm này khỏi giỏ hàng?")) {
-        await deleteCart(productId);
-        setCarts((prevItems) =>
-          prevItems.filter((item) => item.productId !== productId)
+        // Cập nhật giỏ hàng sau khi xóa
+        const updatedCart = carts.filter(cart =>
+          !(cart.productId._id === productId && cart.variantId === variantId)
         );
-        // Update total price
-        setTotalAmount(
-          (prevTotal) =>
-            prevTotal -
-              carts.find((item) => item.productId === productId)?.subtotal || 0
-        );
+
+        setCarts(updatedCart);
+
+        // Kiểm tra xem updatedCart có sản phẩm nào không
+        if (updatedCart.length === 0) {
+          setTotalAmount(0);
+        } else {
+          // Tính lại tổng giá
+          const newTotalPrice = updatedCart.reduce((sum, item) => sum + (item.quantity * item.salePrice), 0);
+          setTotalAmount(newTotalPrice);
+        }
+
+        toast.success("Xóa thành công!");
+      } catch (error) {
+        console.log(error);
+        toast.error("Xóa thất bại!");
       }
+    }
+  };
+  const handleRemoveAllCart = async () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng không?")) {
+      try {
+        await deleteAllCart(); // Gọi API xóa toàn bộ giỏ hàng
+
+        setCarts([]); // Cập nhật lại giỏ hàng rỗng
+        setTotalAmount(0); // Đặt tổng giá về 0
+
+        toast.success("Đã xóa toàn bộ giỏ hàng!");
+      } catch (error) {
+        console.log(error);
+        toast.error("Lỗi khi xóa giỏ hàng!");
+      }
+    }
+  };
+  const handleUpdateQuantity = async (productId: string, variantId: string, newQuantity: number) => {
+    if (newQuantity <= 0) {
+      toast.error("Số lượng không được nhỏ hơn 1!");
+      return;
+    }
+
+    try {
+      const { data } = await updateCart(productId, variantId, newQuantity);
+
+      // Cập nhật lại giỏ hàng sau khi thay đổi số lượng
+      const updatedCart = carts.map((cart) =>
+        cart.productId._id === productId && cart.variantId === variantId
+          ? {
+            ...cart,
+            quantity: newQuantity,
+            salePrice: data.cart.items.find(i => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice,
+            subtotal: newQuantity * (data.cart.items.find(i => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice)
+          }
+          : cart
+      );
+
+      setCarts(updatedCart);
+
+      // Cập nhật tổng tiền
+      setTotalAmount(data.cart.totalSalePrice);
+
+      toast.success("Cập nhật số lượng thành công!");
     } catch (error) {
-      console.error("Lỗi khi xóa sản phẩm:", error);
+      console.log(error);
+      toast.error("Lỗi khi cập nhật số lượng!");
     }
   };
 
-  const deleteAll = async (_id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xoá toàn bộ giỏ hàng?")) {
-      await deleteAllCart(_id);
-      setCarts([]);
-      setTotalAmount(0);
-    }
-  };
+
+
 
   const formatPrice = (price: number) => {
     if (!price) return "0 VND";
@@ -103,47 +156,39 @@ const Cart = () => {
                 <tr>
                   <th>Sản phẩm</th>
                   <th>Giá gốc</th>
+                  <th>Giá sale</th>
                   <th>Số lượng</th>
                   <th>Thành tiền</th>
                   <th>Hủy</th>
                 </tr>
               </thead>
               <tbody>
-                {carts.map((item, index) => (
-                  <tr key={index}>
-                    <td className="product-info">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="cart-product-image"
-                      />
-                      <div>
-                        <strong>{item.name}</strong>
-                        <p>
-                          {typeof item.variants?.color === "string"
-                            ? item.variants.color
-                            : item.variants.color.name}{" "}
-                          /{" "}
-                          {typeof item.variants?.capacity === "string"
-                            ? item.variants.capacity
-                            : item.variants.capacity.value}
-                        </p>
-                      </div>
-                    </td>
-                    <td>{formatPrice(item.variants.price)}</td>
-                    <td>{item.quantity}</td>
-                    <td>{formatPrice(item.subtotal)}</td>
+                {carts.map((cart) => (
+                  <tr>
+                    <td><img src={cart.productId.images} alt="" width={100} />{cart.productId.name}-{cart.color}-{cart.capacity}</td>
+                    <td>{cart.price}</td>
+                    <td>{cart.salePrice}</td>
                     <td>
-                      <button
-                        className="remove-btn"
-                        onClick={() => handleRemoveFromCart(item.productId)}
-                      >
-                        ❌
+                      <button className="btn btn-primary px-3" onClick={() => handleUpdateQuantity(cart.productId._id, cart.variantId, cart.quantity - 1)}>
+                        -
                       </button>
+                      <span className="px-3 fw-bold">{cart.quantity}</span>
+                      <button className="btn btn-primary px-3" onClick={() => handleUpdateQuantity(cart.productId._id, cart.variantId, cart.quantity + 1)}>
+                        +
+                      </button>
+                    </td>
+
+                    <td>{formatPrice(cart.quantity * cart.salePrice)}</td>
+                    <td>
+                      <button onClick={() => handleDeleteCartItem(cart.productId._id, cart.variantId)}>xoa</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
+              <button className="remove-all-btn" onClick={handleRemoveAllCart}>
+                Xóa toàn bộ giỏ hàng
+              </button>
+
             </table>
           ) : (
             <div className="empty-cart">
@@ -154,14 +199,7 @@ const Cart = () => {
             </div>
           )}
         </div>
-        <div className="delete-all-container">
-          <button
-            className="delete-all-btn"
-            onClick={() => deleteAll(carts._id)}
-          >
-            🗑 Xóa tất cả
-          </button>
-        </div>
+
         {/* 💰 Cart Summary */}
         <div className="cart-summary">
           <h3>Tổng tiền: {formatPrice(totalAmount)}</h3>
