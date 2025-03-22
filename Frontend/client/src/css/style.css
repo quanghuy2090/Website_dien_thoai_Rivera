@@ -2559,13 +2559,55 @@ textarea.input {
 	Profile
 ===========================================================*/
 
+.profile-card {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.profile-avatar img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+}
+
+.profile-info {
+  margin-bottom: 20px;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.profile-label {
+  font-weight: bold;
+}
+
+.profile-value {
+  color: #333;
+}
+
+.text-success {
+  color: #28a745;
+}
+
+.text-danger {
+  color: #dc3545;
+}
+
+/* Button styling */
 .profile-action {
-  margin-top: 20px;
+  margin-top: 20px; /* Add space between profile information and the button */
   text-align: center;
 }
 
 .history-btn {
-  padding: 12px 30px;
+  padding: 12px 20px;
   background-color: #0171d3;
   color: white;
   font-weight: 700;
@@ -2573,7 +2615,7 @@ textarea.input {
   border-radius: 40px;
   cursor: pointer;
   text-transform: uppercase;
-  font-size: 16px;
+  font-size: 14px;
   transition: 0.3s all;
 }
 
@@ -2581,10 +2623,6 @@ textarea.input {
   background-color: #005eaf;
 }
 
-.history-btn:focus {
-  outline: none;
-  background-color: #005eaf;
-}
 
 
 /*=========================================================

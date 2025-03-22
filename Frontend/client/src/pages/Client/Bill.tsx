@@ -7,8 +7,7 @@ const Bill = () => {
   const [loading, setLoading] = useState<boolean>(true); // To show loading while fetching data.
 
   useEffect(() => {
-    // Get the orderId from URL (assumed to be passed in the route)
-    const orderId = window.location.pathname.split('/').pop(); // Assuming orderId is in URL
+    const orderId = window.location.pathname.split("/").pop(); // Assuming orderId is in URL
 
     if (orderId) {
       fetchOrderDetail(orderId);
@@ -38,20 +37,20 @@ const Bill = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-center text-primary">Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="text-center text-danger">{error}</div>;
   }
 
   if (!order) {
-    return <div>No order found.</div>;
+    return <div className="text-center">No order found.</div>;
   }
 
   return (
-    <div className="container mt-4">
-      <div id="breadcrumb" className="section">
+    <div className="container mt-5">
+      <div id="breadcrumb" className="section mb-4">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
@@ -66,58 +65,60 @@ const Bill = () => {
         </div>
       </div>
 
-      <div className="card mb-4 shadow-sm">
+      <div className="card mb-4 shadow-lg rounded-3">
         <div className="card-body">
-          <h5 className="card-title">
+          <h5 className="card-title text-center text-primary mb-3">
             Mã đơn hàng: <span className="fw-bold">{order.orderId}</span>
           </h5>
-          <p className="text-muted">
+          <p className="text-muted text-center">
             Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}
           </p>
 
           {/* Product List Table */}
-          <table className="table table-bordered">
-            <thead className="table-light">
-              <tr>
-                <th>Ảnh</th>
-                <th>Tên sản phẩm</th>
-                <th>Giá</th>
-                <th>Số lượng</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items.map((cart, idx) => {
-                return (
-                  <tr key={idx}>
-                    <td>
-                      {cart.productId &&
-                        cart.productId.images &&
-                        cart.productId.images[0] && (
-                          <img
-                            src={cart.productId.images[0]}
-                            alt="Sản phẩm"
-                            width={50}
-                          />
-                        )}
-                    </td>
-                    <td>{cart.productId ? cart.productId.name : "N/A"}</td>
-                    <td>{cart.productId ? formatPrice(cart.salePrice) : "0 VND"}</td>
-                    <td>{cart.quantity}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="table-responsive mb-4">
+            <table className="table table-bordered table-striped">
+              <thead className="table-primary">
+                <tr>
+                  <th>Ảnh</th>
+                  <th>Tên sản phẩm</th>
+                  <th>Giá</th>
+                  <th>Số lượng</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.items.map((cart, idx) => {
+                  return (
+                    <tr key={idx}>
+                      <td>
+                        {cart.productId &&
+                          cart.productId.images &&
+                          cart.productId.images[0] && (
+                            <img
+                              src={cart.productId.images[0]}
+                              alt="Sản phẩm"
+                              width={50}
+                              className="rounded"
+                            />
+                          )}
+                      </td>
+                      <td>{cart.productId ? cart.productId.name : "N/A"}</td>
+                      <td>{cart.productId ? formatPrice(cart.salePrice) : "0 VND"}</td>
+                      <td>{cart.quantity}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-          <h4 className="mt-3">
-            Tổng tiền:{" "}
-            <span className="text-danger fw-bold">
-              {formatPrice(order.totalAmount)} VNĐ
-            </span>
+          {/* Total Amount */}
+          <h4 className="mt-3 text-center text-primary">
+            Tổng tiền: <span className="fw-bold">{formatPrice(order.totalAmount)} VNĐ</span>
           </h4>
 
           {/* Shipping Address */}
-          <div className="mt-3">
+          <div className="mt-4">
+            <h6 className="fw-bold text-secondary">Thông tin giao hàng</h6>
             <p className="mb-1">
               Tên khách hàng: <strong>{order.userName}</strong>
             </p>
@@ -130,18 +131,17 @@ const Bill = () => {
           </div>
 
           {/* Order Status */}
-          <p className="mt-3">
-            <span className="fw-bold">Trạng thái đơn hàng:</span>{" "}
-            {order.status}
-          </p>
-          <p>
-            <span className="fw-bold">Phương thức thanh toán:</span>{" "}
-            {order.paymentMethod}
-          </p>
-          <p>
-            <span className="fw-bold">Trạng thái thanh toán:</span>{" "}
-            {order.paymentStatus}
-          </p>
+          <div className="mt-4">
+            <p className="text-muted">
+              <span className="fw-bold">Trạng thái đơn hàng:</span> {order.status}
+            </p>
+            <p className="text-muted">
+              <span className="fw-bold">Phương thức thanh toán:</span> {order.paymentMethod}
+            </p>
+            <p className="text-muted">
+              <span className="fw-bold">Trạng thái thanh toán:</span> {order.paymentStatus}
+            </p>
+          </div>
         </div>
       </div>
     </div>

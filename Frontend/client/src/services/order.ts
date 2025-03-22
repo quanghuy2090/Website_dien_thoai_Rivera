@@ -27,6 +27,9 @@ export type Order = {
   | "Hoàn thành"
   | "Đã huỷ";
   cancelReason: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string
   createdAt: Date;
   updatedAt: Date;
 };
