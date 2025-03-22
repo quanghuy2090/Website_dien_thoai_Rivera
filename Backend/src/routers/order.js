@@ -2,8 +2,10 @@ import express from "express";
 import {
   createOrderCOD,
   createOrderOnline,
+  filterOrders,
   getAllOrder,
   getOrderById,
+  searchOrders,
   updateOrderStatus,
 } from "../controllers/order.js";
 import { checkUserPermission } from "./../middlewares/checkUserPermission.js";
@@ -29,6 +31,8 @@ routerOrder.get("/vnpay_return", async (req, res) => {
 });
 
 routerOrder.get("/", checkUserPermission, getAllOrder);
+routerOrder.get("/search", checkOrderPermission, searchOrders);
+routerOrder.get("/filter", checkOrderPermission, filterOrders);
 routerOrder.get("/:id", checkOrderPermission, getOrderById);
 routerOrder.put("/status/:id", checkOrderPermission, updateOrderStatus);
 
