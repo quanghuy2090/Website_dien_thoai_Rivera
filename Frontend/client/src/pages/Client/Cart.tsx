@@ -113,13 +113,13 @@ const Cart = () => {
               quantity: newQuantity,
               salePrice:
                 data.cart.items.find(
-                  (i) =>
+                  (i: CartItem) =>
                     i.productId._id === productId && i.variantId === variantId
                 )?.salePrice || cart.salePrice,
               subtotal:
                 newQuantity *
                 (data.cart.items.find(
-                  (i) =>
+                  (i: CartItem) =>
                     i.productId._id === productId && i.variantId === variantId
                 )?.salePrice || cart.salePrice),
             }
@@ -191,15 +191,16 @@ const Cart = () => {
                       <tr>
                         <td>
                           <img src={cart.productId.images} alt="" width={100} />
-                          {cart.productId.name}
-                          <br/>
+                          <Link className="cart-product-name" to={`/product/${cart.productId._id}`}>
+                            {cart.productId.name}
+                          </Link>
+                          <br />
                           {cart.color}/{cart.capacity}
                         </td>
                         <td>
                           {formatPrice(cart.salePrice)}
                           <br />
-                          {cart?.salePrice !==
-                            cart?.price && (
+                          {cart?.salePrice !== cart?.price && (
                             <del className="product-old-price h6">
                               {formatPrice(cart.price)}
                             </del>

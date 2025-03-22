@@ -2095,6 +2095,12 @@ textarea.input {
   font-weight: 400;
   color: #8d99ae;
 }
+.cart-table .cart-product-name{
+  color:#000080;
+}
+.cart-table .cart-product-name:hover{
+  color:#0171d3;
+}
 
 /* 🛍 Empty Cart */
 .empty-cart {
@@ -2215,6 +2221,12 @@ textarea.input {
 .order-details .order-submit {
   display: block;
   margin-top: 30px;
+}
+
+.checkout-product{
+  padding-bottom: 7px;
+  margin-bottom: 7px;
+  border-bottom: 1px solid #0171d3;
 }
 
 /*=========================================================

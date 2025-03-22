@@ -284,11 +284,11 @@ const Checkout = () => {
                     </div>
                     <div className="order-products">
                       {carts.map((cart) => (
-                        <div key={`${cart.productId._id}-${cart.variantId}`}>
+                        <div className="checkout-product" key={`${cart.productId._id}-${cart.variantId}`}>
                           <tr>
                             <div>
                               <strong>Sản phẩm</strong>
-                              <td>{cart.productId.name}-{cart.color}-{cart.capacity}</td>
+                              <td>{cart.quantity} x {cart.productId.name}-{cart.color}-{cart.capacity}</td>
                             </div>
                             <div>
                               <strong>Giá</strong>
