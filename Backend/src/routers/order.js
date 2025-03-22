@@ -15,10 +15,6 @@ const routerOrder = express.Router();
 // Tạo đơn hàng từ giỏ hàng
 routerOrder.post("/cod", checkUserPermission, createOrderCOD);
 routerOrder.post("/online", checkUserPermission, createOrderOnline);
-routerOrder.get("/", checkUserPermission, getAllOrder);
-routerOrder.get("/:id", checkOrderPermission, getOrderById);
-routerOrder.put("/status/:id", checkOrderPermission, updateOrderStatus);
-
 // Route xử lý phản hồi từ VNPAY
 routerOrder.get("/vnpay_return", async (req, res) => {
   try {
@@ -31,5 +27,9 @@ routerOrder.get("/vnpay_return", async (req, res) => {
     });
   }
 });
+
+routerOrder.get("/", checkUserPermission, getAllOrder);
+routerOrder.get("/:id", checkOrderPermission, getOrderById);
+routerOrder.put("/status/:id", checkOrderPermission, updateOrderStatus);
 
 export default routerOrder;
