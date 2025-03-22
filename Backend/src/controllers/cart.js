@@ -299,10 +299,14 @@ export const getAllCart = async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Bước 1: Tìm giỏ hàng của user
+    // Bước 1: Tìm giỏ hàng của user và populate cơ bản
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
-      select: "name images short_description status",
+      select: "name images short_description status variants",
+      populate: [
+        { path: "variants.color", select: "name" }, 
+        { path: "variants.capacity", select: "value" },
+      ],
     });
 
     if (!cart) {
@@ -316,40 +320,50 @@ export const getAllCart = async (req, res) => {
       });
     }
 
-    // Bước 2: Lấy thông tin chi tiết của từng sản phẩm và biến thể
-    const cartItems = await Promise.all(
-      cart.items.map(async (item) => {
-        // 👉 Sửa lỗi populate tại đây: Gọi trên `Product.findById()`
-        const product = await Product.findById(item.productId)
-          .populate({
-            path: "variants",
-            match: { _id: item.variantId },
-            populate: [
-              { path: "color", select: "name" },  // Lấy tên màu sắc
-              { path: "capacity", select: "value" }, // Lấy giá trị dung lượng
-            ],
-            select: "color capacity price sale salePrice stock sku",
-          });
+    // Bước 2: Xử lý thông tin chi tiết của từng item trong giỏ hàng
+    const cartItems = cart.items.map((item) => {
+      const product = item.productId; // Đã được populate từ bước 1
 
-        const variant = product?.variants[0]; // Lấy variant khớp với variantId
+      // Tìm variant tương ứng với variantId trong mảng variants của product
+      const variant = product?.variants.find((v) =>
+        v._id.equals(item.variantId)
+      );
 
+      // Nếu không tìm thấy variant hoặc product, trả về thông tin cơ bản với giá trị mặc định
+      if (!product || !variant) {
         return {
           productId: item.productId,
           variantId: item.variantId,
           quantity: item.quantity,
           price: item.price,
           salePrice: item.salePrice,
-          color: variant?.color?.name || "N/A", // Tránh lỗi null
-          capacity: variant?.capacity?.value || "N/A",
-          stock: variant?.stock,
-          sku: variant?.sku,
-          productName: product?.name,
-          productImage: product?.images?.[0], // Lấy ảnh đầu tiên
-          shortDescription: product?.short_description,
-          status: product?.status,
+          color: "N/A",
+          capacity: "N/A",
+          stock: 0,
+          sku: "N/A",
+          productName: "Sản phẩm không tồn tại",
+          productImage: null,
+          shortDescription: null,
+          status: "unknown",
         };
-      })
-    );
+      }
+
+      return {
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        price: item.price,
+        salePrice: item.salePrice,
+        color: variant.color?.name || "N/A", // Lấy tên màu sắc
+        capacity: variant.capacity?.value || "N/A", // Lấy giá trị dung lượng
+        stock: variant.stock,
+        sku: variant.sku,
+        productName: product.name,
+        productImage: product.images?.[0], // Lấy ảnh đầu tiên
+        shortDescription: product.short_description,
+        status: product.status,
+      };
+    });
 
     return res.status(200).json({
       message: "Lấy thông tin giỏ hàng thành công",

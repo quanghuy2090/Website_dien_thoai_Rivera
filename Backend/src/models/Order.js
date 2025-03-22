@@ -97,6 +97,10 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "Chưa xác nhận",
     },
+    deliveredAt: {
+      type: Date,
+      default: null, // Thời điểm chuyển sang "Đã giao hàng"
+    },
     paymentMethod: {
       type: String,
       enum: ["COD", "Online"],

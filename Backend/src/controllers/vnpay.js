@@ -1,4 +1,6 @@
 import Order from "../models/Order.js";
+import Product from "../models/Product.js";
+import Cart from "../models/Cart.js";
 import crypto from "crypto";
 import dotenv from "dotenv";
 
@@ -52,6 +54,21 @@ export const handleVnpayReturn = async (vnpParams) => {
     // Thanh toán thành công
     order.paymentStatus = "Đã thanh toán";
     order.status = "Chưa xác nhận"; // Có thể tùy chỉnh trạng thái
+
+    // Bước 1: Trừ số lượng tồn kho
+    for (const item of order.items) {
+      await Product.updateOne(
+        { _id: item.productId, "variants._id": item.variantId },
+        { $inc: { "variants.$.stock": -item.quantity } }
+      );
+    }
+
+    // Bước 2: Xóa giỏ hàng của user
+    await Cart.findOneAndUpdate(
+      { userId: order.userId },
+      { $set: { items: [], totalPrice: 0, totalSalePrice: 0 } }
+    );
+
     await order.save();
 
     return {
