@@ -2230,6 +2230,102 @@ textarea.input {
 }
 
 /*=========================================================
+	12 -> ORDER HISTORY 
+===========================================================*/
+/* Overall style for history */
+.history-body {
+  text-align: start; /* Align to the left */
+}
+
+.history .table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow around the table */
+}
+
+/* Styling for table header */
+.history .table th {
+  padding: 12px 5px; /* Increased padding for a cleaner look */
+  background: #0171d3;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 12px;
+  vertical-align: top; /* Align text to the top */
+}
+
+/* Styling for table data cells */
+.history .table td {
+  padding: 12px 20px; /* Consistent padding with the header */
+  border: 1px solid #ddd;
+  font-size: 12px;
+  text-align: center;
+  color: #333; /* Darker text for better readability */
+  background: #fff; /* Ensures a white background for all rows */
+  transition: background-color 0.3s ease; /* Smooth transition effect for row hover */
+  vertical-align: middle;
+}
+
+/* Hover effect for rows */
+.history .table tr:hover {
+  background-color: #f5f5f5; /* Light grey background when hovering over a row */
+}
+
+/* Alternating row colors for better readability */
+.history .table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Dropdown select styling */
+.history .table select {
+  text-align: center;
+  width: 130px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  font-size: 12px;
+  border-radius: 4px; /* Rounded corners for the select */
+  transition: border-color 0.3s ease; /* Smooth transition for border color */
+}
+
+/* Focus effect for select dropdown */
+.history .table td select:focus {
+  outline: none;
+  border-color: #0171d3; /* Blue border when focused */
+}
+
+/* Styling for the select dropdown options */
+.history .table select option:hover {
+  background-color: #0171d3;  /* Blue background */
+  color: white;               /* White text */
+}
+
+
+/* Button styles (if any) */
+.history .table .btn {
+  padding: 8px 15px;
+  background-color: white;
+  color: #0171d3;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+.history .table .btn:hover {
+  background-color: #005eaf;
+  color: white; /* Darker blue on hover */
+}
+
+/* For better spacing around the table */
+.history .table-container {
+  overflow-x: auto; /* In case the table is wide, this allows horizontal scrolling */
+  margin-bottom: 30px;
+}
+
+/*=========================================================
 	10 -> NEWSLETTER
 ===========================================================*/
 
@@ -2458,6 +2554,38 @@ textarea.input {
   position: static;
   margin: 15px 0px;
 }
+
+/*=========================================================
+	Profile
+===========================================================*/
+
+.profile-action {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.history-btn {
+  padding: 12px 30px;
+  background-color: #0171d3;
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 16px;
+  transition: 0.3s all;
+}
+
+.history-btn:hover {
+  background-color: #005eaf;
+}
+
+.history-btn:focus {
+  outline: none;
+  background-color: #005eaf;
+}
+
 
 /*=========================================================
 	13 -> RESPONSIVE

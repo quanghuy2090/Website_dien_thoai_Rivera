@@ -1,42 +1,34 @@
-import { useEffect, useState } from "react";
-import { getAllOrder, Order } from "../../services/order"; // Make sure the `getAllOrder` function is correct in your services file.
+import React, { useEffect, useState } from "react";
+import { getDetailOrder, Order } from "../../services/order"; // Correct import for getDetailOrder.
 
 const Bill = () => {
-  const [userId, setUserId] = useState<string | null>(null);
-  const [orderUser, setOrderUser] = useState<Order[]>([]);
+  const [order, setOrder] = useState<Order | null>(null); // To store the fetched order.
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // To show loading while fetching data.
+
   useEffect(() => {
-    const data = getAllOrder(userId);
-    console.log(data);
-  },[]);
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        if (user && user._id) {
-          setUserId(user._id); // Store userId in state
-          fetchOrder(user._id); // Fetch orders for the logged-in user
-        }
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
+    // Get the orderId from URL (assumed to be passed in the route)
+    const orderId = window.location.pathname.split('/').pop(); // Assuming orderId is in URL
+
+    if (orderId) {
+      fetchOrderDetail(orderId);
+    } else {
+      setError("Order ID not found.");
+      setLoading(false);
     }
   }, []);
 
-  const fetchOrder = async (userId: string) => {
+  const fetchOrderDetail = async (orderId: string) => {
     try {
-      const { data } = await getAllOrder(); // Fetching orders from the API
-
-      // Filter orders by userId (in case the API doesn't automatically filter it)
-      const filteredOrders = data.orders.filter(
-        (order: Order) => order.userId._id === userId
-      );
-      setOrderUser(filteredOrders); // Set the orders of the logged-in user
+      const { data } = await getDetailOrder(orderId); // Fetching order details.
+      setOrder(data.order); // Setting order details into state.
     } catch (error) {
-      console.log("Error fetching orders:", error);
+      setError("Error fetching order details.");
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
-  console.log(orderUser);
 
   const formatPrice = (price: number) => {
     if (price === undefined || price === null) {
@@ -45,90 +37,113 @@ const Bill = () => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!order) {
+    return <div>No order found.</div>;
+  }
+
   return (
     <div className="container mt-4">
-      <h2 className="text-center mb-4">Danh sách đơn hàng</h2>
-      {orderUser.length === 0 ? (
-        <p className="text-center">Bạn chưa có đơn hàng nào.</p>
-      ) : (
-        orderUser.map((order, index) => (
-          <div className="card mb-4 shadow-sm" key={index}>
-            <div className="card-body">
-              <h5 className="card-title">
-                Mã đơn hàng: <span className="fw-bold">{order._id}</span>
-              </h5>
-              <p className="text-muted">
-                Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}
-              </p>
+      <div id="breadcrumb" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li><a href="/">Trang chủ</a></li>
+                <li><a href="/profile">Tài khoản</a></li>
+                <li><a href="/history">Lịch sử đơn hàng</a></li>
+                <li className="active">Chi tiết đơn hàng</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              {/* Product List Table */}
-              <table className="table table-bordered">
-                <thead className="table-light">
-                  <tr>
-                    <th>Ảnh</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {order.items.map((cart, idx) => (
-                    <tr key={idx}>
-                      <td>
-                        {cart && (
+      <div className="card mb-4 shadow-sm">
+        <div className="card-body">
+          <h5 className="card-title">
+            Mã đơn hàng: <span className="fw-bold">{order.orderId}</span>
+          </h5>
+          <p className="text-muted">
+            Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}
+          </p>
+
+          {/* Product List Table */}
+          <table className="table table-bordered">
+            <thead className="table-light">
+              <tr>
+                <th>Ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+              </tr>
+            </thead>
+            <tbody>
+              {order.items.map((cart, idx) => {
+                return (
+                  <tr key={idx}>
+                    <td>
+                      {cart.productId &&
+                        cart.productId.images &&
+                        cart.productId.images[0] && (
                           <img
                             src={cart.productId.images[0]}
                             alt="Sản phẩm"
                             width={50}
                           />
                         )}
-                      </td>
-                      <td>{cart.productId.name}</td>
-                      <td>{formatPrice(cart.productId.price)}</td>
-                      <td>{cart.quantity}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    </td>
+                    <td>{cart.productId ? cart.productId.name : "N/A"}</td>
+                    <td>{cart.productId ? formatPrice(cart.salePrice) : "0 VND"}</td>
+                    <td>{cart.quantity}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
 
-              <h6 className="mt-3">
-                Tổng tiền:{" "}
-                <span className="text-danger fw-bold">
-                  {formatPrice(order.totalAmount)} VNĐ
-                </span>
-              </h6>
+          <h4 className="mt-3">
+            Tổng tiền:{" "}
+            <span className="text-danger fw-bold">
+              {formatPrice(order.totalAmount)} VNĐ
+            </span>
+          </h4>
 
-              {/* Shipping Address */}
-              <div className="mt-3">
-                <h6>Địa chỉ giao hàng:</h6>
-                <p className="mb-1">
-                  Tên khách hàng: <strong>{order.userId.userName}</strong>
-                </p>
-                <p className="mb-1">Email: {order.userId.email}</p>
-                <p className="mb-1">Sdt: {order.userId.phone}</p>
-                <p className="mb-1">
-                  {order.shippingAddress.street}, {order.shippingAddress.ward},{" "}
-                  {order.shippingAddress.district}, {order.shippingAddress.city}
-                </p>
-              </div>
-
-              {/* Order Status */}
-              <p className="mt-3">
-                <span className="fw-bold">Trạng thái đơn hàng:</span>{" "}
-                {order.status}
-              </p>
-              <p>
-                <span className="fw-bold">Phương thức thanh toán:</span>{" "}
-                {order.paymentMethod}
-              </p>
-              <p>
-                <span className="fw-bold">Trạng thái thanh toán:</span>{" "}
-                {order.paymentStatus}
-              </p>
-            </div>
+          {/* Shipping Address */}
+          <div className="mt-3">
+            <p className="mb-1">
+              Tên khách hàng: <strong>{order.userName}</strong>
+            </p>
+            <p className="mb-1">Email: {order.userEmail}</p>
+            <p className="mb-1">Sdt: {order.userPhone}</p>
+            <p className="mb-1">
+              Địa chỉ giao hàng: {order.shippingAddress.street}, {order.shippingAddress.ward},{" "}
+              {order.shippingAddress.district}, {order.shippingAddress.city}
+            </p>
           </div>
-        ))
-      )}
+
+          {/* Order Status */}
+          <p className="mt-3">
+            <span className="fw-bold">Trạng thái đơn hàng:</span>{" "}
+            {order.status}
+          </p>
+          <p>
+            <span className="fw-bold">Phương thức thanh toán:</span>{" "}
+            {order.paymentMethod}
+          </p>
+          <p>
+            <span className="fw-bold">Trạng thái thanh toán:</span>{" "}
+            {order.paymentStatus}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

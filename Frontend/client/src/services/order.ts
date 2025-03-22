@@ -12,7 +12,7 @@ export type IShippingAddress = {
   city: string;
 };
 export type Order = {
-  _id: string;
+  orderId: string;
   userId: User;
   items: Carts[];
   shippingAddress: IShippingAddress;
@@ -65,7 +65,7 @@ export const getAllOrder = () => {
   return http.get("/order");
 };
 export const getDetailOrder = (orderId: string) => {
-  return http.get(`/order/detail/${orderId}`);
+  return http.get(`/order/${orderId}`);
 };
 export const updateStatusOrder = (
   orderId: string,

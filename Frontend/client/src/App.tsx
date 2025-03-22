@@ -45,10 +45,9 @@ function App() {
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
         { path: "/checkout", element: <Checkout /> },
-        { path: "/bill", element: <Bill /> },
+        { path: "/bill/:id", element: <Bill /> },
         { path: "/history", element: <HistoryUser /> },
         { path: "/profile", element: <Profile /> },
-
       ],
     },
     { path: "/login", element: <Login /> },
@@ -78,7 +77,6 @@ function App() {
         { path: "/admin/capacity", element: <ListCapacity /> },
         { path: "/admin/capacity/add", element: <AddCapacity /> },
         { path: "/admin/capacity/update/:id", element: <UpdateCapacity /> },
-
       ],
     },
   ]);

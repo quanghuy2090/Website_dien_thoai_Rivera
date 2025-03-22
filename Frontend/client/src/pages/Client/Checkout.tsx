@@ -131,7 +131,7 @@ const Checkout = () => {
         const { data } = await createOrder(newOrder);
         console.log(data)
         toast.success("Checkout successfully");
-        nav("/bill"); // Chuyển hướng đến trang hóa đơn
+        nav("/history"); // Chuyển hướng đến trang hóa đơn
         setCarts([]);
         setTotalAmount(0);
       }

@@ -116,7 +116,7 @@ const ProductDetail = () => {
         userId: user._id,
         productId: selectedProduct._id,
         variantId: chosenVariant._id,
-        quantity: 1,
+        quantity: quantity,
         price: chosenVariant.price,
         salePrice: chosenVariant.salePrice,
         color:
