@@ -92,6 +92,7 @@ const orderSchema = new mongoose.Schema(
         "Đã xác nhận",
         "Đang giao hàng",
         "Đã giao hàng",
+        "Đã nhận hàng",
         "Hoàn thành",
         "Đã huỷ",
       ],
@@ -100,6 +101,10 @@ const orderSchema = new mongoose.Schema(
     deliveredAt: {
       type: Date,
       default: null, // Thời điểm chuyển sang "Đã giao hàng"
+    },
+    completedAt: {
+      type: Date,
+      default: null,
     },
     paymentMethod: {
       type: String,
@@ -122,6 +127,25 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    cancelHistory: [
+      {
+        cancelledAt: {
+          type: Date,
+          default: Date.now, // Thời điểm hủy
+        },
+        cancelReason: {
+          type: String,
+          maxlength: 500,
+          trim: true,
+          default: "Hủy không lý do", // Mặc định nếu không nhập lý do
+        },
+        cancelledBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true, // Người thực hiện hủy
+        },
+      },
+    ],
   },
   {
     timestamps: true,
@@ -130,23 +154,26 @@ const orderSchema = new mongoose.Schema(
 );
 
 // Middleware pre('save') chỉ cập nhật name/phone, không tính totalAmount nữa
+
 orderSchema.pre("save", async function (next) {
   const order = this;
-
   // Điền name và phone từ User nếu thiếu
-  if (!order.shippingAddress.name || !order.shippingAddress.phone) {
+
+  if (!order.shippingAddress.userName || !order.shippingAddress.phone) {
     const user = await mongoose.model("User").findById(order.userId).exec();
     if (user) {
-      if (!order.shippingAddress.name) order.shippingAddress.name = user.name;
-      if (!order.shippingAddress.phone) order.shippingAddress.phone = user.phone;
+      if (!order.shippingAddress.userName)
+        order.shippingAddress.userName = user.name;
+      if (!order.shippingAddress.phone)
+        order.shippingAddress.phone = user.phone;
     }
   }
-
   next();
 });
 
 // Index để tối ưu hóa tìm kiếm
 orderSchema.index({ userId: 1 });
 orderSchema.index({ status: 1 });
+orderSchema.index({ "cancelHistory.cancelledAt": -1 });
 
 export default mongoose.model("Order", orderSchema);
