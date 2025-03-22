@@ -33,6 +33,7 @@ import AddCapacity from "./pages/Admin/Capacity/AddCapacity";
 import UpdateColor from "./pages/Admin/Colors/UpdateColor";
 import UpdateCapacity from "./pages/Admin/Capacity/UpdateCapacity";
 import Profile from "./pages/Client/Profile";
+import PaymentSuccess from "./pages/Client/Vnpay";
 function App() {
   const routes = useRoutes([
     {
@@ -46,12 +47,14 @@ function App() {
         { path: "/checkout", element: <Checkout /> },
         { path: "/bill", element: <Bill /> },
         { path: "/history", element: <HistoryUser /> },
-        { path: "/profile", element: <Profile /> }
+        { path: "/profile", element: <Profile /> },
+
       ],
     },
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path: "*", element: <Notfound /> },
+    { path: "//payment-success", element: <PaymentSuccess /> },
     {
       path: "/admin",
       element: <AdminLayout />,
@@ -74,7 +77,8 @@ function App() {
         { path: "/admin/color/update/:id", element: <UpdateColor /> },
         { path: "/admin/capacity", element: <ListCapacity /> },
         { path: "/admin/capacity/add", element: <AddCapacity /> },
-        { path: "/admin/capacity/update/:id", element: <UpdateCapacity /> }
+        { path: "/admin/capacity/update/:id", element: <UpdateCapacity /> },
+
       ],
     },
   ]);
