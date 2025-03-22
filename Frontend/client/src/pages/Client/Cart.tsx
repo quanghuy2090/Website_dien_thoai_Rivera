@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { CartItem, deleteAllCart, deleteCart, getCart, updateCart } from "../../services/cart";
+import {
+  CartItem,
+  deleteAllCart,
+  deleteCart,
+  getCart,
+  updateCart,
+} from "../../services/cart";
 import { Link } from "react-router-dom";
 import "../../css/style.css";
 import toast from "react-hot-toast";
 
 const Cart = () => {
   const [carts, setCarts] = useState<CartItem[]>([]);
-  console.log(carts);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [userId, setUserId] = useState<string | null>(null);
-  console.log(userId)
+  console.log(userId);
   useEffect(() => {
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -28,7 +33,9 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       const { data } = await getCart();
-      if (data.cart && data.cart.items) {  // Kiểm tra đúng key
+      console.log(data.cart.items);
+      if (data.cart && data.cart.items) {
+        // Kiểm tra đúng key
         setCarts(data.cart.items);
         setTotalAmount(data.cart.totalSalePrice || 0); // Cập nhật đúng giá trị tổng
       }
@@ -37,13 +44,16 @@ const Cart = () => {
     }
   };
   const handleDeleteCartItem = async (productId: string, variantId: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")) {
+    if (
+      window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")
+    ) {
       try {
         await deleteCart(productId, variantId);
 
         // Cập nhật giỏ hàng sau khi xóa
-        const updatedCart = carts.filter(cart =>
-          !(cart.productId._id === productId && cart.variantId === variantId)
+        const updatedCart = carts.filter(
+          (cart) =>
+            !(cart.productId._id === productId && cart.variantId === variantId)
         );
 
         setCarts(updatedCart);
@@ -53,7 +63,10 @@ const Cart = () => {
           setTotalAmount(0);
         } else {
           // Tính lại tổng giá
-          const newTotalPrice = updatedCart.reduce((sum, item) => sum + (item.quantity * item.salePrice), 0);
+          const newTotalPrice = updatedCart.reduce(
+            (sum, item) => sum + item.quantity * item.salePrice,
+            0
+          );
           setTotalAmount(newTotalPrice);
         }
 
@@ -79,7 +92,11 @@ const Cart = () => {
       }
     }
   };
-  const handleUpdateQuantity = async (productId: string, variantId: string, newQuantity: number) => {
+  const handleUpdateQuantity = async (
+    productId: string,
+    variantId: string,
+    newQuantity: number
+  ) => {
     if (newQuantity <= 0) {
       toast.error("Số lượng không được nhỏ hơn 1!");
       return;
@@ -92,11 +109,20 @@ const Cart = () => {
       const updatedCart = carts.map((cart) =>
         cart.productId._id === productId && cart.variantId === variantId
           ? {
-            ...cart,
-            quantity: newQuantity,
-            salePrice: data.cart.items.find(i => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice,
-            subtotal: newQuantity * (data.cart.items.find(i => i.productId._id === productId && i.variantId === variantId)?.salePrice || cart.salePrice)
-          }
+              ...cart,
+              quantity: newQuantity,
+              salePrice:
+                data.cart.items.find(
+                  (i) =>
+                    i.productId._id === productId && i.variantId === variantId
+                )?.salePrice || cart.salePrice,
+              subtotal:
+                newQuantity *
+                (data.cart.items.find(
+                  (i) =>
+                    i.productId._id === productId && i.variantId === variantId
+                )?.salePrice || cart.salePrice),
+            }
           : cart
       );
 
@@ -111,9 +137,6 @@ const Cart = () => {
       toast.error("Lỗi khi cập nhật số lượng!");
     }
   };
-
-
-
 
   const formatPrice = (price: number) => {
     if (!price) return "0 VND";
@@ -151,45 +174,93 @@ const Cart = () => {
         {/* 📋 Cart Table */}
         <div className="cart-table-container">
           {carts.length > 0 ? (
-            <table className="cart-table">
-              <thead>
-                <tr>
-                  <th>Sản phẩm</th>
-                  <th>Giá gốc</th>
-                  <th>Giá sale</th>
-                  <th>Số lượng</th>
-                  <th>Thành tiền</th>
-                  <th>Hủy</th>
-                </tr>
-              </thead>
-              <tbody>
-                {carts.map((cart) => (
+            <>
+              <table className="cart-table">
+                <thead>
                   <tr>
-                    <td><img src={cart.productId.images} alt="" width={100} />{cart.productId.name}-{cart.color}-{cart.capacity}</td>
-                    <td>{cart.price}</td>
-                    <td>{cart.salePrice}</td>
-                    <td>
-                      <button className="btn btn-primary px-3" onClick={() => handleUpdateQuantity(cart.productId._id, cart.variantId, cart.quantity - 1)}>
-                        -
-                      </button>
-                      <span className="px-3 fw-bold">{cart.quantity}</span>
-                      <button className="btn btn-primary px-3" onClick={() => handleUpdateQuantity(cart.productId._id, cart.variantId, cart.quantity + 1)}>
-                        +
-                      </button>
-                    </td>
-
-                    <td>{formatPrice(cart.quantity * cart.salePrice)}</td>
-                    <td>
-                      <button onClick={() => handleDeleteCartItem(cart.productId._id, cart.variantId)}>xoa</button>
-                    </td>
+                    <th>Sản phẩm</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th>Hủy</th>
                   </tr>
-                ))}
-              </tbody>
-              <button className="remove-all-btn" onClick={handleRemoveAllCart}>
-                Xóa toàn bộ giỏ hàng
-              </button>
+                </thead>
+                <tbody>
+                  {carts.map((cart) => {
+                    return (
+                      <tr>
+                        <td>
+                          <img src={cart.productId.images} alt="" width={100} />
+                          {cart.productId.name}
+                          <br/>
+                          {cart.color}/{cart.capacity}
+                        </td>
+                        <td>
+                          {formatPrice(cart.salePrice)}
+                          <br />
+                          {cart?.salePrice !==
+                            cart?.price && (
+                            <del className="product-old-price h6">
+                              {formatPrice(cart.price)}
+                            </del>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            className="btn btn-primary px-3"
+                            onClick={() =>
+                              handleUpdateQuantity(
+                                cart.productId._id,
+                                cart.variantId,
+                                cart.quantity - 1
+                              )
+                            }
+                          >
+                            -
+                          </button>
+                          <span className="px-3 fw-bold">{cart.quantity}</span>
+                          <button
+                            className="btn btn-primary px-3"
+                            onClick={() =>
+                              handleUpdateQuantity(
+                                cart.productId._id,
+                                cart.variantId,
+                                cart.quantity + 1
+                              )
+                            }
+                          >
+                            +
+                          </button>
+                        </td>
 
-            </table>
+                        <td>{formatPrice(cart.quantity * cart.salePrice)}</td>
+                        <td>
+                          <button
+                            className="remove-btn"
+                            onClick={() =>
+                              handleDeleteCartItem(
+                                cart.productId._id,
+                                cart.variantId
+                              )
+                            }
+                          >
+                            Xóa
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div className="delete-all-container">
+                <button
+                  className="delete-all-btn"
+                  onClick={handleRemoveAllCart}
+                >
+                  Xóa toàn bộ giỏ hàng
+                </button>
+              </div>
+            </>
           ) : (
             <div className="empty-cart">
               <p>Giỏ hàng của bạn đang trống! 🛒</p>

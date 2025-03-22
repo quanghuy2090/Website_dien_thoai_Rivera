@@ -2068,6 +2068,7 @@ textarea.input {
 }
 
 .delete-all-container {
+  width: 950px;
   display: flex;
   justify-content: flex-end; /* Align to the right */
   margin-top: 10px; /* Add space above */
@@ -2087,6 +2088,12 @@ textarea.input {
 
 .delete-all-btn:hover {
   background: darkred;
+}
+
+.cart-table .product-old-price {
+  font-size: 80%;
+  font-weight: 400;
+  color: #8d99ae;
 }
 
 /* 🛍 Empty Cart */

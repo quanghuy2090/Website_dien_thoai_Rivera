@@ -83,7 +83,10 @@ const ProductDetail = () => {
     })();
   }, [id]);
 
-  const addToCart = async (productId: string) => {
+  const addToCart = async (
+    productId: string,
+    variant?: Product["variants"][0]
+  ) => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (!user || !user._id) {
@@ -96,28 +99,40 @@ const ProductDetail = () => {
         return;
       }
 
-      const selectedProduct =
-        relatedProducts.find((p) => p._id === productId) || product;
+      let selectedProduct = relatedProducts.find((p) => p._id === productId);
+      if (!selectedProduct || !selectedProduct.variants?.length) {
+        const { data } = await getProductById(productId);
+        selectedProduct = data.data;
+      }
 
-      if (!selectedProduct) {
-        toast.error("Không tìm thấy sản phẩm!");
+      const chosenVariant = variant || selectedProduct?.variants?.[0];
+
+      if (!chosenVariant) {
+        toast.error("Không tìm thấy biến thể sản phẩm!");
         return;
       }
 
       const cartItem: Carts = {
         userId: user._id,
-        items: [
-          {
-            productId: selectedProduct._id,
-            variantId: selectedVariant._id,
-            quantity: quantity,
-          },
-        ],
+        productId: selectedProduct._id,
+        variantId: chosenVariant._id,
+        quantity: 1,
+        price: chosenVariant.price,
+        salePrice: chosenVariant.salePrice,
+        color:
+          typeof chosenVariant.color === "object"
+            ? chosenVariant.color.name
+            : chosenVariant.color,
+        capacity:
+          typeof chosenVariant.capacity === "object"
+            ? chosenVariant.capacity.value
+            : chosenVariant.capacity,
+        subtotal: chosenVariant.salePrice * 1,
       };
 
-      const { data } = await addCart(cartItem);
+      const { data: cartData } = await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-      console.log("Thêm vào giỏ hàng:", data);
+      console.log("Thêm vào giỏ hàng:", cartData);
     } catch (error) {
       console.error("Lỗi khi thêm vào giỏ hàng:", error);
       toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
@@ -281,7 +296,7 @@ const ProductDetail = () => {
                   </div>
                   <button
                     className="add-to-cart-btn"
-                    onClick={() => addToCart(product?._id)}
+                    onClick={() => addToCart(product?._id, selectedVariant)}
                   >
                     <i className="fa fa-shopping-cart" /> add to cart
                   </button>
@@ -632,7 +647,7 @@ const ProductDetail = () => {
                   <div className="add-to-cart">
                     <button
                       className="add-to-cart-btn"
-                      onClick={() => addToCart(item._id)}
+                      onClick={() => addToCart(item._id, item.variants?.[0])}
                     >
                       <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                     </button>
