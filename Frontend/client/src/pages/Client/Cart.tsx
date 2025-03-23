@@ -109,20 +109,20 @@ const Cart = () => {
       const updatedCart = carts.map((cart) =>
         cart.productId._id === productId && cart.variantId === variantId
           ? {
-              ...cart,
-              quantity: newQuantity,
-              salePrice:
-                data.cart.items.find(
-                  (i: CartItem) =>
-                    i.productId._id === productId && i.variantId === variantId
-                )?.salePrice || cart.salePrice,
-              subtotal:
-                newQuantity *
-                (data.cart.items.find(
-                  (i: CartItem) =>
-                    i.productId._id === productId && i.variantId === variantId
-                )?.salePrice || cart.salePrice),
-            }
+            ...cart,
+            quantity: newQuantity,
+            salePrice:
+              data.cart.items.find(
+                (i: CartItem) =>
+                  i.productId._id === productId && i.variantId === variantId
+              )?.salePrice || cart.salePrice,
+            subtotal:
+              newQuantity *
+              (data.cart.items.find(
+                (i: CartItem) =>
+                  i.productId._id === productId && i.variantId === variantId
+              )?.salePrice || cart.salePrice),
+          }
           : cart
       );
 
@@ -190,7 +190,7 @@ const Cart = () => {
                     return (
                       <tr>
                         <td>
-                          <img src={cart.productId.images} alt="" width={100} />
+                          <img src={cart.productId.images[0]} alt="" width={100} />
                           <Link className="cart-product-name" to={`/product/${cart.productId._id}`}>
                             {cart.productId.name}
                           </Link>

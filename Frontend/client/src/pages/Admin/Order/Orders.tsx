@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { getAllOrder, Order } from "../../../services/order";
-import { FaEye } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { FaEye } from "react-icons/fa";
+
 const Orders = () => {
   const [order, setOrder] = useState<Order[]>([]);
   console.log(order);
@@ -33,7 +34,7 @@ const Orders = () => {
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th scope="col">Mã đơn hàng</th>
+              <th scope="col">Stt</th>
               <th scope="col">Ngày đặt</th>
               <th scope="col">Product</th>
               <th scope="col">Tổng tiền</th>
@@ -48,55 +49,54 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {order.map((order) => (
-              <tr>
-                <td>{order._id}</td>
+            {order.map((order, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
                 <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                <table className="table table-bordered border-primary">
+                <table className="table table-bordered">
                   <thead>
                     <tr>
-                      <th scope="col">Hình Ảnh</th>
-                      <th scope="col">Tên Sản Phẩm</th>
-                      <th scope="col">Giá</th>
-                      <th scope="col">Số Lượng</th>
+                      <th> Sản phẩm</th>
+                      <th>Số lượng</th>
+                      <th>Giá gốc</th>
+                      <th>Giá sale</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {order.orderItems.map((cart, index) => (
-                      <tr key={index} className="align-middle text-center">
-                        <td>
-                          {cart.productId.images && (
-                            <img src={cart.productId.images[0]} alt="" width={50} className="rounded" />
-                          )}
-                        </td>
-                        <td className="text-start fw-semibold">{cart.productId.name}</td>
-                        <td>{formatPrice(cart.productId.price)}</td>
-                        <td>{cart.quantity}</td>
-                      </tr>
-                    ))}
+                    {order.items.map((item, index) => {
+                      const product = item.productId;
+                      const variants = product.variants.find(
+                        (v) => v._id === item.variantId
+                      ); // Tìm đúng variant theo `variantId`
+                      return (
+                        <tr key={index}>
+                          <td><img src={product.images[0]} alt="" width={50} />{product.name}_{variants?.color?.name}_{variants?.capacity?.value}</td>
+                          <td>{item.quantity}</td>
+                          <td>{formatPrice(item.price)} VND</td>
+                          <td className="text-warning fw-bold">{formatPrice(item.salePrice)}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
-                <td>{formatPrice(order.totalPrice)}</td>
-                <td>{order.userId.userName}</td>
-                <td>{order.userId.email}</td>
-                <td>{order.userId.phone}</td>
-                <td>
-                  {order.userId.address}, {order.shippingAddress.ward},{" "}
-                  {order.shippingAddress.district}, {order.shippingAddress.city}
-                </td>
-                <td>{order.orderStatus}</td>
+
+                <td>{formatPrice(order.totalAmount)}</td>
+                <td>{order.userName}</td>
+                <td>{order.userEmail}</td>
+                <td>{order.userPhone}</td>
+                <td>{order.shippingAddress.street} <br />
+                  {order.shippingAddress.ward} <br />
+                  {order.shippingAddress.district} <br />
+                  {order.shippingAddress.city}</td>
+                <td>{order.status}</td>
                 <td>{order.paymentMethod}</td>
                 <td>{order.paymentStatus}</td>
                 <td>
-                  <Link
-                    to={`/admin/order/${order._id}`}
-                    className="btn btn-warning"
-                  >
-                    <FaEye />
-                  </Link>
+                  <Link to={`/admin/order/${order.orderId}`} className="btn btn-info"><FaEye /></Link>
                 </td>
               </tr>
             ))}
+
           </tbody>
         </table>
       </div>
