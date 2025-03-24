@@ -34,6 +34,7 @@ import UpdateColor from "./pages/Admin/Colors/UpdateColor";
 import UpdateCapacity from "./pages/Admin/Capacity/UpdateCapacity";
 import Profile from "./pages/Client/Profile";
 import PaymentSuccess from "./pages/Client/Vnpay";
+import AddUser from "./pages/Admin/User/AddUser";
 function App() {
   const routes = useRoutes([
     {
@@ -69,6 +70,7 @@ function App() {
         { path: "/admin/products/detail/:id", element: <DetailAdminProduct /> },
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
+        { path: "/admin/user/add", element: <AddUser /> },
         { path: "/admin/order", element: <Orders /> },
         { path: "/admin/order/:id", element: <OrderDetail /> },
         { path: "/admin/color", element: <ListColor /> },

@@ -180,7 +180,7 @@ const UpdateProduct = () => {
     <div className="content">
       <div className="container d-flex justify-content-center align-items-center min-vh-100 ">
         <div className="row justify-content-center w-100">
-          <div className="col-lg-8 col-md-10">
+          <div className="col-lg-12 col-md-12">
             <div className="text-center mt-5">
               <h2 className="fw-bold text-primary">Cập nhật sản phẩm</h2>
               <p className="text-muted">Chỉnh sửa thông tin sản phẩm của bạn</p>
