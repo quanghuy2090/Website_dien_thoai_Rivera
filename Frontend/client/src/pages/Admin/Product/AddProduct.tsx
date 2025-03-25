@@ -100,7 +100,7 @@ const AddProduct = () => {
     files.forEach((file) => formData.append("images", file));
 
     const { data } = await axios.post(
-      "http://localhost:3000/api/file/upload",
+      "http://localhost:5000/api/file/upload",
       formData,
       {
         headers: {

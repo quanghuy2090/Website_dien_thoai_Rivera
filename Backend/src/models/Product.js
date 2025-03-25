@@ -36,7 +36,7 @@ const variantSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
-    match: [/^[A-Z]{3}-[A-Z]{3}-[0-9]+-[0-9]{4}$/, "SKU phải có định dạng hợp lệ"],
+    // match: [/^[A-Z]{3}-[A-Z]{3}-[0-9]+-[0-9]{4}$/, "SKU phải có định dạng hợp lệ"],
   },
 });
 
