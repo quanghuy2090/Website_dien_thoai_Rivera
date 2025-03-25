@@ -118,7 +118,7 @@ const Bill = () => {
 
           {/* Shipping Address */}
           <div className="mt-4">
-            <h6 className="fw-bold text-secondary">Thông tin giao hàng</h6>
+            <h4 className="fw-bold text-secondary">Thông tin giao hàng</h4>
             <p className="mb-1">
               Tên khách hàng: <strong>{order.userName}</strong>
             </p>

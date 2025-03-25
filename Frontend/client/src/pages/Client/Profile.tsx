@@ -33,77 +33,97 @@ const Profile = () => {
   };
 
   return (
-    <div className="account-dashboard-container center-page">
-      <div className="dashboard-content">
-        <h2>Thông Tin Tài Khoản</h2>
-        {user ? (
-          <>
-            {" "}
-            <div className="profile-card">
-              <div className="profile-avatar">
-                <img
-                  src={
-                    user.img ||
-                    "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
-                  }
-                  alt="Avatar"
-                />
-              </div>
-              <div className="profile-info">
-                <div className="profile-row">
-                  <span className="profile-label">Tên tài khoản:</span>
-                  <span className="profile-value">{user.userName}</span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Email:</span>
-                  <span className="profile-value">{user.email}</span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Số điện thoại:</span>
-                  <span className="profile-value">
-                    {user.phone || "Chưa cập nhật"}
-                  </span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Địa chỉ:</span>
-                  <span className="profile-value">
-                    {user.address || "Chưa cập nhật"}
-                  </span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Vai trò:</span>
-                  <span className="profile-value">
-                    {user.role === 1
-                      ? "Admin"
-                      : user.role === 2
-                      ? "Seller"
-                      : "Khách hàng"}
-                  </span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Trạng thái:</span>
-                  <span
-                    className={`profile-value ${
-                      user.status === "active" ? "text-success" : "text-danger"
-                    }`}
-                  >
-                    {user.status === "active" ? "Hoạt động" : "Ngưng hoạt động"}
-                  </span>
-                </div>
-              </div>
-              {/* History Button moved under the profile information */}
+    <>
+      <div id="breadcrumb" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li className="active">Tài khoản</li>
+              </ul>
             </div>
-            <div className="profile-action">
-              <button className="history-btn" onClick={handleHistoryPage}>
-                Xem Lịch Sử Đơn Hàng
-              </button>
-            </div>
-          </>
-        ) : (
-          <p>Đang tải thông tin người dùng...</p>
-        )}
+          </div>
+        </div>
       </div>
-    </div>
+      <div className="account-dashboard-container center-page">
+        <div className="dashboard-content">
+          <h2>Thông Tin Tài Khoản</h2>
+          {user ? (
+            <>
+              {" "}
+              <div className="profile-card">
+                <div className="profile-avatar">
+                  <img
+                    src={
+                      user.img ||
+                      "https://cdn-icons-png.flaticon.com/512/3541/3541871.png"
+                    }
+                    alt="Avatar"
+                  />
+                </div>
+                <div className="profile-info">
+                  <div className="profile-row">
+                    <span className="profile-label">Tên tài khoản:</span>
+                    <span className="profile-value">{user.userName}</span>
+                  </div>
+                  <div className="profile-row">
+                    <span className="profile-label">Email:</span>
+                    <span className="profile-value">{user.email}</span>
+                  </div>
+                  <div className="profile-row">
+                    <span className="profile-label">Số điện thoại:</span>
+                    <span className="profile-value">
+                      {user.phone || "Chưa cập nhật"}
+                    </span>
+                  </div>
+                  <div className="profile-row">
+                    <span className="profile-label">Địa chỉ:</span>
+                    <span className="profile-value">
+                      {user.address || "Chưa cập nhật"}
+                    </span>
+                  </div>
+                  <div className="profile-row">
+                    <span className="profile-label">Vai trò:</span>
+                    <span className="profile-value">
+                      {user.role === 1
+                        ? "Admin"
+                        : user.role === 2
+                        ? "Seller"
+                        : "Khách hàng"}
+                    </span>
+                  </div>
+                  <div className="profile-row">
+                    <span className="profile-label">Trạng thái:</span>
+                    <span
+                      className={`profile-value ${
+                        user.status === "active"
+                          ? "text-success"
+                          : "text-danger"
+                      }`}
+                    >
+                      {user.status === "active"
+                        ? "Hoạt động"
+                        : "Ngưng hoạt động"}
+                    </span>
+                  </div>
+                </div>
+                {/* History Button moved under the profile information */}
+              </div>
+              <div className="profile-action">
+                <button className="history-btn" onClick={handleHistoryPage}>
+                  Xem Lịch Sử Đơn Hàng
+                </button>
+              </div>
+            </>
+          ) : (
+            <p>Đang tải thông tin người dùng...</p>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 
