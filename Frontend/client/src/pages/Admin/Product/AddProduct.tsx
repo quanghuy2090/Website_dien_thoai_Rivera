@@ -131,7 +131,7 @@ const AddProduct = () => {
     <div className="content">
       <div className="container d-flex justify-content-center align-items-center mt-5">
         <div className="row justify-content-center w-100">
-          <div className="col-lg-8 col-md-10">
+          <div className="col-lg-12 col-md-12">
             {" "}
             {/* Giới hạn chiều rộng */}
             <div className="text-center">

@@ -1,8 +1,6 @@
 import { http } from "../config/axios";
 import { User } from "./auth";
-import { Carts } from "./cart";
-
-
+import { CartItem, Carts } from "./cart";
 export type IShippingAddress = {
   name: string;
   phone: string;
@@ -12,9 +10,11 @@ export type IShippingAddress = {
   city: string;
 };
 export type Order = {
+
+  _id: string;
   orderId: string;
   userId: User;
-  items: Carts[];
+  items: CartItem[];
   shippingAddress: IShippingAddress;
   paymentMethod: "COD" | "Online" | "Credit Card" | "Bank Transfer";
   paymentStatus: "Chưa thanh toán" | "Đã thanh toán";
@@ -32,6 +32,7 @@ export type Order = {
   userPhone: string
   createdAt: Date;
   updatedAt: Date;
+
 };
 export type Ward = {
   code: number;
@@ -72,8 +73,8 @@ export const getDetailOrder = (orderId: string) => {
 };
 export const updateStatusOrder = (
   orderId: string,
-  orderStatus: Order["status"],
+  status: Order["status"],
   cancellationReason: string
 ) => {
-  return http.put(`/order/${orderId}`, { orderStatus, cancellationReason });
+  return http.put(`/order/status/${orderId}`, { status, cancelReason: cancellationReason });
 };

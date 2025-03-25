@@ -1,12 +1,14 @@
 import React, { createContext, useEffect, useReducer } from "react";
-import { getDetailUser, getUser, updateRole, updateStatus, User } from "../services/auth"
+import { getDetailUser, getUser, registerUser, updateRole, updateStatus, User } from "../services/auth"
 import AuthReducer from "../reducers/AuthReducer";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 type AuthContextType = {
     state: { users: User[]; selectedUsers?: User };
     getDetailUsers: (_id: string) => void;
     handleStatusChange: (userId: string, status: string) => void
     handleRoleChange: (userId: string, role: number) => void;
+    createUser: (user: User) => void;
 };
 
 export const AuthContext = createContext({} as AuthContextType);
@@ -17,6 +19,7 @@ type Children = {
 
 export const AuthProvider = ({ children }: Children) => {
     const [state, dispatch] = useReducer(AuthReducer, { users: [] });
+    const nav = useNavigate();
 
     useEffect(() => {
         (async () => {
@@ -33,6 +36,17 @@ export const AuthProvider = ({ children }: Children) => {
         } catch (error) {
             console.log(error)
             toast.error("Lấy người dùng thành công")
+        }
+    }
+    const createUser = async (user: User) => {
+        try {
+            const { data } = await registerUser(user)
+            dispatch({ type: "ADD_USER", payload: data.data });
+            nav("/admin/user")
+            toast.success("Thêm user thành công")
+        } catch (error) {
+            console.log(error)
+            toast.error("Thêm user thất bại")
         }
     }
     const handleStatusChange = async (userId: string, status: string) => {
@@ -56,6 +70,6 @@ export const AuthProvider = ({ children }: Children) => {
         }
     }
     return (
-        <AuthContext.Provider value={{ state, getDetailUsers, handleRoleChange, handleStatusChange }}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ state, getDetailUsers, handleRoleChange, handleStatusChange, createUser }}>{children}</AuthContext.Provider>
     )
 }

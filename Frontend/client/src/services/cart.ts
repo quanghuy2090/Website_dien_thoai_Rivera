@@ -4,10 +4,17 @@ export interface CartItem {
         _id: string;
         name: string;
         images: string;
+        variants: {
+            _id: string;
+            color: { name: string };
+            capacity: { value: string };
+        }[];
+
     };  // Mongoose ObjectId (string trên frontend
     variantId: string;
     quantity: number;
     price: number;
+    sale: string;
     salePrice: number;
     color: string;  // Chuyển thành string để tránh lỗi kiểu dữ liệu
     capacity: string;  // Chuyển thành string để tránh lỗi kiểu dữ liệu

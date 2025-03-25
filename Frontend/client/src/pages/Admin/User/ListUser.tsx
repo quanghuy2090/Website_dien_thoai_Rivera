@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { FaEye } from "react-icons/fa";
 import { AuthContext } from '../../../context/AuthContext';
+import { IoMdAdd } from 'react-icons/io';
 const ListUser = () => {
     const { state } = useContext(AuthContext);
     const getRoleName = (role: number) => {
@@ -27,6 +28,7 @@ const ListUser = () => {
             </p>
 
             <div className='table-container'>
+                <Link to={`/admin/user/add`} className='btn btn-primary mb-3 w-100'> <IoMdAdd /></Link>
                 <table className="table table-bordered">
                     <thead>
                         <tr>
