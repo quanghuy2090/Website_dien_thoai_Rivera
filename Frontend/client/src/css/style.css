@@ -2617,6 +2617,7 @@ textarea.input {
   text-transform: uppercase;
   font-size: 14px;
   transition: 0.3s all;
+  margin: 5px;
 }
 
 .history-btn:hover {

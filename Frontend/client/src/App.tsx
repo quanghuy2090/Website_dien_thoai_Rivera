@@ -35,6 +35,7 @@ import UpdateCapacity from "./pages/Admin/Capacity/UpdateCapacity";
 import Profile from "./pages/Client/Profile";
 import PaymentSuccess from "./pages/Client/Vnpay";
 import AddUser from "./pages/Admin/User/AddUser";
+import UpdateProfile from "./pages/Client/UpdateProfile";
 function App() {
   const routes = useRoutes([
     {
@@ -49,6 +50,7 @@ function App() {
         { path: "/bill/:id", element: <Bill /> },
         { path: "/history", element: <HistoryUser /> },
         { path: "/profile", element: <Profile /> },
+        { path: "/profile-update", element: <UpdateProfile /> },
       ],
     },
     { path: "/login", element: <Login /> },

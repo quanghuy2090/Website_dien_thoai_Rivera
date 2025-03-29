@@ -33,7 +33,11 @@ const HistoryUser = () => {
   const fetchOrder = async (userId: string) => {
     try {
       const { data } = await getAllOrder();
-      setOrderUser(data.orders);
+      // Filter orders based on the current user's userId
+      const filteredOrders = data.orders.filter(
+        (order: Order) => order.userId === userId
+      );
+      setOrderUser(filteredOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
     }

@@ -25,8 +25,12 @@ export const getUser = () => {
   return http.get("/auth/user");
 };
 
-export const getDetailUser = (_id: string) => {
-  return http.get(`/auth/user/${_id}`);
+export const getDetailUser = (userId: string) => {
+  return http.get(`/auth/user/${userId}`);
+};
+
+export const updateUser = (userId: string) => {
+  return http.put(`/auth/user/${userId}`);
 };
 
 export const updateStatus = (userId: string, status: string) => {

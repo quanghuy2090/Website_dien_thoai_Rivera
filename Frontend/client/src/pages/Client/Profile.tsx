@@ -31,6 +31,9 @@ const Profile = () => {
   const handleHistoryPage = () => {
     nav("/history"); // Navigates to the history page
   };
+  const handleUpdateProfile = () => {
+    nav("/profile-update"); // Navigates to the history page
+  };
 
   return (
     <>
@@ -115,6 +118,9 @@ const Profile = () => {
               <div className="profile-action">
                 <button className="history-btn" onClick={handleHistoryPage}>
                   Xem Lịch Sử Đơn Hàng
+                </button>
+                <button className="history-btn" onClick={handleUpdateProfile}>
+                  Sửa thông tin tài khoản
                 </button>
               </div>
             </>
