@@ -1,6 +1,17 @@
 import Category from "../models/Category.js";
 import { categoryValidation } from "../validation/category.js";
 
+// Hàm tạo slug từ tên
+const createSlug = (name) => {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+};
+
 export const getAll = async (req, res) => {
   try {
     const data = await Category.find({}).populate("products");
@@ -26,8 +37,8 @@ export const getDetail = async (req, res) => {
     const data = await Category.findById(req.params.id).populate({
       path: "products",
       populate: [
-        { path: "variants.color" },   // Populate color trong variants
-        { path: "variants.capacity" } // Populate capacity trong variants
+        { path: "variants.color" }, // Populate color trong variants
+        { path: "variants.capacity" }, // Populate capacity trong variants
       ],
     });
 
@@ -58,15 +69,36 @@ export const create = async (req, res) => {
         message: errors,
       });
     }
-    const data = await Category.create(req.body);
+
+    // Tạo slug từ tên danh mục
+    const slug = createSlug(req.body.name);
+
+    // Kiểm tra xem tên danh mục đã tồn tại chưa
+    const existingCategory = await Category.findOne({
+      $or: [{ name: req.body.name }, { slug: slug }],
+    });
+    if (existingCategory) {
+      return res.status(400).json({
+        message:
+          existingCategory.name === req.body.name
+            ? "Tên danh mục đã tồn tại"
+            : "Slug danh mục đã tồn tại",
+      });
+    }
+
+    // Tạo danh mục mới với slug tự động
+    const data = await Category.create({
+      ...req.body,
+      slug: slug,
+    });
 
     if (!data || data.length === 0) {
       return res.status(404).json({
-        message: "Create category not successful",
+        message: "Tạo danh mục không thành công",
       });
     }
     return res.status(200).json({
-      message: "Create category successful",
+      message: "Tạo danh mục thành công",
       data: data,
     });
   } catch (error) {
