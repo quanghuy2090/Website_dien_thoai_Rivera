@@ -24,11 +24,7 @@ export const checkUserPermission = async (req, res, next) => {
       });
     }
 
-    req.user = user;
-
     // Bước 3: Check quyền theo role
-    // Admin (role = 1) có thể xem/sửa tất cả
-    // Customer (role = 3) chỉ xem/sửa chính mình
     // Seller (role = 2) không có quyền
     if (user.role === 2) {
       return res.status(403).json({
@@ -36,16 +32,8 @@ export const checkUserPermission = async (req, res, next) => {
       });
     }
 
-    if (user.role === 3) {
-      // Customer chỉ được thao tác với chính mình
-      const requestedUserId = req.params.id; // Giả sử id nằm trong params
-      if (requestedUserId && requestedUserId !== user._id.toString()) {
-        return res.status(403).json({
-          message: "Bạn chỉ có thể xem/thay đổi thông tin của chính mình",
-        });
-      }
-    }
-
+    // Lưu thông tin user vào request
+    req.user = user;
     next();
   } catch (error) {
     return res.status(500).json({

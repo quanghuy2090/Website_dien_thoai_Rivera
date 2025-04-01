@@ -31,6 +31,16 @@ export const checkAdminPermission = async (req, res, next) => {
       });
     }
 
+    // Bước 4: Kiểm tra quyền cập nhật thông tin admin khác
+    if (req.method === "PUT" && req.params.id) {
+      const targetUser = await User.findById(req.params.id);
+      if (targetUser && targetUser.role === 1) {
+        return res.status(403).json({
+          message: "Admin không được phép cập nhật thông tin của admin khác",
+        });
+      }
+    }
+
     req.user = user;
     next();
   } catch (error) {
