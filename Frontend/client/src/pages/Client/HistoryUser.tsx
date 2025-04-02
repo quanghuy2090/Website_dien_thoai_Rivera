@@ -101,11 +101,11 @@ const HistoryUser = () => {
           <table className="table table-bordered text-center mb-0">
             <thead className="bg-secondary text-dark">
               <tr>
-                <th scope="col">Ngày đặt</th>
                 <th scope="col">Sản phẩm</th>
                 <th scope="col">Tổng tiền</th>
                 <th scope="col">Trạng thái đơn hàng</th>
                 <th scope="col">Phương thức thanh toán</th>
+                <th scope="col">Ngày đặt</th>
                 <th scope="col">Trạng thái thanh toán</th>
                 <th scope="col">Cập nhật trạng thái</th>
                 <th scope="col">Chi tiết</th>
@@ -114,7 +114,6 @@ const HistoryUser = () => {
             <tbody className="history-body">
               {orderUser.map((order) => (
                 <tr key={order._id}>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td>
                     <div
                       className="product-list"
@@ -149,6 +148,7 @@ const HistoryUser = () => {
                   <td>{formatPrice(order.totalAmount)}</td>
                   <td>{order.status}</td>
                   <td>{order.paymentMethod}</td>
+                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td>{order.paymentStatus}</td>
                   <td>
                     {/* Phần cập nhật luôn hiển thị dropdown cùng với input lý do nếu chọn Hủy */}

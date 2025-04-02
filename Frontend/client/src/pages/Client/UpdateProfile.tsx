@@ -77,96 +77,119 @@ const UpdateProfile = () => {
   };
 
   return (
-    <div className="update-profile-container">
-      <h2>Update Profile</h2>
-
-      {error && <div className="error-message">{error}</div>}
-
-      {user && (
-        <form onSubmit={handleSubmit} className="update-profile-form">
-          <div className="form-group">
-            <label htmlFor="userName">Username</label>
-            <input
-              type="text"
-              id="userName"
-              name="userName"
-              value={updatedUser.userName}
-              onChange={handleChange}
-              required
-            />
+    <>
+      <div id="breadcrumb" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li>
+                  <a href="/profile">Tài khoản</a>
+                </li>
+                <li className="active">Thông tin tài khoản</li>
+              </ul>
+            </div>
           </div>
+        </div>
+      </div>
+      <div className="update-profile-container">
+        <h2>Update Profile</h2>
 
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={updatedUser.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        {error && <div className="error-message">{error}</div>}
 
-          <div className="form-group">
-            <label htmlFor="address">Address</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={updatedUser.address || ""}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="phone">Phone</label>
-            <input
-              type="text"
-              id="phone"
-              name="phone"
-              value={updatedUser.phone || ""}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="img">Profile Image</label>
-            <input
-              type="file"
-              id="img"
-              name="img"
-              onChange={(e) => {
-                if (e.target.files) {
-                  const file = e.target.files[0];
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setUpdatedUser({
-                      ...updatedUser,
-                      img: reader.result as string,
-                    });
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
-            />
-            {updatedUser.img && (
-              <img
-                src={updatedUser.img}
-                alt="Profile Preview"
-                width="100"
-                height="100"
-                className="profile-image-preview"
+        {user && (
+          <form onSubmit={handleSubmit} className="update-profile-form">
+            <div className="form-group">
+              <label htmlFor="userName">Username</label>
+              <input
+                type="text"
+                id="userName"
+                name="userName"
+                value={updatedUser.userName}
+                onChange={handleChange}
+                required
               />
-            )}
-          </div>
+            </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? "Updating..." : "Update Profile"}
-          </button>
-        </form>
-      )}
-    </div>
+            <div className="form-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={updatedUser.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="address">Address</label>
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={updatedUser.address || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="phone">Phone</label>
+              <input
+                type="text"
+                id="phone"
+                name="phone"
+                value={updatedUser.phone || ""}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="img">Profile Image</label>
+              <input
+                type="file"
+                id="img"
+                name="img"
+                onChange={(e) => {
+                  if (e.target.files) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setUpdatedUser({
+                        ...updatedUser,
+                        img: reader.result as string,
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+              {updatedUser.img && (
+                <img
+                  src={updatedUser.img}
+                  alt="Profile Preview"
+                  width="100"
+                  height="100"
+                  className="profile-image-preview"
+                />
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Updating..." : "Update Profile"}
+            </button>
+          </form>
+        )}
+      </div>
+    </>
   );
 };
 

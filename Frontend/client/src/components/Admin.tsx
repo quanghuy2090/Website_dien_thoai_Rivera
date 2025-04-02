@@ -29,12 +29,12 @@ const Admin = () => {
         >
           <div className="card-body">
             <div className="text-warning fs-1 mb-3">⚠️</div>
-            <h1 className="card-title text-danger">Access Denied</h1>
+            <h1 className="card-title text-danger">Không thể truy cập</h1>
             <p className="card-text text-muted">
-              You don't have permission to access this page.
+              Bạn không có quyền truy cập trang này
             </p>
             <Link to="/" className="btn btn-primary">
-              Return Home
+              Về trang chủ
             </Link>
           </div>
         </div>
@@ -92,10 +92,10 @@ const Admin = () => {
             <i className="fas fa-shopping-cart mr-2"></i>
             Order
           </a>
-          <a className="nav-link d-flex align-items-center" href="">
+          {/* <a className="nav-link d-flex align-items-center" href="">
             <i className="fas fa-table mr-2"></i>
             Tables
-          </a>
+          </a> */}
         </nav>
       </div>
       <div className="flex-grow-1">

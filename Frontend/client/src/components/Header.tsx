@@ -14,9 +14,11 @@ export function Header() {
   const user = localStorage.getItem("user");
 
   let userName = "";
+  let userRole = null; // Initialize userRole
   if (user) {
     const parsedUser = JSON.parse(user);
-    userName = parsedUser.userName || "User";  // Change 'userName' if necessary based on your user data structure
+    userName = parsedUser.userName || "User";  
+    userRole = parsedUser.role; // Get the user's role
   }
 
   const handleLogout = () => {
@@ -24,20 +26,17 @@ export function Header() {
     localStorage.removeItem("user");
   };
 
-  // Toggle mobile navigation
   const toggleNav = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevents immediate closing when clicking inside
+    e.stopPropagation();
     setIsNavActive((prev) => !prev);
   };
 
-  // Toggle cart dropdown
   const toggleCartDropdown = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.stopPropagation();
     setIsCartDropdownOpen((prev) => !prev);
   };
 
-  // Close dropdowns when clicking outside
   const handleClickOutside = (e: MouseEvent) => {
     const navElement = document.getElementById("responsive-nav");
     const menuToggleElement = document.querySelector(".menu-toggle");
@@ -63,7 +62,6 @@ export function Header() {
   return (
     <>
       {/* HEADER */}
-      {/* TOP HEADER */}
       <div id="top-header">
         <div className="container">
           <ul className="header-links pull-left">
@@ -79,17 +77,11 @@ export function Header() {
             </li>
             <li>
               <a href="#">
-                <i className="fa fa-map-marker" /> Trịnh Văn Bô, Nam Từ Liêm, Hà
-                Nội
+                <i className="fa fa-map-marker" /> Trịnh Văn Bô, Nam Từ Liêm, Hà Nội
               </a>
             </li>
           </ul>
           <ul className="header-links pull-right">
-            {/* <li>
-              <a href="#">
-                <i className="fa fa-dollar" /> VND
-              </a>
-            </li> */}
             {token && (
               <>
                 <li>
@@ -97,6 +89,13 @@ export function Header() {
                     <i className="fa fa-user-o" /> {userName}
                   </a>
                 </li>
+                {userRole === 1 && ( // Check if user is an admin
+                  <li>
+                    <a href="/admin">
+                      <i className="fa fa-cog" /> Quản lý
+                    </a>
+                  </li>
+                )}
                 <li>
                   <a href="/" onClick={handleLogout}>
                     <i className="fa fa-sign-out-alt" /> Đăng xuất
@@ -126,7 +125,6 @@ export function Header() {
       <div id="header">
         <div className="container">
           <div className="row">
-            {/* LOGO */}
             <div className="col-md-3">
               <div className="header-logo mt-3">
                 <a href="/" className="logo">
@@ -134,21 +132,14 @@ export function Header() {
                 </a>
               </div>
             </div>
-            {/* /LOGO */}
-            {/* SEARCH BAR */}
             <div className="col-md-6">
               <div className="header-search">
                 <form>
-                  {/* <select className="input-select">
-                    <option value={0}>Danh mục</option>
-                  </select> */}
                   <input className="input" placeholder="Tìm kiếm tại đây" />
                   <button className="search-btn">Tìm kiếm</button>
                 </form>
               </div>
             </div>
-            {/* /SEARCH BAR */}
-            {/* ACCOUNT */}
             <div className="col-md-3 clearfix">
               <div className="header-ctn">
                 <div>
@@ -169,38 +160,6 @@ export function Header() {
                     <span>Giỏ hàng</span>
                     <div className="qty">3</div>
                   </a>
-                  {/* {isCartDropdownOpen && (
-                    <div className="cart-dropdown">
-                      <div className="cart-list">
-                        <div className="product-widget">
-                          <div className="product-img">
-                            <img src="./img/product01.png" alt="Product 1" />
-                          </div>
-                          <div className="product-body">
-                            <h3 className="product-name">
-                              <a href="#">product name goes here</a>
-                            </h3>
-                            <h4 className="product-price">
-                              <span className="qty">1x</span>$980.00
-                            </h4>
-                          </div>
-                          <button className="delete">
-                            <i className="fa fa-close" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="cart-summary">
-                        <small>3 Item(s) selected</small>
-                        <h5>SUBTOTAL: $2940.00</h5>
-                      </div>
-                      <div className="cart-btns">
-                        <a href="#">View Cart</a>
-                        <a href="#">
-                          Checkout <i className="fa fa-arrow-circle-right" />
-                        </a>
-                      </div>
-                    </div>
-                  )} */}
                 </div>
                 <div className="menu-toggle" onClick={toggleNav}>
                   <a href="">

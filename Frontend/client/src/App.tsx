@@ -56,7 +56,7 @@ function App() {
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path: "*", element: <Notfound /> },
-    { path: "//payment-success", element: <PaymentSuccess /> },
+    { path: "/payment-success", element: <PaymentSuccess /> },
     {
       path: "/admin",
       element: <AdminLayout />,

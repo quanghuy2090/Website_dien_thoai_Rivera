@@ -1040,6 +1040,31 @@ textarea.input {
   color: #fff;
 }
 
+.product .product-img .product-label3 {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+
+.product .product-img .product-label3 > span {
+  border: 2px solid;
+  padding: 2px 10px;
+  font-size: 12px;
+}
+
+.product .product-img .product-label3 > span.sale {
+  background-color: #fff;
+  border-color: #0171d3;
+  color: #0171d3;
+}
+
+.product .product-img .product-label3 > span.new {
+  background-color: #d10024;
+  border-color: #d10024;
+  color: #fff;
+}
+
 .product .product-body {
   position: relative;
   width: 249px;
