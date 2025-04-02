@@ -119,20 +119,40 @@ export const signIn = async (req, res) => {
 
 export const getUser = async (req, res) => {
   try {
-    const users = await User.find().limit(10).skip(0); // Ví dụ thêm phân trang
+    // Lấy query params để hỗ trợ phân trang động
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const users = await User.find()
+      .limit(limit)
+      .skip(skip)
+      .populate("updatedBy", "userName email"); // Populate thông tin người cập nhật
+
     if (users.length === 0) {
       return res.status(404).json({
         message: "Không tìm thấy người dùng",
       });
     }
+
+    const totalUsers = await User.countDocuments(); // Tổng số user để hỗ trợ phân trang
     return res.status(200).json({
       message: "Danh sách người dùng",
-      data: users,
+      data: {
+        users,
+        pagination: {
+          total: totalUsers,
+          page,
+          limit,
+          totalPages: Math.ceil(totalUsers / limit),
+        },
+      },
     });
   } catch (error) {
-    console.error("Lỗi khi lấy danh sách người dùng:", error); // Log lỗi để debug
+    console.error("Lỗi khi lấy danh sách người dùng:", error);
     return res.status(500).json({
       message: "Lỗi máy chủ nội bộ",
+      error: error.message, // Thêm chi tiết lỗi
     });
   }
 };
@@ -140,26 +160,28 @@ export const getUser = async (req, res) => {
 export const getDetailUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const currentUser = req.user; // Lấy từ middleware checkUserPermission
+    const currentUser = req.user;
 
-    // Kiểm tra ID có hợp lệ không (MongoDB ObjectId)
+    // Kiểm tra ID có hợp lệ không
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         message: "ID không hợp lệ",
       });
     }
 
-    const user = await User.findById(id);
+    // Kiểm tra quyền: Customer chỉ xem được chính mình
+    if (currentUser.role === 3 && currentUser._id.toString() !== id) {
+      return res.status(403).json({
+        message: "Bạn chỉ có thể xem thông tin của chính mình",
+      });
+    }
+
+    const user = await User.findById(id).populate("updatedBy", "userName email");
     if (!user) {
       return res.status(404).json({
         message: "Không tìm thấy người dùng",
       });
     }
-
-    // Middleware checkUserPermission đã xử lý quyền:
-    // - Admin (role = 1) có thể xem tất cả
-    // - Customer (role = 3) chỉ xem được chính mình (đã kiểm tra trong middleware)
-    // - Seller (role = 2) đã bị chặn ở middleware
 
     return res.status(200).json({
       message: "Lấy chi tiết người dùng thành công",
@@ -177,109 +199,85 @@ export const getDetailUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const currentUser = req.user;
-    const { userName, email, phone, image, address, password, status, role } =
-      req.body;
+    const { userName, email, phone, image, address, password, status, role } = req.body;
 
-    // 1. Tạo object chứa các trường cần cập nhật
     const updateData = {};
 
-    // 2. Validate và cập nhật từng trường
     if (userName) {
       if (typeof userName !== "string" || userName.length > 100) {
-        return res.status(400).json({
-          message: "Tên người dùng không hợp lệ (tối đa 100 ký tự)",
-        });
+        return res.status(400).json({ message: "Tên người dùng không hợp lệ (tối đa 100 ký tự)" });
       }
       updateData.userName = userName.trim();
     }
 
     if (email) {
       if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-        return res.status(400).json({
-          message: "Email không hợp lệ",
-        });
-      }
-      // Kiểm tra email đã tồn tại chưa (trừ chính user đó)
-      const emailExists = await User.findOne({
-        email: email.trim().toLowerCase(),
-        _id: { $ne: currentUser._id },
-      });
-      if (emailExists) {
-        return res.status(400).json({
-          message: "Email này đã được sử dụng",
-        });
+        return res.status(400).json({ message: "Email không hợp lệ" });
       }
       updateData.email = email.trim().toLowerCase();
     }
 
-    if (phone) {
-      if (!/^[0-9]{10,15}$/.test(phone)) {
-        return res.status(400).json({
-          message: "Số điện thoại phải từ 10 đến 15 chữ số",
-        });
-      }
-      updateData.phone = phone;
+    if (phone !== undefined) {
+      if (phone === null) updateData.phone = null;
+      else if (!/^[0-9]{10,15}$/.test(phone)) {
+        return res.status(400).json({ message: "Số điện thoại phải từ 10 đến 15 chữ số" });
+      } else updateData.phone = phone;
     }
 
-    if (image) {
-      if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(image)) {
-        return res.status(400).json({
-          message: "URL ảnh không hợp lệ",
-        });
-      }
-      updateData.image = image;
+    if (image !== undefined) {
+      if (image === null) updateData.image = null;
+      else if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(image)) {
+        return res.status(400).json({ message: "URL ảnh không hợp lệ" });
+      } else updateData.image = image;
     }
 
     if (address) {
       if (typeof address !== "string" || address.length > 255) {
-        return res.status(400).json({
-          message: "Địa chỉ không hợp lệ (tối đa 255 ký tự)",
-        });
+        return res.status(400).json({ message: "Địa chỉ không hợp lệ (tối đa 255 ký tự)" });
       }
       updateData.address = address.trim();
     }
 
     if (password) {
       if (typeof password !== "string" || password.length < 7) {
-        return res.status(400).json({
-          message: "Mật khẩu phải có ít nhất 7 ký tự",
-        });
+        return res.status(400).json({ message: "Mật khẩu phải có ít nhất 7 ký tự" });
       }
       updateData.password = await bcryptjs.hash(password, 10);
     }
 
-    // 3. Cập nhật các trường đặc biệt (chỉ admin mới được cập nhật)
     if (currentUser.role === 1) {
-      if (status) updateData.status = status;
+      if (status) {
+        if (!["active", "banned"].includes(status)) {
+          return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+        }
+        updateData.status = status;
+      }
       if (role) {
-        return res.status(403).json({
-          message: "Admin không được cập nhật vai trò của mình",
-        });
+        if (![1, 2, 3].includes(role)) {
+          return res.status(400).json({ message: "Vai trò không hợp lệ" });
+        }
+        if (currentUser._id.toString() === req.params.id) {
+          return res.status(403).json({ message: "Admin không được cập nhật vai trò của mình" });
+        }
+        updateData.role = role;
       }
-    } else if (currentUser.role === 3) {
-      // Customer không được cập nhật status và role
-      if (status || role) {
-        return res.status(403).json({
-          message: "Bạn không có quyền cập nhật trạng thái và vai trò",
-        });
-      }
+    } else if (status || role) {
+      return res.status(403).json({ message: "Bạn không có quyền cập nhật trạng thái hoặc vai trò" });
     }
 
-    // 4. Kiểm tra xem có dữ liệu nào để cập nhật không
     if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({
-        message: "Vui lòng cung cấp ít nhất một thông tin để cập nhật",
-      });
+      return res.status(400).json({ message: "Vui lòng cung cấp ít nhất một thông tin để cập nhật" });
     }
 
-    // 5. Thực hiện cập nhật
+    // Ghi lại người thực hiện cập nhật
+    updateData.updatedBy = currentUser._id;
+
     const updatedUser = await User.findByIdAndUpdate(
       currentUser._id,
       updateData,
       { new: true, runValidators: true }
-    );
+    ).populate("updatedBy", "userName email"); // Populate để lấy thông tin người cập nhật
 
-    // 6. Trả về kết quả
     return res.status(200).json({
       message: "Cập nhật thông tin thành công",
       data: updatedUser,
@@ -295,37 +293,31 @@ export const updateUser = async (req, res) => {
 
 export const updateUserByAdmin = async (req, res) => {
   try {
-    const { id } = req.params;
     const currentUser = req.user;
-    const { userName, email, phone, image, address, password, status, role } =
-      req.body;
+    const userId = req.params.id;
+    const { userName, email, phone, image, address, password, status, role } = req.body;
 
-    // 1. Kiểm tra ID hợp lệ
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({
-        message: "ID không hợp lệ",
+    if (currentUser.role !== 1) {
+      return res.status(403).json({
+        message: "Chỉ admin mới có quyền thực hiện hành động này",
       });
     }
 
-    // 2. Kiểm tra user có tồn tại không
-    const userToUpdate = await User.findById(id);
-    if (!userToUpdate) {
+    const targetUser = await User.findById(userId);
+    if (!targetUser) {
       return res.status(404).json({
         message: "Không tìm thấy người dùng",
       });
     }
 
-    // 3. Kiểm tra quyền cập nhật
-    if (userToUpdate.role === 1) {
+    if (targetUser.role === 1 && targetUser._id.toString() !== currentUser._id.toString()) {
       return res.status(403).json({
-        message: "Không thể cập nhật thông tin của admin khác",
+        message: "Admin không thể cập nhật thông tin của admin khác",
       });
     }
 
-    // 4. Tạo object chứa các trường cần cập nhật
     const updateData = {};
 
-    // 5. Validate và cập nhật từng trường
     if (userName) {
       if (typeof userName !== "string" || userName.length > 100) {
         return res.status(400).json({
@@ -341,35 +333,25 @@ export const updateUserByAdmin = async (req, res) => {
           message: "Email không hợp lệ",
         });
       }
-      // Kiểm tra email đã tồn tại chưa (trừ chính user đó)
-      const emailExists = await User.findOne({
-        email: email.trim().toLowerCase(),
-        _id: { $ne: id },
-      });
-      if (emailExists) {
-        return res.status(400).json({
-          message: "Email này đã được sử dụng",
-        });
-      }
       updateData.email = email.trim().toLowerCase();
     }
 
-    if (phone) {
-      if (!/^[0-9]{10,15}$/.test(phone)) {
+    if (phone !== undefined) {
+      if (phone === null) updateData.phone = null;
+      else if (!/^[0-9]{10,15}$/.test(phone)) {
         return res.status(400).json({
           message: "Số điện thoại phải từ 10 đến 15 chữ số",
         });
-      }
-      updateData.phone = phone;
+      } else updateData.phone = phone;
     }
 
-    if (image) {
-      if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(image)) {
+    if (image !== undefined) {
+      if (image === null) updateData.image = null;
+      else if (!/^https?:\/\/[^\s$.?#].[^\s]*$/.test(image)) {
         return res.status(400).json({
           message: "URL ảnh không hợp lệ",
         });
-      }
-      updateData.image = image;
+      } else updateData.image = image;
     }
 
     if (address) {
@@ -390,34 +372,56 @@ export const updateUserByAdmin = async (req, res) => {
       updateData.password = await bcryptjs.hash(password, 10);
     }
 
-    // 6. Cập nhật các trường đặc biệt
-    if (status) updateData.status = status;
+    if (status) {
+      if (!["active", "banned"].includes(status)) {
+        return res.status(400).json({
+          message: "Trạng thái không hợp lệ",
+        });
+      }
+      if (targetUser._id.toString() === currentUser._id.toString()) {
+        return res.status(403).json({
+          message: "Admin không được phép thay đổi trạng thái của chính mình",
+        });
+      }
+      updateData.status = status;
+    }
+
     if (role) {
-      // Chỉ cho phép cập nhật role thành 2 hoặc 3
-      if (role !== 2 && role !== 3) {
+      if (![1, 2, 3].includes(role)) {
         return res.status(400).json({
           message: "Vai trò không hợp lệ",
+        });
+      }
+      if (role === 1) {
+        return res.status(403).json({
+          message: "Không thể chuyển vai trò thành admin",
+        });
+      }
+      if (targetUser.role === 1) {
+        return res.status(403).json({
+          message: "Không thể thay đổi vai trò của admin",
         });
       }
       updateData.role = role;
     }
 
-    // 7. Kiểm tra xem có dữ liệu nào để cập nhật không
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({
         message: "Vui lòng cung cấp ít nhất một thông tin để cập nhật",
       });
     }
 
-    // 8. Thực hiện cập nhật
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
+    // Ghi lại người thực hiện cập nhật
+    updateData.updatedBy = currentUser._id;
 
-    // 9. Trả về kết quả
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true, runValidators: true }
+    ).populate("updatedBy", "userName email"); // Populate để lấy thông tin người cập nhật
+
     return res.status(200).json({
-      message: "Cập nhật thông tin người dùng thành công",
+      message: "Cập nhật thông tin thành công",
       data: updatedUser,
     });
   } catch (error) {
