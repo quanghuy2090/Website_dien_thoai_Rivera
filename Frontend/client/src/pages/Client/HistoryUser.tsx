@@ -171,7 +171,7 @@ const HistoryUser = () => {
                         Chọn cập nhật
                       </option>
                       <option value="Đã nhận hàng">Đã nhận hàng</option>
-                      <option value="Đã huỷ">Hủy</option>
+                      <option value="Đã huỷ">Hủy</option>r
                     </select>
                     {updates[order.orderId]?.status === "Đã huỷ" && (
                       <input

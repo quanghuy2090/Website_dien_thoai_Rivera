@@ -6,10 +6,14 @@ import { ProductContext } from "../../../context/ProductContext";
 
 const DetailAdminProduct = () => {
   const { id } = useParams();
-  const { getDetailProduct, state, updateStatus, updateIs_Hot } = useContext(ProductContext);
+  const { getDetailProduct, state, updateStatus, updateIs_Hot } =
+    useContext(ProductContext);
   useEffect(() => {
-    getDetailProduct(id!)
+    getDetailProduct(id!);
   }, []);
+  const formatPrice = (price: number) => {
+    return price.toLocaleString("vi-VN") + " VND";
+  };
 
   return (
     <div>
@@ -19,8 +23,8 @@ const DetailAdminProduct = () => {
         </h1>
         <p className="mb-4 text-secondary">
           Đây là thông tin chi tiết của sản phẩm "
-          <strong>{state.selectedProduct?.name}</strong>". Bạn có thể xem thông tin và
-          quản lý sản phẩm tại đây.
+          <strong>{state.selectedProduct?.name}</strong>". Bạn có thể xem thông
+          tin và quản lý sản phẩm tại đây.
         </p>
 
         <div className="table-container">
@@ -54,12 +58,16 @@ const DetailAdminProduct = () => {
                       onChange={() =>
                         updateStatus(
                           state.selectedProduct?._id as string,
-                          state.selectedProduct?.status === "active" ? "banned" : "active"
+                          state.selectedProduct?.status === "active"
+                            ? "banned"
+                            : "active"
                         )
                       }
                     />
                     <label className="form-check-label ms-2">
-                      {state.selectedProduct?.status === "active" ? "Hoạt động" : "Bị cấm"}
+                      {state.selectedProduct?.status === "active"
+                        ? "Hoạt động"
+                        : "Bị cấm"}
                     </label>
                   </div>
                 </td>
@@ -82,7 +90,9 @@ const DetailAdminProduct = () => {
                       }
                     />
                     <label className="form-check-label ms-2">
-                      {state.selectedProduct?.is_hot === "yes" ? "🔥 Hot" : "❌ Not Hot"}
+                      {state.selectedProduct?.is_hot === "yes"
+                        ? "🔥 Hot"
+                        : "❌ Not Hot"}
                     </label>
                   </div>
                 </td>
@@ -96,7 +106,6 @@ const DetailAdminProduct = () => {
                       ? state.selectedProduct.categoryId.name
                       : "Không có danh mục"}
                   </td>
-
                 </td>
               </tr>
               <tr>
@@ -112,20 +121,33 @@ const DetailAdminProduct = () => {
                     <thead>
                       <tr>
                         <th>Màu</th>
-                        <th>Giá</th>
                         <th>Bộ nhớ</th>
-                        <th>Stock</th>
+                        <th>Giá</th>
+                        <th>Sale</th>
+                        <th>Giá Sale</th>
+                        <th>Tồn kho</th>
                         <th>Sku</th>
                       </tr>
                     </thead>
                     <tbody>
                       {state.selectedProduct?.variants.map((variant, index) => (
                         <tr key={index}>
-                          <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
-                          <td>{variant.price}</td>
-                          <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"}</td>
-                          <td>{variant.stock}</td>
-                          <td>{variant.sku}</td>
+                          <td className="align-middle">
+                            {variant.color && typeof variant.color === "object"
+                              ? variant.color.name
+                              : variant.color ?? "Không xác định"}
+                          </td>
+                          <td className="align-middle">
+                            {variant.capacity &&
+                            typeof variant.capacity === "object"
+                              ? variant.capacity.value
+                              : variant.capacity ?? "Không xác định"}
+                          </td>
+                          <td className="align-middle">{formatPrice(variant.price)}</td>
+                          <td className="badge bg-danger align-middle">{variant.sale}%</td>
+                          <td className="align-middle">{formatPrice(variant.salePrice)}</td>
+                          <td className="align-middle">{variant.stock}</td>
+                          <td className="align-middle">{variant.sku}</td>
                         </tr>
                       ))}
                     </tbody>
