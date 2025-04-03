@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoryContext } from "../../../context/CategoryContext";
 const categorySchema = z.object({
   name: z.string().min(3).max(225),
-  slug: z.string().min(3).max(225),
+  // slug: z.string().min(3).max(225),
 });
 const AddCategories = () => {
   const {
@@ -49,7 +49,7 @@ const AddCategories = () => {
                   <p className="text-danger">{errors.name.message}</p>
                 )}
               </div>
-              <div className="form-group mb-5">
+              {/* <div className="form-group mb-5">
                 <label htmlFor="slug" className="fw-bold fs-5">
                   Mô tả
                 </label>
@@ -61,7 +61,7 @@ const AddCategories = () => {
                 {errors.slug && (
                   <p className="text-danger">{errors.slug.message}</p>
                 )}
-              </div>
+              </div> */}
               <div className="form-group mb-3">
                 <button className="btn btn-primary w-100 py-3 fs-5">Lưu</button>
               </div>
