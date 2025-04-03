@@ -289,7 +289,7 @@ export const getDeletedCategories = async (req, res) => {
   }
 };
 
-// Thêm hàm khôi phục danh mục đã xóa
+//hàm khôi phục danh mục đã xóa
 export const restoreCategory = async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);

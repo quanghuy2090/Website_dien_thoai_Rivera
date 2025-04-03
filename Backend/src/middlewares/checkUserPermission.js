@@ -1,7 +1,7 @@
-// checkUserPermission.js
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import User from "../models/User.js";
+
 dotenv.config();
 const { SECRET_CODE } = process.env;
 
@@ -24,11 +24,14 @@ export const checkUserPermission = async (req, res, next) => {
       });
     }
 
-    req.user = user;
+    // Bước 3: Kiểm tra trạng thái tài khoản
+    if (user.status === "banned") {
+      return res.status(403).json({
+        message: "Tài khoản của bạn đã bị khóa",
+      });
+    }
 
-    // Bước 3: Check quyền theo role
-    // Admin (role = 1) có thể xem/sửa tất cả
-    // Customer (role = 3) chỉ xem/sửa chính mình
+    // Bước 4: Check quyền theo role
     // Seller (role = 2) không có quyền
     if (user.role === 2) {
       return res.status(403).json({
@@ -36,21 +39,25 @@ export const checkUserPermission = async (req, res, next) => {
       });
     }
 
-    if (user.role === 3) {
-      // Customer chỉ được thao tác với chính mình
-      const requestedUserId = req.params.id; // Giả sử id nằm trong params
-      if (requestedUserId && requestedUserId !== user._id.toString()) {
-        return res.status(403).json({
-          message: "Bạn chỉ có thể xem/thay đổi thông tin của chính mình",
-        });
-      }
-    }
-
+    // Bước 5: Lưu thông tin user vào request
+    req.user = user;
     next();
   } catch (error) {
+    // Phân biệt lỗi token hết hạn và token không hợp lệ
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        message: "Token đã hết hạn",
+      });
+    }
+    if (error.name === "JsonWebTokenError") {
+      return res.status(403).json({
+        message: "Token không hợp lệ",
+      });
+    }
+    // Lỗi khác (nếu có)
     return res.status(500).json({
       name: error.name,
-      message: error.message,
+      message: "Đã xảy ra lỗi. Vui lòng thử lại sau",
     });
   }
 };
