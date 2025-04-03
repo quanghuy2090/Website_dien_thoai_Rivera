@@ -6,7 +6,7 @@ import { FaEye } from "react-icons/fa";
 import { FaPen } from "react-icons/fa";
 import { ProductContext } from "../../../context/ProductContext";
 const ListProduct = () => {
-  const { removeProducts, state } = useContext(ProductContext);
+  const { removeProducts, state, updateStatus, updateIs_Hot } = useContext(ProductContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -151,8 +151,47 @@ const ListProduct = () => {
                     ? product.categoryId.name
                     : product.categoryId}
                 </td>
-                <td>{product.status}</td>
-                <td>{product.is_hot}</td>
+                <td>
+                  <div className="form-check form-switch">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      checked={product.status === "active"} // Sử dụng product.status thay vì state.selectedProduct
+                      onChange={() =>
+                        updateStatus(
+                          product._id, // Cập nhật sản phẩm dựa trên _id của product
+                          product.status === "active" ? "banned" : "active"
+                        )
+                      }
+                    />
+                    <label className="form-check-label ms-2">
+                      {product.status === "active" ? "Hoạt động" : "Bị cấm"}
+                    </label>
+                  </div>
+                </td>
+
+                <td>
+                  <div className="form-check form-switch">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      role="switch"
+                      checked={product.is_hot === "yes"} // Sử dụng product.is_hot
+                      onChange={() =>
+                        updateIs_Hot(
+                          product._id, // Cập nhật sản phẩm dựa trên _id của product
+                          product.is_hot === "yes" ? "no" : "yes"
+                        )
+                      }
+                    />
+                    <label className="form-check-label ms-2">
+                      {product.is_hot === "yes" ? "🔥 Hot" : "❌ Not Hot"}
+                    </label>
+                  </div>
+                </td>
+
+
 
                 {/* Nút hành động */}
                 <td>
