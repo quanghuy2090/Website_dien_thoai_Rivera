@@ -5,7 +5,7 @@ import User from "../models/User.js";
 dotenv.config();
 const { SECRET_CODE } = process.env;
 
-export const checkAdminPermission = async (req, res, next) => {
+export const checkCategoryPermission = async (req, res, next) => {
   try {
     // Bước 1: Check token có tồn tại không
     const token = req.headers.authorization?.split(" ")[1];
@@ -34,30 +34,11 @@ export const checkAdminPermission = async (req, res, next) => {
     // Bước 4: Check role admin (role = 1)
     if (user.role !== 1) {
       return res.status(403).json({
-        message: "Chỉ admin mới có quyền thực hiện hành động này",
+        message: "Chỉ admin mới có quyền quản lý danh mục",
       });
     }
 
-    // Bước 5: Kiểm tra quyền cập nhật thông tin admin khác (chỉ áp dụng cho route user)
-    if (req.method === "PUT" && req.baseUrl.includes("/users/")) {
-      const targetUser = await User.findById(req.params.id);
-      if (!targetUser) {
-        return res.status(404).json({
-          message: "Không tìm thấy người dùng cần cập nhật",
-        });
-      }
-      // Nếu targetUser là admin và không phải chính user hiện tại
-      if (
-        targetUser.role === 1 &&
-        targetUser._id.toString() !== user._id.toString()
-      ) {
-        return res.status(403).json({
-          message: "Admin không được phép cập nhật thông tin của admin khác",
-        });
-      }
-    }
-
-    // Bước 6: Lưu thông tin user vào request
+    // Bước 5: Lưu thông tin user vào request
     req.user = user;
     next();
   } catch (error) {

@@ -50,8 +50,8 @@ const userSchema = new mongoose.Schema(
     },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Tham chiếu đến chính model User
-      default: null, // Mặc định là null nếu chưa có ai cập nhật
+      ref: "User",
+      default: null,
     },
   },
   {

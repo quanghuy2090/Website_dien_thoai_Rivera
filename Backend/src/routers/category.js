@@ -9,17 +9,17 @@ import {
   searchCategoryByName,
   update,
 } from "../controllers/category.js";
-import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
+import { checkCategoryPermission } from "../middlewares/checkCategoryPermission.js";
 
 const routerCategory = express.Router();
 
-routerCategory.get("/deleted", checkAdminPermission, getDeletedCategories);
+routerCategory.get("/deleted", checkCategoryPermission, getDeletedCategories);
 routerCategory.post("/search", searchCategoryByName);
-routerCategory.patch("/restore/:id", checkAdminPermission, restoreCategory);
-routerCategory.get("/", checkAdminPermission, getAll);
-routerCategory.get("/:id", checkAdminPermission, getDetail);
-routerCategory.post("/", checkAdminPermission, create);
-routerCategory.put("/:id", checkAdminPermission, update);
-routerCategory.delete("/:id", checkAdminPermission, remove);
+routerCategory.patch("/restore/:id", checkCategoryPermission, restoreCategory);
+routerCategory.get("/", checkCategoryPermission, getAll);
+routerCategory.get("/:id", checkCategoryPermission, getDetail);
+routerCategory.post("/", checkCategoryPermission, create);
+routerCategory.put("/:id", checkCategoryPermission, update);
+routerCategory.delete("/:id", checkCategoryPermission, remove);
 
 export default routerCategory;
