@@ -56,13 +56,9 @@ const ProductReducer = (state: State, action: Action): State => {
         case "UPDATE_STATUS":
             return {
                 ...state,
-                selectedProduct: state.selectedProduct
-                    ? {
-                        ...state.selectedProduct,
-                        status: action.payload.status,
-                    }
-                    : undefined,
-
+                selectedProduct: state.selectedProduct && state.selectedProduct._id === action.payload._id
+                    ? { ...state.selectedProduct, status: action.payload.status }
+                    : state.selectedProduct,
                 products: state.products.map((product) =>
                     product._id === action.payload._id
                         ? { ...product, status: action.payload.status }
@@ -72,13 +68,15 @@ const ProductReducer = (state: State, action: Action): State => {
         case "UPDATE_IS_HOT":
             return {
                 ...state,
-                selectedProduct: state.selectedProduct
-                    ? {
-                        ...state.selectedProduct,
-                        is_hot: action.payload.is_hot,
-                    } : undefined,
-                products: state.products.map((product) => product._id === action.payload._id ? { ...product, is_hot: action.payload.is_hot } : product)
-            }
+                selectedProduct: state.selectedProduct && state.selectedProduct._id === action.payload._id
+                    ? { ...state.selectedProduct, is_hot: action.payload.is_hot }
+                    : state.selectedProduct,
+                products: state.products.map((product) =>
+                    product._id === action.payload._id
+                        ? { ...product, is_hot: action.payload.is_hot }
+                        : product
+                )
+            };
 
         default:
             return state;

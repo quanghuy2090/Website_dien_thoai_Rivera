@@ -35,7 +35,7 @@ import UpdateCapacity from "./pages/Admin/Capacity/UpdateCapacity";
 import Profile from "./pages/Client/Profile";
 import PaymentSuccess from "./pages/Client/Vnpay";
 import AddUser from "./pages/Admin/User/AddUser";
-import UpdateProfile from "./pages/Client/UpdateProfile";
+import ListCategoryDeleted from "./pages/Admin/Categories/ListCategoryDeleted";
 function App() {
   const routes = useRoutes([
     {
@@ -66,6 +66,7 @@ function App() {
         { path: "/admin/category/add", element: <AddCategories /> },
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },
         { path: "/admin/category/detail/:id", element: <ListDetailCategory /> },
+        { path: "/admin/category/delete", element: <ListCategoryDeleted /> },
         { path: "/admin/products", element: <ListProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/update/:id", element: <UpdateProduct /> },

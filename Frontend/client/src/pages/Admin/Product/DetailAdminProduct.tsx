@@ -6,8 +6,7 @@ import { ProductContext } from "../../../context/ProductContext";
 
 const DetailAdminProduct = () => {
   const { id } = useParams();
-  const { getDetailProduct, state, updateStatus, updateIs_Hot } =
-    useContext(ProductContext);
+  const { getDetailProduct, state } = useContext(ProductContext);
   useEffect(() => {
     getDetailProduct(id!);
   }, []);
@@ -46,56 +45,15 @@ const DetailAdminProduct = () => {
                 <th>Mô tả chi tiết</th>
                 <td>{state.selectedProduct?.long_description}</td>
               </tr>
+
               <tr>
-                <th>Trạng Thái</th>
-                <td>
-                  <div className="form-check form-switch">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      checked={state.selectedProduct?.status === "active"} // Kiểm tra trạng thái hiện tại
-                      onChange={() =>
-                        updateStatus(
-                          state.selectedProduct?._id as string,
-                          state.selectedProduct?.status === "active"
-                            ? "banned"
-                            : "active"
-                        )
-                      }
-                    />
-                    <label className="form-check-label ms-2">
-                      {state.selectedProduct?.status === "active"
-                        ? "Hoạt động"
-                        : "Bị cấm"}
-                    </label>
-                  </div>
-                </td>
+                <th>Trạng thái</th>
+                <td>{state.selectedProduct?.status}</td>
               </tr>
 
               <tr>
-                <th>is_hot</th>
-                <td>
-                  <div className="form-check form-switch">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      role="switch"
-                      checked={state.selectedProduct?.is_hot === "yes"}
-                      onChange={() =>
-                        updateIs_Hot(
-                          state.selectedProduct?._id as string,
-                          state.selectedProduct?.is_hot === "yes" ? "no" : "yes"
-                        )
-                      }
-                    />
-                    <label className="form-check-label ms-2">
-                      {state.selectedProduct?.is_hot === "yes"
-                        ? "🔥 Hot"
-                        : "❌ Not Hot"}
-                    </label>
-                  </div>
-                </td>
+                <th>Hot</th>
+                <td>{state.selectedProduct?.is_hot}</td>
               </tr>
 
               <tr>
@@ -143,9 +101,15 @@ const DetailAdminProduct = () => {
                               ? variant.capacity.value
                               : variant.capacity ?? "Không xác định"}
                           </td>
-                          <td className="align-middle">{formatPrice(variant.price)}</td>
-                          <td className="badge bg-danger align-middle">{variant.sale}%</td>
-                          <td className="align-middle">{formatPrice(variant.salePrice)}</td>
+                          <td className="align-middle">
+                            {formatPrice(variant.price)}
+                          </td>
+                          <td className="badge bg-danger align-middle">
+                            {variant.sale}%
+                          </td>
+                          <td className="align-middle">
+                            {formatPrice(variant.salePrice)}
+                          </td>
                           <td className="align-middle">{variant.stock}</td>
                           <td className="align-middle">{variant.sku}</td>
                         </tr>
