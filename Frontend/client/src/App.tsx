@@ -36,6 +36,7 @@ import Profile from "./pages/Client/Profile";
 import PaymentSuccess from "./pages/Client/Vnpay";
 import AddUser from "./pages/Admin/User/AddUser";
 import ListCategoryDeleted from "./pages/Admin/Categories/ListCategoryDeleted";
+import UpdateProfile from "./pages/Client/UpdateProfile";
 function App() {
   const routes = useRoutes([
     {
