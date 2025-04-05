@@ -47,6 +47,7 @@ export const CategoryProvider = ({ children }: Children) => {
         try {
             if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
                 const response = await deleteCategories(_id);
+                console.log(response)
                 dispatch({ type: "REMOVE_CATEGORYS", payload: _id });
 
                 // Cập nhật lại danh sách danh mục đã xóa từ backend
@@ -54,8 +55,8 @@ export const CategoryProvider = ({ children }: Children) => {
                 dispatch({ type: "GET_CATEGORYS_DELETE", payload: data.data });
 
                 // H Ascendant Technologiesif (response.data && response.data.data.deletedBy) {
-                const { userName, email } = response.data.data.deletedBy;
-                toast.success(`Xóa danh mục thành công bởi ${userName} (${email})`);
+                // const { userName, email } = response.data.data.deletedBy;
+                toast.success(`Xóa danh mục thành công `);
             } else {
                 toast.success("Xóa danh mục thành công");
             }

@@ -1,11 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Admin.css";
 const Admin = () => {
+  const nav = useNavigate();
   const token = localStorage.getItem("token");
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    nav("/login");
   };
   <div className="">
     {token && (
@@ -122,7 +124,17 @@ const Admin = () => {
             <div className="d-flex align-items-center mb-3">
               <span className="text-gray-600 mr-2">{user.email}</span>
             </div>
+            <div className="mb-3">
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={handleLogout} // Đây là hàm xử lý đăng xuất của bạn
+              >
+                Đăng xuất
+              </button>
+            </div>
+
           </div>
+
         </div>
       </div>
     </div>

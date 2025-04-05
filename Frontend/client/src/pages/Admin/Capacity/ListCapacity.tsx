@@ -40,7 +40,7 @@ const ListCapacity = () => {
                     <tbody>
                         {states.capacitys.map((capacity, index) => (
                             <tr key={index}>
-                                <td>{index + 1}</td>
+                                <th scope="row">{index + 1}</th>
                                 <td>{capacity.value}</td>
                                 <td>
                                     <button

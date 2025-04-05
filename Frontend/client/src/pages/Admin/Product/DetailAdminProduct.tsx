@@ -10,6 +10,12 @@ const DetailAdminProduct = () => {
   useEffect(() => {
     getDetailProduct(id!)
   }, []);
+  const formatPrice = (price: number) => {
+    if (price === undefined || price === null) {
+      return "0 VND";
+    }
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+  };
 
   return (
     <div>
@@ -43,6 +49,7 @@ const DetailAdminProduct = () => {
                 <td>{state.selectedProduct?.long_description}</td>
               </tr>
 
+
               <tr>
                 <th>Trạng thái</th>
                 <td>{state.selectedProduct?.status}</td>
@@ -75,28 +82,46 @@ const DetailAdminProduct = () => {
               <tr>
                 <th>Biến thể</th>
                 <td>
-                  <table className="table table-bordered border-primary">
-                    <thead>
-                      <tr>
-                        <th>Màu</th>
-                        <th>Giá</th>
-                        <th>Bộ nhớ</th>
-                        <th>Stock</th>
-                        <th>Sku</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {state.selectedProduct?.variants.map((variant, index) => (
-                        <tr key={index}>
+                  {state.selectedProduct?.variants.map((variant, index) => (
+                    <table key={index} className="table table-bordered border-primary mb-4">
+                      <thead className="table-light">
+                        <tr>
+                          <th colSpan={2}>Phiên bản {index + 1}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">Màu</th>
                           <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
-                          <td>{variant.price}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Giá</th>
+                          <td>{formatPrice(variant.price)}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row"> Sale</th>
+                          <td className="badge bg-danger">{variant.sale}%</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Giá Sale</th>
+                          <td className="text-warning fw-bold">{formatPrice(variant.salePrice)}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Bộ nhớ</th>
                           <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Stock</th>
                           <td>{variant.stock}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Sku</th>
                           <td>{variant.sku}</td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  ))}
+
                 </td>
               </tr>
             </tbody>

@@ -36,6 +36,7 @@ import Profile from "./pages/Client/Profile";
 import PaymentSuccess from "./pages/Client/Vnpay";
 import AddUser from "./pages/Admin/User/AddUser";
 import ListCategoryDeleted from "./pages/Admin/Categories/ListCategoryDeleted";
+import UpdateUser from "./pages/Admin/User/UpdateUser";
 function App() {
   const routes = useRoutes([
     {
@@ -73,6 +74,7 @@ function App() {
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
         { path: "/admin/user/add", element: <AddUser /> },
+        { path: "/admin/update/user/:id", element: <UpdateUser /> },
         { path: "/admin/order", element: <Orders /> },
         { path: "/admin/order/:id", element: <OrderDetail /> },
         { path: "/admin/color", element: <ListColor /> },
