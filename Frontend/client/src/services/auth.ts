@@ -11,6 +11,9 @@ export type User = {
   status: string;
   confirmPassword: string;
   img: string;
+  updatedAt: string;
+  createdAt: string;
+  updatedBy: User
 };
 
 export const registerUser = (data: User) => {
@@ -36,3 +39,7 @@ export const updateStatus = (userId: string, status: string) => {
 export const updateRole = (userId: string, role: number) => {
   return http.put(`auth/user/role/${userId}`, { role });
 };
+
+export const updateUser = (_id: string, user: User) => {
+  return http.put(`/auth/user/update/${_id}`, user)
+}

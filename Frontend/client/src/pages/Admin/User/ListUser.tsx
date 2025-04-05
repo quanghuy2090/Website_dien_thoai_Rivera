@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaPen } from "react-icons/fa";
 import { AuthContext } from '../../../context/AuthContext';
 import { IoMdAdd } from 'react-icons/io';
 const ListUser = () => {
@@ -55,6 +55,7 @@ const ListUser = () => {
                                 <td>
 
                                     <Link to={`/admin/user/${u._id}`} className='btn btn-warning'><FaEye /></Link>
+                                    <Link to={`/admin/update/user/${u._id}`} className='btn btn-success'> <FaPen /></Link>
                                 </td>
                             </tr>
                         ))}
