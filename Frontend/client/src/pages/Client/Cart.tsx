@@ -199,7 +199,7 @@ const Cart = () => {
                             className="cart-product-name"
                             to={`/product/${cart.productId._id}`}
                           >
-                            {cart.productId.name}-{cart.color}/{cart.capacity}
+                            {cart.productId.name}
                           </Link>
                         </td>
                         <td>
