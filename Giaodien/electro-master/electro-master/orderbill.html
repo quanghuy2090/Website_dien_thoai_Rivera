@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hóa đơn đặt hàng</title>
+    <link rel="stylesheet" href="css/orderbill.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="orderbill-container">
+        <div class="orderbill-header">
+            <h1>Hóa đơn đặt hàng</h1>
+            <div class="order-info">
+                <p>Mã đơn hàng: <span id="order-id">DH001</span></p>
+                <p>Ngày đặt: <span id="order-date">01/04/2024</span></p>
+            </div>
+        </div>
+
+        <div class="customer-info">
+            <h2>Thông tin người nhận hàng</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Họ tên:</label>
+                    <span id="customer-name">Nguyễn Văn A</span>
+                </div>
+                <div class="info-item">
+                    <label>Số điện thoại:</label>
+                    <span id="customer-phone">0123456789</span>
+                </div>
+                <div class="info-item">
+                    <label>Email:</label>
+                    <span id="customer-email">example@email.com</span>
+                </div>
+                <div class="info-item">
+                    <label>Địa chỉ:</label>
+                    <span id="customer-address">123 Đường ABC, Quận XYZ, TP.HCM</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-details">
+            <h2>Chi tiết đơn hàng</h2>
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>iPhone 15 Pro Max</td>
+                        <td>30,000,000đ</td>
+                        <td>1</td>
+                        <td>30,000,000đ</td>
+                    </tr>
+                    <tr>
+                        <td>Samsung Galaxy S24 Ultra</td>
+                        <td>25,000,000đ</td>
+                        <td>1</td>
+                        <td>25,000,000đ</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-right">Tổng tiền:</td>
+                        <td>55,000,000đ</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right">Phí vận chuyển:</td>
+                        <td>30,000đ</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-right">Tổng thanh toán:</td>
+                        <td class="total-amount">55,030,000đ</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="payment-info">
+            <h2>Thông tin thanh toán</h2>
+            <div class="payment-method">
+                <p>Phương thức thanh toán: <span>Chuyển khoản ngân hàng</span></p>
+                <p>Trạng thái: <span class="status-pending">Đang xử lý</span></p>
+            </div>
+        </div>
+
+        <div class="orderbill-footer">
+            <button class="print-btn" onclick="window.print()">
+                <i class="fas fa-print"></i> In hóa đơn
+            </button>
+            <button class="back-btn" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>

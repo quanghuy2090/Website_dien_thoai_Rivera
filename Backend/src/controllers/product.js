@@ -3,6 +3,7 @@ import Product from "../models/Product.js";
 import { productValidation } from "../validation/product.js";
 import Color from "../models/Color.js";
 import Capacity from "../models/Capacity.js";
+import { updateCartsWithProductChanges } from "./cart.js";
 
 export const getAllProduct = async (req, res) => {
   try {
@@ -113,12 +114,55 @@ const generateSKU = async (productName, colorId, capacityId) => {
     throw new Error("Color hoặc Capacity không tồn tại");
   }
 
-  const namePrefix = productName.slice(0, 3).toUpperCase();
-  const colorCode = color.name.slice(0, 3).toUpperCase();
-  const capacityCode = capacity.value.replace(/[^0-9]/g, "");
+  // Xử lý tên sản phẩm có dấu
+  // Loại bỏ dấu và chuyển thành chữ không dấu
+  const normalizedName = productName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "");
+
+  // Lấy 3 ký tự đầu tiên của tên sản phẩm đã chuẩn hóa và chuyển thành chữ in hoa
+  const namePrefix = normalizedName.slice(0, 3).toUpperCase();
+
+  // Xử lý tên màu sắc có dấu
+  const normalizedColorName = color.name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "");
+
+  // Lấy 3 ký tự đầu tiên của tên màu sắc đã chuẩn hóa và chuyển thành chữ in hoa
+  const colorCode = normalizedColorName.slice(0, 3).toUpperCase();
+
+  // Lấy các chữ số từ giá trị dung lượng
+  let capacityCode = capacity.value.replace(/[^0-9]/g, "");
+
+  // Đảm bảo capacityCode có ít nhất 1 chữ số
+  if (capacityCode.length === 0) {
+    capacityCode = "1"; // Giá trị mặc định nếu không có chữ số
+  }
+
+  // Tạo mã duy nhất 4 chữ số từ timestamp
   const uniqueCode = Date.now().toString().slice(-4);
 
-  return `${namePrefix}-${colorCode}-${capacityCode}-${uniqueCode}`;
+  // Tạo SKU theo định dạng yêu cầu: 3 chữ cái-3 chữ cái-số-4 chữ số
+  const sku = `${namePrefix}-${colorCode}-${capacityCode}-${uniqueCode}`;
+
+  // Kiểm tra xem SKU có đúng định dạng không
+  const skuRegex = /^[A-Z]{3}-[A-Z]{3}-[0-9]+-[0-9]{4}$/;
+  if (!skuRegex.test(sku)) {
+    console.error(`SKU không đúng định dạng: ${sku}`);
+    console.error(
+      `namePrefix: ${namePrefix}, colorCode: ${colorCode}, capacityCode: ${capacityCode}, uniqueCode: ${uniqueCode}`
+    );
+    console.error(
+      `normalizedName: ${normalizedName}, normalizedColorName: ${normalizedColorName}`
+    );
+    console.error(
+      `productName: ${productName}, color.name: ${color.name}, capacity.value: ${capacity.value}`
+    );
+  }
+
+  return sku;
 };
 
 export const createProduct = async (req, res) => {
@@ -377,6 +421,9 @@ export const updateProduct = async (req, res) => {
     // Lưu sản phẩm để chạy middleware pre('save')
     const updatedProduct = await product.save();
 
+    // Cập nhật giỏ hàng cho tất cả người dùng có sản phẩm này trong giỏ
+    await updateCartsWithProductChanges(updatedProduct);
+
     return res.status(200).json({
       message: "Cập nhật sản phẩm thành công",
       data: updatedProduct,
@@ -429,7 +476,6 @@ export const removeProduct = async (req, res) => {
   }
 };
 
-
 export const statusProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -459,17 +505,11 @@ export const statusProduct = async (req, res) => {
     }
 
     // Cập nhật trạng thái sản phẩm
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      { $set: { status } },
-      { new: true, runValidators: true } // Trả về document mới và chạy validation
-    );
+    product.status = status;
+    const updatedProduct = await product.save();
 
-    if (!updatedProduct) {
-      return res.status(500).json({
-        message: "Cập nhật trạng thái sản phẩm không thành công",
-      });
-    }
+    // Cập nhật giỏ hàng cho tất cả người dùng có sản phẩm này trong giỏ
+    await updateCartsWithProductChanges(updatedProduct);
 
     return res.status(200).json({
       message: "Chuyển trạng thái sản phẩm thành công",
@@ -490,7 +530,8 @@ export const isHotProduct = async (req, res) => {
     // Kiểm tra trạng thái is_hot đầu vào
     if (!is_hot || !["yes", "no"].includes(is_hot)) {
       return res.status(400).json({
-        message: "Trạng thái is_hot không hợp lệ. Chỉ chấp nhận 'yes' hoặc 'no'",
+        message:
+          "Trạng thái is_hot không hợp lệ. Chỉ chấp nhận 'yes' hoặc 'no'",
       });
     }
 
@@ -509,18 +550,12 @@ export const isHotProduct = async (req, res) => {
       });
     }
 
-    // Cập nhật trạng thái is_hot của sản phẩmgit 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      { $set: { is_hot } },
-      { new: true, runValidators: true } // Trả về document mới và chạy validation
-    );
+    // Cập nhật trạng thái is_hot của sản phẩm
+    product.is_hot = is_hot;
+    const updatedProduct = await product.save();
 
-    if (!updatedProduct) {
-      return res.status(500).json({
-        message: "Cập nhật trạng thái is_hot không thành công",
-      });
-    }
+    // Cập nhật giỏ hàng cho tất cả người dùng có sản phẩm này trong giỏ
+    await updateCartsWithProductChanges(updatedProduct);
 
     return res.status(200).json({
       message: "Chuyển trạng thái is_hot thành công",

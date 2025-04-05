@@ -40,10 +40,6 @@ const variantValidation = Joi.object({
     "number.integer": "Stock phải là số nguyên.",
     "any.required": "Trường stock là bắt buộc.",
   }),
-  sku: Joi.string().allow("").optional().messages({
-    "string.base": "SKU phải là một chuỗi ký tự.",
-    "string.empty": "SKU có thể để trống nhưng phải là chuỗi.",
-  }),
 
 
 });

@@ -36,7 +36,10 @@ const variantSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
-    match: [/^[A-Z]{3}-[A-Z]{3}-[0-9]+-[0-9]{4}$/, "SKU phải có định dạng hợp lệ"],
+    match: [
+      /^[A-Z]{3}-[A-Z]{3}-[0-9]+-[0-9]{4}$/,
+      "SKU phải có định dạng hợp lệ",
+    ],
   },
 });
 
@@ -83,8 +86,8 @@ const productSchema = new mongoose.Schema(
   }
 );
 // Tính salePrice cho tất cả variants và làm tròn 2 chữ số
-productSchema.pre('save', function(next) {
-  this.variants.forEach(variant => {
+productSchema.pre("save", function (next) {
+  this.variants.forEach((variant) => {
     const calculatedSalePrice = variant.price * (1 - variant.sale / 100);
     variant.salePrice = Number(calculatedSalePrice.toFixed(2));
     if (variant.salePrice < 0) variant.salePrice = 0;
