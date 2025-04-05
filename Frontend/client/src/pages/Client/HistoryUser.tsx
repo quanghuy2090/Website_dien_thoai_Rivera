@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllOrder, Order, updateStatusOrder } from "../../services/order";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import "./HistoryUser.css";
 
 type UpdateInfo = {
   status: Order["status"];
@@ -11,8 +12,6 @@ type UpdateInfo = {
 const HistoryUser = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [orderUser, setOrderUser] = useState<Order[]>([]);
-  const [activeOrder, setActiveOrder] = useState<string | null>(null); // để track dropdown sản phẩm
-  // Lưu thông tin cập nhật cho mỗi đơn hàng theo orderId
   const [updates, setUpdates] = useState<Record<string, UpdateInfo>>({});
 
   useEffect(() => {
@@ -33,9 +32,8 @@ const HistoryUser = () => {
   const fetchOrder = async (userId: string) => {
     try {
       const { data } = await getAllOrder();
-      // Filter orders based on the current user's userId
       const filteredOrders = data.orders.filter(
-        (order: Order) => order.userId === userId
+        (order: Order) => order.userId.toString() === userId
       );
       setOrderUser(filteredOrders);
     } catch (error) {
@@ -49,7 +47,6 @@ const HistoryUser = () => {
       : "0 VND";
   };
 
-  // Hàm cập nhật trạng thái đơn hàng
   const handleStatusChange = async (
     orderId: string,
     newStatus: Order["status"],
@@ -58,9 +55,7 @@ const HistoryUser = () => {
     try {
       await updateStatusOrder(orderId, newStatus, cancellationReason);
       toast.success("Cập nhật trạng thái thành công!");
-      // Làm mới danh sách đơn hàng sau khi cập nhật
       fetchOrder(userId!);
-      // Xóa thông tin cập nhật sau khi thành công nếu cần
       setUpdates((prev) => {
         const newUpdates = { ...prev };
         delete newUpdates[orderId];
@@ -70,10 +65,6 @@ const HistoryUser = () => {
       console.error("Lỗi cập nhật trạng thái:", error);
       toast.error("Cập nhật trạng thái thất bại, vui lòng thử lại!");
     }
-  };
-
-  const toggleDropdown = (orderId: string) => {
-    setActiveOrder(activeOrder === orderId ? null : orderId);
   };
 
   return (
@@ -115,35 +106,23 @@ const HistoryUser = () => {
               {orderUser.map((order) => (
                 <tr key={order._id}>
                   <td>
-                    <div
-                      className="product-list"
-                      onClick={() => toggleDropdown(order._id)}
-                    >
-                      {order.items.map((cart, idx) => (
-                        <span key={idx} className="product-item">
-                          {cart.productId.name}/
-                        </span>
+                    <div className="product-list">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="product-item">
+                          <span className="product-name">
+                            {item.productId.name}
+                          </span>
+                          {item.variantId &&
+                            typeof item.variantId === "object" && (
+                              <span className="product-variant">
+                                ({(item.variantId as any).ram}/
+                                {(item.variantId as any).storage})
+                              </span>
+                            )}
+                          <span> x{item.quantity}</span>
+                        </div>
                       ))}
                     </div>
-                    {activeOrder === order._id && (
-                      <ul className="product-dropdown">
-                        {order.items.map((cart, idx) => (
-                          <li key={idx}>
-                            <div>
-                              <strong>{cart.productId.name}</strong> (x{" "}
-                              {cart.quantity})
-                            </div>
-                            <div>
-                              <img
-                                src={cart.productId.images[0]}
-                                alt={cart.productId.name}
-                                width={50}
-                              />
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
                   </td>
                   <td>{formatPrice(order.totalAmount)}</td>
                   <td>{order.status}</td>
@@ -151,7 +130,6 @@ const HistoryUser = () => {
                   <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td>{order.paymentStatus}</td>
                   <td>
-                    {/* Phần cập nhật luôn hiển thị dropdown cùng với input lý do nếu chọn Hủy */}
                     <select
                       className="form-select"
                       value={updates[order.orderId]?.status || ""}
@@ -171,7 +149,7 @@ const HistoryUser = () => {
                         Chọn cập nhật
                       </option>
                       <option value="Đã nhận hàng">Đã nhận hàng</option>
-                      <option value="Đã huỷ">Hủy</option>r
+                      <option value="Đã huỷ">Hủy</option>
                     </select>
                     {updates[order.orderId]?.status === "Đã huỷ" && (
                       <input

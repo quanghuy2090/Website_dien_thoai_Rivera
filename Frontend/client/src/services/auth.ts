@@ -32,9 +32,9 @@ export const getDetailUser = (userId: string) => {
   return http.get(`/auth/user/${userId}`);
 };
 
-export const updateUser = (userId: string) => {
-  return http.put(`/auth/user/${userId}`);
-};
+// export const updateUser = (userId: string) => {
+//   return http.put(`/auth/user/${userId}`);
+// };
 
 export const updateStatus = (userId: string, status: string) => {
   return http.put(`auth/user/${userId}`, { status });
