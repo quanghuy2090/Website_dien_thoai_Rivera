@@ -8,22 +8,32 @@ import { ProductContext } from "../../../context/ProductContext";
 const ListProduct = () => {
   const { removeProducts, state, updateStatus, updateIs_Hot } = useContext(ProductContext);
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [expandedProductId, setExpandedProductId] = useState<string | null>(
     null
   ); // State for expanded product
 
-  const filteredProducts = state.products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = state.products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (typeof product.categoryId === "object"
+        ? product.categoryId._id === categoryFilter
+        : product.categoryId === categoryFilter);
+    return matchesSearch && matchesCategory;
+  });
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("vi-VN") + " VND";
-  };
-
-  const toggleVariants = (productId: string) => {
-    setExpandedProductId((prev) => (prev === productId ? null : productId)); // Toggle the variant visibility
-  };
+  // Lấy danh sách danh mục duy nhất từ sản phẩm
+  const uniqueCategories = Array.from(
+    new Set(
+      state.products
+        .map((product) =>
+          typeof product.categoryId === "object" ? JSON.stringify(product.categoryId) : null
+        )
+        .filter(Boolean)
+    )
+  ).map((catStr) => JSON.parse(catStr));
 
   return (
     <div className="content">
@@ -34,11 +44,12 @@ const ListProduct = () => {
         Đây là danh sách sản phẩm trong cửa hàng. Bạn có thể quản lý, chỉnh sửa
         hoặc thêm mới sản phẩm.
       </p>
-      {/* Bảng danh sách sản phẩm */}
+
       <div className="table-container">
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <div>
-            <label className="d-flex align-items-center">
+          <div className="d-flex align-items-center gap-3">
+            {/* Hiển thị số sản phẩm */}
+            <label className="d-flex align-items-center mb-0">
               Hiển thị
               <select
                 className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2"
@@ -50,10 +61,28 @@ const ListProduct = () => {
                 <option value="30">30</option>
                 <option value="40">40</option>
               </select>
-              mục
+
             </label>
+
+            {/* Bộ lọc danh mục */}
+            <div className="d-flex align-items-center gap-2">
+              <label className="mb-0">Danh mục:</label>
+              <select
+                className="form-control form-control-sm"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="all">Tất cả</option>
+                {uniqueCategories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
+          {/* Ô tìm kiếm */}
           <div>
             <input
               type="text"
@@ -64,16 +93,17 @@ const ListProduct = () => {
             />
           </div>
         </div>
+
         <Link to={`/admin/products/add`} className="btn btn-primary mb-3 w-100">
           <IoMdAdd />
         </Link>
+
         <table className="table table-bordered">
           <thead className="thead-light">
             <tr>
               <th>Stt</th>
               <th>Tên sp</th>
               <th>Ảnh</th>
-              <th>Biến thể</th>
               <th>Danh mục</th>
               <th>Trạng thái</th>
               <th>Hot</th>
@@ -83,11 +113,8 @@ const ListProduct = () => {
           <tbody>
             {filteredProducts.slice(0, itemsPerPage).map((product, index) => (
               <tr key={index}>
-                <td>{index + 1}</td>
+                <th scope="row">{index + 1}</th>
                 <td>{product.name}</td>
-                {/* <td>{product.short_description}</td>
-                <td>{product.long_description}</td> */}
-                {/* Hiển thị ảnh sản phẩm */}
                 <td>
                   <div
                     style={{
@@ -121,37 +148,6 @@ const ListProduct = () => {
                     ))}
                   </div>
                 </td>
-
-                <td>
-                  <table className="table table-bordered table-sm text-center">
-                    <thead>
-                      <tr className="bg-light">
-                        <th>Bộ nhớ</th>
-                        <th>Màu sắc</th>
-                        <th>Giá</th>
-                        <th>Sale</th>
-                        <th>Giá Sale</th>
-                        <th>Stock</th>
-                        <th>SKU</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {product.variants.map((v, index) => (
-                        <tr key={index}>
-                          <td>{v.color && typeof v.color === "object" ? v.color.name : v.color ?? "Không xác định"}</td>
-                          <td>{v.capacity && typeof v.capacity === "object" ? v.capacity.value : v.capacity ?? "Không xác định"}</td>
-                          <td>{formatPrice(v.price)}</td>
-                          <td className="badge bg-danger">{v.sale}%</td>
-                          <td className="text-warning fw-bold">{formatPrice(v.salePrice)}</td>
-                          <td>{v.stock}</td>
-                          <td>{v.sku}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </td>
-
-                {/* Hiển thị danh mục sản phẩm */}
                 <td>
                   {typeof product.categoryId === "object" &&
                     product.categoryId !== null
@@ -164,10 +160,10 @@ const ListProduct = () => {
                       className="form-check-input"
                       type="checkbox"
                       role="switch"
-                      checked={product.status === "active"} // Sử dụng product.status thay vì state.selectedProduct
+                      checked={product.status === "active"}
                       onChange={() =>
                         updateStatus(
-                          product._id, // Cập nhật sản phẩm dựa trên _id của product
+                          product._id,
                           product.status === "active" ? "banned" : "active"
                         )
                       }
@@ -177,17 +173,16 @@ const ListProduct = () => {
                     </label>
                   </div>
                 </td>
-
                 <td>
                   <div className="form-check form-switch">
                     <input
                       type="checkbox"
                       className="form-check-input"
                       role="switch"
-                      checked={product.is_hot === "yes"} // Sử dụng product.is_hot
+                      checked={product.is_hot === "yes"}
                       onChange={() =>
                         updateIs_Hot(
-                          product._id, // Cập nhật sản phẩm dựa trên _id của product
+                          product._id,
                           product.is_hot === "yes" ? "no" : "yes"
                         )
                       }
@@ -197,13 +192,9 @@ const ListProduct = () => {
                     </label>
                   </div>
                 </td>
-
-
-
-                {/* Nút hành động */}
                 <td>
                   <button
-                    className="btn btn-danger me-2 "
+                    className="btn btn-danger me-2"
                     onClick={() => removeProducts(product._id)}
                   >
                     <MdDelete />

@@ -4,7 +4,7 @@ import { AuthContext } from '../../../context/AuthContext';
 import { User } from '../../../services/auth';
 const DetailUser = () => {
     const { id } = useParams();
-    const { getDetailUsers, state, handleStatusChange, handleRoleChange } = useContext(AuthContext);
+    const { getDetailUsers, state } = useContext(AuthContext);
     const [lockedEmails, setLockedEmails] = useState<User[]>([]);
     console.log(lockedEmails)
     useEffect(() => {
@@ -13,7 +13,19 @@ const DetailUser = () => {
         setLockedEmails(storedEmails);
     }, [])
     // const isEmailLocked = Array.isArray(lockedEmails) && lockedEmails.includes(state.selectedUsers?.email);
-    const isAdmin = state.selectedUsers?.role === 1; // 
+    // const isAdmin = state.selectedUsers?.role === 1; // 
+    const getRoleName = (role: number) => {
+        switch (role) {
+            case 1:
+                return "Admin";
+            case 2:
+                return "Quản lý";
+            case 3:
+                return "Người dùng";
+            default:
+                return "Không xác định";
+        }
+    };
     return (
         <div className='content'>
             <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -52,8 +64,28 @@ const DetailUser = () => {
                             <th>Số Điện Thoại</th>
                             <td>{state.selectedUsers?.phone}</td>
                         </tr>
-
                         <tr>
+                            <th>Trạng thái</th>
+                            <td>{state.selectedUsers?.status}</td>
+                        </tr>
+                        <tr>
+                            <th>Vai trò</th>
+                            <td>{state.selectedUsers && state.selectedUsers.role !== undefined ? getRoleName(state.selectedUsers.role) : "N/A"}</td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tạo</th>
+                            <td>{state.selectedUsers?.createdAt ? new Date(state.selectedUsers.createdAt).toLocaleDateString() : "N/A"}</td>
+
+                        </tr>
+                        <tr>
+                            <th>Cập nhật lần cuối</th>
+                            <td>{state.selectedUsers?.updatedAt ? new Date(state.selectedUsers.updatedAt).toLocaleString() : "N/A"}</td>
+                        </tr>
+                        {/* <tr>
+                            <th>Người thực hiện	</th>
+                            <td>{state.selectedUsers?.updatedBy.email}-{state.selectedUsers?.updatedBy.userName}</td>
+                        </tr> */}
+                        {/* <tr>
                             <th>Trạng Thái</th>
                             <td>
                                 <select className='form-select'
@@ -65,8 +97,8 @@ const DetailUser = () => {
                                     <option value="banned">Banned</option>
                                 </select>
                             </td>
-                        </tr>
-                        <tr>
+                        </tr> */}
+                        {/* <tr>
                             <th>Vai Trò</th>
                             <td>
                                 <select className='form-select'
@@ -79,7 +111,7 @@ const DetailUser = () => {
                                     <option value="3">Người dùng</option>
                                 </select>
                             </td>
-                        </tr>
+                        </tr> */}
                     </tbody>
                 </table>
             </div>

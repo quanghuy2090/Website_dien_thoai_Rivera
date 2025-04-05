@@ -1,14 +1,16 @@
 import React, { createContext, useEffect, useReducer } from "react";
-import { getDetailUser, getUser, registerUser, updateRole, updateStatus, User } from "../services/auth"
+import { getDetailUser, getUser, registerUser, updateRole, updateStatus, updateUser, User } from "../services/auth"
 import AuthReducer from "../reducers/AuthReducer";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
 type AuthContextType = {
     state: { users: User[]; selectedUsers?: User };
     getDetailUsers: (_id: string) => void;
     handleStatusChange: (userId: string, status: string) => void
     handleRoleChange: (userId: string, role: number) => void;
     createUser: (user: User) => void;
+    updateUsers: (_id: string, user: User) => void;
 };
 
 export const AuthContext = createContext({} as AuthContextType);
@@ -24,7 +26,8 @@ export const AuthProvider = ({ children }: Children) => {
     useEffect(() => {
         (async () => {
             const { data } = await getUser();
-            dispatch({ type: "GET_USER", payload: data.data })
+
+            dispatch({ type: "GET_USER", payload: data.data.users })
         })()
     }, []);
 
@@ -49,6 +52,30 @@ export const AuthProvider = ({ children }: Children) => {
             toast.error("Thêm user thất bại")
         }
     }
+    const updateUsers = async (_id: string, user: User) => {
+        try {
+            const { data } = await updateUser(_id, user);
+            dispatch({ type: "UPDATE_USER", payload: data.data });
+
+            const updatedBy = data.data.updatedBy?.email || "Không rõ";
+
+            // Hiển thị alert thông báo
+            alert(`Người thực hiện: ${updatedBy}`);
+
+            // Sau khi đóng alert, hiển thị toast
+            toast.success(`Cập nhật thành công`);
+            nav("/admin/user");
+
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                const errorMessage = error.response?.data?.message || "Đã xảy ra lỗi.";
+                toast.error(`Lỗi: ${errorMessage}`);
+            } else {
+                toast.error("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau!");
+            }
+        }
+    };
+
     const handleStatusChange = async (userId: string, status: string) => {
         try {
             const { data } = await updateStatus(userId, status);
@@ -70,6 +97,6 @@ export const AuthProvider = ({ children }: Children) => {
         }
     }
     return (
-        <AuthContext.Provider value={{ state, getDetailUsers, handleRoleChange, handleStatusChange, createUser }}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={{ state, getDetailUsers, handleRoleChange, handleStatusChange, createUser, updateUsers }}>{children}</AuthContext.Provider>
     )
 }

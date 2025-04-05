@@ -19,7 +19,7 @@ const ListDetailCategory = () => {
         quản lý danh mục<cite></cite> tại đây.
       </p>
       <div className="table-container">
-        <table className="table">
+        <table className="table table-bordered">
           <tbody>
             {state.selectedCategory && (
               <>
@@ -35,6 +35,18 @@ const ListDetailCategory = () => {
                   <th>Slug</th>
                   <td>{state.selectedCategory.slug}</td>
                 </tr>
+                {/* <tr>
+                  <th>Người thực hiện </th>
+                  <td>{state.selectedCategory.deletedBy.email}</td>
+                </tr> */}
+                <tr>
+                  <th>Ngày tạo</th>
+                  <td>{new Date(state.selectedCategory.createdAt).toLocaleDateString()}</td>
+                </tr>
+                <tr>
+                  <th>Cập nhật lần cuối</th>
+                  <td> {new Date(state.selectedCategory.updatedAt).toLocaleString()}</td>
+                </tr>
                 <tr>
                   <th>Products</th>
                   <td>
@@ -49,14 +61,14 @@ const ListDetailCategory = () => {
                             <th>Product Name</th>
                             <td>{product.name}</td>
                           </tr>
-                          <tr>
+                          {/* <tr>
                             <th>Short Description</th>
                             <td>{product.short_description}</td>
                           </tr>
                           <tr>
                             <th>Long Description</th>
                             <td>{product.long_description}</td>
-                          </tr>
+                          </tr> */}
                           <tr>
                             <th>Images</th>
                             <td>
@@ -70,27 +82,62 @@ const ListDetailCategory = () => {
                             <td>
                               {product.variants.length > 0 ? (
                                 <table className="table table-bordered">
+                                  <thead className="table-light">
+
+                                    <tr>
+                                      <th>Thuộc tính</th>
+                                      {product.variants.map((_, index) => (
+                                        <th key={index}>Biến thể {index + 1}</th>
+                                      ))}
+                                    </tr>
+
+                                  </thead>
                                   <tbody>
-                                    {product.variants.map((variant, index) => (
-                                      <tr key={index}>
-                                        <th>Color</th>
-                                        <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
-                                        <th>Capacity</th>
-                                        <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"} </td>
-                                        <th>Price</th>
-                                        <td>{variant.price}</td>
-                                        <th>Stock</th>
-                                        <td>{variant.stock}</td>
-                                        <th>SKU</th>
-                                        <td>{variant.sku}</td>
-                                      </tr>
-                                    ))}
+                                    <tr>
+                                      <th>Color</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>
+                                          {variant.color && typeof variant.color === "object"
+                                            ? variant.color.name
+                                            : variant.color ?? "Không xác định"}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>Capacity</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>
+                                          {variant.capacity && typeof variant.capacity === "object"
+                                            ? variant.capacity.value
+                                            : variant.capacity ?? "Không xác định"}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>Price</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>{variant.price}</td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>Stock</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>{variant.stock}</td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>SKU</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>{variant.sku}</td>
+                                      ))}
+                                    </tr>
                                   </tbody>
                                 </table>
                               ) : (
                                 "No Variants"
                               )}
                             </td>
+
                           </tr>
                         </tbody>
                       </table>
