@@ -6,11 +6,13 @@ import {
   getAllOrder,
   getOrderById,
   searchOrders,
-  updateOrderStatus,
+  updateOrderStatusByAdmin,
+  updateOrderStatusByCustomer,
 } from "../controllers/order.js";
 import { checkUserPermission } from "./../middlewares/checkUserPermission.js";
 import { handleVnpayReturn } from "../controllers/vnpay.js";
 import { checkOrderPermission } from "../middlewares/checkOrderPermission.js";
+import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
 
 const routerOrder = express.Router();
 
@@ -34,6 +36,17 @@ routerOrder.get("/", checkUserPermission, getAllOrder);
 routerOrder.get("/search", checkOrderPermission, searchOrders);
 routerOrder.get("/filter", checkOrderPermission, filterOrders);
 routerOrder.get("/:id", checkOrderPermission, getOrderById);
-routerOrder.put("/status/:id", checkOrderPermission, updateOrderStatus);
+// Route mới cho admin cập nhật trạng thái đơn hàng
+routerOrder.put(
+  "/admin/status/:id",
+  checkAdminPermission,
+  updateOrderStatusByAdmin
+);
+// Route mới cho khách hàng cập nhật trạng thái đơn hàng
+routerOrder.put(
+  "/customer/status/:id",
+  checkUserPermission,
+  updateOrderStatusByCustomer
+);
 
 export default routerOrder;
