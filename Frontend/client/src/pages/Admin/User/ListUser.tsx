@@ -33,12 +33,12 @@ const ListUser = () => {
                     <thead>
                         <tr>
                             <th scope="col">Stt</th>
-                            <th scope="col">username</th>
-                            <th scope="col">email</th>
-                            <th scope="col">address</th>
-                            <th scope="col">phone</th>
-                            <th scope="col">role</th>
-                            <th scope="col">action</th>
+                            <th scope="col">Họ & Tên</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Địa Chỉ</th>
+                            <th scope="col">Số Điện Thoại</th>
+                            <th scope="col">Vai trò</th>
+                            <th scope="col">Tùy chọn</th>
 
 
                         </tr>
