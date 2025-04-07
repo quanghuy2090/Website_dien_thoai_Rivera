@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { getAllOrder, Order, updateStatusOrder } from "../../services/order";
+import {
+  getAllOrder,
+  Order,
+  updateStatusCustomerOrder,
+} from "../../services/order";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import "./HistoryUser.css";
 
 type UpdateInfo = {
-  status: Order["status"];
+  status: "Đã nhận hàng" | "Đã hủy";
   cancellationReason: string;
 };
 
@@ -36,8 +40,18 @@ const HistoryUser = () => {
         (order: Order) => order.userId.toString() === userId
       );
       setOrderUser(filteredOrders);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error fetching orders:", error);
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        toast.error(
+          axiosError.response?.data?.message || "Lỗi khi tải đơn hàng"
+        );
+      } else {
+        toast.error("Lỗi khi tải đơn hàng");
+      }
     }
   };
 
@@ -49,22 +63,51 @@ const HistoryUser = () => {
 
   const handleStatusChange = async (
     orderId: string,
-    newStatus: Order["status"],
+    newStatus: "Đã nhận hàng" | "Đã hủy",
     cancellationReason: string
   ) => {
     try {
-      await updateStatusOrder(orderId, newStatus, cancellationReason);
-      toast.success("Cập nhật trạng thái thành công!");
+      const { data } = await updateStatusCustomerOrder(
+        orderId,
+        newStatus,
+        cancellationReason
+      );
+      toast.success(data.message);
       fetchOrder(userId!);
       setUpdates((prev) => {
         const newUpdates = { ...prev };
         delete newUpdates[orderId];
         return newUpdates;
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Lỗi cập nhật trạng thái:", error);
-      toast.error("Cập nhật trạng thái thất bại, vui lòng thử lại!");
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error
+      ) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        toast.error(
+          axiosError.response?.data?.message || "Cập nhật trạng thái thất bại!"
+        );
+      } else {
+        toast.error("Cập nhật trạng thái thất bại!");
+      }
     }
+  };
+
+  const canUpdateStatus = (order: Order) => {
+    if (order.status === "Đã giao hàng") {
+      return true; // Có thể cập nhật thành "Đã nhận hàng"
+    }
+    if (order.status === "Chưa xác nhận") {
+      return true; // Có thể cập nhật thành "Đã hủy"
+    }
+    return false;
   };
 
   return (
@@ -115,8 +158,25 @@ const HistoryUser = () => {
                           {item.variantId &&
                             typeof item.variantId === "object" && (
                               <span className="product-variant">
-                                ({(item.variantId as any).ram}/
-                                {(item.variantId as any).storage})
+                                (
+                                {
+                                  (
+                                    item.variantId as {
+                                      ram: string;
+                                      storage: string;
+                                    }
+                                  ).ram
+                                }
+                                /
+                                {
+                                  (
+                                    item.variantId as {
+                                      ram: string;
+                                      storage: string;
+                                    }
+                                  ).storage
+                                }
+                                )
                               </span>
                             )}
                           <span> x{item.quantity}</span>
@@ -130,65 +190,77 @@ const HistoryUser = () => {
                   <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td>{order.paymentStatus}</td>
                   <td>
-                    <select
-                      className="form-select"
-                      value={updates[order.orderId]?.status || ""}
-                      onChange={(e) => {
-                        const selected = e.target.value as Order["status"];
-                        setUpdates((prev) => ({
-                          ...prev,
-                          [order.orderId]: {
-                            status: selected,
-                            cancellationReason:
-                              prev[order.orderId]?.cancellationReason || "",
-                          },
-                        }));
-                      }}
-                    >
-                      <option value="" disabled>
-                        Chọn cập nhật
-                      </option>
-                      <option value="Đã nhận hàng">Đã nhận hàng</option>
-                      <option value="Đã huỷ">Hủy</option>
-                    </select>
-                    {updates[order.orderId]?.status === "Đã huỷ" && (
-                      <input
-                        type="text"
-                        className="form-control mt-2"
-                        placeholder="Nhập lý do hủy đơn"
-                        value={updates[order.orderId]?.cancellationReason || ""}
-                        onChange={(e) =>
-                          setUpdates((prev) => ({
-                            ...prev,
-                            [order.orderId]: {
-                              ...prev[order.orderId],
-                              cancellationReason: e.target.value,
-                            },
-                          }))
-                        }
-                      />
+                    {canUpdateStatus(order) && (
+                      <>
+                        <select
+                          className="form-select"
+                          value={updates[order.orderId]?.status || ""}
+                          onChange={(e) => {
+                            const selected = e.target.value as
+                              | "Đã nhận hàng"
+                              | "Đã hủy";
+                            setUpdates((prev) => ({
+                              ...prev,
+                              [order.orderId]: {
+                                status: selected,
+                                cancellationReason:
+                                  prev[order.orderId]?.cancellationReason || "",
+                              },
+                            }));
+                          }}
+                        >
+                          <option value="" disabled>
+                            Chọn cập nhật
+                          </option>
+                          {order.status === "Đã giao hàng" && (
+                            <option value="Đã nhận hàng">Đã nhận hàng</option>
+                          )}
+                          {order.status === "Chưa xác nhận" && (
+                            <option value="Đã hủy">Hủy</option>
+                          )}
+                        </select>
+                        {updates[order.orderId]?.status === "Đã hủy" && (
+                          <input
+                            type="text"
+                            className="form-control mt-2"
+                            placeholder="Nhập lý do hủy đơn"
+                            value={
+                              updates[order.orderId]?.cancellationReason || ""
+                            }
+                            onChange={(e) =>
+                              setUpdates((prev) => ({
+                                ...prev,
+                                [order.orderId]: {
+                                  ...prev[order.orderId],
+                                  cancellationReason: e.target.value,
+                                },
+                              }))
+                            }
+                          />
+                        )}
+                        <button
+                          className="btn btn-success mt-2"
+                          onClick={() => {
+                            if (
+                              !updates[order.orderId] ||
+                              !updates[order.orderId].status
+                            ) {
+                              alert("Chọn cập nhật trạng thái!");
+                              return;
+                            }
+                            handleStatusChange(
+                              order.orderId,
+                              updates[order.orderId].status,
+                              updates[order.orderId].status === "Đã hủy"
+                                ? updates[order.orderId].cancellationReason
+                                : ""
+                            );
+                          }}
+                        >
+                          Gửi
+                        </button>
+                      </>
                     )}
-                    <button
-                      className="btn btn-success mt-2"
-                      onClick={() => {
-                        if (
-                          !updates[order.orderId] ||
-                          !updates[order.orderId].status
-                        ) {
-                          alert("Chọn cập nhật trạng thái!");
-                          return;
-                        }
-                        handleStatusChange(
-                          order.orderId,
-                          updates[order.orderId].status,
-                          updates[order.orderId].status === "Đã huỷ"
-                            ? updates[order.orderId].cancellationReason
-                            : ""
-                        );
-                      }}
-                    >
-                      Gửi
-                    </button>
                   </td>
                   <td>
                     <Link
