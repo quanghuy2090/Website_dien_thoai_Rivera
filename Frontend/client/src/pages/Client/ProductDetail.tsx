@@ -73,17 +73,26 @@ const ProductDetail = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     (async () => {
-      const { data } = await getProductById(id!);
-      setProduct(data.data);
-      setRelatedProducts(data.relatedProducts);
-      setMainImage(data.data.images[0]);
+      try {
+        const { data } = await getProductById(id!);
+        setProduct(data.data);
+        setRelatedProducts(data.relatedProducts);
+        setMainImage(data.data.images[0]);
 
-      if (data.data.status === "banned") {
-        setIsBanned(true);
-      } else {
-        setIsBanned(false);
-        if (data.data.variants.length > 0) {
-          setSelectedVariant(data.data.variants[0]);
+        if (data.data.status === "banned") {
+          setIsBanned(true);
+          toast.error("Sản phẩm này hiện không khả dụng");
+        } else {
+          setIsBanned(false);
+          if (data.data.variants.length > 0) {
+            setSelectedVariant(data.data.variants[0]);
+          }
+        }
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi tải thông tin sản phẩm");
         }
       }
     })();
@@ -118,6 +127,18 @@ const ProductDetail = () => {
         return;
       }
 
+      if (chosenVariant.stock <= 0) {
+        toast.error("Sản phẩm đã hết hàng!");
+        return;
+      }
+
+      if (quantity > chosenVariant.stock) {
+        toast.error(
+          `Số lượng vượt quá số lượng tồn kho (${chosenVariant.stock})`
+        );
+        return;
+      }
+
       const cartItem: Carts = {
         userId: user._id,
         productId: selectedProduct._id,
@@ -133,15 +154,17 @@ const ProductDetail = () => {
           typeof chosenVariant.capacity === "object"
             ? chosenVariant.capacity.value
             : chosenVariant.capacity,
-        subtotal: chosenVariant.salePrice * 1,
+        subtotal: chosenVariant.salePrice * quantity,
       };
 
       const { data: cartData } = await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-      console.log("Thêm vào giỏ hàng:", cartData);
-    } catch (error) {
-      console.error("Lỗi khi thêm vào giỏ hàng:", error);
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+      }
     }
   };
 
@@ -267,8 +290,8 @@ const ProductDetail = () => {
                           : "text-danger"
                       }`}
                     >
-                      {selectedVariant?.stock > 0 ? "CÒN HÀNG" : "HẾT HÀNG"}
-                      : {selectedVariant?.stock}
+                      {selectedVariant?.stock > 0 ? "CÒN HÀNG" : "HẾT HÀNG"}:{" "}
+                      {selectedVariant?.stock}
                     </div>
 
                     <div className="product-options">
@@ -581,7 +604,7 @@ const ProductDetail = () => {
                         <Link to={`/product/${item._id}`}>{item.name}</Link>
                       </h5>
                       <div>
-                      <h4 className="product-price">
+                        <h4 className="product-price">
                           {formatPrice(item.variants[0].salePrice)}
                           <br />
                           {item.variants[0]?.salePrice !==

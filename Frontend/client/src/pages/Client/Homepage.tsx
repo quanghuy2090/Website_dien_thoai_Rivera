@@ -17,29 +17,38 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await getAllProduct();
-      const allProducts = res.data.data;
+      try {
+        const res = await getAllProduct();
+        const allProducts = res.data.data;
 
-      // Get current date and subtract 1 month
-      const oneMonthAgo = new Date();
-      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        // Get current date and subtract 1 month
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-      // Filter products created within the last month
-      const recentProducts = allProducts.filter((product: Product) => {
-        const createdAtDate = new Date(product.createdAt);
-        return createdAtDate >= oneMonthAgo && product.status !== "banned"; // Exclude banned products
-      });
+        // Filter products created within the last month
+        const recentProducts = allProducts.filter((product: Product) => {
+          const createdAtDate = new Date(product.createdAt);
+          return createdAtDate >= oneMonthAgo && product.status !== "banned";
+        });
 
-      const bestSellingProducts = allProducts.filter(
-        (product: Product) =>
-          product.is_hot === "yes" && product.status !== "banned" // Exclude banned products
-      );
+        const bestSellingProducts = allProducts.filter(
+          (product: Product) =>
+            product.is_hot === "yes" && product.status !== "banned"
+        );
 
-      setNewProducts(recentProducts);
-      setHotProducts(bestSellingProducts);
+        setNewProducts(recentProducts);
+        setHotProducts(bestSellingProducts);
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
+        }
+      }
     };
     fetchProducts();
   }, []);
+
   const addToCart = async (product: Product) => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -48,9 +57,19 @@ const HomePage = () => {
         return;
       }
 
+      if (product.status === "banned") {
+        toast.error("Sản phẩm này hiện không khả dụng");
+        return;
+      }
+
       const selectedVariant = product.variants?.[0];
       if (!selectedVariant) {
         toast.error("Sản phẩm không có biến thể hợp lệ!");
+        return;
+      }
+
+      if (selectedVariant.stock <= 0) {
+        toast.error("Sản phẩm đã hết hàng!");
         return;
       }
 
@@ -64,18 +83,22 @@ const HomePage = () => {
         color:
           typeof selectedVariant.color === "object"
             ? selectedVariant.color.name
-            : selectedVariant.color, // Kiểm tra nếu color là object
+            : selectedVariant.color,
         capacity:
           typeof selectedVariant.capacity === "object"
             ? selectedVariant.capacity.value
-            : selectedVariant.capacity, // Kiểm tra nếu capacity là object
+            : selectedVariant.capacity,
         subtotal: selectedVariant.salePrice * 1,
       };
 
       await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-    } catch (error) {
-      toast.error("Thêm sản phẩm thất bại!");
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+      }
     }
   };
 
@@ -180,6 +203,13 @@ const HomePage = () => {
                       <div>
                         <h4 className="product-price">
                           {formatPrice(product.variants[0].salePrice)}
+                          <br />
+                          {product.variants[0]?.salePrice !==
+                            product.variants[0]?.price && (
+                            <del className="product-old-price">
+                              {formatPrice(product.variants[0]?.price ?? 0)}
+                            </del>
+                          )}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">

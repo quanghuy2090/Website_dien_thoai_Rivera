@@ -10,32 +10,54 @@
 .product-images {
   display: flex;
   gap: 20px;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.thumbnail-images {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.thumbnail-slider {
+  width: 100px;
+  margin-right: 20px;
 }
 
-.thumbnail-images div {
-  cursor: pointer;
-  border: 2px solid transparent;
+.thumbnail-slider .slick-slide {
   padding: 5px;
-  transition: border 0.3s ease;
+  cursor: pointer;
 }
 
-.thumbnail-images img {
-  width: 70px;
-  height: 70px;
+.thumbnail-slider .slick-slide img {
+  width: 80px;
+  height: 80px;
   object-fit: cover;
   border-radius: 5px;
+  border: 2px solid transparent;
+  transition: border-color 0.3s ease;
 }
 
-.thumbnail-images div:hover,
-.thumbnail-images .active {
-  border: 1px solid #6ba8fd;
+.thumbnail-slider .slick-slide.slick-current img {
+  border-color: #6ba8fd;
+}
+
+.thumbnail-slider .slick-prev,
+.thumbnail-slider .slick-next {
+  width: 100%;
+  height: 20px;
+  background: #f8f8f8;
+  z-index: 1;
+  transform: none;
+  left: 0;
+}
+
+.thumbnail-slider .slick-prev {
+  top: -20px;
+}
+
+.thumbnail-slider .slick-next {
+  top: auto;
+  bottom: -20px;
+}
+
+.thumbnail-slider .slick-prev:before,
+.thumbnail-slider .slick-next:before {
+  color: #333;
 }
 
 .main-image {

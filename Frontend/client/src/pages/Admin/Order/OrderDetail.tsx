@@ -9,58 +9,58 @@ import toast from "react-hot-toast";
 import "./OrderDetail.css";
 
 const OrderDetail = () => {
-  const { id } = useParams();
-  const [orderDetail, setOrderDetail] = useState<Order | null>(null);
+    const { id } = useParams();
+    const [orderDetail, setOrderDetail] = useState<Order | null>(null);
 
-  useEffect(() => {
-    if (!id) return;
+    useEffect(() => {
+        if (!id) return;
 
-    const fetchOrderDetail = async (id: string) => {
-      try {
-        const { data } = await getDetailOrder(id);
-        setOrderDetail(data.order);
-        toast.success("Lấy chi tiết đơn hàng thành công!");
-      } catch (error) {
-        toast.error("Không thể tải chi tiết đơn hàng.");
-        console.error(error);
-      }
+        const fetchOrderDetail = async (id: string) => {
+            try {
+                const { data } = await getDetailOrder(id);
+                setOrderDetail(data.order);
+                toast.success("Lấy chi tiết đơn hàng thành công!");
+            } catch (error) {
+                toast.error("Không thể tải chi tiết đơn hàng.");
+                console.error(error);
+            }
+        };
+        fetchOrderDetail(id);
+    }, [id]);
+
+    const handleStatusChange = async (newStatus: Order["status"]) => {
+        if (!id) {
+            toast.error("Không tìm thấy ID đơn hàng!");
+            return;
+        }
+        try {
+            const response = await updateStatusOrder(id, newStatus, "");
+            toast.success(response.data.message || "Cập nhật trạng thái thành công!");
+            setOrderDetail({ ...orderDetail, status: newStatus } as Order);
+        } catch (error) {
+            console.error(error);
+        }
     };
-    fetchOrderDetail(id);
-  }, [id]);
 
-  const handleStatusChange = async (newStatus: Order["status"]) => {
-    if (!id) {
-      toast.error("Không tìm thấy ID đơn hàng!");
-      return;
-    }
-    try {
-      const response = await updateStatusOrder(id, newStatus, "");
-      toast.success(response.data.message || "Cập nhật trạng thái thành công!");
-      setOrderDetail({ ...orderDetail, status: newStatus } as Order);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    const formatPrice = (price: number) => {
+        if (price === undefined || price === null) {
+            return "0 VND";
+        }
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+    };
 
-  const formatPrice = (price: number) => {
-    if (price === undefined || price === null) {
-      return "0 VND";
-    }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
-  };
-
-  return (
-    <div className="content">
-      <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="fas fa-cart-plus me-2"></i> Chi Tiết Đơn Hàng
-      </h1>
-      <p className="mb-4 text-secondary">
+    return (
+        <div className="content">
+            <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
+                <i className="fas fa-cart-plus me-2"></i> Chi Tiết Đơn Hàng
+            </h1>
+            <p className="mb-4 text-secondary">
         Đây là thông tin chi tiết của đơn hàng "
         <strong>{orderDetail?.orderId}</strong>". Bạn có thể kiểm tra trạng thái
         hoặc cập nhật trực tiếp.
-      </p>
+            </p>
 
-      <div className="table-container">
+            <div className="table-container">
         <div className="order-info-grid">
           <div className="order-info-card">
             <h3>Thông tin đơn hàng</h3>
@@ -141,25 +141,25 @@ const OrderDetail = () => {
           <h3>Sản phẩm đã đặt</h3>
           <div className="products-table">
             <table>
-              <thead>
-                <tr>
+                    <thead>
+                        <tr>
                   <th>Sản phẩm</th>
                   <th>Giá gốc</th>
                   <th>Giá sale</th>
                   <th>Số lượng</th>
                   <th>Thành tiền</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orderDetail?.items.map((product, index) => {
-                  const variant = product.productId.variants?.find(
-                    (v) => v._id === product.variantId
-                  );
-                  return (
-                    <tr key={index}>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {orderDetail?.items.map((product, index) => {
+                                            const variant = product.productId.variants?.find(
+                                                (v) => v._id === product.variantId
+                                            );
+                                            return (
+                                                <tr key={index}>
                       <td className="product-info">
-                        <img
-                          src={product.productId.images[0]}
+                                                        <img
+                                                            src={product.productId.images[0]}
                           alt={product.productId.name}
                           className="product-image"
                         />
@@ -171,25 +171,25 @@ const OrderDetail = () => {
                             {variant?.color?.name} - {variant?.capacity?.value}
                           </div>
                         </div>
-                      </td>
-                      <td>{formatPrice(product.price)}</td>
+                                                    </td>
+                                                    <td>{formatPrice(product.price)}</td>
                       <td className="sale-price">
-                        {formatPrice(product.salePrice)}
-                      </td>
-                      <td>{product.quantity}</td>
+                                                        {formatPrice(product.salePrice)}
+                                                    </td>
+                                                    <td>{product.quantity}</td>
                       <td className="total-price">
                         {formatPrice(product.salePrice * product.quantity)}
                       </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                                                </tr>
+                                            );
+                                        })}
+                    </tbody>
+                </table>
           </div>
         </div>
-      </div>
-    </div>
-  );
+            </div>
+        </div>
+    );
 };
 
 export default OrderDetail;

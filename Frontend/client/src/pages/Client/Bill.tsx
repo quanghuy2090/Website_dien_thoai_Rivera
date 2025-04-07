@@ -205,10 +205,10 @@ const Bill = () => {
                   <span>Tổng tiền hàng:</span>
                   <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
                 </div>
-                <div className="summary-row">
+                {/* <div className="summary-row">
                   <span>Phí vận chuyển:</span>
                   <span>0 VND</span>
-                </div>
+                </div> */}
                 <div className="summary-row total">
                   <span>Tổng thanh toán:</span>
                   <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>

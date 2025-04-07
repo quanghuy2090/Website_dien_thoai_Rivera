@@ -59,8 +59,12 @@ const ProductPage = () => {
       try {
         const res = await getAllProduct();
         setProducts(res.data.data);
-      } catch (error) {
-        toast.error("Failed to load products.");
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
+        }
       } finally {
         setLoading(false);
       }
@@ -91,9 +95,19 @@ const ProductPage = () => {
         return;
       }
 
+      if (product.status === "banned") {
+        toast.error("Sản phẩm này hiện không khả dụng");
+        return;
+      }
+
       const selectedVariant = product.variants?.[0];
       if (!selectedVariant) {
         toast.error("Sản phẩm không có biến thể hợp lệ!");
+        return;
+      }
+
+      if (selectedVariant.stock <= 0) {
+        toast.error("Sản phẩm đã hết hàng!");
         return;
       }
 
@@ -107,18 +121,22 @@ const ProductPage = () => {
         color:
           typeof selectedVariant.color === "object"
             ? selectedVariant.color.name
-            : selectedVariant.color, // Kiểm tra nếu color là object
+            : selectedVariant.color,
         capacity:
           typeof selectedVariant.capacity === "object"
             ? selectedVariant.capacity.value
-            : selectedVariant.capacity, // Kiểm tra nếu capacity là object
+            : selectedVariant.capacity,
         subtotal: selectedVariant.salePrice * 1,
       };
 
       await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-    } catch (error) {
-      toast.error("Thêm sản phẩm thất bại!");
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+      }
     }
   };
 

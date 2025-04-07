@@ -15,7 +15,14 @@ import {
 } from "../../services/order";
 
 const Checkout = () => {
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<  // Thêm errors
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<
+    // Thêm errors
     IShippingAddress & { paymentMethod: Order["paymentMethod"] }
   >({
     mode: "onBlur", // Thêm cái mode để validation
@@ -60,9 +67,7 @@ const Checkout = () => {
         console.log(error);
       }
     }
-
   }, []);
-
 
   const selectedProvince = watch("city");
   const selectedDistrict = watch("district");
@@ -101,14 +106,23 @@ const Checkout = () => {
     formData: IShippingAddress & { paymentMethod: Order["paymentMethod"] }
   ) => {
     if (!userId) {
-      toast.error("Vui lòng đăng nhập để đặt hàng!"); // Dùng toast
+      toast.error("Vui lòng đăng nhập để đặt hàng!");
       return;
     }
 
     try {
-      const newOrder: Omit<Order, "_id" | "createdAt" | "updatedAt" | "paymentStatus" | "status" | "totalAmount" | "items"> & { orderItems: CartItem[] } = {
+      const newOrder: Omit<
+        Order,
+        | "_id"
+        | "createdAt"
+        | "updatedAt"
+        | "paymentStatus"
+        | "status"
+        | "totalAmount"
+        | "items"
+      > & { orderItems: CartItem[] } = {
         userId: userId,
-        orderItems: carts,  // Dùng carts trực tiếp
+        orderItems: carts,
         shippingAddress: {
           name: formData.name,
           street: formData.street,
@@ -121,26 +135,38 @@ const Checkout = () => {
       };
 
       if (formData.paymentMethod === "Online") {
-        // Gọi API tạo đơn hàng online
-        const { data } = await createOrderOnline(newOrder);
-        // Chuyển hướng đến URL thanh toán VNPay
-        window.location.href = data.paymentUrl;
-
+        try {
+          const { data } = await createOrderOnline(newOrder);
+          window.location.href = data.paymentUrl;
+        } catch (error: any) {
+          if (error.response?.data?.message) {
+            toast.error(error.response.data.message);
+          } else {
+            toast.error(
+              "Có lỗi xảy ra khi thanh toán online. Vui lòng thử lại!"
+            );
+          }
+        }
       } else {
-        // Xử lý cho COD (hoặc các phương thức khác nếu có)
-        const { data } = await createOrder(newOrder);
-        console.log(data)
-        toast.success("Checkout successfully");
-        nav("/history"); // Chuyển hướng đến trang hóa đơn
-        setCarts([]);
-        setTotalAmount(0);
+        try {
+          const { data } = await createOrder(newOrder);
+          toast.success("Đặt hàng thành công!");
+          nav("/history");
+          setCarts([]);
+          setTotalAmount(0);
+        } catch (error: any) {
+          if (error.response?.data?.message) {
+            toast.error(error.response.data.message);
+          } else {
+            toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
+          }
+        }
       }
-
-    } catch (error) {
-      console.log(error);
-      // toast.error(
-      //   // error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
-      // );
+    } catch (error: any) {
+      console.error("Lỗi:", error);
+      toast.error(
+        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
+      );
     }
   };
 
@@ -191,17 +217,21 @@ const Checkout = () => {
                       <label htmlFor="name">Tên người dùng</label>
                       <input
                         type="text"
-                        className={`input ${errors.name ? 'is-invalid' : ''}`}
+                        className={`input ${errors.name ? "is-invalid" : ""}`}
                         placeholder="Nhập tên người dùng"
                         {...register("name", { required: "Vui lòng nhập tên" })}
                       />
-                      {errors.name && <p className="invalid-feedback">{errors.name.message}</p>}
+                      {errors.name && (
+                        <p className="invalid-feedback">
+                          {errors.name.message}
+                        </p>
+                      )}
                     </div>
                     <div className="form-group">
                       <label htmlFor="phone">Số điện thoại</label>
                       <input
                         type="text"
-                        className={`input ${errors.phone ? 'is-invalid' : ''}`}
+                        className={`input ${errors.phone ? "is-invalid" : ""}`}
                         placeholder="Nhập số điện thoại"
                         {...register("phone", {
                           required: "Vui lòng nhập số điện thoại",
@@ -211,21 +241,36 @@ const Checkout = () => {
                           },
                         })}
                       />
-                      {errors.phone && <p className="invalid-feedback">{errors.phone.message}</p>}
+                      {errors.phone && (
+                        <p className="invalid-feedback">
+                          {errors.phone.message}
+                        </p>
+                      )}
                     </div>
                     <div className="form-group">
                       <label htmlFor="street">Địa chỉ</label>
                       <input
                         type="text"
-                        className={`input ${errors.street ? 'is-invalid' : ''}`}
+                        className={`input ${errors.street ? "is-invalid" : ""}`}
                         placeholder="Nhập địa chỉ"
-                        {...register("street", { required: "Vui lòng nhập địa chỉ" })}
+                        {...register("street", {
+                          required: "Vui lòng nhập địa chỉ",
+                        })}
                       />
-                      {errors.street && <p className="invalid-feedback">{errors.street.message}</p>}
+                      {errors.street && (
+                        <p className="invalid-feedback">
+                          {errors.street.message}
+                        </p>
+                      )}
                     </div>
                     <div className="form-group">
                       <label htmlFor="city">Tỉnh / Thành phố</label>
-                      <select className={`input ${errors.city ? 'is-invalid' : ''}`} {...register("city", { required: "Vui lòng chọn tỉnh/thành phố" })}>
+                      <select
+                        className={`input ${errors.city ? "is-invalid" : ""}`}
+                        {...register("city", {
+                          required: "Vui lòng chọn tỉnh/thành phố",
+                        })}
+                      >
                         <option value="">Chọn tỉnh / thành phố</option>
                         {provinces.map((province) => (
                           <option key={province.code} value={province.name}>
@@ -233,14 +278,22 @@ const Checkout = () => {
                           </option>
                         ))}
                       </select>
-                      {errors.city && <p className="invalid-feedback">{errors.city.message}</p>}
+                      {errors.city && (
+                        <p className="invalid-feedback">
+                          {errors.city.message}
+                        </p>
+                      )}
                     </div>
 
                     <div className=" form-group">
                       <label htmlFor="district">Quận / Huyện</label>
                       <select
-                        className={`input ${errors.district ? 'is-invalid' : ''}`}
-                        {...register("district", { required: "Vui lòng chọn quận/huyện" })}
+                        className={`input ${
+                          errors.district ? "is-invalid" : ""
+                        }`}
+                        {...register("district", {
+                          required: "Vui lòng chọn quận/huyện",
+                        })}
                         disabled={!districts.length}
                       >
                         <option value="">Chọn quận / huyện</option>
@@ -250,14 +303,20 @@ const Checkout = () => {
                           </option>
                         ))}
                       </select>
-                      {errors.district && <p className="invalid-feedback">{errors.district.message}</p>}
+                      {errors.district && (
+                        <p className="invalid-feedback">
+                          {errors.district.message}
+                        </p>
+                      )}
                     </div>
 
                     <div className=" form-group">
                       <label htmlFor="ward">Phường / Xã</label>
                       <select
-                        className={`input ${errors.ward ? 'is-invalid' : ''}`}
-                        {...register("ward", { required: "Vui lòng chọn phường/xã" })}
+                        className={`input ${errors.ward ? "is-invalid" : ""}`}
+                        {...register("ward", {
+                          required: "Vui lòng chọn phường/xã",
+                        })}
                         disabled={!wards.length}
                       >
                         <option value="">Chọn phường / xã</option>
@@ -267,7 +326,11 @@ const Checkout = () => {
                           </option>
                         ))}
                       </select>
-                      {errors.ward && <p className="invalid-feedback">{errors.ward.message}</p>}
+                      {errors.ward && (
+                        <p className="invalid-feedback">
+                          {errors.ward.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -278,33 +341,35 @@ const Checkout = () => {
                     <h3 className="title">Đơn hàng</h3>
                   </div>
                   <div className="order-summary">
-                    <div className="order-col">
-
-
-                    </div>
+                    <div className="order-col"></div>
                     <div className="order-products">
                       {carts.map((cart) => (
-                        <div className="checkout-product" key={`${cart.productId._id}-${cart.variantId}`}>
+                        <div
+                          className="checkout-product"
+                          key={`${cart.productId._id}-${cart.variantId}`}
+                        >
                           <tr>
                             <div>
                               <strong>Sản phẩm</strong>
-                              <td>{cart.quantity} x {cart.productId.name}-{cart.color}-{cart.capacity}</td>
+                              <td>
+                                {cart.quantity} x {cart.productId.name}-
+                                {cart.color}-{cart.capacity}
+                              </td>
                             </div>
                             <div>
                               <strong>Giá</strong>
-                              <td className="text-center">{formatPrice(cart.salePrice)}</td>
+                              <td className="text-center">
+                                {formatPrice(cart.salePrice)}
+                              </td>
                             </div>
                           </tr>
                         </div>
                       ))}
-
                     </div>
-                    <div className="order-col">
+                    {/* <div className="order-col">
                       <div>Phí giao hàng</div>
-                      <div>
-                        {/* <strong>FREE</strong> */}
-                      </div>
-                    </div>
+                      <div><strong>FREE</strong></div>
+                    </div> */}
                     <div className="order-col">
                       <div>
                         <strong>Tổng</strong>
@@ -322,16 +387,16 @@ const Checkout = () => {
                         type="radio"
                         value="COD"
                         id="payment-cod"
-                        {...register("paymentMethod", { required: "Vui lòng chọn phương thức thanh toán" })}
+                        {...register("paymentMethod", {
+                          required: "Vui lòng chọn phương thức thanh toán",
+                        })}
                       />
                       <label htmlFor="payment-cod">
                         <span />
                         Thanh toán khi nhận hàng
                       </label>
                       <div className="caption">
-                        <p>
-                          Thanh toán khi nhận hàng
-                        </p>
+                        <p>Thanh toán khi nhận hàng</p>
                       </div>
                     </div>
 
@@ -340,13 +405,19 @@ const Checkout = () => {
                         type="radio"
                         id="payment-online"
                         value="Online"
-                        {...register("paymentMethod", { required: "Vui lòng chọn phương thức thanh toán" })}
+                        {...register("paymentMethod", {
+                          required: "Vui lòng chọn phương thức thanh toán",
+                        })}
                       />
                       <label htmlFor="payment-online">
                         <span />
                         Thanh Toán VNPay
                       </label>
-                      {errors.paymentMethod && <p className="text-danger" >{errors.paymentMethod.message}</p>}
+                      {errors.paymentMethod && (
+                        <p className="text-danger">
+                          {errors.paymentMethod.message}
+                        </p>
+                      )}
                     </div>
                   </div>
 
