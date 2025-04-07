@@ -37,6 +37,7 @@ import PaymentSuccess from "./pages/Client/Vnpay";
 import AddUser from "./pages/Admin/User/AddUser";
 import ListCategoryDeleted from "./pages/Admin/Categories/ListCategoryDeleted";
 import UpdateUser from "./pages/Admin/User/UpdateUser";
+import UpdateProfile from "./pages/Client/UpdateProfile";
 function App() {
   const routes = useRoutes([
     {
@@ -51,12 +52,13 @@ function App() {
         { path: "/bill/:id", element: <Bill /> },
         { path: "/history", element: <HistoryUser /> },
         { path: "/profile", element: <Profile /> },
+        { path: "/profile-update", element: <UpdateProfile /> },
       ],
     },
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path: "*", element: <Notfound /> },
-    { path: "//payment-success", element: <PaymentSuccess /> },
+    { path: "/payment-success", element: <PaymentSuccess /> },
     {
       path: "/admin",
       element: <AdminLayout />,

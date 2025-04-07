@@ -27,11 +27,12 @@ const HomePage = () => {
       // Filter products created within the last month
       const recentProducts = allProducts.filter((product: Product) => {
         const createdAtDate = new Date(product.createdAt);
-        return createdAtDate >= oneMonthAgo;
+        return createdAtDate >= oneMonthAgo && product.status !== "banned"; // Exclude banned products
       });
 
       const bestSellingProducts = allProducts.filter(
-        (product: Product) => product.is_hot === "yes"
+        (product: Product) =>
+          product.is_hot === "yes" && product.status !== "banned" // Exclude banned products
       );
 
       setNewProducts(recentProducts);
@@ -60,18 +61,23 @@ const HomePage = () => {
         quantity: 1,
         price: selectedVariant.price,
         salePrice: selectedVariant.salePrice,
-        color: typeof selectedVariant.color === "object" ? selectedVariant.color.name : selectedVariant.color, // Kiểm tra nếu color là object
-        capacity: typeof selectedVariant.capacity === "object" ? selectedVariant.capacity.value : selectedVariant.capacity, // Kiểm tra nếu capacity là object
+        color:
+          typeof selectedVariant.color === "object"
+            ? selectedVariant.color.name
+            : selectedVariant.color, // Kiểm tra nếu color là object
+        capacity:
+          typeof selectedVariant.capacity === "object"
+            ? selectedVariant.capacity.value
+            : selectedVariant.capacity, // Kiểm tra nếu capacity là object
         subtotal: selectedVariant.salePrice * 1,
       };
 
-      await addCart(cartItem)
+      await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
     } catch (error) {
       toast.error("Thêm sản phẩm thất bại!");
     }
-  }
-
+  };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -151,9 +157,13 @@ const HomePage = () => {
                       <div className="product-label">
                         <span className="new">NEW</span>
                       </div>
-                      <div className="product-label2">
-                        <span className="new">{product.variants[0].sale}%</span>
-                      </div>
+                      {product.variants[0].sale > 0 && ( // Conditional rendering
+                        <div className="product-label2">
+                          <span className="new">
+                            {product.variants[0].sale}%
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="product-body">
                       <p className="product-category">
@@ -258,9 +268,13 @@ const HomePage = () => {
                       <div className="product-label">
                         <span className="new">HOT</span>
                       </div>
-                      <div className="product-label2">
-                        <span className="new">{product.variants[0].sale}%</span>
-                      </div>
+                      {product.variants[0].sale > 0 && ( // Conditional rendering
+                        <div className="product-label2">
+                          <span className="new">
+                            {product.variants[0].sale}%
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="product-body">
                       <p className="product-category">
@@ -341,16 +355,16 @@ const HomePage = () => {
             <div className="col-md-12">
               <div className="newsletter">
                 <p>
-                  Sign Up for the <strong>NEWSLETTER</strong>
+                  Đăng ký dể trở thành <strong>Thành viên mới</strong> !
                 </p>
                 <form>
                   <input
                     className="input"
                     type="email"
-                    placeholder="Enter Your Email"
+                    placeholder="Điền email"
                   />
                   <button className="newsletter-btn">
-                    <i className="fa fa-envelope" /> Subscribe
+                    <i className="fa fa-envelope" /> Đăng ký
                   </button>
                 </form>
                 <ul className="newsletter-follow">

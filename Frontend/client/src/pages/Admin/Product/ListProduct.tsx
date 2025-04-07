@@ -2,8 +2,7 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
-import { FaEye } from "react-icons/fa";
-import { FaPen } from "react-icons/fa";
+import { FaEye, FaPen } from "react-icons/fa";
 import { ProductContext } from "../../../context/ProductContext";
 
 const ListProduct = () => {
@@ -11,6 +10,9 @@ const ListProduct = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  // const [expandedProductId, setExpandedProductId] = useState<string | null>(
+  //   null
+  // ); // State for expanded product
 
   const filteredProducts = state.products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -119,33 +121,29 @@ const ListProduct = () => {
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      gap: "5px",
-                      flexWrap: "wrap",
                     }}
                   >
-                    {product.images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={image}
-                        alt={`Product ${index}`}
-                        className="rounded shadow-sm"
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          objectFit: "cover",
-                          transition: "transform 0.3s",
-                          cursor: "pointer",
-                        }}
-                        onMouseOver={(e) =>
-                          (e.currentTarget.style.transform = "scale(1.2)")
-                        }
-                        onMouseOut={(e) =>
-                          (e.currentTarget.style.transform = "scale(1)")
-                        }
-                      />
-                    ))}
+                    <img
+                      src={product.images[0]}
+                      alt="Ảnh sản phẩm"
+                      className="rounded shadow-sm"
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        objectFit: "cover",
+                        transition: "transform 0.3s",
+                        cursor: "pointer",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.transform = "scale(1.2)")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.transform = "scale(1)")
+                      }
+                    />
                   </div>
                 </td>
+
                 <td>
                   {typeof product.categoryId === "object" &&
                     product.categoryId !== null

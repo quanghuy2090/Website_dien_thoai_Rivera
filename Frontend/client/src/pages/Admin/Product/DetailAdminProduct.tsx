@@ -8,7 +8,7 @@ const DetailAdminProduct = () => {
   const { id } = useParams();
   const { getDetailProduct, state } = useContext(ProductContext);
   useEffect(() => {
-    getDetailProduct(id!)
+    getDetailProduct(id!);
   }, []);
   const formatPrice = (price: number) => {
     if (price === undefined || price === null) {
@@ -25,8 +25,8 @@ const DetailAdminProduct = () => {
         </h1>
         <p className="mb-4 text-secondary">
           Đây là thông tin chi tiết của sản phẩm "
-          <strong>{state.selectedProduct?.name}</strong>". Bạn có thể xem thông tin và
-          quản lý sản phẩm tại đây.
+          <strong>{state.selectedProduct?.name}</strong>". Bạn có thể xem thông
+          tin và quản lý sản phẩm tại đây.
         </p>
 
         <div className="table-container">
@@ -42,11 +42,11 @@ const DetailAdminProduct = () => {
               </tr>
               <tr>
                 <th>Mô tả ngắn</th>
-                <td>{state.selectedProduct?.short_description}</td>
+                <td dangerouslySetInnerHTML={{ __html: state.selectedProduct?.short_description || "" }}></td>
               </tr>
               <tr>
                 <th>Mô tả chi tiết</th>
-                <td>{state.selectedProduct?.long_description}</td>
+                <td dangerouslySetInnerHTML={{ __html: state.selectedProduct?.long_description || "" }}></td>
               </tr>
 
 
@@ -60,8 +60,6 @@ const DetailAdminProduct = () => {
                 <td>{state.selectedProduct?.is_hot}</td>
               </tr>
 
-
-
               <tr>
                 <th>Danh mục</th>
                 <td>
@@ -70,7 +68,6 @@ const DetailAdminProduct = () => {
                       ? state.selectedProduct.categoryId.name
                       : "Không có danh mục"}
                   </td>
-
                 </td>
               </tr>
               <tr>
@@ -111,7 +108,7 @@ const DetailAdminProduct = () => {
                           <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"}</td>
                         </tr>
                         <tr>
-                          <th scope="row">Stock</th>
+                          <th scope="row">Số lượng</th>
                           <td>{variant.stock}</td>
                         </tr>
                         <tr>

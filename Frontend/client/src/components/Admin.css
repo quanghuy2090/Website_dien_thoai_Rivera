@@ -58,10 +58,16 @@
 .content {
   margin-left: 250px;
   /* Tương ứng với width của sidebar */
-  padding: 80px;
+  padding: 80px 50px;
   width: calc(100% - 250px);
-
 }
+
+/* .content {
+  margin-left: 250px;
+  padding: 80px 20px;
+  width: calc(100% - 250px);
+ 
+} */
 
 .table-container {
   background-color: white;
@@ -73,6 +79,19 @@
   width: 100%;
   min-height: 500px;
   overflow-x: auto;
+}
+
+.badge {
+  text-align: center;
+  margin: 5px;
+}
+
+.btn-variant {
+  background-color: rgb(78, 115, 223);
+  border: none;
+  padding: 10px;
+  color: white;
+  border-radius: 5px;
 }
 
 /*!

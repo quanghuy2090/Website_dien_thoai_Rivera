@@ -201,8 +201,6 @@ const Cart = () => {
                           >
                             {cart.productId.name}
                           </Link>
-                          <br />
-                          {cart.color}/{cart.capacity}
                         </td>
                         <td>
                           {formatPrice(cart.salePrice)}

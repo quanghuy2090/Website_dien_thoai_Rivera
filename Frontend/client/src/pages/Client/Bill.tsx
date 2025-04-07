@@ -1,63 +1,63 @@
 import React, { useEffect, useState } from "react";
-import { getDetailOrder, Order } from "../../services/order"; // Correct import for getDetailOrder.
+import { useParams } from "react-router-dom";
+import { getDetailOrder, Order } from "../../services/order";
+import toast from "react-hot-toast";
+import "../../css/Bill.css";
 
 const Bill = () => {
-  const [order, setOrder] = useState<Order | null>(null); // To store the fetched order.
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // To show loading while fetching data.
+  const { id } = useParams();
+  const [orderDetail, setOrderDetail] = useState<Order | null>(null);
 
   useEffect(() => {
-    const orderId = window.location.pathname.split("/").pop(); // Assuming orderId is in URL
+    if (!id) return;
 
-    if (orderId) {
-      fetchOrderDetail(orderId);
-    } else {
-      setError("Order ID not found.");
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchOrderDetail = async (orderId: string) => {
-    try {
-      const { data } = await getDetailOrder(orderId); // Fetching order details.
-      setOrder(data.order); // Setting order details into state.
-    } catch (error) {
-      setError("Error fetching order details.");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchOrderDetail = async (id: string) => {
+      try {
+        const { data } = await getDetailOrder(id);
+        setOrderDetail(data.order);
+      } catch (error) {
+        toast.error("Không thể tải chi tiết đơn hàng.");
+        console.error(error);
+      }
+    };
+    fetchOrderDetail(id);
+  }, [id]);
 
   const formatPrice = (price: number) => {
     if (price === undefined || price === null) {
-      return "0 VND"; // Return a default value if price is undefined
+      return "0 VND";
     }
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
   };
 
-  if (loading) {
-    return <div className="text-center text-primary">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center text-danger">{error}</div>;
-  }
-
-  if (!order) {
-    return <div className="text-center">No order found.</div>;
-  }
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Đã huỷ":
+        return "status-cancelled";
+      case "Hoàn thành":
+        return "status-completed";
+      case "Đang giao hàng":
+        return "status-shipping";
+      case "Đã xác nhận":
+        return "status-confirmed";
+      default:
+        return "status-pending";
+    }
+  };
 
   return (
-    <div className="container mt-5">
-      <div id="breadcrumb" className="section mb-4">
+    <>
+      <div id="breadcrumb" className="section">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
               <ul className="breadcrumb-tree">
-                <li><a href="/">Trang chủ</a></li>
-                <li><a href="/profile">Tài khoản</a></li>
-                <li><a href="/history">Lịch sử đơn hàng</a></li>
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li>
+                  <a href="/profile">Tài khoản</a>
+                </li>
                 <li className="active">Chi tiết đơn hàng</li>
               </ul>
             </div>
@@ -65,86 +65,174 @@ const Bill = () => {
         </div>
       </div>
 
-      <div className="card mb-4 shadow-lg rounded-3">
-        <div className="card-body">
-          <h5 className="card-title text-center text-primary mb-3">
-            Mã đơn hàng: <span className="fw-bold">{order.orderId}</span>
-          </h5>
-          <p className="text-muted text-center">
-            Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}
-          </p>
+      <div className="section">
+        <div className="container">
+          <div className="bill-container">
+            <div className="bill-header">
+              <div className="bill-logo">
+                {/* <img src="../../image/logo1.png" alt="Rivera Store" /> */}
+                <h1>RIVERA</h1>
+              </div>
+              <div className="bill-info">
+                <h2>CHI TIẾT ĐƠN HÀNG</h2>
+                <p className="order-id">
+                  Mã đơn hàng: <strong>#{orderDetail?.orderId}</strong>
+                </p>
+                <p className="order-date">
+                  Ngày đặt:{" "}
+                  <strong>
+                    {orderDetail?.createdAt
+                      ? new Date(orderDetail.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </strong>
+                </p>
+                <div
+                  className={`order-status ${getStatusColor(
+                    orderDetail?.status || ""
+                  )}`}
+                >
+                  {orderDetail?.status}
+                </div>
+              </div>
+            </div>
 
-          {/* Product List Table */}
-          <div className="table-responsive mb-4">
-            <table className="table table-bordered table-striped">
-              <thead className="table-primary">
-                <tr>
-                  <th>Ảnh</th>
-                  <th>Tên sản phẩm</th>
-                  <th>Giá</th>
-                  <th>Số lượng</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.items.map((cart, idx) => {
-                  return (
-                    <tr key={idx}>
-                      <td>
-                        {cart.productId &&
-                          cart.productId.images &&
-                          cart.productId.images[0] && (
-                            <img
-                              src={cart.productId.images[0]}
-                              alt="Sản phẩm"
-                              width={50}
-                              className="rounded"
-                            />
-                          )}
-                      </td>
-                      <td>{cart.productId ? cart.productId.name : "N/A"}</td>
-                      <td>{cart.productId ? formatPrice(cart.salePrice) : "0 VND"}</td>
-                      <td>{cart.quantity}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+            <div className="bill-body">
+              <div className="info-grid">
+                <div className="info-section">
+                  <h3>
+                    <i className="fa fa-user"></i> Thông tin khách hàng
+                  </h3>
+                  <div className="info-content">
+                    <p>
+                      <strong>Họ tên:</strong> {orderDetail?.userName}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {orderDetail?.userEmail}
+                    </p>
+                    <p>
+                      <strong>Số điện thoại:</strong> {orderDetail?.userPhone}
+                    </p>
+                  </div>
+                </div>
 
-          {/* Total Amount */}
-          <h4 className="mt-3 text-center text-primary">
-            Tổng tiền: <span className="fw-bold">{formatPrice(order.totalAmount)} VNĐ</span>
-          </h4>
+                <div className="info-section">
+                  <h3>
+                    <i className="fa fa-truck"></i> Địa chỉ giao hàng
+                  </h3>
+                  <div className="info-content">
+                    <p>{orderDetail?.shippingAddress.street}</p>
+                    <p>{orderDetail?.shippingAddress.ward}</p>
+                    <p>{orderDetail?.shippingAddress.district}</p>
+                    <p>{orderDetail?.shippingAddress.city}</p>
+                  </div>
+                </div>
 
-          {/* Shipping Address */}
-          <div className="mt-4">
-            <h6 className="fw-bold text-secondary">Thông tin giao hàng</h6>
-            <p className="mb-1">
-              Tên khách hàng: <strong>{order.userName}</strong>
-            </p>
-            <p className="mb-1">Email: {order.userEmail}</p>
-            <p className="mb-1">Sdt: {order.userPhone}</p>
-            <p className="mb-1">
-              Địa chỉ giao hàng: {order.shippingAddress.street}, {order.shippingAddress.ward},{" "}
-              {order.shippingAddress.district}, {order.shippingAddress.city}
-            </p>
-          </div>
+                <div className="info-section">
+                  <h3>
+                    <i className="fa fa-credit-card"></i> Thông tin thanh toán
+                  </h3>
+                  <div className="info-content">
+                    <p>
+                      <strong>Phương thức:</strong> {orderDetail?.paymentMethod}
+                    </p>
+                    <p>
+                      <strong>Trạng thái:</strong> {orderDetail?.paymentStatus}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-          {/* Order Status */}
-          <div className="mt-4">
-            <p className="text-muted">
-              <span className="fw-bold">Trạng thái đơn hàng:</span> {order.status}
-            </p>
-            <p className="text-muted">
-              <span className="fw-bold">Phương thức thanh toán:</span> {order.paymentMethod}
-            </p>
-            <p className="text-muted">
-              <span className="fw-bold">Trạng thái thanh toán:</span> {order.paymentStatus}
-            </p>
+              <div className="products-section">
+                <h3>
+                  <i className="fa fa-shopping-cart"></i> Sản phẩm đã mua
+                </h3>
+                <div className="products-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Sản phẩm</th>
+                        <th>Giá gốc</th>
+                        <th>Giá sale</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orderDetail?.items.map((product, index) => {
+                        const variant = product.productId.variants?.find(
+                          (v) => v._id === product.variantId
+                        );
+                        return (
+                          <tr key={index}>
+                            <td className="product-info">
+                              <img
+                                src={product.productId.images[0]}
+                                alt={product.productId.name}
+                                className="product-image"
+                              />
+                              <div className="product-details">
+                                <div className="product-name">
+                                  {product.productId.name}
+                                </div>
+                                <div className="variant-info">
+                                  {variant?.color?.name} -{" "}
+                                  {variant?.capacity?.value}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="price">
+                              {formatPrice(product.price)}
+                            </td>
+                            <td className="sale-price">
+                              {formatPrice(product.salePrice)}
+                            </td>
+                            <td className="quantity">{product.quantity}</td>
+                            <td className="total-price">
+                              {formatPrice(
+                                product.salePrice * product.quantity
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="bill-summary">
+                <div className="summary-row">
+                  <span>Tổng tiền hàng:</span>
+                  <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Phí vận chuyển:</span>
+                  <span>0 VND</span>
+                </div>
+                <div className="summary-row total">
+                  <span>Tổng thanh toán:</span>
+                  <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bill-footer">
+              <div className="support-info">
+                <p>
+                  <i className="fa fa-phone"></i> Hotline hỗ trợ: 0123 456 789
+                </p>
+                <p>
+                  <i className="fa fa-envelope"></i> Email: support@rivera.com
+                </p>
+              </div>
+              <div className="thank-you">
+                <p>Cảm ơn bạn đã mua hàng tại cửa hàng RIVERA!</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

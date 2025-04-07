@@ -35,6 +35,7 @@ const ProductPage = () => {
   ];
 
   const filteredProducts = products.filter((p) => {
+    if (p.status === "banned") return false;
     // Kiểm tra nếu sản phẩm thuộc danh mục được chọn
     const categoryMatch =
       selectedCategory === "Tất cả sản phẩm" ||
@@ -48,7 +49,7 @@ const ProductPage = () => {
     // Kiểm tra nếu sản phẩm nằm trong khoảng giá đã chọn
     const priceMatch = selectedPriceRange
       ? p.variants[0].price >= selectedPriceRange[0] &&
-      p.variants[0].price <= selectedPriceRange[1]
+        p.variants[0].price <= selectedPriceRange[1]
       : true;
     return categoryMatch && searchMatch && priceMatch;
   });
@@ -103,17 +104,23 @@ const ProductPage = () => {
         quantity: 1,
         price: selectedVariant.price,
         salePrice: selectedVariant.salePrice,
-        color: typeof selectedVariant.color === "object" ? selectedVariant.color.name : selectedVariant.color, // Kiểm tra nếu color là object
-        capacity: typeof selectedVariant.capacity === "object" ? selectedVariant.capacity.value : selectedVariant.capacity, // Kiểm tra nếu capacity là object
+        color:
+          typeof selectedVariant.color === "object"
+            ? selectedVariant.color.name
+            : selectedVariant.color, // Kiểm tra nếu color là object
+        capacity:
+          typeof selectedVariant.capacity === "object"
+            ? selectedVariant.capacity.value
+            : selectedVariant.capacity, // Kiểm tra nếu capacity là object
         subtotal: selectedVariant.salePrice * 1,
       };
 
-      await addCart(cartItem)
+      await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
     } catch (error) {
       toast.error("Thêm sản phẩm thất bại!");
     }
-  }
+  };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -258,11 +265,18 @@ const ProductPage = () => {
                           <Link className="img" to={`/product/${product._id}`}>
                             <img src={product.images[0]} alt={product.name} />
                           </Link>
+                          {product.variants[0].sale > 0 && ( // Conditional rendering
+                            <div className="product-label3">
+                              <span className="new">
+                                {product.variants[0].sale}%
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <div className="product-body">
                           <p className="product-category">
                             {typeof product.categoryId === "object" &&
-                              product.categoryId !== null
+                            product.categoryId !== null
                               ? product.categoryId.name
                               : product.categoryId}
                           </p>
@@ -273,7 +287,14 @@ const ProductPage = () => {
                           </h3>
                           <div className="price-section">
                             <h4 className="product-price">
-                              {formatPrice(product.variants[0].price)}
+                              {formatPrice(product.variants[0].salePrice)}
+                              <br />
+                              {product.variants[0]?.salePrice !==
+                                product.variants[0]?.price && (
+                                <del className="product-old-price">
+                                  {formatPrice(product.variants[0]?.price ?? 0)}
+                                </del>
+                              )}
                             </h4>
                             <div className="product-btns">
                               <button className="add-to-wishlist">
@@ -307,8 +328,9 @@ const ProductPage = () => {
                   {/* <span className="store-qty">Showing 20-100 products</span> */}
                   <ul className="store-pagination">
                     <li
-                      className={`page-item ${currentPage === 1 ? "disabled" : ""
-                        }`}
+                      className={`page-item ${
+                        currentPage === 1 ? "disabled" : ""
+                      }`}
                     >
                       <a
                         className="page-link"
@@ -323,8 +345,9 @@ const ProductPage = () => {
                     {Array.from({ length: totalPages }, (_, index) => (
                       <li
                         key={index}
-                        className={`page-item ${currentPage === index + 1 ? "active" : ""
-                          }`}
+                        className={`page-item ${
+                          currentPage === index + 1 ? "active" : ""
+                        }`}
                       >
                         <a
                           className="page-link"
@@ -336,8 +359,9 @@ const ProductPage = () => {
                       </li>
                     ))}
                     <li
-                      className={`page-item ${currentPage === totalPages ? "disabled" : ""
-                        }`}
+                      className={`page-item ${
+                        currentPage === totalPages ? "disabled" : ""
+                      }`}
                     >
                       <a
                         className="page-link"
