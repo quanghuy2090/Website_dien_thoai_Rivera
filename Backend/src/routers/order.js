@@ -8,6 +8,8 @@ import {
   searchOrders,
   updateOrderStatusByAdmin,
   updateOrderStatusByCustomer,
+  getCancelledOrdersByAdmin,
+  getCancelledOrdersByCustomer,
 } from "../controllers/order.js";
 import { checkUserPermission } from "./../middlewares/checkUserPermission.js";
 import { handleVnpayReturn } from "../controllers/vnpay.js";
@@ -47,6 +49,20 @@ routerOrder.put(
   "/customer/status/:id",
   checkUserPermission,
   updateOrderStatusByCustomer
+);
+
+// API lấy danh sách đơn hàng đã hủy cho admin
+routerOrder.get(
+  "/cancelled/admin",
+  checkAdminPermission,
+  getCancelledOrdersByAdmin
+);
+
+// API lấy danh sách đơn hàng đã hủy cho khách hàng
+routerOrder.get(
+  "/cancelled/customer",
+  checkUserPermission,
+  getCancelledOrdersByCustomer
 );
 
 export default routerOrder;
