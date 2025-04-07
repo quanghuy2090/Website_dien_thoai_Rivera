@@ -256,9 +256,8 @@ const ProductDetail = () => {
                       {product?.variants.map((variant, index) => (
                         <button
                           key={index}
-                          className={`variant-btn ${
-                            variant === selectedVariant ? "active" : ""
-                          }`}
+                          className={`variant-btn ${variant === selectedVariant ? "active" : ""
+                            }`}
                           onClick={() => handleVariantChange(variant)}
                         >
                           {typeof variant.color === "string"
@@ -277,18 +276,17 @@ const ProductDetail = () => {
                       <br />
                       {selectedVariant?.salePrice !==
                         selectedVariant?.price && (
-                        <del className="product-old-price">
-                          {formatPrice(selectedVariant?.price ?? 0)}
-                        </del>
-                      )}
+                          <del className="product-old-price">
+                            {formatPrice(selectedVariant?.price ?? 0)}
+                          </del>
+                        )}
                     </h2>
 
                     <div
-                      className={`font-weight-bold mb-4 ${
-                        selectedVariant?.stock > 0
-                          ? "text-success"
-                          : "text-danger"
-                      }`}
+                      className={`font-weight-bold mb-4 ${selectedVariant?.stock > 0
+                        ? "text-success"
+                        : "text-danger"
+                        }`}
                     >
                       {selectedVariant?.stock > 0 ? "CÒN HÀNG" : "HẾT HÀNG"}:{" "}
                       {selectedVariant?.stock}
@@ -355,35 +353,32 @@ const ProductDetail = () => {
                 <div className="tab-content">
                   <div
                     id="tab01"
-                    className={`tab-pane ${
-                      activeTab === "tab01" ? "active" : "fade"
-                    }`}
+                    className={`tab-pane ${activeTab === "tab01" ? "active" : "fade"
+                      }`}
                   >
                     <div className="row">
                       <div className="col-md-12">
-                        <p>{product?.short_description}</p>
+                        <p dangerouslySetInnerHTML={{ __html: product?.short_description || "" }}></p>
                       </div>
                     </div>
                   </div>
 
                   <div
                     id="tab02"
-                    className={`tab-pane ${
-                      activeTab === "tab02" ? "active" : "fade"
-                    }`}
+                    className={`tab-pane ${activeTab === "tab02" ? "active" : "fade"
+                      }`}
                   >
                     <div className="row">
                       <div className="col-md-12">
-                        <p>{product?.long_description}</p>
+                        <p dangerouslySetInnerHTML={{ __html: product?.long_description || "" }}></p>
                       </div>
                     </div>
                   </div>
 
                   <div
                     id="tab03"
-                    className={`tab-pane ${
-                      activeTab === "tab03" ? "active" : "fade"
-                    }`}
+                    className={`tab-pane ${activeTab === "tab03" ? "active" : "fade"
+                      }`}
                   >
                     <div className="row">
                       <div className="col-md-3">
@@ -609,10 +604,10 @@ const ProductDetail = () => {
                           <br />
                           {item.variants[0]?.salePrice !==
                             item.variants[0]?.price && (
-                            <del className="product-old-price">
-                              {formatPrice(item.variants[0]?.price ?? 0)}
-                            </del>
-                          )}
+                              <del className="product-old-price">
+                                {formatPrice(item.variants[0]?.price ?? 0)}
+                              </del>
+                            )}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">

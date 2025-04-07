@@ -120,7 +120,12 @@ export const createOrderCOD = async (req, res) => {
 export const createOrderOnline = async (req, res) => {
   try {
     // Kiểm tra cấu hình VNPAY
-    if (!VNPAY_TMN_CODE || !VNPAY_HASH_SECRET || !VNPAY_URL || !VNPAY_RETURN_URL) {
+    if (
+      !VNPAY_TMN_CODE ||
+      !VNPAY_HASH_SECRET ||
+      !VNPAY_URL ||
+      !VNPAY_RETURN_URL
+    ) {
       return res.status(500).json({
         message: "Cấu hình VNPAY không đầy đủ",
       });
@@ -166,7 +171,8 @@ export const createOrderOnline = async (req, res) => {
         variantId: variant._id,
         quantity: cartItem.quantity,
         price: variant.price,
-        salePrice: variant.salePrice !== undefined ? variant.salePrice : variant.price,
+        salePrice:
+          variant.salePrice !== undefined ? variant.salePrice : variant.price,
         color: cartItem.color,
         capacity: cartItem.capacity,
       });
@@ -227,7 +233,9 @@ export const createOrderOnline = async (req, res) => {
     const vnp_SecureHash = hmac.update(signData).digest("hex");
     sortedParams.vnp_SecureHash = vnp_SecureHash;
 
-    const vnpUrl = `${VNPAY_URL}?${new URLSearchParams(sortedParams).toString()}`;
+    const vnpUrl = `${VNPAY_URL}?${new URLSearchParams(
+      sortedParams
+    ).toString()}`;
 
     // Bước 7: Lưu đơn hàng trước khi redirect
     await order.save();
@@ -275,7 +283,8 @@ export const getAllOrder = async (req, res) => {
     const orderDetails = orders.map((order) => {
       const items = order.items.map((item) => {
         const product = item.productId || {};
-        const variant = product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+        const variant =
+          product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
         return {
           productId: item.productId || null,
           variantId: item.variantId || null,
@@ -352,13 +361,19 @@ export const getOrderById = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
     }
 
-    if (user.role === 3 && order.userId._id.toString() !== user._id.toString()) {
-      return res.status(403).json({ message: "Bạn chỉ có thể xem đơn hàng của chính mình" });
+    if (
+      user.role === 3 &&
+      order.userId._id.toString() !== user._id.toString()
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Bạn chỉ có thể xem đơn hàng của chính mình" });
     }
 
     const items = order.items.map((item) => {
       const product = item.productId || {};
-      const variant = product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+      const variant =
+        product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
       return {
         productId: item.productId || null,
         variantId: item.variantId || null,
@@ -418,15 +433,14 @@ export const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status, cancelReason } = req.body;
 
-    const validStatuses = [
-      "Chưa xác nhận",
-      "Đã xác nhận",
-      "Đang giao hàng",
-      "Đã giao hàng",
-      "Đã nhận hàng",
-      "Hoàn thành",
-      "Đã huỷ",
-    ];
+    // Kiểm tra quyền - chỉ cho phép khách hàng (role 3) cập nhật đơn hàng của họ
+    if (user.role !== 3) {
+      return res.status(403).json({
+        message: "Chỉ khách hàng mới có quyền cập nhật trạng thái đơn hàng này",
+      });
+    }
+
+    const validStatuses = ["Đã nhận hàng", "Đã hủy"];
 
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Trạng thái không hợp lệ" });
@@ -437,53 +451,45 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
     }
 
-    if (user.role === 3 && order.userId._id.toString() !== user._id.toString()) {
-      return res.status(403).json({ message: "Bạn chỉ có thể cập nhật đơn hàng của chính mình" });
+    // Kiểm tra xem đơn hàng có phải của khách hàng này không
+    if (order.userId._id.toString() !== user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Bạn chỉ có thể cập nhật đơn hàng của chính mình" });
     }
 
     const currentStatus = order.status;
 
-    if (user.role === 3) {
-      if (status === "Đã nhận hàng" && currentStatus === "Đã giao hàng") {
-        order.status = "Hoàn thành";
-        order.completedAt = new Date();
-      } else if (status === "Đã huỷ" && currentStatus === "Chưa xác nhận") {
-        order.status = "Đã huỷ";
-        order.cancelReason = cancelReason || "Hủy không lý do"; // Dùng mặc định nếu không có lý do
-        order.cancelledBy = user._id;
-        order.cancelHistory = order.cancelHistory || [];
-        order.cancelHistory.push({
-          cancelledAt: new Date(),
-          cancelReason: cancelReason || "Hủy không lý do",
-          cancelledBy: user._id,
-        });
-      } else {
-        return res.status(403).json({
-          message: "Bạn chỉ có thể xác nhận 'Đã nhận hàng' hoặc hủy đơn khi 'Chưa xác nhận'",
-        });
+    // Khách hàng chỉ có thể chuyển sang "Đã nhận hàng" từ "Đã giao hàng"
+    // hoặc hủy đơn khi đơn hàng ở trạng thái "Chưa xác nhận"
+    if (status === "Đã nhận hàng" && currentStatus === "Đã giao hàng") {
+      order.status = "Hoàn thành";
+      order.completedAt = new Date();
+    } else if (status === "Đã hủy" && currentStatus === "Chưa xác nhận") {
+      if (!cancelReason) {
+        return res
+          .status(400)
+          .json({ message: "Vui lòng nhập lý do hủy đơn hàng" });
       }
+      order.status = "Đã hủy";
+      order.cancelReason = cancelReason;
+      order.cancelledBy = user._id;
+      order.cancelHistory = order.cancelHistory || [];
+      order.cancelHistory.push({
+        cancelledAt: new Date(),
+        cancelReason: cancelReason,
+        cancelledBy: user._id,
+      });
+    } else {
+      return res.status(403).json({
+        message:
+          "Bạn chỉ có thể xác nhận 'Đã nhận hàng' khi đơn hàng ở trạng thái 'Đã giao hàng' hoặc hủy đơn khi đơn hàng ở trạng thái 'Chưa xác nhận'",
+      });
     }
 
-    if (user.role === 1) {
-      if (status === "Đã huỷ") {
-        order.status = "Đã huỷ";
-        order.cancelReason = cancelReason || "Hủy không lý do"; // Dùng mặc định nếu không có lý do
-        order.cancelledBy = user._id;
-        order.cancelHistory = order.cancelHistory || [];
-        order.cancelHistory.push({
-          cancelledAt: new Date(),
-          cancelReason: cancelReason || "Hủy không lý do",
-          cancelledBy: user._id,
-        });
-      } else if (status === "Đã nhận hàng") {
-        return res.status(400).json({ message: "Admin không thể chuyển sang trạng thái 'Đã nhận hàng'" });
-      } else {
-        order.status = status;
-        if (status === "Đã giao hàng") {
-          order.deliveredAt = new Date();
-        }
-      }
-    }
+    // Lưu thông tin người cập nhật
+    order.updatedBy = user._id;
+    order.updatedAt = new Date();
 
     await order.save();
 
@@ -498,11 +504,13 @@ export const updateOrderStatus = async (req, res) => {
         ],
       })
       .populate({ path: "cancelledBy", select: "userName" })
-      .populate({ path: "cancelHistory.cancelledBy", select: "userName" });
+      .populate({ path: "cancelHistory.cancelledBy", select: "userName" })
+      .populate({ path: "updatedBy", select: "userName" });
 
     const items = populatedOrder.items.map((item) => {
       const product = item.productId || {};
-      const variant = product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+      const variant =
+        product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
       return {
         productId: item.productId || null,
         variantId: item.variantId || null,
@@ -536,10 +544,15 @@ export const updateOrderStatus = async (req, res) => {
       paymentMethod: populatedOrder.paymentMethod,
       paymentStatus: populatedOrder.paymentStatus,
       cancelReason: populatedOrder.cancelReason || null,
-      cancelledBy: populatedOrder.cancelledBy ? populatedOrder.cancelledBy.userName : null,
+      cancelledBy: populatedOrder.cancelledBy
+        ? populatedOrder.cancelledBy.userName
+        : null,
       cancelHistory,
       createdAt: populatedOrder.createdAt,
       updatedAt: populatedOrder.updatedAt,
+      updatedBy: populatedOrder.updatedBy
+        ? populatedOrder.updatedBy.userName
+        : null,
       deliveredAt: populatedOrder.deliveredAt || null,
       completedAt: populatedOrder.completedAt || null,
     };
@@ -556,6 +569,318 @@ export const updateOrderStatus = async (req, res) => {
   }
 };
 
+export const updateOrderStatusByAdmin = async (req, res) => {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+    const { status, cancelReason } = req.body;
+
+    // Kiểm tra quyền admin
+    if (user.role !== 1) {
+      return res
+        .status(403)
+        .json({ message: "Bạn không có quyền thực hiện hành động này" });
+    }
+
+    const validStatuses = [
+      "Chưa xác nhận",
+      "Đã xác nhận",
+      "Đang giao hàng",
+      "Đã giao hàng",
+      "Đã hủy",
+    ];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    const currentStatus = order.status;
+
+    // Admin chỉ có thể chuyển trạng thái theo thứ tự
+    const statusFlow = {
+      "Chưa xác nhận": ["Đã xác nhận", "Đã hủy"],
+      "Đã xác nhận": ["Đang giao hàng"],
+      "Đang giao hàng": ["Đã giao hàng"],
+      "Đã giao hàng": [], // Admin không thể chuyển từ "Đã giao hàng" sang trạng thái khác
+      "Đã nhận hàng": [], // Admin không thể chuyển từ "Đã nhận hàng" sang trạng thái khác
+      "Hoàn thành": [], // Admin không thể chuyển từ "Hoàn thành" sang trạng thái khác
+      "Đã hủy": [], // Admin không thể chuyển từ "Đã huỷ" sang trạng thái khác
+    };
+
+    // Kiểm tra xem trạng thái mới có hợp lệ không
+    if (!statusFlow[currentStatus].includes(status)) {
+      return res.status(400).json({
+        message: `Không thể chuyển từ trạng thái "${currentStatus}" sang "${status}". Trạng thái hợp lệ tiếp theo là: ${statusFlow[
+          currentStatus
+        ].join(", ")}`,
+      });
+    }
+
+    // Nếu chuyển sang trạng thái "Đã huỷ", yêu cầu nhập lý do
+    if (status === "Đã hủy") {
+      // Kiểm tra xem đơn hàng có ở trạng thái "Chưa xác nhận" không
+      if (currentStatus !== "Chưa xác nhận") {
+        return res.status(403).json({
+          message:
+            "Admin chỉ được hủy đơn hàng khi đơn hàng ở trạng thái 'Chưa xác nhận'",
+        });
+      }
+
+      if (!cancelReason) {
+        return res
+          .status(400)
+          .json({ message: "Vui lòng nhập lý do hủy đơn hàng" });
+      }
+      order.status = "Đã hủy";
+      order.cancelReason = cancelReason;
+      order.cancelledBy = user._id;
+      order.cancelHistory = order.cancelHistory || [];
+      order.cancelHistory.push({
+        cancelledAt: new Date(),
+        cancelReason: cancelReason,
+        cancelledBy: user._id,
+      });
+    } else {
+      order.status = status;
+
+      // Nếu chuyển sang trạng thái "Đã giao hàng" và thanh toán là COD, tự động cập nhật trạng thái thanh toán
+      if (status === "Đã giao hàng" && order.paymentMethod === "COD") {
+        order.paymentStatus = "Đã thanh toán";
+      }
+
+      if (status === "Đã giao hàng") {
+        order.deliveredAt = new Date();
+      }
+    }
+
+    // Lưu thông tin người cập nhật
+    order.updatedBy = user._id;
+    order.updatedAt = new Date();
+
+    await order.save();
+
+    const populatedOrder = await Order.findById(id)
+      .populate({ path: "userId", select: "userName email phone" })
+      .populate({
+        path: "items.productId",
+        select: "name images short_description variants",
+        populate: [
+          { path: "variants.color", select: "name" },
+          { path: "variants.capacity", select: "value" },
+        ],
+      })
+      .populate({ path: "cancelledBy", select: "userName" })
+      .populate({ path: "cancelHistory.cancelledBy", select: "userName" })
+      .populate({ path: "updatedBy", select: "userName" });
+
+    const items = populatedOrder.items.map((item) => {
+      const product = item.productId || {};
+      const variant =
+        product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+      return {
+        productId: item.productId || null,
+        variantId: item.variantId || null,
+        quantity: item.quantity || 0,
+        price: item.price || 0,
+        salePrice: item.salePrice || 0,
+        color: item.color || variant.color?.name || "N/A",
+        capacity: item.capacity || variant.capacity?.value || "N/A",
+        productName: product.name || "N/A",
+        productImage: product.images?.[0] || null,
+        shortDescription: product.short_description || "",
+      };
+    });
+
+    const cancelHistory = populatedOrder.cancelHistory.map((entry) => ({
+      cancelledAt: entry.cancelledAt,
+      cancelReason: entry.cancelReason,
+      cancelledBy: entry.cancelledBy ? entry.cancelledBy.userName : "N/A",
+    }));
+
+    const orderDetail = {
+      orderId: populatedOrder._id,
+      userId: populatedOrder.userId._id,
+      userName: populatedOrder.userId.userName,
+      userEmail: populatedOrder.userId.email,
+      userPhone: populatedOrder.userId.phone,
+      items,
+      totalAmount: populatedOrder.totalAmount,
+      shippingAddress: populatedOrder.shippingAddress,
+      status: populatedOrder.status,
+      paymentMethod: populatedOrder.paymentMethod,
+      paymentStatus: populatedOrder.paymentStatus,
+      cancelReason: populatedOrder.cancelReason || null,
+      cancelledBy: populatedOrder.cancelledBy
+        ? populatedOrder.cancelledBy.userName
+        : null,
+      cancelHistory,
+      createdAt: populatedOrder.createdAt,
+      updatedAt: populatedOrder.updatedAt,
+      updatedBy: populatedOrder.updatedBy
+        ? populatedOrder.updatedBy.userName
+        : null,
+      deliveredAt: populatedOrder.deliveredAt || null,
+      completedAt: populatedOrder.completedAt || null,
+    };
+
+    return res.status(200).json({
+      message: "Cập nhật trạng thái đơn hàng thành công",
+      order: orderDetail,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      name: error.name,
+      message: error.message,
+    });
+  }
+};
+
+export const updateOrderStatusByCustomer = async (req, res) => {
+  try {
+    const user = req.user;
+    const { id } = req.params;
+    const { status, cancelReason } = req.body;
+
+    // Kiểm tra quyền - chỉ cho phép khách hàng (role 3) cập nhật đơn hàng của họ
+    if (user.role !== 3) {
+      return res.status(403).json({
+        message: "Chỉ khách hàng mới có quyền cập nhật trạng thái đơn hàng này",
+      });
+    }
+
+    const validStatuses = ["Đã nhận hàng", "Đã hủy"];
+
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+    }
+
+    const order = await Order.findById(id);
+    if (!order) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    // Kiểm tra xem đơn hàng có phải của khách hàng này không
+    if (order.userId._id.toString() !== user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Bạn chỉ có thể cập nhật đơn hàng của chính mình" });
+    }
+
+    const currentStatus = order.status;
+
+    // Khách hàng chỉ có thể chuyển sang "Đã nhận hàng" từ "Đã giao hàng"
+    // hoặc hủy đơn khi đơn hàng ở trạng thái "Chưa xác nhận"
+    if (status === "Đã nhận hàng" && currentStatus === "Đã giao hàng") {
+      order.status = "Hoàn thành";
+      order.completedAt = new Date();
+    } else if (status === "Đã hủy" && currentStatus === "Chưa xác nhận") {
+      if (!cancelReason) {
+        return res
+          .status(400)
+          .json({ message: "Vui lòng nhập lý do hủy đơn hàng" });
+      }
+      order.status = "Đã hủy";
+      order.cancelReason = cancelReason;
+      order.cancelledBy = user._id;
+      order.cancelHistory = order.cancelHistory || [];
+      order.cancelHistory.push({
+        cancelledAt: new Date(),
+        cancelReason: cancelReason,
+        cancelledBy: user._id,
+      });
+    } else {
+      return res.status(403).json({
+        message:
+          "Bạn chỉ có thể xác nhận 'Đã nhận hàng' khi đơn hàng ở trạng thái 'Đã giao hàng' hoặc hủy đơn khi đơn hàng ở trạng thái 'Chưa xác nhận'",
+      });
+    }
+
+    // Lưu thông tin người cập nhật
+    order.updatedBy = user._id;
+    order.updatedAt = new Date();
+
+    await order.save();
+
+    const populatedOrder = await Order.findById(id)
+      .populate({ path: "userId", select: "userName email phone" })
+      .populate({
+        path: "items.productId",
+        select: "name images short_description variants",
+        populate: [
+          { path: "variants.color", select: "name" },
+          { path: "variants.capacity", select: "value" },
+        ],
+      })
+      .populate({ path: "cancelledBy", select: "userName" })
+      .populate({ path: "cancelHistory.cancelledBy", select: "userName" })
+      .populate({ path: "updatedBy", select: "userName" });
+
+    const items = populatedOrder.items.map((item) => {
+      const product = item.productId || {};
+      const variant =
+        product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+      return {
+        productId: item.productId || null,
+        variantId: item.variantId || null,
+        quantity: item.quantity || 0,
+        price: item.price || 0,
+        salePrice: item.salePrice || 0,
+        color: item.color || variant.color?.name || "N/A",
+        capacity: item.capacity || variant.capacity?.value || "N/A",
+        productName: product.name || "N/A",
+        productImage: product.images?.[0] || null,
+        shortDescription: product.short_description || "",
+      };
+    });
+
+    const cancelHistory = populatedOrder.cancelHistory.map((entry) => ({
+      cancelledAt: entry.cancelledAt,
+      cancelReason: entry.cancelReason,
+      cancelledBy: entry.cancelledBy ? entry.cancelledBy.userName : "N/A",
+    }));
+
+    const orderDetail = {
+      orderId: populatedOrder._id,
+      userId: populatedOrder.userId._id,
+      userName: populatedOrder.userId.userName,
+      userEmail: populatedOrder.userId.email,
+      userPhone: populatedOrder.userId.phone,
+      items,
+      totalAmount: populatedOrder.totalAmount,
+      shippingAddress: populatedOrder.shippingAddress,
+      status: populatedOrder.status,
+      paymentMethod: populatedOrder.paymentMethod,
+      paymentStatus: populatedOrder.paymentStatus,
+      cancelReason: populatedOrder.cancelReason || null,
+      cancelledBy: populatedOrder.cancelledBy
+        ? populatedOrder.cancelledBy.userName
+        : null,
+      cancelHistory,
+      createdAt: populatedOrder.createdAt,
+      updatedAt: populatedOrder.updatedAt,
+      updatedBy: populatedOrder.updatedBy
+        ? populatedOrder.updatedBy.userName
+        : null,
+      deliveredAt: populatedOrder.deliveredAt || null,
+      completedAt: populatedOrder.completedAt || null,
+    };
+
+    return res.status(200).json({
+      message: "Cập nhật trạng thái đơn hàng thành công",
+      order: orderDetail,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      name: error.name,
+      message: error.message,
+    });
+  }
+};
 
 // API tìm kiếm đơn hàng
 export const searchOrders = async (req, res) => {
@@ -566,7 +891,8 @@ export const searchOrders = async (req, res) => {
     // Kiểm tra nếu không có tham số tìm kiếm nào được cung cấp
     if (!orderId && !userName) {
       return res.status(400).json({
-        message: "Vui lòng cung cấp ít nhất một tiêu chí tìm kiếm: orderId hoặc userName",
+        message:
+          "Vui lòng cung cấp ít nhất một tiêu chí tìm kiếm: orderId hoặc userName",
       });
     }
 
@@ -590,10 +916,10 @@ export const searchOrders = async (req, res) => {
     if (userName) {
       // Tìm kiếm gần đúng (case-insensitive) bằng regex
       query.userId = {
-        $in: await mongoose.model("User").find(
-          { userName: { $regex: userName, $options: "i" } },
-          "_id"
-        ).distinct("_id"),
+        $in: await mongoose
+          .model("User")
+          .find({ userName: { $regex: userName, $options: "i" } }, "_id")
+          .distinct("_id"),
       };
     }
 
@@ -622,7 +948,8 @@ export const searchOrders = async (req, res) => {
     const orderDetails = orders.map((order) => {
       const items = order.items.map((item) => {
         const product = item.productId || {};
-        const variant = product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+        const variant =
+          product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
         return {
           productId: item.productId || null,
           variantId: item.variantId || null,
@@ -691,7 +1018,7 @@ export const filterOrders = async (req, res) => {
       "Đã giao hàng",
       "Đã nhận hàng",
       "Hoàn thành",
-      "Đã huỷ",
+      "Đã hủy",
     ];
 
     // Kiểm tra nếu không có tham số status
@@ -705,7 +1032,9 @@ export const filterOrders = async (req, res) => {
     const statusArray = Array.isArray(status) ? status : [status];
 
     // Kiểm tra xem các trạng thái có hợp lệ không
-    const invalidStatuses = statusArray.filter((s) => !validStatuses.includes(s));
+    const invalidStatuses = statusArray.filter(
+      (s) => !validStatuses.includes(s)
+    );
     if (invalidStatuses.length > 0) {
       return res.status(400).json({
         message: `Trạng thái không hợp lệ: ${invalidStatuses.join(", ")}`,
@@ -745,7 +1074,8 @@ export const filterOrders = async (req, res) => {
     const orderDetails = orders.map((order) => {
       const items = order.items.map((item) => {
         const product = item.productId || {};
-        const variant = product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+        const variant =
+          product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
         return {
           productId: item.productId || null,
           variantId: item.variantId || null,

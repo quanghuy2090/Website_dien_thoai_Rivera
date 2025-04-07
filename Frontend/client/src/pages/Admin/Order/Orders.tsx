@@ -15,12 +15,12 @@ const Orders = () => {
     setOrder(data.orders);
   };
 
-  const formatPrice = (price: number) => {
-    if (price === undefined || price === null) {
-      return "0 VND"; // Return a default value if price is undefined
-    }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
-  };
+  // const formatPrice = (price: number) => {
+  //   if (price === undefined || price === null) {
+  //     return "0 VND"; // Return a default value if price is undefined
+  //   }
+  //   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+  // };
   return (
     <div className="content">
       <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
@@ -42,7 +42,7 @@ const Orders = () => {
               <th scope="col">Trạng thái đơn hàng</th>
               <th scope="col">Phương thức thanh toán</th>
               <th scope="col">Trạng thái thanh toán</th>
-              <th scope="col">Action</th>
+              <th scope="col">Tùy chọn</th>
             </tr>
           </thead>
           <tbody>

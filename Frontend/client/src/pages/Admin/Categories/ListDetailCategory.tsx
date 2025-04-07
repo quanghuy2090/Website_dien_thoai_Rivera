@@ -28,11 +28,11 @@ const ListDetailCategory = () => {
                   <td>{state.selectedCategory._id}</td>
                 </tr>
                 <tr>
-                  <th>Categories</th>
+                  <th>Danh mục</th>
                   <td>{state.selectedCategory.name}</td>
                 </tr>
                 <tr>
-                  <th>Slug</th>
+                  <th>Mô tả</th>
                   <td>{state.selectedCategory.slug}</td>
                 </tr>
                 {/* <tr>
@@ -48,17 +48,17 @@ const ListDetailCategory = () => {
                   <td> {new Date(state.selectedCategory.updatedAt).toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <th>Products</th>
+                  <th>Sản phẩm danh mục</th>
                   <td>
                     {state.selectedCategory.products?.map((product) => (
                       <table key={product._id} className="table table-bordered">
                         <tbody>
                           <tr>
-                            <th>Product ID</th>
+                            <th> Id Sản Phẩm</th>
                             <td>{product._id}</td>
                           </tr>
                           <tr>
-                            <th>Product Name</th>
+                            <th>Sản phẩm</th>
                             <td>{product.name}</td>
                           </tr>
                           {/* <tr>
@@ -70,7 +70,7 @@ const ListDetailCategory = () => {
                             <td>{product.long_description}</td>
                           </tr> */}
                           <tr>
-                            <th>Images</th>
+                            <th>Ảnh</th>
                             <td>
                               {product.images.map((image, index) => (
                                 <img key={index} src={image} alt="product" style={{ width: "50px", height: "50px", marginRight: "5px" }} />
@@ -78,7 +78,7 @@ const ListDetailCategory = () => {
                             </td>
                           </tr>
                           <tr>
-                            <th>Variants</th>
+                            <th>Biến thể</th>
                             <td>
                               {product.variants.length > 0 ? (
                                 <table className="table table-bordered">
@@ -94,7 +94,7 @@ const ListDetailCategory = () => {
                                   </thead>
                                   <tbody>
                                     <tr>
-                                      <th>Color</th>
+                                      <th>Màu sắc</th>
                                       {product.variants.map((variant, index) => (
                                         <td key={index}>
                                           {variant.color && typeof variant.color === "object"
@@ -104,7 +104,7 @@ const ListDetailCategory = () => {
                                       ))}
                                     </tr>
                                     <tr>
-                                      <th>Capacity</th>
+                                      <th>Bộ nhớ</th>
                                       {product.variants.map((variant, index) => (
                                         <td key={index}>
                                           {variant.capacity && typeof variant.capacity === "object"
@@ -114,13 +114,13 @@ const ListDetailCategory = () => {
                                       ))}
                                     </tr>
                                     <tr>
-                                      <th>Price</th>
+                                      <th>Giá</th>
                                       {product.variants.map((variant, index) => (
                                         <td key={index}>{variant.price}</td>
                                       ))}
                                     </tr>
                                     <tr>
-                                      <th>Stock</th>
+                                      <th>Số lượng</th>
                                       {product.variants.map((variant, index) => (
                                         <td key={index}>{variant.stock}</td>
                                       ))}

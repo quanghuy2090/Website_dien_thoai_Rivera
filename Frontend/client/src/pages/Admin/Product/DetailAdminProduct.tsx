@@ -42,11 +42,11 @@ const DetailAdminProduct = () => {
               </tr>
               <tr>
                 <th>Mô tả ngắn</th>
-                <td>{state.selectedProduct?.short_description}</td>
+                <td dangerouslySetInnerHTML={{ __html: state.selectedProduct?.short_description || "" }}></td>
               </tr>
               <tr>
                 <th>Mô tả chi tiết</th>
-                <td>{state.selectedProduct?.long_description}</td>
+                <td dangerouslySetInnerHTML={{ __html: state.selectedProduct?.long_description || "" }}></td>
               </tr>
 
 
@@ -108,7 +108,7 @@ const DetailAdminProduct = () => {
                           <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"}</td>
                         </tr>
                         <tr>
-                          <th scope="row">Stock</th>
+                          <th scope="row">Số lượng</th>
                           <td>{variant.stock}</td>
                         </tr>
                         <tr>

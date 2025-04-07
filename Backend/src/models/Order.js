@@ -94,7 +94,7 @@ const orderSchema = new mongoose.Schema(
         "Đã giao hàng",
         "Đã nhận hàng",
         "Hoàn thành",
-        "Đã huỷ",
+        "Đã hủy",
       ],
       default: "Chưa xác nhận",
     },
@@ -127,6 +127,11 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
     cancelHistory: [
       {
         cancelledAt: {
@@ -137,7 +142,7 @@ const orderSchema = new mongoose.Schema(
           type: String,
           maxlength: 500,
           trim: true,
-          default: "Hủy không lý do", // Mặc định nếu không nhập lý do
+          required: true, // Bắt buộc phải có lý do hủy
         },
         cancelledBy: {
           type: mongoose.Schema.Types.ObjectId,
@@ -175,5 +180,6 @@ orderSchema.pre("save", async function (next) {
 orderSchema.index({ userId: 1 });
 orderSchema.index({ status: 1 });
 orderSchema.index({ "cancelHistory.cancelledAt": -1 });
+orderSchema.index({ updatedBy: 1 });
 
 export default mongoose.model("Order", orderSchema);
