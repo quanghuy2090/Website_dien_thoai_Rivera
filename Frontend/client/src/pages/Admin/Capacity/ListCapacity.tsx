@@ -34,6 +34,7 @@ const ListCapacity = () => {
                         <tr>
                             <th scope="col">Stt</th>
                             <th scope="col">Bộ nhớ</th>
+                            <th scope="col">Ngày tạo</th>
                             <th scope="col">Tùy chọn</th>
                         </tr>
                     </thead>
@@ -42,6 +43,7 @@ const ListCapacity = () => {
                             <tr key={index}>
                                 <th scope="row">{index + 1}</th>
                                 <td>{capacity.value}</td>
+                                <td>{new Date(capacity.createdAt).toLocaleDateString()}</td>
                                 <td>
                                     <button
                                         className="btn btn-danger me-2"

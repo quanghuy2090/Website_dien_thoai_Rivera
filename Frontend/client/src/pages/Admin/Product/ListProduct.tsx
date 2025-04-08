@@ -33,7 +33,7 @@ const ListProduct = () => {
         )
         .filter(Boolean)
     )
-  ).map((catStr) => JSON.parse(catStr));
+  ).map((catStr) => JSON.parse(catStr as string));
 
   return (
     <div className="content">

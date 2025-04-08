@@ -121,6 +121,14 @@ const DetailAdminProduct = () => {
 
                 </td>
               </tr>
+              <tr>
+                <th>Ngày tạo</th>
+                <td>{state.selectedProduct?.createdAt ? new Date(state.selectedProduct.createdAt).toLocaleDateString() : "N/A"}</td>
+              </tr>
+              <tr>
+                <th>Cập nhật lần cuối</th>
+                <td>{state.selectedProduct?.updatedAt ? new Date(state.selectedProduct.updatedAt).toLocaleString() : "N/A"}</td>
+              </tr>
             </tbody>
           </table>
         </div>

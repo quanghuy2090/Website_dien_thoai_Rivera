@@ -3,6 +3,7 @@ import { addCategories, Category, deleteCategories, getCategories, getCategories
 import CategoryReducer from "../reducers/CategoryReducer";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 
 
 type CategoryContextType = {
@@ -75,7 +76,15 @@ export const CategoryProvider = ({ children }: Children) => {
             toast.success("Cập nhật danh mục thành công")
         } catch (error) {
             console.log(error)
-            toast.error("cập nhật danh mục thất bại")
+            if (error instanceof AxiosError && error.response) {
+                // Kiểm tra xem có dữ liệu lỗi từ backend không
+                const errorMessage = error.response?.data?.message || "Sửa danh mục thất bại";
+                toast.error(errorMessage);
+            } else {
+                // Nếu không phải lỗi Axios, hiển thị thông báo lỗi chung
+                toast.error("Sửa danh mục thất bại");
+            }
+            // toast.error("cập nhật danh mục thất bại")
         }
     }
 
@@ -97,7 +106,15 @@ export const CategoryProvider = ({ children }: Children) => {
             toast.success("Thêm danh mục thành công")
         } catch (error) {
             console.log(error)
-            toast.error("Thêm danh mục thất bại")
+            if (error instanceof AxiosError && error.response) {
+                // Kiểm tra xem có dữ liệu lỗi từ backend không
+                const errorMessage = error.response?.data?.message || "Thêm danh mục thất bại";
+                toast.error(errorMessage);
+            } else {
+                // Nếu không phải lỗi Axios, hiển thị thông báo lỗi chung
+                toast.error("Thêm danh mục thất bại");
+            }
+            // toast.error("Thêm danh mục thất bại")
         }
     };
     const getDetailCategory = async (_id: string) => {

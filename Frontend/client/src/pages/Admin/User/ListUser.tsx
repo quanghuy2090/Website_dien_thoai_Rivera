@@ -11,7 +11,7 @@ const ListUser = () => {
             case 1:
                 return "Admin";
             case 2:
-                return "Quản lý";
+                return "Nhân viên";
             case 3:
                 return "Người dùng";
             default:

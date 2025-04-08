@@ -35,6 +35,8 @@ const ListColor = () => {
             <tr>
               <th scope="col">Stt</th>
               <th scope="col">Màu sắc</th>
+              <th scope="col">Ngày tạo</th>
+
               <th scope="col">Tùy chọn</th>
             </tr>
           </thead>
@@ -43,6 +45,7 @@ const ListColor = () => {
               <tr key={color._id}>
                 <th scope="row">{index + 1}</th>
                 <td>{color.name}</td>
+                <td>{new Date(color.createdAt).toLocaleDateString()}</td>
                 <td>
                   <button
                     className="btn btn-danger me-2"

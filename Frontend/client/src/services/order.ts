@@ -21,12 +21,12 @@ export type Order = {
   paymentStatus: "Chưa thanh toán" | "Đã thanh toán";
   totalAmount: number;
   status:
-    | "Chưa xác nhận"
-    | "Đã xác nhận"
-    | "Đang giao hàng"
-    | "Đã giao hàng"
-    | "Hoàn thành"
-    | "Đã hủy";
+  | "Chưa xác nhận"
+  | "Đã xác nhận"
+  | "Đang giao hàng"
+  | "Đã giao hàng"
+  | "Hoàn thành"
+  | "Đã hủy";
   cancelReason: string;
   userName: string;
   userEmail: string;
@@ -116,6 +116,20 @@ export const updateStatusOrder = (
     {
       status,
       cancelReason: cancellationReason,
+    }
+  );
+};
+
+export const updateStatusAdmin = (
+  orderId: string,
+  status: Order["status"],
+  cancelReason: string
+) => {
+  return http.put<{ message: string; order: Order }>(
+    `/order/admin/status/${orderId}`,
+    {
+      status,
+      cancelReason,
     }
   );
 };

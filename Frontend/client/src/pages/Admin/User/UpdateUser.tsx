@@ -118,7 +118,7 @@ const UpdateUser = () => {
                                 />
                                 {errors?.password && <span className="text-danger mt-5">*{errors.password.message}</span>}
                             </div>
-
+                            {/* 
                             <div className="form-group mb-5">
                                 <label htmlFor="confirmPassword" className="fw-bold fs-5">Confirm Password</label>
                                 <input
@@ -128,7 +128,7 @@ const UpdateUser = () => {
                                     {...register("confirmPassword", { required: "Không để trống xác nhận mật khẩu" })}
                                 />
                                 {errors?.confirmPassword && <span className="text-danger mt-5">*{errors.confirmPassword.message}</span>}
-                            </div>
+                            </div> */}
 
                             {/* Only show and disable the status and role fields if the current user is not an admin */}
                             <div className="form-group mb-5">
@@ -157,7 +157,7 @@ const UpdateUser = () => {
                                 >
                                     <option value="0" disabled>-- Chọn vai trò --</option>
                                     <option value="1">Admin</option>
-                                    <option value="2">Quản lý</option>
+                                    <option value="2">Nhân viên</option>
                                     <option value="3">Người dùng</option>
                                 </select>
                             </div>
