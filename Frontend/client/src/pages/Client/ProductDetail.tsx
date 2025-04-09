@@ -231,7 +231,7 @@ const ProductDetail = () => {
   };
 
   return (
-    <>
+    <div className="product-detail-page">
       {/* BREADCRUMB */}
       <div id="breadcrumb" className="section">
         <div className="container">
@@ -314,7 +314,7 @@ const ProductDetail = () => {
 
                     <div className="variant-selector">
                       <div className="variant-options">
-                        <h4>Biến thể</h4>
+                        <h4>Chọn phiên bản</h4>
                         <div className="variant-list">
                           {product?.variants.map((variant, index) => (
                             <button
@@ -323,25 +323,29 @@ const ProductDetail = () => {
                                 variant === selectedVariant ? "active" : ""
                               }`}
                               onClick={() => handleVariantChange(variant)}
+                              disabled={variant.stock <= 0}
                             >
-                              <span
-                                className="color-dot"
-                                style={{
-                                  backgroundColor:
-                                    typeof variant.color === "string"
-                                      ? variant.color
-                                      : variant.color.name,
-                                }}
-                              />
-                              <span className="variant-text">
-                                {typeof variant.color === "string"
-                                  ? variant.color
-                                  : variant.color.name}{" "}
-                                -{" "}
-                                {typeof variant.capacity === "string"
-                                  ? variant.capacity
-                                  : variant.capacity.value}
-                              </span>
+                              <div className="variant-content">
+                                <span
+                                  className="color-dot"
+                                  style={{
+                                    backgroundColor:
+                                      typeof variant.color === "string"
+                                        ? variant.color
+                                        : variant.color.name,
+                                  }}
+                                />
+                                <span className="variant-text">
+                                  {typeof variant.color === "string"
+                                    ? variant.color
+                                    : variant.color.name}
+                                  {" - "}
+                                  {typeof variant.capacity === "string"
+                                    ? variant.capacity
+                                    : variant.capacity.value}
+                                  {variant.stock <= 0 && " (Hết hàng)"}
+                                </span>
+                              </div>
                             </button>
                           ))}
                         </div>
@@ -749,7 +753,7 @@ const ProductDetail = () => {
         </div>
       </div>
       {/* Shop Detail End */}
-    </>
+    </div>
   );
 };
 

@@ -24,12 +24,25 @@ const HomePage = () => {
         // Get current date and subtract 1 month
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        console.log("One month ago date:", oneMonthAgo);
 
         // Filter products created within the last month
         const recentProducts = allProducts.filter((product: Product) => {
           const createdAtDate = new Date(product.createdAt);
+          console.log("Product:", product.name, "Created at:", createdAtDate);
           return createdAtDate >= oneMonthAgo && product.status !== "banned";
         });
+
+        console.log("Total products:", allProducts.length);
+        console.log("Recent products count:", recentProducts.length);
+        console.log(
+          "Recent products:",
+          recentProducts.map((p) => ({
+            name: p.name,
+            createdAt: new Date(p.createdAt),
+            status: p.status,
+          }))
+        );
 
         const bestSellingProducts = allProducts.filter(
           (product: Product) =>
