@@ -104,7 +104,7 @@ const UpdateUser = () => {
                                 {errors?.address && <span className="text-danger mt-5">*{errors.address.message}</span>}
                             </div>
 
-                            <div className="form-group mb-5">
+                            {/* <div className="form-group mb-5">
                                 <label htmlFor="password" className="fw-bold fs-5">Password</label>
                                 <input
                                     type="password"
@@ -117,7 +117,7 @@ const UpdateUser = () => {
                                     })}
                                 />
                                 {errors?.password && <span className="text-danger mt-5">*{errors.password.message}</span>}
-                            </div>
+                            </div> */}
                             {/* 
                             <div className="form-group mb-5">
                                 <label htmlFor="confirmPassword" className="fw-bold fs-5">Confirm Password</label>
