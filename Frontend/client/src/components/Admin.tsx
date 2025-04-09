@@ -1,11 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Admin.css";
 const Admin = () => {
+  const nav = useNavigate();
   const token = localStorage.getItem("token");
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    nav("/login");
   };
   <div className="">
     {token && (
@@ -29,12 +31,12 @@ const Admin = () => {
         >
           <div className="card-body">
             <div className="text-warning fs-1 mb-3">⚠️</div>
-            <h1 className="card-title text-danger">Access Denied</h1>
+            <h1 className="card-title text-danger">Không thể truy cập</h1>
             <p className="card-text text-muted">
-              You don't have permission to access this page.
+              Bạn không có quyền truy cập trang này
             </p>
             <Link to="/" className="btn btn-primary">
-              Return Home
+              Về trang chủ
             </Link>
           </div>
         </div>
@@ -53,14 +55,14 @@ const Admin = () => {
         <nav className="nav flex-column mt-5">
           <a className="nav-link d-flex align-items-center" href="/">
             <i className="fas fa-home mr-2"></i>
-            Home
+            Trang chủ
           </a>
           <a
             className="nav-link d-flex align-items-center"
-            href="/admin/dasboard"
+            href="/admin/dashboard"
           >
             <i className="fas fa-tachometer-alt mr-2"></i>
-            Dashboard
+            Thống kê
           </a>
           <a className="nav-link d-flex align-items-center" href="/admin/color">
             <i className="fa-solid fa-palette"></i>
@@ -86,16 +88,16 @@ const Admin = () => {
           </a>
           <a className="nav-link d-flex align-items-center" href="/admin/user">
             <i className="fas fa-user mr-2"></i>
-            User
+            Người dùng
           </a>
           <a className="nav-link d-flex align-items-center" href="/admin/order">
             <i className="fas fa-shopping-cart mr-2"></i>
-            Order
+            Đơn hàng
           </a>
-          <a className="nav-link d-flex align-items-center" href="">
+          {/* <a className="nav-link d-flex align-items-center" href="">
             <i className="fas fa-table mr-2"></i>
             Tables
-          </a>
+          </a> */}
         </nav>
       </div>
       <div className="flex-grow-1">
@@ -122,7 +124,17 @@ const Admin = () => {
             <div className="d-flex align-items-center mb-3">
               <span className="text-gray-600 mr-2">{user.email}</span>
             </div>
+            <div className="mb-3">
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={handleLogout} // Đây là hàm xử lý đăng xuất của bạn
+              >
+                Đăng xuất
+              </button>
+            </div>
+
           </div>
+
         </div>
       </div>
     </div>

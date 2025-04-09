@@ -33,6 +33,11 @@ import AddCapacity from "./pages/Admin/Capacity/AddCapacity";
 import UpdateColor from "./pages/Admin/Colors/UpdateColor";
 import UpdateCapacity from "./pages/Admin/Capacity/UpdateCapacity";
 import Profile from "./pages/Client/Profile";
+import PaymentSuccess from "./pages/Client/Vnpay";
+import AddUser from "./pages/Admin/User/AddUser";
+import ListCategoryDeleted from "./pages/Admin/Categories/ListCategoryDeleted";
+import UpdateUser from "./pages/Admin/User/UpdateUser";
+import UpdateProfile from "./pages/Client/UpdateProfile";
 function App() {
   const routes = useRoutes([
     {
@@ -44,29 +49,34 @@ function App() {
         { path: "/product-page", element: <ProductPage /> },
         { path: "/product/:id", element: <ProductDetail /> },
         { path: "/checkout", element: <Checkout /> },
-        { path: "/bill", element: <Bill /> },
+        { path: "/bill/:id", element: <Bill /> },
         { path: "/history", element: <HistoryUser /> },
-        { path: "/profile", element: <Profile /> }
+        { path: "/profile", element: <Profile /> },
+        { path: "/profile-update", element: <UpdateProfile /> },
       ],
     },
     { path: "/login", element: <Login /> },
     { path: "/register", element: <Register /> },
     { path: "*", element: <Notfound /> },
+    { path: "/payment-success", element: <PaymentSuccess /> },
     {
       path: "/admin",
       element: <AdminLayout />,
       children: [
-        { path: "/admin/dasboard", element: <Dashboard /> },
+        { path: "/admin/dashboard", element: <Dashboard /> },
         { path: "/admin/category", element: <ListCategories /> },
         { path: "/admin/category/add", element: <AddCategories /> },
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },
         { path: "/admin/category/detail/:id", element: <ListDetailCategory /> },
+        { path: "/admin/category/delete", element: <ListCategoryDeleted /> },
         { path: "/admin/products", element: <ListProduct /> },
         { path: "/admin/products/add", element: <AddProduct /> },
         { path: "/admin/products/update/:id", element: <UpdateProduct /> },
         { path: "/admin/products/detail/:id", element: <DetailAdminProduct /> },
         { path: "/admin/user", element: <ListUser /> },
         { path: "/admin/user/:id", element: <DetailUser /> },
+        { path: "/admin/user/add", element: <AddUser /> },
+        { path: "/admin/update/user/:id", element: <UpdateUser /> },
         { path: "/admin/order", element: <Orders /> },
         { path: "/admin/order/:id", element: <OrderDetail /> },
         { path: "/admin/color", element: <ListColor /> },
@@ -74,7 +84,7 @@ function App() {
         { path: "/admin/color/update/:id", element: <UpdateColor /> },
         { path: "/admin/capacity", element: <ListCapacity /> },
         { path: "/admin/capacity/add", element: <AddCapacity /> },
-        { path: "/admin/capacity/update/:id", element: <UpdateCapacity /> }
+        { path: "/admin/capacity/update/:id", element: <UpdateCapacity /> },
       ],
     },
   ]);

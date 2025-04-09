@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Carts, deleteAllCart, deleteCart, getCart } from "../../services/cart";
+import {
+  CartItem,
+  deleteAllCart,
+  deleteCart,
+  getCart,
+  updateCart,
+} from "../../services/cart";
 import { Link } from "react-router-dom";
 import "../../css/style.css";
+import toast from "react-hot-toast";
 
 const Cart = () => {
-  const [carts, setCarts] = useState<Carts[]>([]);
+  const [carts, setCarts] = useState<CartItem[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -14,7 +20,6 @@ const Cart = () => {
       try {
         const user = JSON.parse(userData);
         if (user && user._id) {
-          setUserId(user._id);
           fetchCart();
         }
       } catch (error) {
@@ -26,39 +31,97 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       const { data } = await getCart();
-      if (data.data && data.data.items) {
-        setCarts(data.data.items);
-        setTotalAmount(data.data.total || 0);
+      if (data.cart && data.cart.items) {
+        setCarts(data.cart.items);
+        setTotalAmount(data.cart.totalSalePrice || 0);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Lỗi khi gọi API giỏ hàng:", error);
+      toast.error(error.response?.data?.message || "Lỗi khi tải giỏ hàng");
     }
   };
 
-  const handleRemoveFromCart = async (productId: string) => {
-    try {
-      if (window.confirm("Xoá sản phẩm này khỏi giỏ hàng?")) {
-        await deleteCart(productId);
-        setCarts((prevItems) =>
-          prevItems.filter((item) => item.productId !== productId)
+  const handleDeleteCartItem = async (productId: string, variantId: string) => {
+    if (
+      window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")
+    ) {
+      try {
+        const { data } = await deleteCart(productId, variantId);
+        const updatedCart = carts.filter(
+          (cart) =>
+            !(cart.productId._id === productId && cart.variantId === variantId)
         );
-        // Update total price
-        setTotalAmount(
-          (prevTotal) =>
-            prevTotal -
-              carts.find((item) => item.productId === productId)?.subtotal || 0
-        );
+        setCarts(updatedCart);
+        if (updatedCart.length === 0) {
+          setTotalAmount(0);
+        } else {
+          const newTotalPrice = updatedCart.reduce(
+            (sum, item) => sum + item.quantity * item.salePrice,
+            0
+          );
+          setTotalAmount(newTotalPrice);
+        }
+        toast.success(data.message || "Xóa thành công!");
+      } catch (error: any) {
+        console.log(error);
+        toast.error(error.response?.data?.message || "Xóa thất bại!");
       }
-    } catch (error) {
-      console.error("Lỗi khi xóa sản phẩm:", error);
     }
   };
 
-  const deleteAll = async (_id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xoá toàn bộ giỏ hàng?")) {
-      await deleteAllCart(_id);
-      setCarts([]);
-      setTotalAmount(0);
+  const handleRemoveAllCart = async () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng không?")) {
+      try {
+        const { data } = await deleteAllCart();
+        setCarts([]);
+        setTotalAmount(0);
+        toast.success(data.message || "Đã xóa toàn bộ giỏ hàng!");
+      } catch (error: any) {
+        console.log(error);
+        toast.error(error.response?.data?.message || "Lỗi khi xóa giỏ hàng!");
+      }
+    }
+  };
+
+  const handleUpdateQuantity = async (
+    productId: string,
+    variantId: string,
+    newQuantity: number
+  ) => {
+    if (newQuantity <= 0) {
+      toast.error("Số lượng không được nhỏ hơn 1!");
+      return;
+    }
+
+    try {
+      const { data } = await updateCart(productId, variantId, newQuantity);
+      const updatedCart = carts.map((cart) =>
+        cart.productId._id === productId && cart.variantId === variantId
+          ? {
+              ...cart,
+              quantity: newQuantity,
+              salePrice:
+                data.cart.items.find(
+                  (i: CartItem) =>
+                    i.productId._id === productId && i.variantId === variantId
+                )?.salePrice || cart.salePrice,
+              subtotal:
+                newQuantity *
+                (data.cart.items.find(
+                  (i: CartItem) =>
+                    i.productId._id === productId && i.variantId === variantId
+                )?.salePrice || cart.salePrice),
+            }
+          : cart
+      );
+      setCarts(updatedCart);
+      setTotalAmount(data.cart.totalSalePrice);
+      toast.success(data.message || "Cập nhật số lượng thành công!");
+    } catch (error: any) {
+      console.log(error);
+      toast.error(
+        error.response?.data?.message || "Lỗi khi cập nhật số lượng!"
+      );
     }
   };
 
@@ -68,109 +131,136 @@ const Cart = () => {
   };
 
   return (
-    <>
-      {/* BREADCRUMB */}
-      <div id="breadcrumb" className="section">
-        {/* container */}
-        <div className="container">
-          {/* row */}
-          <div className="row">
-            <div className="col-md-12">
-              <ul className="breadcrumb-tree">
-                <li>
-                  <a href="/">Trang chủ</a>
-                </li>
-                <li className="active">Giỏ hàng</li>
-              </ul>
-            </div>
-          </div>
-          {/* /row */}
-        </div>
-        {/* /container */}
+    <div className="cart-container">
+      <div className="cart-header">
+        <h2>Giỏ hàng của bạn</h2>
       </div>
-      {/* /BREADCRUMB */}
-      <div className="cart-container">
-        {/* 🛒 Cart Header */}
-        {/* <div className="cart-header">
-        <h2>🛒 Giỏ hàng của bạn</h2>
-      </div> */}
 
-        {/* 📋 Cart Table */}
-        <div className="cart-table-container">
-          {carts.length > 0 ? (
+      <div className="cart-table-container">
+        {carts.length > 0 ? (
+          <>
             <table className="cart-table">
               <thead>
                 <tr>
                   <th>Sản phẩm</th>
-                  <th>Giá gốc</th>
+                  <th>Giá</th>
                   <th>Số lượng</th>
                   <th>Thành tiền</th>
-                  <th>Hủy</th>
+                  <th>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {carts.map((item, index) => (
-                  <tr key={index}>
-                    <td className="product-info">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="cart-product-image"
-                      />
-                      <div>
-                        <strong>{item.name}</strong>
-                        <p>
-                          {typeof item.variants?.color === "string"
-                            ? item.variants.color
-                            : item.variants.color.name}{" "}
-                          /{" "}
-                          {typeof item.variants?.capacity === "string"
-                            ? item.variants.capacity
-                            : item.variants.capacity.value}
-                        </p>
+                {carts.map((cart) => (
+                  <tr key={`${cart.productId._id}-${cart.variantId}`}>
+                    <td>
+                      <div className="cart-product-info">
+                        <img
+                          src={cart.productId.images[0]}
+                          alt={cart.productId.name}
+                          className="cart-product-image"
+                        />
+                        <div>
+                          <Link
+                            className="cart-product-name"
+                            to={`/product/${cart.productId._id}`}
+                          >
+                            {cart.productId.name}
+                          </Link>
+                          <div className="cart-product-variant">
+                            {cart.color} / {cart.capacity}
+                          </div>
+                        </div>
                       </div>
                     </td>
-                    <td>{formatPrice(item.variants.price)}</td>
-                    <td>{item.quantity}</td>
-                    <td>{formatPrice(item.subtotal)}</td>
+                    <td>
+                      <div className="product-price">
+                        <span className="product-sale-price">
+                          {formatPrice(cart.salePrice)}
+                        </span>
+                        {cart?.salePrice !== cart?.price && (
+                          <span className="product-old-price">
+                            {formatPrice(cart.price)}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="quantity-control">
+                        <button
+                          className="quantity-btn"
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              cart.productId._id,
+                              cart.variantId,
+                              cart.quantity - 1
+                            )
+                          }
+                        >
+                          -
+                        </button>
+                        <input
+                          type="text"
+                          className="quantity-input"
+                          value={cart.quantity}
+                          readOnly
+                        />
+                        <button
+                          className="quantity-btn"
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              cart.productId._id,
+                              cart.variantId,
+                              cart.quantity + 1
+                            )
+                          }
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
+                    <td>{formatPrice(cart.quantity * cart.salePrice)}</td>
                     <td>
                       <button
                         className="remove-btn"
-                        onClick={() => handleRemoveFromCart(item.productId)}
+                        onClick={() =>
+                          handleDeleteCartItem(
+                            cart.productId._id,
+                            cart.variantId
+                          )
+                        }
                       >
-                        ❌
+                        Xóa
                       </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          ) : (
-            <div className="empty-cart">
-              <p>Giỏ hàng của bạn đang trống! 🛒</p>
-              <Link to="/" className="continue-shopping">
-                Tiếp tục mua sắm
-              </Link>
+            <div className="delete-all-container">
+              <button className="delete-all-btn" onClick={handleRemoveAllCart}>
+                Xóa toàn bộ giỏ hàng
+              </button>
             </div>
-          )}
-        </div>
-        <div className="delete-all-container">
-          <button
-            className="delete-all-btn"
-            onClick={() => deleteAll(carts._id)}
-          >
-            🗑 Xóa tất cả
-          </button>
-        </div>
-        {/* 💰 Cart Summary */}
+          </>
+        ) : (
+          <div className="empty-cart">
+            <p>Giỏ hàng của bạn đang trống! 🛒</p>
+            <Link to="/" className="continue-shopping">
+              Tiếp tục mua sắm
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {carts.length > 0 && (
         <div className="cart-summary">
           <h3>Tổng tiền: {formatPrice(totalAmount)}</h3>
           <Link to="/checkout" className="checkout-btn">
-            🛍 Thanh toán ngay
+            Thanh toán ngay
           </Link>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

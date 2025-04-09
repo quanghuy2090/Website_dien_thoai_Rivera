@@ -13,7 +13,7 @@ import { CategoryContext } from "../../../context/CategoryContext";
 
 const categorySchema = z.object({
   name: z.string().min(3).max(225),
-  slug: z.string().min(3).max(225),
+  // slug: z.string().min(3).max(225),
 });
 const UpdateCategories = () => {
   const { updateCategory } = useContext(CategoryContext);
@@ -40,7 +40,7 @@ const UpdateCategories = () => {
     <div className="content">
       <div className="container  d-flex justify-content-center align-items-center mt-5">
         <div className="row justify-content-center w-100">
-          <div className="col-lg-8 col-md-10">
+          <div className="col-lg-12 col-md-12">
             <div className="text-center">
               <h2 className="fw-bold text-primary">
                 Cập nhật Danh Mục Sản Phẩm
@@ -75,7 +75,7 @@ const UpdateCategories = () => {
                   <p className="text-danger">{errors.name.message}</p>
                 )}
               </div>
-              <div className="form-group mb-5">
+              {/* <div className="form-group mb-5">
                 <label htmlFor="slug" className="fw-bold fs-5">
                   Mô tả
                 </label>
@@ -87,7 +87,7 @@ const UpdateCategories = () => {
                 {errors.slug && (
                   <p className="text-danger">{errors.slug.message}</p>
                 )}
-              </div>
+              </div> */}
               <div className="form-group mb-3">
                 <button className="btn btn-primary w-100 py-3 fs-5">Lưu</button>
               </div>

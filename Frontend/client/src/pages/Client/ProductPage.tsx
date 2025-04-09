@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getAllProduct, Product } from "../../services/product";
 import { addCart, Carts } from "../../services/cart";
 import "slick-carousel/slick/slick.css";
@@ -11,7 +11,7 @@ const ProductPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [productsPerPage] = useState<number>(9);
-  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  // const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [selectedCategory, setSelectdCategory] =
     useState<string>("Tất cả sản phẩm");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -19,7 +19,7 @@ const ProductPage = () => {
     [number, number] | null
   >(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const nav = useNavigate();
+  // const nav = useNavigate();
   const categories = [
     "Tất cả sản phẩm",
     ...new Set(
@@ -35,6 +35,7 @@ const ProductPage = () => {
   ];
 
   const filteredProducts = products.filter((p) => {
+    if (p.status === "banned") return false;
     // Kiểm tra nếu sản phẩm thuộc danh mục được chọn
     const categoryMatch =
       selectedCategory === "Tất cả sản phẩm" ||
@@ -58,8 +59,12 @@ const ProductPage = () => {
       try {
         const res = await getAllProduct();
         setProducts(res.data.data);
-      } catch (error) {
-        toast.error("Failed to load products.");
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
+        }
       } finally {
         setLoading(false);
       }
@@ -84,47 +89,54 @@ const ProductPage = () => {
 
   const addToCart = async (product: Product) => {
     try {
-      // Lấy thông tin user từ localStorage
-      const user = localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")!)
-        : null;
-
-      if (!user || !user._id) {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      if (!user?._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
-        nav("/login");
         return;
       }
 
-      // Kiểm tra xem sản phẩm có biến thể không
-      if (!product.variants || product.variants.length === 0) {
-        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+      if (product.status === "banned") {
+        toast.error("Sản phẩm này hiện không khả dụng");
         return;
       }
 
-      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
-      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
+      const selectedVariant = product.variants?.[0];
+      if (!selectedVariant) {
+        toast.error("Sản phẩm không có biến thể hợp lệ!");
+        return;
+      }
 
-      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
-      const cart: Carts = {
+      if (selectedVariant.stock <= 0) {
+        toast.error("Sản phẩm đã hết hàng!");
+        return;
+      }
+
+      const cartItem: Carts = {
         userId: user._id,
-        items: [
-          {
-            productId: product._id,
-            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
-            quantity: 1,
-          },
-        ],
+        productId: product._id,
+        variantId: selectedVariant._id,
+        quantity: 1,
+        price: selectedVariant.price,
+        salePrice: selectedVariant.salePrice,
+        color:
+          typeof selectedVariant.color === "object"
+            ? selectedVariant.color.name
+            : selectedVariant.color,
+        capacity:
+          typeof selectedVariant.capacity === "object"
+            ? selectedVariant.capacity.value
+            : selectedVariant.capacity,
+        subtotal: selectedVariant.salePrice * 1,
       };
 
-      // Gửi request lên API
-      const { data } = await addCart(cart);
-      console.log("API Response:", data); // Log response để kiểm tra
-
-      // Thông báo thành công
+      await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-    } catch (error) {
-      // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
-      toast.error("Thêm sản phẩm thất bại!");
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+      }
     }
   };
 
@@ -271,6 +283,13 @@ const ProductPage = () => {
                           <Link className="img" to={`/product/${product._id}`}>
                             <img src={product.images[0]} alt={product.name} />
                           </Link>
+                          {product.variants[0].sale > 0 && ( // Conditional rendering
+                            <div className="product-label3">
+                              <span className="new">
+                                {product.variants[0].sale}%
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <div className="product-body">
                           <p className="product-category">
@@ -286,7 +305,14 @@ const ProductPage = () => {
                           </h3>
                           <div className="price-section">
                             <h4 className="product-price">
-                              {formatPrice(product.variants[0].price)}
+                              {formatPrice(product.variants[0].salePrice)}
+                              <br />
+                              {product.variants[0]?.salePrice !==
+                                product.variants[0]?.price && (
+                                <del className="product-old-price">
+                                  {formatPrice(product.variants[0]?.price ?? 0)}
+                                </del>
+                              )}
                             </h4>
                             <div className="product-btns">
                               <button className="add-to-wishlist">

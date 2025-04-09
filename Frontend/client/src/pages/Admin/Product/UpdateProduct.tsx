@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Category, getProductById, Product, Variants } from "../../../services/product";
 import { useParams } from "react-router-dom";
 import { getCategories } from "../../../services/category";
@@ -10,7 +10,8 @@ import axios from "axios";
 import { ProductContext } from "../../../context/ProductContext";
 import { ColorContext } from "../../../context/ColorContext";
 import { CapacityContext } from "../../../context/CapacityContext";
-
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
   images: z
@@ -28,7 +29,6 @@ const productSchema = z.object({
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
-        sku: z.string().nonempty("SKU không được để trống"), // Bắt buộc SKU phải có giá trị
         sale: z.number().max(100, "sale max 100%"),
       })
     )
@@ -50,7 +50,7 @@ const UpdateProduct = () => {
       long_description: "",
       images: [],
       categoryId: "",
-      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "", sale: 0 }],
+      variants: [{ color: "", capacity: "", price: 1, stock: 0, sale: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -134,6 +134,8 @@ const UpdateProduct = () => {
       setImageInputs(
         images.map((img: string) => ({ file: null, preview: img }))
       );
+      // const cleanHTML = (html: string) =>
+      //   html.replace(/<\/?(em|i)>/g, "");
       reset({
         name: data.data.name,
         short_description: data.data.short_description,
@@ -146,7 +148,7 @@ const UpdateProduct = () => {
             capacity: typeof v.capacity === "object" ? v.capacity._id : v.capacity,
             sku: v.sku && v.sku !== "null" ? v.sku : `SKU-${Date.now()}`
           }))
-          : [{ color: "", capacity: "", price: 1, stock: 0, sku: `SKU-${Date.now()}`, sale: 0 }]
+          : [{ color: "", capacity: "", price: 1, stock: 0, sale: 0 }]
       });
 
 
@@ -171,17 +173,26 @@ const UpdateProduct = () => {
         );
       }
 
+
       product.images = imageUrls; // Gán danh sách ảnh đã cập nhật
       updateProducts(id!, product);
     } catch (err) {
       console.log(err)
     }
   };
+  // const modules = {
+  //   toolbar: [
+  //     [{ 'header': [1, 2, 3, 4, 5, 6, false] }], // Cho phép chọn heading từ H1 đến H6
+  //     ['bold', 'italic', 'underline'],
+  //     ['link', 'image'],
+  //     ['clean'] // Xóa định dạng
+  //   ],
+  // };
   return (
     <div className="content">
       <div className="container d-flex justify-content-center align-items-center min-vh-100 ">
         <div className="row justify-content-center w-100">
-          <div className="col-lg-6 col-md-8 col-sm-10">
+          <div className="col-lg-12 col-md-12">
             <div className="text-center mt-5">
               <h2 className="fw-bold text-primary">Cập nhật sản phẩm</h2>
               <p className="text-muted">Chỉnh sửa thông tin sản phẩm của bạn</p>
@@ -192,49 +203,59 @@ const UpdateProduct = () => {
               className="p-5 border rounded bg-white shadow"
             >
               {/* Tên và giá sản phẩm */}
-              <div className="row">
-                <div className="col-md-6 mb-3">
-                  <label htmlFor="name" className="fw-bold">
-                    Tên sản phẩm
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    {...register("name")}
-                  />
-                  {errors.name && (
-                    <p className="text-danger">{errors.name.message}</p>
-                  )}
-                </div>
-              </div>
 
-              {/* Mô tả */}
               <div className="mb-3">
-                <label htmlFor="description" className="fw-bold">
-                  Mô tả ngắn
-                </label>
-                <textarea
+                <label className="fw-bold">Tên sản phẩm</label>
+                <input
+                  type="text"
                   className="form-control"
-                  {...register("short_description", { required: true })}
-                ></textarea>
-                {errors.short_description && (
-                  <p className="text-danger">
-                    {errors.short_description.message}
-                  </p>
+                  {...register("name", { required: true })}
+                />
+                {errors.name && (
+                  <p className="text-danger">{errors.name.message}</p>
                 )}
               </div>
+
+
               <div className="mb-3">
-                <label htmlFor="short_description" className="fw-bold">
-                  Mô tả chi tiết
-                </label>
-                <textarea
-                  className="form-control"
-                  {...register("long_description", { required: true })}
-                ></textarea>
+                <label className="fw-bold">Mô tả ngắn</label>
+                <Controller
+                  name="short_description"
+                  control={control}
+                  rules={{ required: 'Vui lòng nhập mô tả ngắn' }}
+                  render={({ field }) => (
+                    <ReactQuill
+                      theme="snow"
+                      value={field.value}
+                      onChange={field.onChange}
+                      // modules={modules} // Thêm cấu hình toolbar
+                      placeholder="Nhập mô tả ngắn về sản phẩm này..."
+                    />
+                  )}
+                />
+                {errors.short_description && (
+                  <p className="text-danger">{errors.short_description.message}</p>
+                )}
+              </div>
+
+              <div className="mb-3">
+                <label className="fw-bold">Mô tả chi tiết</label>
+                <Controller
+                  name="long_description"
+                  control={control}
+                  rules={{ required: 'Vui lòng nhập mô tả chi tiết' }}
+                  render={({ field }) => (
+                    <ReactQuill
+                      theme="snow"
+                      value={field.value}
+                      onChange={field.onChange}
+                      // modules={modules} // Thêm cấu hình toolbar
+                      placeholder="Nhập mô tả chi tiết về sản phẩm..."
+                    />
+                  )}
+                />
                 {errors.long_description && (
-                  <p className="text-danger">
-                    {errors.long_description.message}
-                  </p>
+                  <p className="text-danger">{errors.long_description.message}</p>
                 )}
               </div>
 
@@ -414,7 +435,6 @@ const UpdateProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: `SKU-${Date.now()}`,
                     sale: 0,
                   })
                 }

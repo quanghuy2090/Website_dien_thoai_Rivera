@@ -6,27 +6,17 @@ import { ProductContext } from "../../../context/ProductContext";
 
 const DetailAdminProduct = () => {
   const { id } = useParams();
-  const { getDetailProduct, state, updateStatus } = useContext(ProductContext);
-  // const [loading, setLoading] = useState(false);
-  // const [status, setStatus] = useState(state.selectedProduct?.status || "active");
+  const { getDetailProduct, state } = useContext(ProductContext);
   useEffect(() => {
-    getDetailProduct(id!)
+    getDetailProduct(id!);
   }, []);
-  // const handleStatusChange = async () => {
-  //   if (!id) return;
+  const formatPrice = (price: number) => {
+    if (price === undefined || price === null) {
+      return "0 VND";
+    }
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+  };
 
-  //   try {
-  //     setLoading(true);
-  //     const newStatus = status === "active" ? "banned" : "active";
-  //     await updateProductStatus(id, newStatus);
-  //     setStatus(newStatus);
-  //     toast.success(`Sản phẩm đã chuyển sang trạng thái "${newStatus}"`);
-  //   } catch (error) {
-  //     // toast.error(error.response?.data?.message || "Lỗi khi cập nhật trạng thái");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   return (
     <div>
       <div className="content">
@@ -35,8 +25,8 @@ const DetailAdminProduct = () => {
         </h1>
         <p className="mb-4 text-secondary">
           Đây là thông tin chi tiết của sản phẩm "
-          <strong>{state.selectedProduct?.name}</strong>". Bạn có thể xem thông tin và
-          quản lý sản phẩm tại đây.
+          <strong>{state.selectedProduct?.name}</strong>". Bạn có thể xem thông
+          tin và quản lý sản phẩm tại đây.
         </p>
 
         <div className="table-container">
@@ -52,35 +42,23 @@ const DetailAdminProduct = () => {
               </tr>
               <tr>
                 <th>Mô tả ngắn</th>
-                <td>{state.selectedProduct?.short_description}</td>
+                <td dangerouslySetInnerHTML={{ __html: state.selectedProduct?.short_description || "" }}></td>
               </tr>
               <tr>
                 <th>Mô tả chi tiết</th>
-                <td>{state.selectedProduct?.long_description}</td>
-              </tr>
-              <tr>
-                <th>Trạng Thái</th>
-                <td>
-                  <div className="form-check form-switch">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      role="switch"
-                      checked={state.selectedProduct?.status === "active"} // Kiểm tra trạng thái hiện tại
-                      onChange={() =>
-                        updateStatus(
-                          state.selectedProduct?._id as string,
-                          state.selectedProduct?.status === "active" ? "banned" : "active"
-                        )
-                      }
-                    />
-                    <label className="form-check-label ms-2">
-                      {state.selectedProduct?.status === "active" ? "Hoạt động" : "Bị cấm"}
-                    </label>
-                  </div>
-                </td>
+                <td dangerouslySetInnerHTML={{ __html: state.selectedProduct?.long_description || "" }}></td>
               </tr>
 
+
+              <tr>
+                <th>Trạng thái</th>
+                <td>{state.selectedProduct?.status}</td>
+              </tr>
+
+              <tr>
+                <th>Hot</th>
+                <td>{state.selectedProduct?.is_hot}</td>
+              </tr>
 
               <tr>
                 <th>Danh mục</th>
@@ -90,7 +68,6 @@ const DetailAdminProduct = () => {
                       ? state.selectedProduct.categoryId.name
                       : "Không có danh mục"}
                   </td>
-
                 </td>
               </tr>
               <tr>
@@ -102,29 +79,55 @@ const DetailAdminProduct = () => {
               <tr>
                 <th>Biến thể</th>
                 <td>
-                  <table className="table table-bordered border-primary">
-                    <thead>
-                      <tr>
-                        <th>Màu</th>
-                        <th>Giá</th>
-                        <th>Bộ nhớ</th>
-                        <th>Stock</th>
-                        <th>Sku</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {state.selectedProduct?.variants.map((variant, index) => (
-                        <tr key={index}>
+                  {state.selectedProduct?.variants.map((variant, index) => (
+                    <table key={index} className="table table-bordered border-primary mb-4">
+                      <thead className="table-light">
+                        <tr>
+                          <th colSpan={2}>Phiên bản {index + 1}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">Màu</th>
                           <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
-                          <td>{variant.price}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Giá</th>
+                          <td>{formatPrice(variant.price)}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row"> Sale</th>
+                          <td className="badge bg-danger">{variant.sale}%</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Giá Sale</th>
+                          <td className="text-warning fw-bold">{formatPrice(variant.salePrice)}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Bộ nhớ</th>
                           <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Số lượng</th>
                           <td>{variant.stock}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">Sku</th>
                           <td>{variant.sku}</td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  ))}
+
                 </td>
+              </tr>
+              <tr>
+                <th>Ngày tạo</th>
+                <td>{state.selectedProduct?.createdAt ? new Date(state.selectedProduct.createdAt).toLocaleDateString() : "N/A"}</td>
+              </tr>
+              <tr>
+                <th>Cập nhật lần cuối</th>
+                <td>{state.selectedProduct?.updatedAt ? new Date(state.selectedProduct.updatedAt).toLocaleString() : "N/A"}</td>
               </tr>
             </tbody>
           </table>

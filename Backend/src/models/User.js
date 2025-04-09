@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, //Định dạng email
-      trim:true,
+      trim: true,
       lowercase: true,
     },
     phone: {
@@ -48,8 +48,16 @@ const userSchema = new mongoose.Schema(
       enum: [1, 2, 3], // 1: Admin, 2: Seller, 3: Customer
       default: 3,
     },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    versionKey: false,
+  }
 );
 
 export default mongoose.model("User", userSchema);

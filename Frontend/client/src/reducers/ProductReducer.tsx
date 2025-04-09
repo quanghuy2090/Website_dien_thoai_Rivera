@@ -11,6 +11,7 @@ type Action =
     | { type: "UPDATE_PRODUCTS"; payload: Product }
     | { type: "SET_SELECTED_PRODUCTS"; payload: Product | undefined }
     | { type: "UPDATE_STATUS"; payload: { _id: string, status: string } }
+    | { type: "UPDATE_IS_HOT"; payload: { _id: string, is_hot: string } }
 
 const ProductReducer = (state: State, action: Action): State => {
     switch (action.type) {
@@ -55,18 +56,26 @@ const ProductReducer = (state: State, action: Action): State => {
         case "UPDATE_STATUS":
             return {
                 ...state,
-                selectedProduct: state.selectedProduct
-                    ? {
-                        ...state.selectedProduct,
-                        status: action.payload.status,
-                    }
-                    : undefined,
-
+                selectedProduct: state.selectedProduct && state.selectedProduct._id === action.payload._id
+                    ? { ...state.selectedProduct, status: action.payload.status }
+                    : state.selectedProduct,
                 products: state.products.map((product) =>
                     product._id === action.payload._id
                         ? { ...product, status: action.payload.status }
                         : product
                 ),
+            };
+        case "UPDATE_IS_HOT":
+            return {
+                ...state,
+                selectedProduct: state.selectedProduct && state.selectedProduct._id === action.payload._id
+                    ? { ...state.selectedProduct, is_hot: action.payload.is_hot }
+                    : state.selectedProduct,
+                products: state.products.map((product) =>
+                    product._id === action.payload._id
+                        ? { ...product, is_hot: action.payload.is_hot }
+                        : product
+                )
             };
 
         default:

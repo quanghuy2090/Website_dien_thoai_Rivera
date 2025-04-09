@@ -1,8 +1,9 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
 
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaPen } from "react-icons/fa";
 import { AuthContext } from '../../../context/AuthContext';
+import { IoMdAdd } from 'react-icons/io';
 const ListUser = () => {
     const { state } = useContext(AuthContext);
     const getRoleName = (role: number) => {
@@ -10,7 +11,7 @@ const ListUser = () => {
             case 1:
                 return "Admin";
             case 2:
-                return "Quản lý";
+                return "Nhân viên";
             case 3:
                 return "Người dùng";
             default:
@@ -27,16 +28,17 @@ const ListUser = () => {
             </p>
 
             <div className='table-container'>
+                <Link to={`/admin/user/add`} className='btn btn-primary mb-3 w-100'> <IoMdAdd /></Link>
                 <table className="table table-bordered">
                     <thead>
                         <tr>
                             <th scope="col">Stt</th>
-                            <th scope="col">username</th>
-                            <th scope="col">email</th>
-                            <th scope="col">address</th>
-                            <th scope="col">phone</th>
-                            <th scope="col">role</th>
-                            <th scope="col">action</th>
+                            <th scope="col">Họ & Tên</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Địa Chỉ</th>
+                            <th scope="col">Số Điện Thoại</th>
+                            <th scope="col">Vai trò</th>
+                            <th scope="col">Tùy chọn</th>
 
 
                         </tr>
@@ -53,6 +55,7 @@ const ListUser = () => {
                                 <td>
 
                                     <Link to={`/admin/user/${u._id}`} className='btn btn-warning'><FaEye /></Link>
+                                    <Link to={`/admin/update/user/${u._id}`} className='btn btn-success'> <FaPen /></Link>
                                 </td>
                             </tr>
                         ))}

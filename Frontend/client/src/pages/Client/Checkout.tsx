@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { Carts, getCart } from "../../services/cart";
+import { CartItem, getCart } from "../../services/cart";
 import {
   createOrder,
+  createOrderOnline, // Import hàm mới
   District,
   IShippingAddress,
   Order,
@@ -15,371 +15,426 @@ import {
 } from "../../services/order";
 
 const Checkout = () => {
-    const { register, handleSubmit, setValue, watch } = useForm<
-        IShippingAddress & { paymentMethod: Order["paymentMethod"] }
-    >({});
-    const [carts, setCarts] = useState<Carts[]>([]);
-    const [totalPrice, setTotalPrice] = useState<number>(0);
-    const [userId, setUsetId] = useState<string | null>(null);
-    const [provinces, setProvinces] = useState<Province[]>([]);
-    const [districts, setDistricts] = useState<District[]>([]);
-    const [wards, setWards] = useState<Ward[]>([]);
-    const [userName, setUserName] = useState<string>("");
-    const [address, setAddress] = useState<string>("");
-    const [email, setEmail] = useState<string>("");
-    const [phone, setPhone] = useState<string>("");
-    const nav = useNavigate();
-    useEffect(() => {
-        const fetchProvinces = async () => {
-            try {
-                const { data } = await axios.get(
-                    "https://provinces.open-api.vn/api/?depth=3"
-                );
-                console.log(data);
-                setProvinces(data);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        const userData = localStorage.getItem("user");
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                if (user && user._id) {
-                    setUsetId(user._id);
-                    fetchCart(user._id);
-                    setEmail(user.email || "");
-                    setUserName(user.userName || "");
-                    setAddress(user.address || "");
-                    setPhone(user.phone || "");
-                }
-            } catch (error) {
-                console.log(error);
-            }
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<
+    // Thêm errors
+    IShippingAddress & { paymentMethod: Order["paymentMethod"] }
+  >({
+    mode: "onBlur", // Thêm cái mode để validation
+  });
+  const [carts, setCarts] = useState<CartItem[]>([]);
+  // const [totalPrice, setTotalPrice] = useState<number>(0); // Không dùng nữa
+  const [userId, setUsetId] = useState<string | null>(null);
+  const [provinces, setProvinces] = useState<Province[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+  const [totalAmount, setTotalAmount] = useState<number>(0); // Dùng cái này
+  const nav = useNavigate();
+
+  // Lấy thông tin tỉnh/thành phố (giữ nguyên)
+  useEffect(() => {
+    const fetchProvinces = async () => {
+      try {
+        const { data } = await axios.get(
+          "https://provinces.open-api.vn/api/?depth=3"
+        );
+        setProvinces(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchProvinces();
+
+    // Lấy thông tin user, giỏ hàng
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user && user._id) {
+          setUsetId(user._id);
+          fetchCart();
+          // Set giá trị mặc định cho form (từ user)
+          setValue("name", user.userName || "");
+          setValue("street", user.address || ""); // Sửa thành street
+          setValue("phone", user.phone || "");
         }
-        fetchProvinces();
-    }, []);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }, []);
 
   const selectedProvince = watch("city");
   const selectedDistrict = watch("district");
 
-  // Khi chọn tỉnh/thành phố, cập nhật danh sách quận/huyện
   useEffect(() => {
     if (selectedProvince) {
       const province = provinces.find((p) => p.name === selectedProvince);
       setDistricts(province ? province.districts : []);
-      setWards([]); // Reset danh sách phường/xã khi chọn tỉnh mới
-      setValue("district", ""); // Reset giá trị quận/huyện
-      setValue("ward", ""); // Reset giá trị phường/xã
+      setWards([]);
+      setValue("district", "");
+      setValue("ward", "");
     }
   }, [selectedProvince, provinces, setValue]);
 
-  // Khi chọn quận/huyện, cập nhật danh sách phường/xã
   useEffect(() => {
     if (selectedDistrict) {
       const district = districts.find((d) => d.name === selectedDistrict);
       setWards(district ? district.wards : []);
-      setValue("ward", ""); // Reset giá trị phường/xã
+      setValue("ward", "");
     }
   }, [selectedDistrict, districts, setValue]);
 
-    const fetchCart = async (userId: string) => {
+  const fetchCart = async () => {
+    try {
+      const { data } = await getCart();
+      if (data.cart && data.cart.items) {
+        setCarts(data.cart.items);
+        setTotalAmount(data.cart.totalSalePrice || 0);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gọi API giỏ hàng:", error);
+    }
+  };
+
+  const onSubmit = async (
+    formData: IShippingAddress & { paymentMethod: Order["paymentMethod"] }
+  ) => {
+    if (!userId) {
+      toast.error("Vui lòng đăng nhập để đặt hàng!");
+      return;
+    }
+
+    try {
+      const newOrder: Omit<
+        Order,
+        | "_id"
+        | "createdAt"
+        | "updatedAt"
+        | "paymentStatus"
+        | "status"
+        | "totalAmount"
+        | "items"
+      > & { orderItems: CartItem[] } = {
+        userId: userId,
+        orderItems: carts,
+        shippingAddress: {
+          name: formData.name,
+          street: formData.street,
+          phone: formData.phone,
+          ward: formData.ward,
+          district: formData.district,
+          city: formData.city,
+        },
+        paymentMethod: formData.paymentMethod,
+      };
+
+      if (formData.paymentMethod === "Online") {
         try {
-            const { data } = await getCart(userId);
-            if (data?.cart?.items) {
-                setCarts(data.cart.items);
-                const total = data.cart.items.reduce(
-                    (sum: number, item: Carts) =>
-                        sum + item.productId.price * item.quantity,
-                    0
-                );
-                setTotalPrice(total);
-            } else {
-                setCarts([]);
-                setTotalPrice(0);
-            }
-        } catch (error) {
-            console.log(error);
+          const { data } = await createOrderOnline(newOrder);
+          window.location.href = data.paymentUrl;
+        } catch (error: any) {
+          if (error.response?.data?.message) {
+            toast.error(error.response.data.message);
+          } else {
+            toast.error(
+              "Có lỗi xảy ra khi thanh toán online. Vui lòng thử lại!"
+            );
+          }
         }
-    };
-
-    const onSubmit = async (
-        formData: IShippingAddress & { paymentMethod: Order["paymentMethod"] }
-    ) => {
-        if (!userId) {
-            alert("Vui lòng đăng nhập để đặt hàng!");
-            return;
-        }
+      } else {
         try {
-            const newOrder: Omit<Order, "_id" | "createdAt" | "updatedAt"> = {
-                userId,
-                orderItems: carts,
-                shippingAddress: {
-                    // fullName: formData.fullName,
-                    // phone: formData.phone,
-                    // address: formData.address,
-                    ward: formData.ward,
-                    district: formData.district,
-                    city: formData.city,
-                },
-                paymentMethod: formData.paymentMethod,
-                paymentStatus: "Chưa thanh toán",
-                totalPrice,
-                orderStatus: "Chưa xác nhận",
-            };
-            const { data } = await createOrder(newOrder);
-
-            toast.success("Checkout successfully");
-            nav("/bill");
-            console.log(data);
-            setCarts([]);
-            setTotalPrice(0);
-        } catch (error) {
-            console.log(error);
-            toast.error("Error creating");
+          const { data } = await createOrder(newOrder);
+          toast.success("Đặt hàng thành công!");
+          nav("/history");
+          setCarts([]);
+          setTotalAmount(0);
+        } catch (error: any) {
+          if (error.response?.data?.message) {
+            toast.error(error.response.data.message);
+          } else {
+            toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
+          }
         }
-    };
-    const formatPrice = (price: number) => {
-        if (price === undefined || price === null) {
-            return "0 VND"; // Return a default value if price is undefined
-        }
-        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " VND";
-    };
+      }
+    } catch (error: any) {
+      console.error("Lỗi:", error);
+      toast.error(
+        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
+      );
+    }
+  };
 
-    return (
-        <div>
-            {/* Page Header Start */}
-            <div className="container-fluid bg-secondary mb-5">
-                <div
-                    className="d-flex flex-column align-items-center justify-content-center"
-                    style={{ minHeight: 150 }}
-                >
-                    <h1 className="font-weight-semi-bold text-uppercase mb-3">
-                        Checkout
-                    </h1>
-                    <div className="d-inline-flex">
-                        <p className="m-0">
-                            <a href="/">Home</a>
-                        </p>
-                        <p className="m-0 px-2">-</p>
-                        <p className="m-0">Checkout</p>
-                    </div>
-                </div>
+  const formatPrice = (price: number) => {
+    return price.toLocaleString("vi-VN") + " VND";
+  };
+  return (
+    <>
+      {/* BREADCRUMB */}
+      <div id="breadcrumb" className="section">
+        {/* container */}
+        <div className="container">
+          {/* row */}
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li>
+                  <a href="/cart">Giỏ hàng</a>
+                </li>
+                <li className="active">Thanh toán</li>
+              </ul>
             </div>
-            {/* Page Header End */}
-            {/* Checkout Start */}
-            <div className="container-fluid pt-5">
-                <div className="row px-xl-5">
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="row">
-                            <div className="col-lg-8">
-                                <div className="mb-4">
-                                    <h4 className="font-weight-semi-bold mb-4">
-                                        Billing Address
-                                    </h4>
-                                    <div className="row">
-                                        <div>
-                                            <div className="form-group">
-                                                <label htmlFor="userName">Người dùng</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={userName}
-                                                    placeholder="Nhập tên người dùng"
-                                                />
-                                            </div>
-
-                                            <div className="form-group">
-                                                <label htmlFor="address">Email</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={email}
-                                                    placeholder="Nhập địa chỉ"
-                                                />
-                                            </div>
-
-                                            <div className="form-group">
-                                                <label htmlFor="phone">Số điện thoại</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={phone}
-                                                    placeholder="Nhập số điện thoại"
-                                                />
-                                            </div>
-                                            <div className="form-group">
-                                                <label htmlFor="phone">Địa chỉ</label>
-                                                <input
-                                                    type="text" disabled
-                                                    className="form-control"
-                                                    value={address}
-                                                    placeholder="Nhập số điện thoại"
-                                                />
-                                            </div>
-                                            <div className=" form-group">
-                                                <label htmlFor="city">Tỉnh / Thành phố</label>
-                                                <select className="form-control" {...register("city")}>
-                                                    <option value="">Chọn tỉnh / thành phố</option>
-                                                    {provinces.map((province) => (
-                                                        <option key={province.code} value={province.name}>
-                                                            {province.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            <div className=" form-group">
-                                                <label htmlFor="district">Quận / Huyện</label>
-                                                <select
-                                                    className="form-control"
-                                                    {...register("district")}
-                                                    disabled={!districts.length}
-                                                >
-                                                    <option value="">Chọn quận / huyện</option>
-                                                    {districts.map((district) => (
-                                                        <option key={district.code} value={district.name}>
-                                                            {district.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            <div className=" form-group">
-                                                <label htmlFor="ward">Phường / Xã</label>
-                                                <select
-                                                    className="form-control"
-                                                    {...register("ward")}
-                                                    disabled={!wards.length}
-                                                >
-                                                    <option value="">Chọn phường / xã</option>
-                                                    {wards.map((ward) => (
-                                                        <option key={ward.code} value={ward.name}>
-                                                            {ward.name}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            {/* <div className=" form-group">
-                                                <label htmlFor="address">Địa chỉ</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    {...register("address")}
-                                                />
-                                            </div> */}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-lg-4">
-                                <div className="card border-secondary mb-5">
-                                    <div className="card-header bg-secondary border-0">
-                                        <h4 className="font-weight-semi-bold m-0">
-                                            Tổng thanh toán
-                                        </h4>
-                                    </div>
-                                    <div className="card-body">
-                                        <h5 className="font-weight-medium mb-3">Sản phẩm</h5>
-                                        {carts.map((item) => (
-                                            <div className="d-flex justify-content-between">
-                                                <p>{item.productId.name}</p>
-                                                <p>{formatPrice(item.productId.price)}</p>
-                                                <p>{item.quantity}</p>
-                                            </div>
-                                        ))}
-                                        <hr className="mt-0" />
-                                        {/* <div className="d-flex justify-content-between mb-3 pt-1">
-                  <h6 className="font-weight-medium">Subtotal</h6>
-                  <h6 className="font-weight-medium">$150</h6>
-                </div>
-                <div className="d-flex justify-content-between">
-                  <h6 className="font-weight-medium">Shipping</h6>
-                  <h6 className="font-weight-medium">$10</h6>
-                </div> */}
-                                    </div>
-                                    <div className="card-footer border-secondary bg-transparent">
-                                        <div className="d-flex justify-content-between mt-2">
-                                            <h5 className="font-weight-bold">Tổng</h5>
-                                            <h5 className="font-weight-bold">
-                                                {formatPrice(totalPrice)}
-                                            </h5>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="card border-secondary mb-5">
-                                    <div className="card-header bg-secondary border-0">
-                                        <h4 className="font-weight-semi-bold m-0">
-                                            Phương thức thanh toán
-                                        </h4>
-                                    </div>
-                                    <div className="card-body">
-                                        <div className="form-group">
-                                            <div className="custom-control custom-radio mb-2">
-                                                <input
-                                                    type="radio"
-                                                    value="COD"
-                                                    className="custom-control-input"
-                                                    id="payment-cod"
-                                                    {...register("paymentMethod")}
-                                                />
-                                                <label
-                                                    htmlFor="payment-cod"
-                                                    className="custom-control-label"
-                                                >
-                                                    Thanh toán khi nhận hàng
-                                                </label>
-                                            </div>
-                                            <div className="custom-control custom-radio mb-2">
-                                                <input
-                                                    type="radio"
-                                                    className="custom-control-input"
-                                                    id="payment-credit-card"
-                                                    value="Credit Card"
-                                                    {...register("paymentMethod")}
-                                                />
-                                                <label
-                                                    htmlFor="payment-credit-card"
-                                                    className="custom-control-label"
-                                                >
-                                                    Thẻ tín dụng
-                                                </label>
-                                            </div>
-                                            <div className="custom-control custom-radio mb-2">
-                                                <input
-                                                    type="radio"
-                                                    className="custom-control-input"
-                                                    id="payment-bank-transfer"
-                                                    value="Bank Transfer"
-                                                    {...register("paymentMethod")}
-                                                />
-                                                <label
-                                                    htmlFor="payment-bank-transfer"
-                                                    className="custom-control-label"
-                                                >
-                                                    Chuyển khoản ngân hàng
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="card-footer border-secondary bg-transparent">
-                                        <button
-                                            type="submit"
-                                            className="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3"
-                                        >
-                                            Đặt hàng
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            {/* Checkout End */}
+          </div>
+          {/* /row */}
         </div>
-    );
+        {/* /container */}
+      </div>
+      {/* /BREADCRUMB */}
+      <div>
+        {/* Page Header End */}
+        {/* SECTION */}
+        <div className="section">
+          {/* container */}
+          <div className="container">
+            {/* row */}
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="row">
+                <div className="col-md-7">
+                  {/* Billing Details */}
+                  <div className="billing-details">
+                    <div className="section-title">
+                      <h3 className="title">Thông tin thanh toán</h3>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="name">Tên người dùng</label>
+                      <input
+                        type="text"
+                        className={`input ${errors.name ? "is-invalid" : ""}`}
+                        placeholder="Nhập tên người dùng"
+                        {...register("name", { required: "Vui lòng nhập tên" })}
+                      />
+                      {errors.name && (
+                        <p className="invalid-feedback">
+                          {errors.name.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="phone">Số điện thoại</label>
+                      <input
+                        type="text"
+                        className={`input ${errors.phone ? "is-invalid" : ""}`}
+                        placeholder="Nhập số điện thoại"
+                        {...register("phone", {
+                          required: "Vui lòng nhập số điện thoại",
+                          pattern: {
+                            value: /^[0-9]{10}$/, // VD: Yêu cầu 10 chữ số
+                            message: "Số điện thoại không hợp lệ",
+                          },
+                        })}
+                      />
+                      {errors.phone && (
+                        <p className="invalid-feedback">
+                          {errors.phone.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="street">Địa chỉ</label>
+                      <input
+                        type="text"
+                        className={`input ${errors.street ? "is-invalid" : ""}`}
+                        placeholder="Nhập địa chỉ"
+                        {...register("street", {
+                          required: "Vui lòng nhập địa chỉ",
+                        })}
+                      />
+                      {errors.street && (
+                        <p className="invalid-feedback">
+                          {errors.street.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="city">Tỉnh / Thành phố</label>
+                      <select
+                        className={`input ${errors.city ? "is-invalid" : ""}`}
+                        {...register("city", {
+                          required: "Vui lòng chọn tỉnh/thành phố",
+                        })}
+                      >
+                        <option value="">Chọn tỉnh / thành phố</option>
+                        {provinces.map((province) => (
+                          <option key={province.code} value={province.name}>
+                            {province.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.city && (
+                        <p className="invalid-feedback">
+                          {errors.city.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className=" form-group">
+                      <label htmlFor="district">Quận / Huyện</label>
+                      <select
+                        className={`input ${
+                          errors.district ? "is-invalid" : ""
+                        }`}
+                        {...register("district", {
+                          required: "Vui lòng chọn quận/huyện",
+                        })}
+                        disabled={!districts.length}
+                      >
+                        <option value="">Chọn quận / huyện</option>
+                        {districts.map((district) => (
+                          <option key={district.code} value={district.name}>
+                            {district.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.district && (
+                        <p className="invalid-feedback">
+                          {errors.district.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className=" form-group">
+                      <label htmlFor="ward">Phường / Xã</label>
+                      <select
+                        className={`input ${errors.ward ? "is-invalid" : ""}`}
+                        {...register("ward", {
+                          required: "Vui lòng chọn phường/xã",
+                        })}
+                        disabled={!wards.length}
+                      >
+                        <option value="">Chọn phường / xã</option>
+                        {wards.map((ward) => (
+                          <option key={ward.code} value={ward.name}>
+                            {ward.name}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.ward && (
+                        <p className="invalid-feedback">
+                          {errors.ward.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* /Billing Details */}
+                {/* Order Details */}
+                <div className="col-md-5 order-details">
+                  <div className="section-title text-center">
+                    <h3 className="title">Đơn hàng</h3>
+                  </div>
+                  <div className="order-summary">
+                    <div className="order-col"></div>
+                    <div className="order-products">
+                      {carts.map((cart) => (
+                        <div
+                          className="checkout-product"
+                          key={`${cart.productId._id}-${cart.variantId}`}
+                        >
+                          <tr>
+                            <div>
+                              <strong>Sản phẩm</strong>
+                              <td>
+                                {cart.quantity} x {cart.productId.name}-
+                                {cart.color}-{cart.capacity}
+                              </td>
+                            </div>
+                            <div>
+                              <strong>Giá</strong>
+                              <td className="text-center">
+                                {formatPrice(cart.salePrice)}
+                              </td>
+                            </div>
+                          </tr>
+                        </div>
+                      ))}
+                    </div>
+                    {/* <div className="order-col">
+                      <div>Phí giao hàng</div>
+                      <div><strong>FREE</strong></div>
+                    </div> */}
+                    <div className="order-col">
+                      <div>
+                        <strong>Tổng</strong>
+                      </div>
+                      <div>
+                        <strong className="order-total">
+                          {formatPrice(totalAmount)}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="payment-method">
+                    <div className="input-radio">
+                      <input
+                        type="radio"
+                        value="COD"
+                        id="payment-cod"
+                        {...register("paymentMethod", {
+                          required: "Vui lòng chọn phương thức thanh toán",
+                        })}
+                      />
+                      <label htmlFor="payment-cod">
+                        <span />
+                        Thanh toán khi nhận hàng
+                      </label>
+                      <div className="caption">
+                        <p>Thanh toán khi nhận hàng</p>
+                      </div>
+                    </div>
+
+                    <div className="input-radio">
+                      <input
+                        type="radio"
+                        id="payment-online"
+                        value="Online"
+                        {...register("paymentMethod", {
+                          required: "Vui lòng chọn phương thức thanh toán",
+                        })}
+                      />
+                      <label htmlFor="payment-online">
+                        <span />
+                        Thanh Toán VNPay
+                      </label>
+                      {errors.paymentMethod && (
+                        <p className="text-danger">
+                          {errors.paymentMethod.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <button type="submit" className="primary-btn order-submit">
+                    Đặt hàng
+                  </button>
+                </div>
+                {/* /Order Details */}
+              </div>
+            </form>
+            {/* /row */}
+          </div>
+          {/* /container */}
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default Checkout;

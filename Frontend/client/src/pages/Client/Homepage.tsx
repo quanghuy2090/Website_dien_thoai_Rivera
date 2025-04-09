@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { getAllProduct, Product } from "../../services/product";
 import { addCart, Carts } from "../../services/cart";
 import toast from "react-hot-toast";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -11,78 +11,96 @@ import "../../css/style.css";
 const HomePage = () => {
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
-  const nav = useNavigate();
+  // const nav = useNavigate();
   const productSliderRef = useRef<Slider | null>(null); // Ref for the first slider
   const hotDealSliderRef = useRef<Slider | null>(null); // Ref for the second slider
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await getAllProduct();
-      const allProducts = res.data.data;
+      try {
+        const res = await getAllProduct();
+        const allProducts = res.data.data;
 
-      // Get current date and subtract 1 month
-      const oneMonthAgo = new Date();
-      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        // Get current date and subtract 1 month
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-      // Filter products created within the last month
-      const recentProducts = allProducts.filter((product: Product) => {
-        const createdAtDate = new Date(product.createdAt);
-        return createdAtDate >= oneMonthAgo;
-      });
+        // Filter products created within the last month
+        const recentProducts = allProducts.filter((product: Product) => {
+          const createdAtDate = new Date(product.createdAt);
+          return createdAtDate >= oneMonthAgo && product.status !== "banned";
+        });
 
-      const bestSellingProducts = allProducts.filter((product: Product) => product.is_hot === "yes");
+        const bestSellingProducts = allProducts.filter(
+          (product: Product) =>
+            product.is_hot === "yes" && product.status !== "banned"
+        );
 
-      setNewProducts(recentProducts);
-      setHotProducts(bestSellingProducts);
+        setNewProducts(recentProducts);
+        setHotProducts(bestSellingProducts);
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
+        }
+      }
     };
     fetchProducts();
   }, []);
+
   const addToCart = async (product: Product) => {
     try {
-      // Lấy thông tin user từ localStorage
-      const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null;
-
-      if (!user || !user._id) {
+      const user = JSON.parse(localStorage.getItem("user") || "null");
+      if (!user?._id) {
         toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
-        nav("/login");
         return;
       }
 
-      // Kiểm tra xem sản phẩm có biến thể không
-      if (!product.variants || product.variants.length === 0) {
-        toast.error("Sản phẩm này không có biến thể hợp lệ!");
+      if (product.status === "banned") {
+        toast.error("Sản phẩm này hiện không khả dụng");
         return;
       }
 
-      // Chọn biến thể đầu tiên làm mặc định hoặc để người dùng chọn
-      const selectedVariant = product.variants[0]; // Cần thay đổi nếu cho phép chọn biến thể
+      const selectedVariant = product.variants?.[0];
+      if (!selectedVariant) {
+        toast.error("Sản phẩm không có biến thể hợp lệ!");
+        return;
+      }
 
-      // Chuẩn bị dữ liệu giỏ hàng theo đúng format `Carts`
-      const cart: Carts = {
+      if (selectedVariant.stock <= 0) {
+        toast.error("Sản phẩm đã hết hàng!");
+        return;
+      }
+
+      const cartItem: Carts = {
         userId: user._id,
-        items: [
-          {
-            productId: product._id,
-            variantId: selectedVariant._id, // Lấy `variantId` từ `product.variants`
-            quantity: 1,
-          },
-        ],
+        productId: product._id,
+        variantId: selectedVariant._id,
+        quantity: 1,
+        price: selectedVariant.price,
+        salePrice: selectedVariant.salePrice,
+        color:
+          typeof selectedVariant.color === "object"
+            ? selectedVariant.color.name
+            : selectedVariant.color,
+        capacity:
+          typeof selectedVariant.capacity === "object"
+            ? selectedVariant.capacity.value
+            : selectedVariant.capacity,
+        subtotal: selectedVariant.salePrice * 1,
       };
 
-      // Gửi request lên API
-      const { data } = await addCart(cart);
-      console.log("API Response:", data); // Log response để kiểm tra
-
-      // Thông báo thành công
+      await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-
-
-    } catch (error) {
-      // console.error("Lỗi khi thêm vào giỏ hàng:", error.response?.data || error);
-      toast.error("Thêm sản phẩm thất bại!");
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+      }
     }
   };
-
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -162,11 +180,18 @@ const HomePage = () => {
                       <div className="product-label">
                         <span className="new">NEW</span>
                       </div>
+                      {product.variants[0].sale > 0 && ( // Conditional rendering
+                        <div className="product-label2">
+                          <span className="new">
+                            {product.variants[0].sale}%
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="product-body">
                       <p className="product-category">
                         {typeof product.categoryId === "object" &&
-                          product.categoryId !== null
+                        product.categoryId !== null
                           ? product.categoryId.name
                           : product.categoryId}
                       </p>
@@ -177,7 +202,14 @@ const HomePage = () => {
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {formatPrice(product.variants[0].price)}
+                          {formatPrice(product.variants[0].salePrice)}
+                          <br />
+                          {product.variants[0]?.salePrice !==
+                            product.variants[0]?.price && (
+                            <del className="product-old-price">
+                              {formatPrice(product.variants[0]?.price ?? 0)}
+                            </del>
+                          )}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
@@ -266,11 +298,18 @@ const HomePage = () => {
                       <div className="product-label">
                         <span className="new">HOT</span>
                       </div>
+                      {product.variants[0].sale > 0 && ( // Conditional rendering
+                        <div className="product-label2">
+                          <span className="new">
+                            {product.variants[0].sale}%
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="product-body">
                       <p className="product-category">
                         {typeof product.categoryId === "object" &&
-                          product.categoryId !== null
+                        product.categoryId !== null
                           ? product.categoryId.name
                           : product.categoryId}
                       </p>
@@ -281,7 +320,14 @@ const HomePage = () => {
                       </h3>
                       <div>
                         <h4 className="product-price">
-                          {formatPrice(product.variants[0].price)}
+                          {formatPrice(product.variants[0].salePrice)}
+                          <br />
+                          {product.variants[0]?.salePrice !==
+                            product.variants[0]?.price && (
+                            <del className="product-old-price">
+                              {formatPrice(product.variants[0]?.price ?? 0)}
+                            </del>
+                          )}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
@@ -339,16 +385,16 @@ const HomePage = () => {
             <div className="col-md-12">
               <div className="newsletter">
                 <p>
-                  Sign Up for the <strong>NEWSLETTER</strong>
+                  Đăng ký dể trở thành <strong>Thành viên mới</strong> !
                 </p>
                 <form>
                   <input
                     className="input"
                     type="email"
-                    placeholder="Enter Your Email"
+                    placeholder="Điền email"
                   />
                   <button className="newsletter-btn">
-                    <i className="fa fa-envelope" /> Subscribe
+                    <i className="fa fa-envelope" /> Đăng ký
                   </button>
                 </form>
                 <ul className="newsletter-follow">

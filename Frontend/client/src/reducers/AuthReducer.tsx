@@ -1,5 +1,7 @@
 import { User } from "../services/auth"
 
+
+
 type State = {
     users: User[];
     selectedUsers?: User
@@ -9,7 +11,9 @@ type Action =
     | { type: "GET_USER"; payload: User[] }
     | { type: "SET_SELECTED_USER"; payload: User | undefined }
     | { type: "UPDATE_STATUS"; payload: { _id: string; status: string } }
-    | { type: "UPDATE_ROLE"; payload: { _id: string; role: number } };
+    | { type: "UPDATE_ROLE"; payload: { _id: string; role: number } }
+    | { type: "ADD_USER"; payload: User }
+    | { type: "UPDATE_USER"; payload: User };
 
 
 const AuthReducer = (state: State, action: Action): State => {
@@ -19,6 +23,17 @@ const AuthReducer = (state: State, action: Action): State => {
                 ...state,
                 users: action.payload
             };
+        case "ADD_USER":
+            return {
+                ...state,
+                users: [...state.users, action.payload],
+            }
+        case "UPDATE_USER":
+            return {
+                ...state,
+                users: state.users.map((user) => user._id === action.payload._id ? action.payload : user)
+            }
+
         case "SET_SELECTED_USER":
             return {
                 ...state, selectedUsers: action.payload,

@@ -4,6 +4,8 @@ import { http } from "../config/axios";
 export type Capacity = {
     _id: string;
     value: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export const getCapacity = async () => {

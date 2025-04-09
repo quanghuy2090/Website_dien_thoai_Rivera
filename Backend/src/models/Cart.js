@@ -34,6 +34,13 @@ const cartItemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isRemoved: {
+    type: Boolean,
+    default: false,
+  },
+  removalReason: {
+    type: String,
+  },
 });
 
 const cartSchema = new mongoose.Schema(
@@ -48,15 +55,22 @@ const cartSchema = new mongoose.Schema(
       type: [cartItemSchema],
       default: [],
     },
-    totalPrice: { // Tổng giá trị giỏ hàng trước giảm giá
+    totalPrice: {
+      // Tổng giá trị giỏ hàng trước giảm giá
       type: Number,
       default: 0,
       min: 0,
     },
-    totalSalePrice: { // Tổng giá trị sau giảm giá
+    totalSalePrice: {
+      // Tổng giá trị sau giảm giá
       type: Number,
       default: 0,
       min: 0,
+    },
+    updateMessages: {
+      // Thông báo cập nhật giỏ hàng
+      type: [String],
+      default: [],
     },
   },
   {
@@ -84,7 +98,4 @@ cartSchema.pre("save", function (next) {
 
   next();
 });
-
-
-
 export default mongoose.model("Cart", cartSchema);

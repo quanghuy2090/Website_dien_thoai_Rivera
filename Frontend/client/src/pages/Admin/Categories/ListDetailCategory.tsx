@@ -19,7 +19,7 @@ const ListDetailCategory = () => {
         quản lý danh mục<cite></cite> tại đây.
       </p>
       <div className="table-container">
-        <table className="table">
+        <table className="table table-bordered">
           <tbody>
             {state.selectedCategory && (
               <>
@@ -28,37 +28,49 @@ const ListDetailCategory = () => {
                   <td>{state.selectedCategory._id}</td>
                 </tr>
                 <tr>
-                  <th>Categories</th>
+                  <th>Danh mục</th>
                   <td>{state.selectedCategory.name}</td>
                 </tr>
                 <tr>
-                  <th>Slug</th>
+                  <th>Mô tả</th>
                   <td>{state.selectedCategory.slug}</td>
                 </tr>
+                {/* <tr>
+                  <th>Người thực hiện </th>
+                  <td>{state.selectedCategory.deletedBy.email}</td>
+                </tr> */}
                 <tr>
-                  <th>Products</th>
+                  <th>Ngày tạo</th>
+                  <td>{new Date(state.selectedCategory.createdAt).toLocaleDateString()}</td>
+                </tr>
+                <tr>
+                  <th>Cập nhật lần cuối</th>
+                  <td> {new Date(state.selectedCategory.updatedAt).toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <th>Sản phẩm danh mục</th>
                   <td>
                     {state.selectedCategory.products?.map((product) => (
                       <table key={product._id} className="table table-bordered">
                         <tbody>
                           <tr>
-                            <th>Product ID</th>
+                            <th> Id Sản Phẩm</th>
                             <td>{product._id}</td>
                           </tr>
                           <tr>
-                            <th>Product Name</th>
+                            <th>Sản phẩm</th>
                             <td>{product.name}</td>
                           </tr>
-                          <tr>
+                          {/* <tr>
                             <th>Short Description</th>
                             <td>{product.short_description}</td>
                           </tr>
                           <tr>
                             <th>Long Description</th>
                             <td>{product.long_description}</td>
-                          </tr>
+                          </tr> */}
                           <tr>
-                            <th>Images</th>
+                            <th>Ảnh</th>
                             <td>
                               {product.images.map((image, index) => (
                                 <img key={index} src={image} alt="product" style={{ width: "50px", height: "50px", marginRight: "5px" }} />
@@ -66,31 +78,66 @@ const ListDetailCategory = () => {
                             </td>
                           </tr>
                           <tr>
-                            <th>Variants</th>
+                            <th>Biến thể</th>
                             <td>
                               {product.variants.length > 0 ? (
                                 <table className="table table-bordered">
+                                  <thead className="table-light">
+
+                                    <tr>
+                                      <th>Thuộc tính</th>
+                                      {product.variants.map((_, index) => (
+                                        <th key={index}>Biến thể {index + 1}</th>
+                                      ))}
+                                    </tr>
+
+                                  </thead>
                                   <tbody>
-                                    {product.variants.map((variant, index) => (
-                                      <tr key={index}>
-                                        <th>Color</th>
-                                        <td>{variant.color && typeof variant.color === "object" ? variant.color.name : variant.color ?? "Không xác định"}</td>
-                                        <th>Capacity</th>
-                                        <td>{variant.capacity && typeof variant.capacity === "object" ? variant.capacity.value : variant.capacity ?? "Không xác định"} </td>
-                                        <th>Price</th>
-                                        <td>{variant.price}</td>
-                                        <th>Stock</th>
-                                        <td>{variant.stock}</td>
-                                        <th>SKU</th>
-                                        <td>{variant.sku}</td>
-                                      </tr>
-                                    ))}
+                                    <tr>
+                                      <th>Màu sắc</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>
+                                          {variant.color && typeof variant.color === "object"
+                                            ? variant.color.name
+                                            : variant.color ?? "Không xác định"}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>Bộ nhớ</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>
+                                          {variant.capacity && typeof variant.capacity === "object"
+                                            ? variant.capacity.value
+                                            : variant.capacity ?? "Không xác định"}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>Giá</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>{variant.price}</td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>Số lượng</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>{variant.stock}</td>
+                                      ))}
+                                    </tr>
+                                    <tr>
+                                      <th>SKU</th>
+                                      {product.variants.map((variant, index) => (
+                                        <td key={index}>{variant.sku}</td>
+                                      ))}
+                                    </tr>
                                   </tbody>
                                 </table>
                               ) : (
                                 "No Variants"
                               )}
                             </td>
+
                           </tr>
                         </tbody>
                       </table>

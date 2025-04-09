@@ -1,101 +1,242 @@
-import { useEffect, useState } from "react";
-import { getOrderUser, Order } from "../../services/order";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { getDetailOrder, Order } from "../../services/order";
+import toast from "react-hot-toast";
+import "../../css/Bill.css";
+
 const Bill = () => {
-    const [userId, setUserId] = useState<string | null>(null);
-    console.log(userId);
-    const [orderUser, setOrderUser] = useState<Order[]>([]);
+  const { id } = useParams();
+  const [orderDetail, setOrderDetail] = useState<Order | null>(null);
 
-    useEffect(() => {
-        const userData = localStorage.getItem("user");
-        if (userData) {
-            try {
-                const user = JSON.parse(userData);
-                if (user && user._id) {
-                    setUserId(user._id); // Lưu userId vào state
-                    fetchOrder(user._id);
-                }
-            } catch (error) {
-                console.error(" Lỗi khi parse user data:", error);
-            }
-        }
-    }, []);
+  useEffect(() => {
+    if (!id) return;
 
-    const fetchOrder = async (userId: string) => {
-        try {
-            const { data } = await getOrderUser(userId);
-            setOrderUser(data.orders || []);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-    const formatPrice = (price: number) => {
-        if (price === undefined || price === null) {
-            return "0 VND"; // Return a default value if price is undefined
-        }
-        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+    const fetchOrderDetail = async (id: string) => {
+      try {
+        const { data } = await getDetailOrder(id);
+        setOrderDetail(data.order);
+      } catch (error) {
+        toast.error("Không thể tải chi tiết đơn hàng.");
+        console.error(error);
+      }
     };
+    fetchOrderDetail(id);
+  }, [id]);
 
+  const formatPrice = (price: number) => {
+    if (price === undefined || price === null) {
+      return "0 VND";
+    }
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
+  };
 
-    return (
-        <div className="container mt-4">
-            <h2 className="text-center mb-4">Danh sách đơn hàng</h2>
-            {orderUser.map((order, index) => (
-                <div className="card mb-4 shadow-sm" key={index}>
-                    <div className="card-body">
-                        <h5 className="card-title">Mã đơn hàng: <span className="fw-bold">{order._id}</span></h5>
-                        <p className="text-muted">Ngày đặt: {new Date(order.createdAt).toLocaleDateString()}</p>
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Đã huỷ":
+        return "status-cancelled";
+      case "Hoàn thành":
+        return "status-completed";
+      case "Đang giao hàng":
+        return "status-shipping";
+      case "Đã xác nhận":
+        return "status-confirmed";
+      default:
+        return "status-pending";
+    }
+  };
 
-                        {/* Bảng danh sách sản phẩm */}
-                        <table className="table table-bordered">
-                            <thead className="table-light">
-                                <tr>
-                                    <th>Ảnh</th>
-                                    <th>Tên sản phẩm</th>
-                                    <th>Giá</th>
-
-                                    <th>Số lượng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {order.orderItems.map((cart) => (
-                                    <tr>
-                                        <td>
-                                            {cart.productId.images && (
-                                                <img src={cart.productId.images[0]} alt="Sản phẩm" width={50} />
-                                            )}
-                                        </td>
-                                        <td>{cart.productId.name}</td>
-                                        <td>{formatPrice(cart.productId.price)}</td>
-                                        <td>{cart.quantity}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <h6 className="mt-3">Tổng tiền: <span className="text-danger fw-bold">{formatPrice(order.totalPrice)} VNĐ</span></h6>
-                        {/* Thông tin địa chỉ giao hàng */}
-                        <div className="mt-3">
-                            <h6>Địa chỉ giao hàng:</h6>
-                            <p className="mb-1">Ten kh:<strong>{order.userId.userName}</strong></p>
-                            <p className="mb-1">Email:{order.userId.email}</p>
-                            <p className="mb-1">Sdt:{order.userId.phone}</p>
-
-                            <p className="mb-1">{order.userId.address}, {order.shippingAddress.ward}, {order.shippingAddress.district}, {order.shippingAddress.city}</p>
-                        </div>
-                        {/* Trạng thái đơn hàng */}
-                        <p className="mt-3">
-                            <span className="fw-bold">Trạng thái đơn hàng:</span> {order.orderStatus}
-                        </p>
-                        <p>
-                            <span className="fw-bold">Phương thức thanh toán:</span> {order.paymentMethod}
-                        </p>
-                        <p>
-                            <span className="fw-bold">Trạng thái thanh toán:</span> {order.paymentStatus}
-                        </p>
-                    </div>
-                </div>
-            ))}
+  return (
+    <>
+      <div id="breadcrumb" className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <ul className="breadcrumb-tree">
+                <li>
+                  <a href="/">Trang chủ</a>
+                </li>
+                <li>
+                  <a href="/profile">Tài khoản</a>
+                </li>
+                <li>
+                  <a href="/history">Lịch sử đơn hàng</a>
+                </li>
+                <li className="active">Chi tiết đơn hàng</li>
+              </ul>
+            </div>
+          </div>
         </div>
-    )
-}
+      </div>
 
-export default Bill
+      <div className="section">
+        <div className="container">
+          <div className="bill-container">
+            <div className="bill-header">
+              <div className="bill-logo">
+                {/* <img src="../../image/logo1.png" alt="Rivera Store" /> */}
+                <h1>RIVERA</h1>
+              </div>
+              <div className="bill-info">
+                <h2>CHI TIẾT ĐƠN HÀNG</h2>
+                <p className="order-id">
+                  Mã đơn hàng: <strong>#{orderDetail?.orderId}</strong>
+                </p>
+                <p className="order-date">
+                  Ngày đặt:{" "}
+                  <strong>
+                    {orderDetail?.createdAt
+                      ? new Date(orderDetail.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </strong>
+                </p>
+                <div
+                  className={`order-status ${getStatusColor(
+                    orderDetail?.status || ""
+                  )}`}
+                >
+                  {orderDetail?.status}
+                </div>
+              </div>
+            </div>
+
+            <div className="bill-body">
+              <div className="info-grid">
+                <div className="info-section">
+                  <h3>
+                    <i className="fa fa-user"></i> Thông tin khách hàng
+                  </h3>
+                  <div className="info-content">
+                    <p>
+                      <strong>Họ tên:</strong> {orderDetail?.userName}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {orderDetail?.userEmail}
+                    </p>
+                    <p>
+                      <strong>Số điện thoại:</strong> {orderDetail?.userPhone}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="info-section">
+                  <h3>
+                    <i className="fa fa-truck"></i> Địa chỉ giao hàng
+                  </h3>
+                  <div className="info-content">
+                    <p>{orderDetail?.shippingAddress.street}</p>
+                    <p>{orderDetail?.shippingAddress.ward}</p>
+                    <p>{orderDetail?.shippingAddress.district}</p>
+                    <p>{orderDetail?.shippingAddress.city}</p>
+                  </div>
+                </div>
+
+                <div className="info-section">
+                  <h3>
+                    <i className="fa fa-credit-card"></i> Thông tin thanh toán
+                  </h3>
+                  <div className="info-content">
+                    <p>
+                      <strong>Phương thức:</strong> {orderDetail?.paymentMethod}
+                    </p>
+                    <p>
+                      <strong>Trạng thái:</strong> {orderDetail?.paymentStatus}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="products-section">
+                <h3>
+                  <i className="fa fa-shopping-cart"></i> Sản phẩm đã mua
+                </h3>
+                <div className="products-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Sản phẩm</th>
+                        <th>Giá gốc</th>
+                        <th>Giá sale</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orderDetail?.items.map((product, index) => {
+                        const variant = product.productId.variants?.find(
+                          (v) => v._id === product.variantId
+                        );
+                        return (
+                          <tr key={index}>
+                            <td className="product-info">
+                              <img
+                                src={product.productId.images[0]}
+                                alt={product.productId.name}
+                                className="product-image"
+                              />
+                              <div className="product-details">
+                                <div className="product-name">
+                                  {product.productId.name}
+                                </div>
+                                <div className="variant-info">
+                                  {variant?.color?.name} -{" "}
+                                  {variant?.capacity?.value}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="price">
+                              {formatPrice(product.price)}
+                            </td>
+                            <td className="sale-price">
+                              {formatPrice(product.salePrice)}
+                            </td>
+                            <td className="quantity">{product.quantity}</td>
+                            <td className="total-price">
+                              {formatPrice(
+                                product.salePrice * product.quantity
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="bill-summary">
+                <div className="summary-row">
+                  <span>Tổng tiền hàng:</span>
+                  <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
+                </div>
+                {/* <div className="summary-row">
+                  <span>Phí vận chuyển:</span>
+                  <span>0 VND</span>
+                </div> */}
+                <div className="summary-row total">
+                  <span>Tổng thanh toán:</span>
+                  <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bill-footer">
+              <div className="support-info">
+                <p>
+                  <i className="fa fa-phone"></i> Hotline hỗ trợ: +8494 5533 843
+                </p>
+                <p>
+                  <i className="fa fa-envelope"></i> Email: email@email.com
+                </p>
+              </div>
+              <div className="thank-you">
+                <p>Cảm ơn bạn đã mua hàng tại cửa hàng RIVERA!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Bill;

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Category, Product } from "../../../services/product";
 import { getCategories } from "../../../services/category";
 import toast from "react-hot-toast";
@@ -9,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductContext } from "../../../context/ProductContext";
 import { CapacityContext } from "../../../context/CapacityContext";
 import { ColorContext } from "../../../context/ColorContext";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
   images: z
@@ -45,7 +47,7 @@ const AddProduct = () => {
       long_description: "",
       images: [],
       categoryId: "",
-      variants: [{ color: "", capacity: "", price: 1, stock: 0, sku: "", sale: 0 }],
+      variants: [{ color: "", capacity: "", price: 1, stock: 0, sale: 0 }],
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -131,7 +133,7 @@ const AddProduct = () => {
     <div className="content">
       <div className="container d-flex justify-content-center align-items-center mt-5">
         <div className="row justify-content-center w-100">
-          <div className="col-lg-6 col-md-8">
+          <div className="col-lg-12 col-md-12">
             {" "}
             {/* Giới hạn chiều rộng */}
             <div className="text-center">
@@ -158,30 +160,42 @@ const AddProduct = () => {
               {/* Mô tả ngắn */}
               <div className="mb-3">
                 <label className="fw-bold">Mô tả ngắn</label>
-                <textarea
-                  className="form-control"
-                  rows={2}
-                  {...register("short_description", { required: true })}
+                <Controller
+                  name="short_description"
+                  control={control}
+                  rules={{ required: 'Vui lòng nhập mô tả ngắn' }}
+                  render={({ field }) => (
+                    <ReactQuill
+                      theme="snow"
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Nhập mô tả ngắn..."
+                    />
+                  )}
                 />
                 {errors.short_description && (
-                  <p className="text-danger">
-                    {errors.short_description.message}
-                  </p>
+                  <p className="text-danger">{errors.short_description.message}</p>
                 )}
               </div>
 
               {/* Mô tả dài */}
               <div className="mb-3">
                 <label className="fw-bold">Mô tả chi tiết</label>
-                <textarea
-                  className="form-control"
-                  rows={3}
-                  {...register("long_description", { required: true })}
+                <Controller
+                  name="long_description"
+                  control={control}
+                  rules={{ required: 'Vui lòng nhập mô tả chi tiết' }}
+                  render={({ field }) => (
+                    <ReactQuill
+                      theme="snow"
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Nhập mô tả chi tiết..."
+                    />
+                  )}
                 />
                 {errors.long_description && (
-                  <p className="text-danger">
-                    {errors.long_description.message}
-                  </p>
+                  <p className="text-danger">{errors.long_description.message}</p>
                 )}
               </div>
 
@@ -360,7 +374,7 @@ const AddProduct = () => {
                     capacity: "",
                     price: 1,
                     stock: 0,
-                    sku: `SKU-${Date.now()}`,
+                    // sku: `SKU-${Date.now()}`,
                     sale: 0,
                   })
                 }

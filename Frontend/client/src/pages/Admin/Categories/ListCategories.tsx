@@ -2,17 +2,19 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { IoMdAdd } from "react-icons/io";
-import { MdDelete } from "react-icons/md";
+import { MdAutoDelete, MdDelete } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
 import { FaPen } from "react-icons/fa";
 import { CategoryContext } from "../../../context/CategoryContext";
 const ListCategories = () => {
   const { state, removeCategory } = useContext(CategoryContext);
   const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   // Lọc danh mục theo tên (case-insensitive)
-  const filteredCategories = state.categorys.filter((category) =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = state.categorys.filter(
+    (category) =>
+      category.name.toLowerCase().includes(searchTerm.toLowerCase()) && // Lọc theo tên
+      category.isDeleted !== true // Chỉ hiển thị các danh mục chưa bị xóa (isDeleted: false)
   );
   return (
     <div className="content">
@@ -33,10 +35,10 @@ const ListCategories = () => {
               <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
                 onChange={(e) => setItemsPerPage(Number(e.target.value))}
               >
-                <option value="5">5</option>
                 <option value="10">10</option>
-                <option value="15">15</option>
                 <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
               </select>
               mục
             </label>
@@ -57,21 +59,26 @@ const ListCategories = () => {
           {" "}
           <IoMdAdd />
         </Link>
+        <Link className="btn btn-info" to={`/admin/category/delete`}><MdAutoDelete /></Link>
         <table className="table table-bordered">
           <thead className="thead-light">
             <tr>
               <th scope="col">Stt</th>
               <th scope="col">Danh mục</th>
               <th scope="col">Mô tả</th>
+              <th scope="col">Ngày tạo</th>
+              {/* <th scope="col">Cập nhật lần cuối</th> */}
               <th scope="col">Tùy chọn</th>
             </tr>
           </thead>
           <tbody>
             {filteredCategories.slice(0, itemsPerPage).map((category, index) => (
               <tr key={index}>
-                <td>{index + 1}</td>
+                <th scope="row">{index + 1}</th>
                 <td>{category.name}</td>
                 <td>{category.slug}</td>
+                <td>{new Date(category.createdAt).toLocaleDateString()}</td>
+                {/* <td>{new Date(category.updatedAt).toLocaleString()}</td> */}
                 <td>
                   <button
                     className="btn btn-danger me-2"
@@ -95,6 +102,7 @@ const ListCategories = () => {
                   </Link>
                 </td>
               </tr>
+
             ))}
           </tbody>
         </table>

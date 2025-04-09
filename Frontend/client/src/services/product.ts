@@ -24,9 +24,10 @@ export type Product = {
   images: string[];
   variants: Variants[];
   categoryId?: string | Category; // Hỗ trợ cả string và object
-  createdAt: Date;
   is_hot: string;
   status: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 
@@ -55,5 +56,8 @@ export const searchProduct = async (name: string) => {
 };
 export const updateProductStatus = async (_id: string, status: string) => {
   return http.put(`/product/status/${_id}`, { status })
+}
+export const updateProductIs_Hot = async (_id: string, is_hot: string) => {
+  return http.patch(`/product/isHot/${_id}`, { is_hot })
 }
 
