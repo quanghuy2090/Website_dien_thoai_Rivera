@@ -91,7 +91,7 @@ export function Header() {
                 </li>
                 {userRole === 1 && ( // Check if user is an admin
                   <li>
-                    <a href="/admin">
+                    <a href="/admin/dashboard">
                       <i className="fa fa-cog" /> Quản lý
                     </a>
                   </li>

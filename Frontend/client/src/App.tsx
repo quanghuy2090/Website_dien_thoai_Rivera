@@ -63,7 +63,7 @@ function App() {
       path: "/admin",
       element: <AdminLayout />,
       children: [
-        { path: "/admin/dasboard", element: <Dashboard /> },
+        { path: "/admin/dashboard", element: <Dashboard /> },
         { path: "/admin/category", element: <ListCategories /> },
         { path: "/admin/category/add", element: <AddCategories /> },
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },

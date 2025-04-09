@@ -25,34 +25,88 @@ const ProductDetail = () => {
     setActiveTab(tabId);
   };
 
-  const sliderSettings = {
-    slidesToShow: 4,
+  const imageSliderSettings = {
+    slidesToShow: 10,
     slidesToScroll: 1,
-    autoplay: true,
-    infinite: true,
+    autoplay: false,
+    infinite: false,
     speed: 300,
     dots: false,
-    arrows: false,
+    arrows: true,
     responsive: [
       {
-        breakpoint: 991,
+        breakpoint: 1600,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
+          slidesToShow: 8,
+          infinite: false,
+        },
+      },
+      {
+        breakpoint: 1400,
+        settings: {
+          slidesToShow: 6,
+          infinite: false,
+        },
+      },
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 5,
+          infinite: false,
+        },
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 4,
+          infinite: false,
         },
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 1,
+          slidesToShow: 3,
+          infinite: false,
         },
       },
       {
         breakpoint: 480,
         settings: {
+          slidesToShow: 2,
+          infinite: false,
+        },
+      },
+    ],
+  };
+
+  const productSliderSettings = {
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    autoplay: false,
+    infinite: true,
+    speed: 300,
+    dots: false,
+    arrows: true,
+    responsive: [
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: 3,
+          infinite: true,
+        },
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 2,
+          infinite: true,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
           slidesToShow: 1,
-          slidesToScroll: 1,
+          infinite: true,
         },
       },
     ],
@@ -201,30 +255,36 @@ const ProductDetail = () => {
       <div className="section">
         <div className="container">
           <div className="row">
-            <div className="col-md-5 col-md-push-2 d-flex justify-content-center">
+            <div className="col-md-6">
+              <div className="product-images">
+                <div className="main-image">
+                  <img src={mainImage!} alt={product?.name} />
+                </div>
+                <div className="thumbnail-slider">
+                  <Slider {...imageSliderSettings} ref={productDetailSliderRef}>
+                    {product?.images.map((img, index) => (
+                      <div
+                        key={index}
+                        className={`thumbnail-item ${
+                          img === mainImage ? "active" : ""
+                        }`}
+                        onClick={() => setMainImage(img)}
+                      >
+                        <img src={img} alt={`Thumbnail ${index + 1}`} />
+                      </div>
+                    ))}
+                  </Slider>
+                </div>
+              </div>
+            </div>
+
+            {/* <div className="col-md-5 col-md-push-2 d-flex justify-content-center">
               <div id="product-main-img">
                 <div className="product-preview">
                   <img src={mainImage!} alt="" />
                 </div>
               </div>
-            </div>
-
-            {/* Product thumb imgs */}
-            <div className="col-md-2 col-md-pull-5">
-              <div id="product-imgs">
-                <div className="product-preview">
-                  {product?.images.map((img, index) => (
-                    <div
-                      key={index}
-                      className={` ${img === mainImage ? "active" : ""}`}
-                      onClick={() => setMainImage(img)}
-                    >
-                      <img src={img} alt={`Thumbnail ${index + 1}`} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            </div> */}
 
             <div className="col-md-5">
               <div className="product-details">
@@ -252,24 +312,40 @@ const ProductDetail = () => {
                       </span>
                     </div>
 
-                    <div className="variant-selector mt-3">
-                      {product?.variants.map((variant, index) => (
-                        <button
-                          key={index}
-                          className={`variant-btn ${
-                            variant === selectedVariant ? "active" : ""
-                          }`}
-                          onClick={() => handleVariantChange(variant)}
-                        >
-                          {typeof variant.color === "string"
-                            ? variant.color
-                            : variant.color.name}{" "}
-                          -{" "}
-                          {typeof variant.capacity === "string"
-                            ? variant.capacity
-                            : variant.capacity.value}
-                        </button>
-                      ))}
+                    <div className="variant-selector">
+                      <div className="variant-options">
+                        <h4>Biến thể</h4>
+                        <div className="variant-list">
+                          {product?.variants.map((variant, index) => (
+                            <button
+                              key={index}
+                              className={`variant-btn ${
+                                variant === selectedVariant ? "active" : ""
+                              }`}
+                              onClick={() => handleVariantChange(variant)}
+                            >
+                              <span
+                                className="color-dot"
+                                style={{
+                                  backgroundColor:
+                                    typeof variant.color === "string"
+                                      ? variant.color
+                                      : variant.color.name,
+                                }}
+                              />
+                              <span className="variant-text">
+                                {typeof variant.color === "string"
+                                  ? variant.color
+                                  : variant.color.name}{" "}
+                                -{" "}
+                                {typeof variant.capacity === "string"
+                                  ? variant.capacity
+                                  : variant.capacity.value}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
                     <h2 className="h3 font-weight-bold mb-2 product-price">
@@ -597,7 +673,7 @@ const ProductDetail = () => {
               </div>
               <Slider
                 ref={productDetailSliderRef}
-                {...sliderSettings}
+                {...productSliderSettings}
                 className="products-slick"
               >
                 {relatedProducts.map((item) => (

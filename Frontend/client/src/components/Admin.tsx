@@ -59,7 +59,7 @@ const Admin = () => {
           </a>
           <a
             className="nav-link d-flex align-items-center"
-            href="/admin/dasboard"
+            href="/admin/dashboard"
           >
             <i className="fas fa-tachometer-alt mr-2"></i>
             Thống kê
