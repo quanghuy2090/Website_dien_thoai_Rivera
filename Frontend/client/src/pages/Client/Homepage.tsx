@@ -7,10 +7,12 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../../css/style.css";
+import { getCategories } from "../../services/category";
 
 const HomePage = () => {
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   // const nav = useNavigate();
   const productSliderRef = useRef<Slider | null>(null); // Ref for the first slider
   const hotDealSliderRef = useRef<Slider | null>(null); // Ref for the second slider
@@ -24,12 +26,10 @@ const HomePage = () => {
         // Get current date and subtract 1 month
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        console.log("One month ago date:", oneMonthAgo);
 
         // Filter products created within the last month
         const recentProducts = allProducts.filter((product: Product) => {
           const createdAtDate = new Date(product.createdAt);
-          console.log("Product:", product.name, "Created at:", createdAtDate);
           return createdAtDate >= oneMonthAgo && product.status !== "banned";
         });
 
@@ -54,12 +54,32 @@ const HomePage = () => {
       } catch (error: any) {
         if (error.response?.data?.message) {
           toast.error(error.response.data.message);
+        } else if (error.message) {
+          toast.error(error.message);
         } else {
           toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
         }
       }
     };
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategories();
+        setCategories(res.data.data);
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else if (error.message) {
+          toast.error(error.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi tải danh mục");
+        }
+      }
+    };
+    fetchCategories();
   }, []);
 
   const addToCart = async (product: Product) => {
@@ -104,11 +124,15 @@ const HomePage = () => {
         subtotal: selectedVariant.salePrice * 1,
       };
 
-      await addCart(cartItem);
-      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
+      const response = await addCart(cartItem);
+      toast.success(
+        response.data.message || "Sản phẩm đã được thêm vào giỏ hàng!"
+      );
     } catch (error: any) {
       if (error.response?.data?.message) {
         toast.error(error.response.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
       } else {
         toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
       }
@@ -389,6 +413,198 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Trending Categories Section */}
+      {/* <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Danh mục nổi bật</h3>
+              </div>
+            </div>
+            <div className="col-md-12">
+              <div className="trending-categories">
+                <div className="row">
+                  <div className="col-md-3 col-sm-6">
+                    <div className="category-card">
+                      <div className="category-img">
+                        <img
+                          src="/images/categories/smartphone.jpg"
+                          alt="Smartphone"
+                        />
+                      </div>
+                      <div className="category-content">
+                        <h4>Smartphone</h4>
+                        <p>Khám phá các mẫu điện thoại mới nhất</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-3 col-sm-6">
+                    <div className="category-card">
+                      <div className="category-img">
+                        <img src="/images/categories/tablet.jpg" alt="Tablet" />
+                      </div>
+                      <div className="category-content">
+                        <h4>Tablet</h4>
+                        <p>Máy tính bảng đa dạng mẫu mã</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-3 col-sm-6">
+                    <div className="category-card">
+                      <div className="category-img">
+                        <img
+                          src="/images/categories/accessories.jpg"
+                          alt="Phụ kiện"
+                        />
+                      </div>
+                      <div className="category-content">
+                        <h4>Phụ kiện</h4>
+                        <p>Phụ kiện chính hãng chất lượng cao</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-3 col-sm-6">
+                    <div className="category-card">
+                      <div className="category-img">
+                        <img
+                          src="/images/categories/smartwatch.jpg"
+                          alt="Đồng hồ thông minh"
+                        />
+                      </div>
+                      <div className="category-content">
+                        <h4>Đồng hồ thông minh</h4>
+                        <p>Đồng hồ thông minh đa tính năng</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
+
+      {/* Featured Categories Section */}
+      <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Thương hiệu nổi bật</h3>
+              </div>
+            </div>
+            <div className="col-md-12">
+              <div className="brands-slider">
+                {categories.map((category) => (
+                  <div className="brand-item" key={category._id}>
+                    <Link to={`/category/${category.slug}`}>
+                      <h4>{category.name}</h4>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Featured Brands Section */}
+      {/* <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Thương hiệu nổi bật</h3>
+              </div>
+            </div>
+            <div className="col-md-12">
+              <div className="brands-slider">
+                <div className="brand-item">
+                  <img src="/images/brands/apple.png" alt="Apple" />
+                </div>
+                <div className="brand-item">
+                  <img src="/images/brands/samsung.png" alt="Samsung" />
+                </div>
+                <div className="brand-item">
+                  <img src="/images/brands/xiaomi.png" alt="Xiaomi" />
+                </div>
+                <div className="brand-item">
+                  <img src="/images/brands/oppo.png" alt="OPPO" />
+                </div>
+                <div className="brand-item">
+                  <img src="/images/brands/vivo.png" alt="Vivo" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> */}
+
+      {/* Customer Reviews Section */}
+      <div className="section">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12">
+              <div className="section-title">
+                <h3 className="title">Đánh giá từ khách hàng</h3>
+              </div>
+            </div>
+            <div className="col-md-12">
+              <div className="reviews-slider">
+                <div className="review-card">
+                  <div className="review-header">
+                    {/* <div className="review-avatar">
+                      <img src="/images/avatars/user1.jpg" alt="User" />
+                    </div> */}
+                    <div className="review-info">
+                      <h5>Nguyễn Văn A</h5>
+                      <div className="review-rating">
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="review-content">
+                    <p>
+                      "Sản phẩm chất lượng, giao hàng nhanh chóng. Tôi rất hài
+                      lòng với dịch vụ của cửa hàng."
+                    </p>
+                  </div>
+                </div>
+                <div className="review-card">
+                  <div className="review-header">
+                    {/* <div className="review-avatar">
+                      <img src="/images/avatars/user2.jpg" alt="User" />
+                    </div> */}
+                    <div className="review-info">
+                      <h5>Trần Thị B</h5>
+                      <div className="review-rating">
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star"></i>
+                        <i className="fa fa-star-half-o"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="review-content">
+                    <p>
+                      "Nhân viên tư vấn nhiệt tình, sản phẩm đúng như mô tả. Sẽ
+                      tiếp tục ủng hộ cửa hàng."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* NEWSLETTER */}
       <div id="newsletter" className="section">
         {/* container */}

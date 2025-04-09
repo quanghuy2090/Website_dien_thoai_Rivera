@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "open:chrome": "vite & npx open http://localhost:5173 -a 'Google Chrome'",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

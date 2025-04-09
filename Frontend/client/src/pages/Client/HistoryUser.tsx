@@ -61,7 +61,6 @@ const HistoryUser = () => {
       );
       setOrderUser(filteredOrders);
     } catch (error: unknown) {
-      console.error("Error fetching orders:", error);
       if (typeof error === "object" && error !== null && "response" in error) {
         const axiosError = error as {
           response?: { data?: { message?: string } };
@@ -69,6 +68,8 @@ const HistoryUser = () => {
         toast.error(
           axiosError.response?.data?.message || "Lỗi khi tải đơn hàng"
         );
+      } else if (error instanceof Error) {
+        toast.error(error.message);
       } else {
         toast.error("Lỗi khi tải đơn hàng");
       }
@@ -100,20 +101,15 @@ const HistoryUser = () => {
         return newUpdates;
       });
     } catch (error: unknown) {
-      console.error("Lỗi cập nhật trạng thái:", error);
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error
-      ) {
+      if (typeof error === "object" && error !== null && "response" in error) {
         const axiosError = error as {
           response?: { data?: { message?: string } };
         };
         toast.error(
           axiosError.response?.data?.message || "Cập nhật trạng thái thất bại!"
         );
+      } else if (error instanceof Error) {
+        toast.error(error.message);
       } else {
         toast.error("Cập nhật trạng thái thất bại!");
       }
@@ -132,7 +128,7 @@ const HistoryUser = () => {
 
   return (
     <>
-    <div id="breadcrumb" className="section">
+      <div id="breadcrumb" className="section">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
