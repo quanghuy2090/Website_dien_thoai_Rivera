@@ -487,7 +487,7 @@ const HomePage = () => {
       </div> */}
 
       {/* Featured Categories Section */}
-      <div className="section">
+      {/* <div className="section">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
@@ -508,7 +508,7 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Featured Brands Section */}
       {/* <div className="section">
