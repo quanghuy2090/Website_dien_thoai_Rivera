@@ -894,7 +894,7 @@ textarea.input {
 .products-slick .product {
   width: 100%;
   max-width: 250px;
-  height: 380px;
+  height: 350px;
   max-height: 450px;
   position: relative;
   margin: 15px;
@@ -1132,6 +1132,10 @@ textarea.input {
   border-radius: 5px;
   text-transform: uppercase;
   transition: 0.2s all ease-in-out;
+}
+
+.tooltipp{
+  color: white;
 }
 
 .product .add-to-cart .add-to-cart-btn:hover {

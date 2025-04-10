@@ -181,6 +181,11 @@ const ProductDetail = () => {
         return;
       }
 
+      if (selectedProduct.status === "banned") {
+        toast.error("Sản phẩm đã ngừng kinh doanh");
+        return;
+      }
+
       if (chosenVariant.stock <= 0) {
         toast.error("Sản phẩm đã hết hàng!");
         return;
@@ -188,8 +193,14 @@ const ProductDetail = () => {
 
       if (quantity > chosenVariant.stock) {
         toast.error(
-          `Số lượng vượt quá số lượng tồn kho (${chosenVariant.stock})`
+          `Số lượng tồn kho không đủ. Còn lại: ${chosenVariant.stock}`
         );
+        return;
+      }
+
+      const MAX_QUANTITY = 100;
+      if (quantity > MAX_QUANTITY) {
+        toast.error(`Số lượng tối đa cho phép là ${MAX_QUANTITY}`);
         return;
       }
 
@@ -216,6 +227,8 @@ const ProductDetail = () => {
     } catch (error: any) {
       if (error.response?.data?.message) {
         toast.error(error.response.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
       } else {
         toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
       }

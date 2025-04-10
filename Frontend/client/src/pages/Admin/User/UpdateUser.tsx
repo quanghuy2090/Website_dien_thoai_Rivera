@@ -151,7 +151,7 @@ const UpdateUser = () => {
                 )}
               </div>
 
-              <div className="form-group mb-5">
+              {/* <div className="form-group mb-5">
                 <label htmlFor="password" className="fw-bold fs-5">
                   Password
                 </label>
@@ -170,7 +170,7 @@ const UpdateUser = () => {
                     *{errors.password.message}
                   </span>
                 )}
-              </div>
+              </div> */}
               {/* 
                             <div className="form-group mb-5">
                                 <label htmlFor="confirmPassword" className="fw-bold fs-5">Confirm Password</label>

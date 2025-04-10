@@ -189,12 +189,12 @@ const ListProduct = () => {
                   </div>
                 </td>
                 <td>
-                  <button
+                  {/* <button
                     className="btn btn-danger me-2"
                     onClick={() => removeProducts(product._id)}
                   >
                     <MdDelete />
-                  </button>
+                  </button> */}
                   <Link
                     to={`/admin/products/update/${product._id}`}
                     className="btn btn-warning me-2"
