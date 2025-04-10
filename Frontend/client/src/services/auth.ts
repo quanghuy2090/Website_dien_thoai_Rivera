@@ -50,3 +50,7 @@ export const updateUser = (userId: string, userData: Partial<User>) => {
     ...userData,
   });
 };
+
+export const updateAdminUser = (userId: string, userData: Partial<User>) => {
+  return http.put(`/auth/user/update/${userId}`, userData);
+};
