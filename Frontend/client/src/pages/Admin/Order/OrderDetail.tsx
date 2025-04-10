@@ -38,12 +38,12 @@ const OrderDetail = () => {
     try {
       const response = await updateStatusAdmin(id, newStatus, "");
       toast.success(response.data.message || "Cập nhật trạng thái thành công!");
-      setOrderDetail({ ...orderDetail, status: newStatus } as Order);
+
+      // Cập nhật toàn bộ đơn hàng từ dữ liệu BE trả về
+      setOrderDetail(response.data.order);
     } catch (error: unknown) {
-      // Lấy message BE trả về
       if (axios.isAxiosError(error)) {
         const data = error.response?.data;
-
         if (data?.message) {
           toast.error(data.message);
         } else if (Array.isArray(data?.errors)) {
@@ -51,15 +51,14 @@ const OrderDetail = () => {
         } else {
           toast.error("Đã xảy ra lỗi không xác định khi cập nhật trạng thái!");
         }
-
         console.error("Lỗi BE:", data);
       } else {
-        // Nếu không phải lỗi axios
         toast.error("Lỗi không xác định!");
         console.error("Lỗi không rõ:", error);
       }
     }
   };
+
 
 
   const formatPrice = (price: number) => {

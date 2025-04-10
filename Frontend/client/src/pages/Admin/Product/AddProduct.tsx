@@ -324,7 +324,7 @@ const AddProduct = () => {
                       )}
                     </div>
                     <div className="col-md-4">
-                      <label className="fw-bold">Stock</label>
+                      <label className="fw-bold">Số lượng</label>
                       <input
                         type="number"
                         className="form-control"
