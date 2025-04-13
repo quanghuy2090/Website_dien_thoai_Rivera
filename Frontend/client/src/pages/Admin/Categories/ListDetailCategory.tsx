@@ -9,17 +9,13 @@ const ListDetailCategory = () => {
     getDetailCategory(id!)
   }, []);
   return (
-    <div className="content">
-      <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="fas fa-th-large me-2"></i> Chi Tiết Danh Mục
-      </h1>
-      <p className="mb-4 text-secondary">
-        Đây là thông tin chi tiết của danh mục "
-        <strong>{state.selectedCategory?.name}</strong>". Bạn có thể xem thông tin và
-        quản lý danh mục<cite></cite> tại đây.
-      </p>
-      <div className="table-container">
-        <table className="table table-bordered">
+    <div className="content p-4">
+      <div className="card mb-4">
+        <div className="card-body">
+          <h5 className="card-title mb-0">  Đây là thông tin chi tiết của danh mục <strong>{state.selectedCategory?.name}</strong></h5>
+          <span className="text-primary">Bảng / Danh mục sản phẩm</span>
+        </div>
+        <table className="table table-hover">
           <tbody>
             {state.selectedCategory && (
               <>
@@ -148,7 +144,6 @@ const ListDetailCategory = () => {
             )}
           </tbody>
         </table>
-
       </div>
     </div>
   );

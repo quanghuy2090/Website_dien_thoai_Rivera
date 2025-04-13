@@ -23,33 +23,31 @@ const Orders = () => {
   // };
   return (
     <div className="content">
-      <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="fas fa-cart-plus me-2"></i> Quản lý Đơn hàng
-      </h1>
-      <p className="mb-4 text-secondary">
-        Đây là danh sách các đơn hàng. Bạn có thể kiểm tra trạng thái, cập nhật
-        thông tin vận chuyển hoặc hủy đơn hàng nếu cần.
-      </p>
+      <div className="card mb-4">
+        <div className="card-body">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="card-title mb-0">Danh sách đơn hàng</h5>
+            <span className="text-primary">Bảng / Đơn hàng</span>
+          </div>
 
-      <div className="table-container">
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th scope="col">Stt</th>
-              <th scope="col">Ten kh</th>
-              <th scope="col">Email</th>
-              <th scope="col">Ngày đặt</th>
-              <th scope="col">Trạng thái đơn hàng</th>
-              <th scope="col">Phương thức thanh toán</th>
-              <th scope="col">Trạng thái thanh toán</th>
-              <th scope="col">Tùy chọn</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order.map((order, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                {/* <table className="table table-bordered">
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Stt</th>
+                <th scope="col">Ten kh</th>
+                <th scope="col">Email</th>
+                <th scope="col">Ngày đặt</th>
+                <th scope="col">Trạng thái đơn hàng</th>
+                <th scope="col">Phương thức thanh toán</th>
+                <th scope="col">Trạng thái thanh toán</th>
+                <th scope="col">Tùy chọn</th>
+              </tr>
+            </thead>
+            <tbody>
+              {order.map((order, index) => (
+                <tr key={index}>
+                  <th>{index + 1}</th>
+                  {/* <table className="table table-bordered">
                   <thead>
                     <tr>
                       <th> Sản phẩm</th>
@@ -81,26 +79,29 @@ const Orders = () => {
                     })}
                   </tbody>
                 </table> */}
-                <td>{order.userName}</td>
-                <td>{order.userEmail}</td>
-                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                <td>{order.status}</td>
-                <td>{order.paymentMethod}</td>
-                <td>{order.paymentStatus}</td>
-                <td>
-                  <Link
-                    to={`/admin/order/${order.orderId}`}
-                    className="btn btn-info"
-                  >
-                    <FaEye />
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  <td>{order.userName}</td>
+                  <td>{order.userEmail}</td>
+                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td>{order.status}</td>
+                  <td>{order.paymentMethod}</td>
+                  <td>{order.paymentStatus}</td>
+                  <td>
+                    <Link
+                      to={`/admin/order/${order.orderId}`}
+                      className="btn btn-info"
+                    >
+                      <FaEye />
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+
   );
 };
 
