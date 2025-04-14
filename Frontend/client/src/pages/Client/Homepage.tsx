@@ -12,7 +12,6 @@ import { getCategories } from "../../services/category";
 const HomePage = () => {
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   // const nav = useNavigate();
   const productSliderRef = useRef<Slider | null>(null); // Ref for the first slider
   const hotDealSliderRef = useRef<Slider | null>(null); // Ref for the second slider
@@ -64,23 +63,23 @@ const HomePage = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await getCategories();
-        setCategories(res.data.data);
-      } catch (error: any) {
-        if (error.response?.data?.message) {
-          toast.error(error.response.data.message);
-        } else if (error.message) {
-          toast.error(error.message);
-        } else {
-          toast.error("Có lỗi xảy ra khi tải danh mục");
-        }
-      }
-    };
-    fetchCategories();
-  }, []);
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       const res = await getCategories();
+  //       setCategories(res.data.data);
+  //     } catch (error: any) {
+  //       if (error.response?.data?.message) {
+  //         toast.error(error.response.data.message);
+  //       } else if (error.message) {
+  //         toast.error(error.message);
+  //       } else {
+  //         toast.error("Có lỗi xảy ra khi tải danh mục");
+  //       }
+  //     }
+  //   };
+  //   fetchCategories();
+  // }, []);
 
   const addToCart = async (product: Product) => {
     try {
@@ -248,32 +247,15 @@ const HomePage = () => {
                             </del>
                           )}
                         </h4>
-                        <div className="product-btns">
-                          <button className="add-to-wishlist">
-                            <i className="fa fa-heart-o" />
-                            <span className="tooltipp">Thêm yêu thích</span>
-                          </button>
-                          {/* <button className="add-to-compare">
-                            <i className="fa fa-exchange" />
-                            <span className="tooltipp">add to compare</span>
-                          </button> */}
-                          <button className="quick-view">
-                            <Link to={`/product/${product._id}`}>
-                              <i className="fa fa-eye" />
-                            </Link>
-                            <span className="tooltipp">Xem chi tiết</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
 
                     {/* Add to Cart button - hidden initially */}
                     <div className="add-to-cart">
-                      <button
-                        className="add-to-cart-btn"
-                        onClick={() => addToCart(product)}
-                      >
-                        <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
+                      <button className="add-to-cart-btn">
+                        <Link to={`/product/${product._id}`}>
+                          <span className="tooltipp">Xem chi tiết</span>{" "}
+                        </Link>
                       </button>
                     </div>
                   </div>
@@ -366,7 +348,7 @@ const HomePage = () => {
                             </del>
                           )}
                         </h4>
-                        <div className="product-btns">
+                        {/* <div className="product-btns">
                           <button className="add-to-wishlist">
                             <i className="fa fa-heart-o" />
                             <span className="tooltipp">Thêm yêu thích</span>
@@ -377,17 +359,16 @@ const HomePage = () => {
                             </Link>
                             <span className="tooltipp">Xem chi tiết</span>
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
 
                     {/* Add to Cart button */}
                     <div className="add-to-cart">
-                      <button
-                        className="add-to-cart-btn"
-                        onClick={() => addToCart(product)}
-                      >
-                        <i className="fa fa-shopping-cart" /> Add to cart
+                      <button className="add-to-cart-btn">
+                        <Link to={`/product/${product._id}`}>
+                          <span className="tooltipp">Xem chi tiết</span>{" "}
+                        </Link>
                       </button>
                     </div>
                   </div>
