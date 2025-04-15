@@ -44,6 +44,7 @@ const Checkout = () => {
           "https://provinces.open-api.vn/api/?depth=3"
         );
         setProvinces(data);
+        console.log(data)
       } catch (error) {
         console.log(error);
       }
@@ -288,9 +289,8 @@ const Checkout = () => {
                     <div className=" form-group">
                       <label htmlFor="district">Quận / Huyện</label>
                       <select
-                        className={`input ${
-                          errors.district ? "is-invalid" : ""
-                        }`}
+                        className={`input ${errors.district ? "is-invalid" : ""
+                          }`}
                         {...register("district", {
                           required: "Vui lòng chọn quận/huyện",
                         })}

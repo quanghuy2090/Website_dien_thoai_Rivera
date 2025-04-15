@@ -4,6 +4,7 @@ import {
   getTopUsers,
   getTopProducts,
   getLeastSoldProducts,
+  getOrderStatus,
 } from "../controllers/statistics.js";
 import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
 
@@ -18,5 +19,6 @@ routerStatistics.get(
   checkAdminPermission,
   getLeastSoldProducts
 );
+routerStatistics.get("/order-status", checkAdminPermission, getOrderStatus)
 
 export default routerStatistics;
