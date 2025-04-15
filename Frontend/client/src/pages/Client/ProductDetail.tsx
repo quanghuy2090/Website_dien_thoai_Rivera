@@ -7,6 +7,7 @@ import { addCart, Carts } from "../../services/cart";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useProductPolling } from "../../hooks/useProductPolling";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -20,6 +21,16 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState("tab01");
   const [isBanned, setIsBanned] = useState(false);
   const productDetailSliderRef = useRef<Slider | null>(null);
+
+  // Sử dụng custom hook cho polling
+  useProductPolling(
+    id,
+    product,
+    setProduct,
+    setRelatedProducts,
+    selectedVariant,
+    setSelectedVariant
+  );
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
@@ -159,41 +170,45 @@ const ProductDetail = () => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (!user || !user._id) {
-        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
+        toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
         return nav("/login");
       }
 
       if (!productId) {
-        toast.error("Sản phẩm không hợp lệ!");
+        toast.error("Không tìm thấy sản phẩm");
         return;
       }
 
-      let selectedProduct = relatedProducts.find((p) => p._id === productId);
-      if (!selectedProduct || !selectedProduct.variants?.length) {
-        const { data } = await getProductById(productId);
-        selectedProduct = data.data;
+      const { data } = await getProductById(productId);
+      const selectedProduct = data.data;
+
+      if (!selectedProduct) {
+        toast.error("Không tìm thấy thông tin sản phẩm");
+        return;
       }
 
-      const chosenVariant = variant || selectedProduct?.variants?.[0];
+      const chosenVariant = variant
+        ? selectedProduct.variants.find((v) => v._id === variant._id)
+        : selectedProduct.variants[0];
 
       if (!chosenVariant) {
-        toast.error("Không tìm thấy biến thể sản phẩm!");
+        toast.error("Không tìm thấy thông tin biến thể sản phẩm");
         return;
       }
 
       if (selectedProduct.status === "banned") {
-        toast.error("Sản phẩm đã ngừng kinh doanh");
+        toast.error("Sản phẩm này hiện không khả dụng");
         return;
       }
 
       if (chosenVariant.stock <= 0) {
-        toast.error("Sản phẩm đã hết hàng!");
+        toast.error("Sản phẩm đã hết hàng");
         return;
       }
 
       if (quantity > chosenVariant.stock) {
         toast.error(
-          `Số lượng tồn kho không đủ. Còn lại: ${chosenVariant.stock}`
+          `Số lượng đặt hàng (${quantity}) vượt quá số lượng tồn kho (${chosenVariant.stock})`
         );
         return;
       }
@@ -222,16 +237,13 @@ const ProductDetail = () => {
         subtotal: chosenVariant.salePrice * quantity,
       };
 
-      const { data: cartData } = await addCart(cartItem);
-      toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else if (error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
-      }
+      await addCart(cartItem);
+      toast.success("Đã thêm sản phẩm vào giỏ hàng");
+
+      setProduct(selectedProduct);
+      setSelectedVariant(chosenVariant);
+    } catch (error) {
+      toast.error("Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau");
     }
   };
 

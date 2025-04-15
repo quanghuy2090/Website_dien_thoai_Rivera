@@ -367,7 +367,7 @@ export const getAllCart = async (req, res) => {
       const isUpdated =
         item.price !== variant.price ||
         item.salePrice !==
-          (variant.salePrice || variant.price * (1 - variant.sale / 100)) ||
+        (variant.salePrice || variant.price * (1 - variant.sale / 100)) ||
         item.quantity > variant.stock;
 
       let updateMessage = null;
@@ -377,7 +377,7 @@ export const getAllCart = async (req, res) => {
         } else if (
           item.price !== variant.price ||
           item.salePrice !==
-            (variant.salePrice || variant.price * (1 - variant.sale / 100))
+          (variant.salePrice || variant.price * (1 - variant.sale / 100))
         ) {
           updateMessage = "Giá sản phẩm đã thay đổi";
         }
@@ -521,42 +521,12 @@ export const updateCartsWithProductChanges = async (updatedProduct) => {
 
             cartUpdated = true;
           } else {
-            console.log(
-              `Không tìm thấy biến thể tương ứng, cập nhật với biến thể mới`
+            console.log(`Không tìm thấy biến thể tương ứng, xóa khỏi giỏ hàng`);
+            // Nếu variant không còn tồn tại, xóa khỏi giỏ hàng
+            itemsToRemove.push(i);
+            updateMessages.push(
+              `Biến thể sản phẩm "${updatedProduct.name}" không còn tồn tại và đã được xóa khỏi giỏ hàng`
             );
-            // Nếu variant không còn tồn tại, thay vì xóa, chúng ta sẽ cập nhật với biến thể đầu tiên
-            // hoặc giữ nguyên thông tin cũ nhưng đánh dấu là không còn tồn tại
-            if (updatedProduct.variants.length > 0) {
-              // Nếu có biến thể mới, sử dụng biến thể đầu tiên
-              const firstVariant = updatedProduct.variants[0];
-              const oldVariantId = cart.items[i].variantId;
-
-              cart.items[i].variantId = firstVariant._id;
-              cart.items[i].price = firstVariant.price;
-              cart.items[i].salePrice =
-                firstVariant.salePrice ||
-                firstVariant.price * (1 - firstVariant.sale / 100);
-
-              // Kiểm tra số lượng
-              if (cart.items[i].quantity > firstVariant.stock) {
-                const oldQuantity = cart.items[i].quantity;
-                cart.items[i].quantity = firstVariant.stock;
-                updateMessages.push(
-                  `Số lượng sản phẩm "${updatedProduct.name}" đã được điều chỉnh từ ${oldQuantity} xuống ${firstVariant.stock} do tồn kho không đủ`
-                );
-              }
-
-              updateMessages.push(
-                `Biến thể sản phẩm "${updatedProduct.name}" đã thay đổi`
-              );
-            } else {
-              // Nếu không còn biến thể nào, thêm vào danh sách cần xóa
-              itemsToRemove.push(i);
-              updateMessages.push(
-                `Biến thể sản phẩm "${updatedProduct.name}" không còn tồn tại và đã được xóa khỏi giỏ hàng`
-              );
-            }
-
             cartUpdated = true;
           }
         }

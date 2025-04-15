@@ -253,6 +253,7 @@ const HomePage = () => {
                     {/* Add to Cart button - hidden initially */}
                     <div className="add-to-cart">
                       <button className="add-to-cart-btn">
+                        <i className="fa fa-eye me-2"></i>
                         <Link to={`/product/${product._id}`}>
                           <span className="tooltipp">Xem chi tiết</span>{" "}
                         </Link>
@@ -366,6 +367,7 @@ const HomePage = () => {
                     {/* Add to Cart button */}
                     <div className="add-to-cart">
                       <button className="add-to-cart-btn">
+                        <i className="fa fa-eye me-2"></i>
                         <Link to={`/product/${product._id}`}>
                           <span className="tooltipp">Xem chi tiết</span>{" "}
                         </Link>
