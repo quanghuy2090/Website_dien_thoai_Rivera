@@ -137,6 +137,8 @@ const Checkout = () => {
       if (formData.paymentMethod === "Online") {
         try {
           const { data } = await createOrderOnline(newOrder);
+          console.log("vào đây", data);
+
           window.location.href = data.paymentUrl;
         } catch (error: any) {
           if (error.response?.data?.message) {
@@ -150,6 +152,8 @@ const Checkout = () => {
       } else {
         try {
           const { data } = await createOrder(newOrder);
+          console.log("đây cơ mà", data);
+
           toast.success("Đặt hàng thành công!");
           nav("/history");
           setCarts([]);

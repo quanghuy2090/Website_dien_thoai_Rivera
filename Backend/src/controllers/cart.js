@@ -23,7 +23,6 @@ export const createCart = async (req, res) => {
     const product = await Product.findById(productObjectId).populate(
       "variants"
     );
-    console.log("Found product:", product); // Log sản phẩm
     if (!product) {
       return res.status(404).json({ message: "Sản phẩm không tồn tại" });
     }

@@ -213,7 +213,7 @@ export const createOrderOnline = async (req, res) => {
       vnp_OrderInfo: `Thanh toán đơn hàng ${order._id}`,
       vnp_OrderType: "250000",
       vnp_Locale: "vn",
-      vnp_ReturnUrl: VNPAY_RETURN_URL, // Đảm bảo dùng http://localhost:3000/api/order/vnpay_return
+      vnp_ReturnUrl: VNPAY_RETURN_URL, 
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: new Date()
         .toISOString()
@@ -275,6 +275,7 @@ export const getAllOrder = async (req, res) => {
       .populate({ path: "cancelledBy", select: "userName" }) // Thêm populate cho cancelledBy
       .populate({ path: "cancelHistory.cancelledBy", select: "userName" }) // Populate cho cancelHistory
       .sort({ createdAt: -1 });
+    console.log(orders);
 
     if (!orders || orders.length === 0) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng nào" });

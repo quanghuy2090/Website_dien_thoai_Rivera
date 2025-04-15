@@ -10,7 +10,7 @@ export type User = {
   role: number;
   status: string;
   confirmPassword: string;
-  img: string;
+  image: string;
   updatedAt: string;
   createdAt: string;
   updatedBy: User;

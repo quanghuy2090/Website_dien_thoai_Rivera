@@ -5,7 +5,7 @@ import "../css/nouislider.min.css";
 import "../css/slick-theme.css";
 import "../css/slick.css";
 import "../css/style.css";
-import { getDetailUser, User } from "../services/auth";
+
 
 export function Header() {
   const [isNavActive, setIsNavActive] = useState<boolean>(false);
@@ -15,10 +15,12 @@ export function Header() {
 
   let userName = "";
   let userRole = null; // Initialize userRole
+  let userImage = "";
   if (user) {
     const parsedUser = JSON.parse(user);
-    userName = parsedUser.userName || "User";  
+    userName = parsedUser.userName || "User";
     userRole = parsedUser.role; // Get the user's role
+    userImage = parsedUser.image || "";
   }
 
   const handleLogout = () => {
@@ -86,10 +88,15 @@ export function Header() {
               <>
                 <li>
                   <a href="/profile">
-                    <i className="fa fa-user-o" /> {userName}
+                    {userImage ? (
+                      <img src={userImage} alt="User Avatar" style={{ width: '30px', height: '30px', borderRadius: '50%' }} />
+                    ) : (
+                      <i className="fa fa-user-o" />
+                    )}
+                    {userName}
                   </a>
                 </li>
-                {userRole === 1 && ( // Check if user is an admin
+                {userRole === 1 && ( // Kiểm tra nếu người dùng là admin
                   <li>
                     <a href="/admin/dashboard">
                       <i className="fa fa-cog" /> Quản lý
@@ -103,6 +110,7 @@ export function Header() {
                 </li>
               </>
             )}
+
             {!token && (
               <>
                 <li>

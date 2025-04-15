@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { Category, getProductById, Product, Variants } from "../../../services/product";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { getCategories } from "../../../services/category";
 import toast from "react-hot-toast";
 import z from "zod";
@@ -189,18 +189,15 @@ const UpdateProduct = () => {
   //   ],
   // };
   return (
-    <div className="content">
-      <div className="container d-flex justify-content-center align-items-center min-vh-100 ">
-        <div className="row justify-content-center w-100">
-          <div className="col-lg-12 col-md-12">
-            <div className="text-center mt-5">
-              <h2 className="fw-bold text-primary">Cập nhật sản phẩm</h2>
-              <p className="text-muted">Chỉnh sửa thông tin sản phẩm của bạn</p>
-            </div>
-
+    <div className="content p-4">
+      <div className="card mb-4">
+        <div className="card-body">
+          <div style={{ maxWidth: '1500px', margin: '0 auto' }}>
+            <h3 className="fw-bold mb-3">Sửa Sản phẩm</h3>
+            <p className="text-muted mb-4">Quản lý sản phẩm cho cửa hàng Rivera</p>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="p-5 border rounded bg-white shadow"
+
             >
               {/* Tên và giá sản phẩm */}
 
@@ -463,15 +460,19 @@ const UpdateProduct = () => {
               </div>
 
               {/* Nút submit */}
-              <div className="text-center mt-4">
-                <button type="submit" className="btn btn-primary w-100 py-2">
+              <div className="d-flex gap-2">
+                <button type="submit" className="btn btn-primary px-4">
                   Lưu
                 </button>
+                <Link to={`/admin/products`} type="reset" className="btn btn-danger">
+                  Hủy
+                </Link>
               </div>
             </form>
           </div>
         </div>
       </div>
+
     </div>
   );
 };

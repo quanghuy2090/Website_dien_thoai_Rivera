@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { getAllProduct, Product } from "../../services/product";
 import { addCart, Carts } from "../../services/cart";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -10,6 +10,25 @@ import "../../css/style.css";
 import { getCategories } from "../../services/category";
 
 const HomePage = () => {
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  console.log("location", location);
+  console.log("searchParams", searchParams);
+
+  useEffect(() => {
+    const vnp_ResponseCode = searchParams.get("vnp_ResponseCode");
+    const vnp_TxnRef = searchParams.get("vnp_TxnRef");
+    if (vnp_ResponseCode) {
+      if (vnp_ResponseCode === "00") {
+        toast.success(`Thanh toán thành công! Mã giao dịch: ${vnp_TxnRef}`);
+      } else {
+        toast.error("Thanh toán thất bại. Vui lòng thử lại.");
+      }
+
+      // Xóa query parameters khỏi URL để tránh lặp lại toast
+    }
+    setSearchParams({});
+  }, [searchParams, setSearchParams]);
   const [hotProducts, setHotProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   // const nav = useNavigate();
