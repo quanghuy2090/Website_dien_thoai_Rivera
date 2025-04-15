@@ -12,7 +12,12 @@ const Orders = () => {
 
   const fetchOrder = async () => {
     const { data } = await getAllOrder();
-    setOrder(data.orders);
+    // Sort orders by createdAt date in ascending order (oldest to newest)
+    const sortedOrders = data.orders.sort(
+      (a: Order, b: Order) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+    setOrder(sortedOrders);
   };
 
   // const formatPrice = (price: number) => {
@@ -100,8 +105,6 @@ const Orders = () => {
         </div>
       </div>
     </div>
-
-
   );
 };
 

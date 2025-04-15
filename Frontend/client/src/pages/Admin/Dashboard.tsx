@@ -17,7 +17,15 @@ import { RevenueData, TopUser, TopProduct } from "../../services/statistics";
 import { formatCurrency } from "../../utils/formatCurrency";
 
 // Đăng ký các thành phần cần thiết của Chart.js
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard: React.FC = () => {
   const [statistics, setStatistics] = useState<{
@@ -37,13 +45,21 @@ const Dashboard: React.FC = () => {
         console.log("API Response:", data);
 
         const formattedData = {
-          totalRevenue: Array.isArray(data.totalRevenue?.data) ? data.totalRevenue.data : [],
-          topUsers: Array.isArray(data.topUsers?.data) ? data.topUsers.data : [],
-          topProducts: Array.isArray(data.topProducts?.data) ? data.topProducts.data : [],
+          totalRevenue: Array.isArray(data.totalRevenue?.data)
+            ? data.totalRevenue.data
+            : [],
+          topUsers: Array.isArray(data.topUsers?.data)
+            ? data.topUsers.data
+            : [],
+          topProducts: Array.isArray(data.topProducts?.data)
+            ? data.topProducts.data
+            : [],
           leastSoldProducts: Array.isArray(data.leastSoldProducts?.data)
             ? data.leastSoldProducts.data
             : [],
-          orderStatus: Array.isArray(data.orderStatus?.data) ? data.orderStatus.data : [],
+          orderStatus: Array.isArray(data.orderStatus?.data)
+            ? data.orderStatus.data
+            : [],
         };
 
         console.log("Formatted Data:", formattedData);
@@ -72,17 +88,32 @@ const Dashboard: React.FC = () => {
   }
 
   // Tính toán các giá trị tổng quan
-  const totalRevenue = statistics.totalRevenue.reduce((sum, item) => sum + item.totalRevenue, 0);
+  const totalRevenue = statistics.totalRevenue.reduce(
+    (sum, item) => sum + item.totalRevenue,
+    0
+  );
   const totalUsers = statistics.topUsers.length;
 
   // Dữ liệu cho biểu đồ cột (Doanh thu theo tháng)
   const barChartData = {
-    labels: statistics.totalRevenue.map(item => `${item._id.month}/${item._id.year}`),
+    labels: statistics.totalRevenue
+      .sort((a, b) => {
+        const dateA = new Date(a._id.year, a._id.month - 1);
+        const dateB = new Date(b._id.year, b._id.month - 1);
+        return dateA.getTime() - dateB.getTime();
+      })
+      .map((item) => `${item._id.month}/${item._id.year}`),
     datasets: [
       {
         label: "Doanh thu",
-        data: statistics.totalRevenue.map(item => item.totalRevenue),
-        backgroundColor: "#3498db", // Màu xanh lá như trong hình
+        data: statistics.totalRevenue
+          .sort((a, b) => {
+            const dateA = new Date(a._id.year, a._id.month - 1);
+            const dateB = new Date(b._id.year, b._id.month - 1);
+            return dateA.getTime() - dateB.getTime();
+          })
+          .map((item) => item.totalRevenue),
+        backgroundColor: "#3498db",
         borderColor: "#3498db",
         borderWidth: 1,
       },
@@ -165,12 +196,12 @@ const Dashboard: React.FC = () => {
     },
   };
   const pieChartData = {
-    labels: statistics.orderStatus.map(item => item.status),
+    labels: statistics.orderStatus.map((item) => item.status),
     datasets: [
       {
         label: "Trạng thái đơn hàng",
-        data: statistics.orderStatus.map(item => item.totalOrders),
-        backgroundColor: statistics.orderStatus.map(item => {
+        data: statistics.orderStatus.map((item) => item.totalOrders),
+        backgroundColor: statistics.orderStatus.map((item) => {
           switch (item.status) {
             case "Chưa xác nhận":
               return "#b2bec3"; // xám nhạt
@@ -190,7 +221,7 @@ const Dashboard: React.FC = () => {
               return "#dfe6e9"; // fallback xám nhạt
           }
         }),
-        borderColor: statistics.orderStatus.map(item => {
+        borderColor: statistics.orderStatus.map((item) => {
           switch (item.status) {
             case "Chưa xác nhận":
               return "#636e72";
@@ -237,7 +268,8 @@ const Dashboard: React.FC = () => {
           label: (context: TooltipItem<"pie">) => {
             const label = context.label || "";
             const value = context.raw as number;
-            const percentage = statistics.orderStatus[context.dataIndex]?.percentage || "0%";
+            const percentage =
+              statistics.orderStatus[context.dataIndex]?.percentage || "0%";
             return `${label}: ${value} (${percentage})`;
           },
         },
@@ -247,7 +279,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="content p-4">
-
       <div className="row mb-4">
         {/* Thẻ "Doanh Thu Tổng" với gradient hồng */}
         <div className="col-md-6 col-lg-4 mb-3">
@@ -263,7 +294,9 @@ const Dashboard: React.FC = () => {
               <h5 className="card-title" style={{ fontWeight: "bold" }}>
                 Doanh Thu Tổng
               </h5>
-              <p className="card-text fs-3 fw-bold">{formatCurrency(totalRevenue)}</p>
+              <p className="card-text fs-3 fw-bold">
+                {formatCurrency(totalRevenue)}
+              </p>
             </div>
           </div>
         </div>
@@ -287,7 +320,6 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-
 
       <div className="row mb-4">
         {/* Biểu đồ cột - Doanh Thu Theo Tháng */}
@@ -323,9 +355,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-
-
-
       <div className="row">
         {/* Top sản phẩm bán chạy và bán ít nhất trên cùng một hàng */}
         <div className="col-md-6 mb-4">
@@ -342,7 +371,7 @@ const Dashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {statistics.topProducts.map(product => (
+                    {statistics.topProducts.map((product) => (
                       <tr key={product._id}>
                         <td>{product.name}</td>
                         <td>{product.totalQuantity}</td>
@@ -370,7 +399,7 @@ const Dashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {statistics.leastSoldProducts.map(product => (
+                    {statistics.leastSoldProducts.map((product) => (
                       <tr key={product._id}>
                         <td>{product.name}</td>
                         <td>{product.totalQuantity}</td>
@@ -402,7 +431,7 @@ const Dashboard: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {statistics.topUsers.map(user => (
+                    {statistics.topUsers.map((user) => (
                       <tr key={user._id}>
                         <td>{user.userName}</td>
                         <td>{user.email}</td>
@@ -418,7 +447,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
     </div>
-
   );
 };
 
