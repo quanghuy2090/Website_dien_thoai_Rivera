@@ -54,17 +54,12 @@ export const CategoryProvider = ({ children }: Children) => {
                 // Cập nhật lại danh sách danh mục đã xóa từ backend
                 const { data } = await getCategoriesDeleted();
                 dispatch({ type: "GET_CATEGORYS_DELETE", payload: data.data });
-
-                // H Ascendant Technologiesif (response.data && response.data.data.deletedBy) {
-                // const { userName, email } = response.data.data.deletedBy;
                 toast.success(`Xóa danh mục thành công `);
-            } else {
-                toast.success("Xóa danh mục thành công");
             }
         }
         catch (error) {
             console.error("Lỗi khi xóa danh mục:", error);
-            toast.error("Xóa danh mục thất bại");
+            toast.error("Không thể xóa danh mục đang chứa sản phẩm");
         }
     };
 

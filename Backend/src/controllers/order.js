@@ -275,6 +275,7 @@ export const getAllOrder = async (req, res) => {
       .populate({ path: "cancelledBy", select: "userName" }) // Thêm populate cho cancelledBy
       .populate({ path: "cancelHistory.cancelledBy", select: "userName" }) // Populate cho cancelHistory
       .sort({ createdAt: -1 });
+    console.log(orders);
 
     if (!orders || orders.length === 0) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng nào" });

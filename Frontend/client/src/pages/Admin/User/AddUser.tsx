@@ -2,28 +2,22 @@ import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { User } from '../../../services/auth'
 import { AuthContext } from '../../../context/AuthContext'
+import { Link } from 'react-router-dom'
 
 const AddUser = () => {
     const { register, handleSubmit, formState: { errors }, } = useForm<User>();
     const { createUser } = useContext(AuthContext);
 
     return (
-        <div className="content">
-            <div className="container  d-flex justify-content-center align-items-center mt-5">
-                <div className="row justify-content-center w-100">
-                    <div className="col-lg-12 col-md-12">
-                        <div className="text-center">
-                            <h2 className="fw-bold text-primary">
-                                Thêm mới User
-                            </h2>
-                            <p className="text-muted">
-                                Quản lý user cho cửa hàng Rivera
-                            </p>
-                        </div>
-
+        <div className="content p-4">
+            <div className='card mb-4'>
+                <div className='card-body'>
+                    <div style={{ maxWidth: '1500px', margin: '0 auto' }}>
+                        <h3 className="fw-bold mb-3">Thêm mới Người Dùng</h3>
+                        <p className="text-muted mb-4">Quản lý người dùng cho cửa hàng Rivera</p>
                         <form
                             onSubmit={handleSubmit((data) => createUser(data))}
-                            className="p-5 border rounded shadow-sm bg-light"
+
                         >
                             <div className="form-group mb-5">
                                 <label htmlFor="name" className="fw-bold fs-5" >
@@ -143,13 +137,19 @@ const AddUser = () => {
                                 )}
 
                             </div>
-                            <div className="form-group mb-3">
-                                <button className="btn btn-primary w-100 py-3 fs-5">Lưu</button>
+                            <div className="d-flex gap-2">
+                                <button type="submit" className="btn btn-primary px-4">
+                                    Lưu
+                                </button>
+                                <Link to={`/admin/user`} type="reset" className="btn btn-danger">
+                                    Hủy
+                                </Link>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
+
         </div>
     )
 }
