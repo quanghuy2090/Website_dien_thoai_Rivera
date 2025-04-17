@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../css/bootstrap.min.css";
 import "../css/font-awesome.min.css";
 import "../css/nouislider.min.css";
 import "../css/slick-theme.css";
 import "../css/slick.css";
 import "../css/style.css";
+import { CartContext } from "../context/CartContext";
 
 
 export function Header() {
@@ -12,7 +13,7 @@ export function Header() {
   const [isCartDropdownOpen, setIsCartDropdownOpen] = useState<boolean>(false);
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-
+  const { state } = useContext(CartContext);
   let userName = "";
   let userRole = null; // Initialize userRole
   let userImage = "";
@@ -166,7 +167,7 @@ export function Header() {
                   >
                     <i className="fa fa-shopping-cart" />
                     <span>Giỏ hàng</span>
-                    <div className="qty">3</div>
+                    <div className="qty">{state.totalQuantity}</div>
                   </a>
                 </div>
                 <div className="menu-toggle" onClick={toggleNav}>

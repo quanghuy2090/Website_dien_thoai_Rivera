@@ -1,197 +1,53 @@
-import React, { useEffect } from "react";
-import {
-  CartItem,
-  deleteAllCart,
-  deleteCart,
-  getCart,
-  updateCart,
-} from "../../services/cart";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../../css/style.css";
 import toast from "react-hot-toast";
-import { useCartPolling } from "../../hooks/useCartPolling";
+import { CartContext } from "../../context/CartContext";
 
 const Cart = () => {
-  const { carts, totalAmount, setCarts, setTotalAmount } = useCartPolling();
+  const { state, updateQuantity, removeFromCart, clearCart, getCarts } = useContext(CartContext);
+  const { items: carts, totalQuantity } = state;
 
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        if (user && user._id) {
-          fetchCart();
-        }
-      } catch (error) {
-        console.error("Lỗi khi parse user data:", error);
-      }
-    }
-  }, []);
+    getCarts();
+  }, [getCarts]);
 
-  const fetchCart = async () => {
-    try {
-      const { data } = await getCart();
-      if (data.cart && data.cart.items) {
-        setCarts(data.cart.items);
-        setTotalAmount(data.cart.totalSalePrice || 0);
-      }
-    } catch (error) {
-      console.error("Lỗi khi gọi API giỏ hàng:", error);
-      toast.error("Lỗi khi tải giỏ hàng");
-    }
+  const handleDeleteCartItem = (productId: string, variantId: string) => {
+    removeFromCart(productId, variantId).catch((error) => {
+      console.error("Lỗi khi xóa sản phẩm:", error);
+      toast.error("Có lỗi xảy ra khi xóa sản phẩm");
+    });
   };
 
-  const handleDeleteCartItem = async (productId: string, variantId: string) => {
-    const productToDelete = carts.find(
-      (cart) => cart.productId._id === productId && cart.variantId === variantId
-    );
-
-    if (
-      window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")
-    ) {
-      try {
-        const { data } = await deleteCart(productId, variantId);
-        const updatedCart = carts.filter(
-          (cart) =>
-            !(cart.productId._id === productId && cart.variantId === variantId)
-        );
-        setCarts(updatedCart);
-        if (updatedCart.length === 0) {
-          setTotalAmount(0);
-        } else {
-          const newTotalPrice = updatedCart.reduce(
-            (sum, item) => sum + item.quantity * item.salePrice,
-            0
-          );
-          setTotalAmount(newTotalPrice);
-        }
-        toast.success(
-          `Đã xóa sản phẩm "${productToDelete?.productId.name}" khỏi giỏ hàng!`
-        );
-      } catch (error: any) {
-        console.log(error);
-        if (error.response?.status === 404) {
-          if (
-            error.response?.data?.message?.includes("Sản phẩm không tồn tại")
-          ) {
-            toast.error("Sản phẩm không còn tồn tại trong hệ thống");
-          } else if (
-            error.response?.data?.message?.includes(
-              "Biến thể sản phẩm không tồn tại"
-            )
-          ) {
-            toast.error("Phiên bản sản phẩm không còn tồn tại");
-          } else if (
-            error.response?.data?.message?.includes("Giỏ hàng không tồn tại")
-          ) {
-            toast.error("Giỏ hàng không tồn tại");
-          } else if (
-            error.response?.data?.message?.includes(
-              "Sản phẩm không có trong giỏ hàng"
-            )
-          ) {
-            toast.error("Sản phẩm không có trong giỏ hàng");
-          }
-        } else {
-          toast.error("Có lỗi xảy ra khi xóa sản phẩm");
-        }
-      }
+  const handleRemoveAllCart = () => {
+    if (carts.length === 0) {
+      toast.error("Giỏ hàng của bạn đã trống!");
+      return;
     }
-  };
 
-  const handleRemoveAllCart = async () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng không?")) {
-      try {
-        const { data } = await deleteAllCart();
-        setCarts([]);
-        setTotalAmount(0);
-        toast.success("Đã xóa toàn bộ giỏ hàng!");
-      } catch (error: any) {
-        console.log(error);
-        if (error.response?.status === 404) {
-          toast.error("Giỏ hàng không tồn tại");
-        } else {
-          toast.error("Có lỗi xảy ra khi xóa giỏ hàng");
-        }
-      }
+      clearCart().catch((error) => {
+        console.error("Lỗi khi xóa toàn bộ giỏ hàng:", error);
+        toast.error("Có lỗi xảy ra khi xóa giỏ hàng");
+      });
     }
   };
 
-  const handleUpdateQuantity = async (
-    productId: string,
-    variantId: string,
-    newQuantity: number
-  ) => {
-    if (newQuantity <= 0) {
-      toast.error("Số lượng không được nhỏ hơn 1 !");
+  const handleUpdateQuantity = (productId: string, variantId: string, newQuantity: number) => {
+    if (newQuantity < 1) {
+      toast.error("Số lượng không được nhỏ hơn 1!");
       return;
     }
 
     if (newQuantity > 100) {
-      toast.error("Số lượng tối đa cho phép là 100 !");
+      toast.error("Số lượng tối đa cho phép là 100!");
       return;
     }
 
-    try {
-      const { data } = await updateCart(productId, variantId, newQuantity);
-      const updatedCart = carts.map((cart) =>
-        cart.productId._id === productId && cart.variantId === variantId
-          ? {
-              ...cart,
-              quantity: newQuantity,
-              salePrice:
-                data.cart.items.find(
-                  (i: CartItem) =>
-                    i.productId._id === productId && i.variantId === variantId
-                )?.salePrice || cart.salePrice,
-              subtotal:
-                newQuantity *
-                (data.cart.items.find(
-                  (i: CartItem) =>
-                    i.productId._id === productId && i.variantId === variantId
-                )?.salePrice || cart.salePrice),
-            }
-          : cart
-      );
-      setCarts(updatedCart);
-      setTotalAmount(data.cart.totalSalePrice);
-      toast.success("Cập nhật số lượng thành công!");
-    } catch (error: any) {
-      console.log(error);
-      if (error.response?.status === 404) {
-        if (error.response?.data?.message?.includes("Sản phẩm không tồn tại")) {
-          toast.error("Sản phẩm không còn tồn tại trong hệ thống");
-        } else if (
-          error.response?.data?.message?.includes(
-            "Biến thể sản phẩm không tồn tại"
-          )
-        ) {
-          toast.error("Phiên bản sản phẩm không còn tồn tại");
-        } else if (
-          error.response?.data?.message?.includes("Giỏ hàng không tồn tại")
-        ) {
-          toast.error("Giỏ hàng không tồn tại");
-        } else if (
-          error.response?.data?.message?.includes(
-            "Sản phẩm không có trong giỏ hàng"
-          )
-        ) {
-          toast.error("Sản phẩm không có trong giỏ hàng");
-        }
-      } else if (error.response?.status === 400) {
-        if (
-          error.response?.data?.message?.includes("Số lượng tồn kho không đủ")
-        ) {
-          const stockMessage = error.response?.data?.message;
-          const currentStock = stockMessage.match(/Còn lại: (\d+)/)?.[1] || "0";
-          toast.error(
-            `Số lượng tồn kho không đủ. Hiện tại chỉ còn ${currentStock} sản phẩm trong kho. Vui lòng điều chỉnh số lượng đặt hàng.`
-          );
-        }
-      } else {
-        toast.error("Có lỗi xảy ra khi cập nhật số lượng");
-      }
-    }
+    updateQuantity(productId, variantId, newQuantity).catch((error) => {
+      console.error("Lỗi khi cập nhật số lượng:", error);
+      toast.error("Có lỗi xảy ra khi cập nhật số lượng");
+    });
   };
 
   const formatPrice = (price: number) => {
@@ -199,10 +55,15 @@ const Cart = () => {
     return price.toLocaleString("vi-VN") + " VND";
   };
 
+  const totalAmount = carts.reduce(
+    (sum, item) => sum + item.quantity * item.salePrice,
+    0
+  );
+
   return (
     <div className="cart-container">
       <div className="cart-header">
-        <h2>Giỏ hàng của bạn</h2>
+        <h2>Giỏ hàng của bạn ({totalQuantity} sản phẩm)</h2>
       </div>
 
       <div className="cart-table-container">
@@ -246,7 +107,7 @@ const Cart = () => {
                         <span className="product-sale-price">
                           {formatPrice(cart.salePrice)}
                         </span>
-                        {cart?.salePrice !== cart?.price && (
+                        {cart.salePrice !== cart.price && (
                           <span className="product-old-price">
                             {formatPrice(cart.price)}
                           </span>
@@ -271,39 +132,7 @@ const Cart = () => {
                           type="text"
                           className="quantity-input"
                           value={cart.quantity}
-                          onKeyPress={(e) => {
-                            if (!/[0-9]/.test(e.key)) {
-                              e.preventDefault();
-                            }
-                          }}
-                          onBlur={(e) => {
-                            const value = e.target.value;
-                            if (value === "") {
-                              handleUpdateQuantity(
-                                cart.productId._id,
-                                cart.variantId,
-                                1
-                              );
-                            }
-                          }}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            if (value === "") {
-                              return;
-                            }
-                            const newQuantity = parseInt(value);
-                            if (
-                              !isNaN(newQuantity) &&
-                              newQuantity >= 1 &&
-                              newQuantity <= 100
-                            ) {
-                              handleUpdateQuantity(
-                                cart.productId._id,
-                                cart.variantId,
-                                newQuantity
-                              );
-                            }
-                          }}
+                          readOnly
                         />
                         <button
                           className="quantity-btn"

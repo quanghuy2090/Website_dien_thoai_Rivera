@@ -1,23 +1,22 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { getProductById, Product } from "../../services/product";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
-import { addCart, Carts } from "../../services/cart";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useProductPolling } from "../../hooks/useProductPolling";
+import { CartContext } from "../../context/CartContext"; // Import CartContext
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const { addToCart } = useContext(CartContext); // Use CartContext
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [quantity, setQuantity] = useState(1);
-  const [selectedVariant, setSelectedVariant] = useState<
-    Product["variants"][0] | null
-  >(null);
+  const [selectedVariant, setSelectedVariant] = useState<Product["variants"][0] | null>(null);
   const [activeTab, setActiveTab] = useState("tab01");
   const [isBanned, setIsBanned] = useState(false);
   const productDetailSliderRef = useRef<Slider | null>(null);
@@ -133,8 +132,6 @@ const ProductDetail = () => {
     }
   };
 
-  const nav = useNavigate();
-
   useEffect(() => {
     window.scrollTo(0, 0);
     (async () => {
@@ -162,90 +159,6 @@ const ProductDetail = () => {
       }
     })();
   }, [id]);
-
-  const addToCart = async (
-    productId: string,
-    variant?: Product["variants"][0]
-  ) => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (!user || !user._id) {
-        toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
-        return nav("/login");
-      }
-
-      if (!productId) {
-        toast.error("Không tìm thấy sản phẩm");
-        return;
-      }
-
-      const { data } = await getProductById(productId);
-      const selectedProduct = data.data;
-
-      if (!selectedProduct) {
-        toast.error("Không tìm thấy thông tin sản phẩm");
-        return;
-      }
-
-      const chosenVariant = variant
-        ? selectedProduct.variants.find((v) => v._id === variant._id)
-        : selectedProduct.variants[0];
-
-      if (!chosenVariant) {
-        toast.error("Không tìm thấy thông tin biến thể sản phẩm");
-        return;
-      }
-
-      if (selectedProduct.status === "banned") {
-        toast.error("Sản phẩm này hiện không khả dụng");
-        return;
-      }
-
-      if (chosenVariant.stock <= 0) {
-        toast.error("Sản phẩm đã hết hàng");
-        return;
-      }
-
-      if (quantity > chosenVariant.stock) {
-        toast.error(
-          `Số lượng đặt hàng (${quantity}) vượt quá số lượng tồn kho (${chosenVariant.stock})`
-        );
-        return;
-      }
-
-      const MAX_QUANTITY = 100;
-      if (quantity > MAX_QUANTITY) {
-        toast.error(`Số lượng tối đa cho phép là ${MAX_QUANTITY}`);
-        return;
-      }
-
-      const cartItem: Carts = {
-        userId: user._id,
-        productId: selectedProduct._id,
-        variantId: chosenVariant._id,
-        quantity: quantity,
-        price: chosenVariant.price,
-        salePrice: chosenVariant.salePrice,
-        color:
-          typeof chosenVariant.color === "object"
-            ? chosenVariant.color.name
-            : chosenVariant.color,
-        capacity:
-          typeof chosenVariant.capacity === "object"
-            ? chosenVariant.capacity.value
-            : chosenVariant.capacity,
-        subtotal: chosenVariant.salePrice * quantity,
-      };
-
-      await addCart(cartItem);
-      toast.success("Đã thêm sản phẩm vào giỏ hàng");
-
-      setProduct(selectedProduct);
-      setSelectedVariant(chosenVariant);
-    } catch (error) {
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau");
-    }
-  };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -290,9 +203,7 @@ const ProductDetail = () => {
                     {product?.images.map((img, index) => (
                       <div
                         key={index}
-                        className={`thumbnail-item ${
-                          img === mainImage ? "active" : ""
-                        }`}
+                        className={`thumbnail-item ${img === mainImage ? "active" : ""}`}
                         onClick={() => setMainImage(img)}
                       >
                         <img src={img} alt={`Thumbnail ${index + 1}`} />
@@ -302,14 +213,6 @@ const ProductDetail = () => {
                 </div>
               </div>
             </div>
-
-            {/* <div className="col-md-5 col-md-push-2 d-flex justify-content-center">
-              <div id="product-main-img">
-                <div className="product-preview">
-                  <img src={mainImage!} alt="" />
-                </div>
-              </div>
-            </div> */}
 
             <div className="col-md-5">
               <div className="product-details">
@@ -331,8 +234,7 @@ const ProductDetail = () => {
                       <span className="ml-2 text-muted">
                         (10 Đánh giá) |
                         <a className="text-primary" href="#">
-                          {" "}
-                          Đánh giá{" "}
+                          {" "}Đánh giá{" "}
                         </a>
                       </span>
                     </div>
@@ -344,9 +246,7 @@ const ProductDetail = () => {
                           {product?.variants.map((variant, index) => (
                             <button
                               key={index}
-                              className={`variant-btn ${
-                                variant === selectedVariant ? "active" : ""
-                              }`}
+                              className={`variant-btn ${variant === selectedVariant ? "active" : ""}`}
                               onClick={() => handleVariantChange(variant)}
                               disabled={variant.stock <= 0}
                             >
@@ -380,8 +280,7 @@ const ProductDetail = () => {
                     <h2 className="h3 font-weight-bold mb-2 product-price">
                       {formatPrice(selectedVariant?.salePrice ?? 0)}
                       <br />
-                      {selectedVariant?.salePrice !==
-                        selectedVariant?.price && (
+                      {selectedVariant?.salePrice !== selectedVariant?.price && (
                         <del className="product-old-price">
                           {formatPrice(selectedVariant?.price ?? 0)}
                         </del>
@@ -389,14 +288,9 @@ const ProductDetail = () => {
                     </h2>
 
                     <div
-                      className={`font-weight-bold mb-4 ${
-                        selectedVariant?.stock > 0
-                          ? "text-success"
-                          : "text-danger"
-                      }`}
+                      className={`font-weight-bold mb-4 ${selectedVariant?.stock > 0 ? "text-success" : "text-danger"}`}
                     >
-                      {selectedVariant?.stock > 0 ? "CÒN HÀNG" : "HẾT HÀNG"}:{" "}
-                      {selectedVariant?.stock}
+                      {selectedVariant?.stock > 0 ? "CÒN HÀNG" : "HẾT HÀNG"}: {selectedVariant?.stock}
                     </div>
 
                     <div className="product-options">
@@ -423,17 +317,13 @@ const ProductDetail = () => {
                         <span className="me-2">Số lượng: </span>
                         <div className="input-number">
                           <input type="number" value={quantity} readOnly />
-                          <span className="qty-up" onClick={increaseQuantity}>
-                            +
-                          </span>
-                          <span className="qty-down" onClick={decreaseQuantity}>
-                            -
-                          </span>
+                          <span className="qty-up" onClick={increaseQuantity}>+</span>
+                          <span className="qty-down" onClick={decreaseQuantity}>-</span>
                         </div>
                       </div>
                       <button
                         className="add-to-cart-btn"
-                        onClick={() => addToCart(product?._id, selectedVariant)}
+                        onClick={() => addToCart(product?._id, selectedVariant, quantity)} // Use context addToCart
                       >
                         <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                       </button>
@@ -458,46 +348,23 @@ const ProductDetail = () => {
                   </li>
                 </ul>
                 <div className="tab-content">
-                  <div
-                    id="tab01"
-                    className={`tab-pane ${
-                      activeTab === "tab01" ? "active" : "fade"
-                    }`}
-                  >
+                  <div id="tab01" className={`tab-pane ${activeTab === "tab01" ? "active" : "fade"}`}>
                     <div className="row">
                       <div className="col-md-12">
-                        <p
-                          dangerouslySetInnerHTML={{
-                            __html: product?.short_description || "",
-                          }}
-                        ></p>
+                        <p dangerouslySetInnerHTML={{ __html: product?.short_description || "" }}></p>
                       </div>
                     </div>
                   </div>
 
-                  <div
-                    id="tab02"
-                    className={`tab-pane ${
-                      activeTab === "tab02" ? "active" : "fade"
-                    }`}
-                  >
+                  <div id="tab02" className={`tab-pane ${activeTab === "tab02" ? "active" : "fade"}`}>
                     <div className="row">
                       <div className="col-md-12">
-                        <p
-                          dangerouslySetInnerHTML={{
-                            __html: product?.long_description || "",
-                          }}
-                        ></p>
+                        <p dangerouslySetInnerHTML={{ __html: product?.long_description || "" }}></p>
                       </div>
                     </div>
                   </div>
 
-                  <div
-                    id="tab03"
-                    className={`tab-pane ${
-                      activeTab === "tab03" ? "active" : "fade"
-                    }`}
-                  >
+                  <div id="tab03" className={`tab-pane ${activeTab === "tab03" ? "active" : "fade"}`}>
                     <div className="row">
                       <div className="col-md-3">
                         <div id="rating">
@@ -597,89 +464,38 @@ const ProductDetail = () => {
                               </div>
                               <div className="review-body">
                                 <p>
-                                  Lorem ipsum dolor sit amet, consectetur
-                                  adipisicing elit, sed do eiusmod tempor
-                                  incididunt ut labore et dolore magna aliqua.
+                                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                                 </p>
                               </div>
                             </li>
-                            {/* More reviews can be added here */}
                           </ul>
                           <ul className="reviews-pagination">
                             <li className="active">1</li>
-                            <li>
-                              <a href="#">2</a>
-                            </li>
-                            <li>
-                              <a href="#">3</a>
-                            </li>
-                            <li>
-                              <a href="#">4</a>
-                            </li>
-                            <li>
-                              <a href="#">
-                                <i className="fa fa-angle-right" />
-                              </a>
-                            </li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#"><i className="fa fa-angle-right" /></a></li>
                           </ul>
                         </div>
                       </div>
-                      {/* Review Form */}
                       <div className="col-md-3">
                         <div id="review-form">
                           <form className="review-form">
-                            <input
-                              className="input"
-                              type="text"
-                              placeholder="Your Name"
-                            />
-                            <input
-                              className="input"
-                              type="email"
-                              placeholder="Your Email"
-                            />
-                            <textarea
-                              className="input"
-                              placeholder="Your Review"
-                              defaultValue={""}
-                            />
+                            <input className="input" type="text" placeholder="Your Name" />
+                            <input className="input" type="email" placeholder="Your Email" />
+                            <textarea className="input" placeholder="Your Review" defaultValue={""} />
                             <div className="input-rating">
                               <span>Your Rating: </span>
                               <div className="stars">
-                                <input
-                                  id="star5"
-                                  name="rating"
-                                  defaultValue={5}
-                                  type="radio"
-                                />
+                                <input id="star5" name="rating" defaultValue={5} type="radio" />
                                 <label htmlFor="star5" />
-                                <input
-                                  id="star4"
-                                  name="rating"
-                                  defaultValue={4}
-                                  type="radio"
-                                />
+                                <input id="star4" name="rating" defaultValue={4} type="radio" />
                                 <label htmlFor="star4" />
-                                <input
-                                  id="star3"
-                                  name="rating"
-                                  defaultValue={3}
-                                  type="radio"
-                                />
+                                <input id="star3" name="rating" defaultValue={3} type="radio" />
                                 <label htmlFor="star3" />
-                                <input
-                                  id="star2"
-                                  name="rating"
-                                  defaultValue={2}
-                                  type="radio"
-                                />
+                                <input id="star2" name="rating" defaultValue={2} type="radio" />
                                 <label htmlFor="star2" />
-                                <input
-                                  id="star1"
-                                  name="rating"
-                                  defaultValue={1}
-                                  type="radio"
-                                />
+                                <input id="star1" name="rating" defaultValue={1} type="radio" />
                                 <label htmlFor="star1" />
                               </div>
                             </div>
@@ -696,15 +512,9 @@ const ProductDetail = () => {
             {/* Related Products Section */}
             <div className="col-md-12 mb-5 mt-5">
               <div className="section-title">
-                <h3 className="title d-flex justify-content-center">
-                  Sản phẩm cùng danh mục
-                </h3>
+                <h3 className="title d-flex justify-content-center">Sản phẩm cùng danh mục</h3>
               </div>
-              <Slider
-                ref={productDetailSliderRef}
-                {...productSliderSettings}
-                className="products-slick"
-              >
+              <Slider ref={productDetailSliderRef} {...productSliderSettings} className="products-slick">
                 {relatedProducts.map((item) => (
                   <div key={item._id} className="product">
                     <div className="product-img">
@@ -720,8 +530,7 @@ const ProductDetail = () => {
                         <h4 className="product-price">
                           {formatPrice(item.variants[0].salePrice)}
                           <br />
-                          {item.variants[0]?.salePrice !==
-                            item.variants[0]?.price && (
+                          {item.variants[0]?.salePrice !== item.variants[0]?.price && (
                             <del className="product-old-price">
                               {formatPrice(item.variants[0]?.price ?? 0)}
                             </del>
@@ -732,10 +541,6 @@ const ProductDetail = () => {
                             <i className="fa fa-heart-o" />
                             <span className="tooltipp">Thêm yêu thích</span>
                           </button>
-                          {/* <button className="add-to-compare">
-                            <i className="fa fa-exchange" />
-                            <span className="tooltipp">add to compare</span>
-                          </button> */}
                           <button className="quick-view">
                             <Link to={`/product/${item._id}`}>
                               <i className="fa fa-eye" />
@@ -745,11 +550,10 @@ const ProductDetail = () => {
                         </div>
                       </div>
                     </div>
-                    {/* Add to Cart button - hidden initially */}
                     <div className="add-to-cart">
                       <button
                         className="add-to-cart-btn"
-                        onClick={() => addToCart(item._id, item.variants?.[0])}
+                        onClick={() => addToCart(item._id, item.variants?.[0], 1)} // Use context addToCart for related products
                       >
                         <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                       </button>
@@ -758,18 +562,11 @@ const ProductDetail = () => {
                 ))}
               </Slider>
 
-              {/* Custom Slider Controls BELOW and RIGHT */}
               <div className="custom-slider-controls">
-                <button
-                  className="custom-prev-btn"
-                  onClick={() => productDetailSliderRef.current?.slickPrev()}
-                >
+                <button className="custom-prev-btn" onClick={() => productDetailSliderRef.current?.slickPrev()}>
                   ❮
                 </button>
-                <button
-                  className="custom-next-btn"
-                  onClick={() => productDetailSliderRef.current?.slickNext()}
-                >
+                <button className="custom-next-btn" onClick={() => productDetailSliderRef.current?.slickNext()}>
                   ❯
                 </button>
               </div>
@@ -777,7 +574,6 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
-      {/* Shop Detail End */}
     </div>
   );
 };
