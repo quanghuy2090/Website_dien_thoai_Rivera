@@ -3,7 +3,7 @@ import { getProductById, Product } from "../../services/product";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
-import { addCart, Carts } from "../../services/cart";
+import { addCart, Carts, getCart } from "../../services/cart";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -179,6 +179,10 @@ const ProductDetail = () => {
         return;
       }
 
+      // Lấy thông tin giỏ hàng hiện tại
+      const { data: cartData } = await getCart();
+      const currentCart = cartData.cart;
+
       const { data } = await getProductById(productId);
       const selectedProduct = data.data;
 
@@ -206,9 +210,24 @@ const ProductDetail = () => {
         return;
       }
 
-      if (quantity > chosenVariant.stock) {
+      // Tính số lượng đã có trong giỏ hàng
+      const existingCartItem = currentCart.items.find(
+        (item) => item.variantId === chosenVariant._id
+      );
+      const currentQuantityInCart = existingCartItem
+        ? existingCartItem.quantity
+        : 0;
+
+      // Cập nhật số lượng tồn kho của biến thể trong giỏ hàng
+      const updatedVariant = {
+        ...chosenVariant,
+        stock: chosenVariant.stock - currentQuantityInCart,
+      };
+
+      // Kiểm tra số lượng tồn kho còn lại
+      if (quantity > updatedVariant.stock) {
         toast.error(
-          `Số lượng đặt hàng (${quantity}) vượt quá số lượng tồn kho (${chosenVariant.stock})`
+          `Số lượng đặt hàng (${quantity}) vượt quá số lượng tồn kho còn lại (${updatedVariant.stock})`
         );
         return;
       }
@@ -242,8 +261,16 @@ const ProductDetail = () => {
 
       setProduct(selectedProduct);
       setSelectedVariant(chosenVariant);
-    } catch (error) {
-      toast.error("Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau");
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error(
+          "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau"
+        );
+      }
     }
   };
 

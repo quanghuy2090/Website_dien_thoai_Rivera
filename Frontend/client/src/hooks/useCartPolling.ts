@@ -9,6 +9,7 @@ export const useCartPolling = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousCartsRef = useRef<CartItem[]>([]);
   const shownNotificationsRef = useRef<Set<string>>(new Set());
+  const userDeletedItemsRef = useRef<Set<string>>(new Set());
 
   const checkCartUpdates = async () => {
     try {
@@ -26,14 +27,18 @@ export const useCartPolling = () => {
           )
       );
 
-      // Hiển thị thông báo cho các sản phẩm bị xóa
+      // Hiển thị thông báo cho các sản phẩm bị xóa tự động
       removedItems.forEach((item) => {
-        const notificationKey = `removed-${item.productId._id}-${item.variantId}`;
-        if (!shownNotificationsRef.current.has(notificationKey)) {
-          toast.error(
-            `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị xóa khỏi giỏ hàng do được cập nhật`
-          );
-          shownNotificationsRef.current.add(notificationKey);
+        const itemKey = `${item.productId._id}-${item.variantId}`;
+        // Chỉ hiển thị thông báo nếu không phải do người dùng xóa
+        if (!userDeletedItemsRef.current.has(itemKey)) {
+          const notificationKey = `removed-${itemKey}`;
+          if (!shownNotificationsRef.current.has(notificationKey)) {
+            toast.error(
+              `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị xóa khỏi giỏ hàng do được cập nhật`
+            );
+            shownNotificationsRef.current.add(notificationKey);
+          }
         }
       });
 
@@ -87,6 +92,11 @@ export const useCartPolling = () => {
     }
   };
 
+  // Hàm để đánh dấu sản phẩm bị xóa bởi người dùng
+  const markItemAsUserDeleted = (productId: string, variantId: string) => {
+    userDeletedItemsRef.current.add(`${productId}-${variantId}`);
+  };
+
   useEffect(() => {
     checkCartUpdates();
     intervalRef.current = setInterval(checkCartUpdates, 3000);
@@ -98,5 +108,11 @@ export const useCartPolling = () => {
     };
   }, []);
 
-  return { carts, totalAmount, setCarts, setTotalAmount };
+  return {
+    carts,
+    totalAmount,
+    setCarts,
+    setTotalAmount,
+    markItemAsUserDeleted,
+  };
 };

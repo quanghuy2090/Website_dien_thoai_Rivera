@@ -213,7 +213,7 @@ export const createOrderOnline = async (req, res) => {
       vnp_OrderInfo: `Thanh toán đơn hàng ${order._id}`,
       vnp_OrderType: "250000",
       vnp_Locale: "vn",
-      vnp_ReturnUrl: VNPAY_RETURN_URL, 
+      vnp_ReturnUrl: VNPAY_RETURN_URL,
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: new Date()
         .toISOString()

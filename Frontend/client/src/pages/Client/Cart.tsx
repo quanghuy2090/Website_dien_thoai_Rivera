@@ -12,7 +12,13 @@ import toast from "react-hot-toast";
 import { useCartPolling } from "../../hooks/useCartPolling";
 
 const Cart = () => {
-  const { carts, totalAmount, setCarts, setTotalAmount } = useCartPolling();
+  const {
+    carts,
+    totalAmount,
+    setCarts,
+    setTotalAmount,
+    markItemAsUserDeleted,
+  } = useCartPolling();
 
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -51,6 +57,7 @@ const Cart = () => {
     ) {
       try {
         const { data } = await deleteCart(productId, variantId);
+        markItemAsUserDeleted(productId, variantId);
         const updatedCart = carts.filter(
           (cart) =>
             !(cart.productId._id === productId && cart.variantId === variantId)
@@ -102,6 +109,10 @@ const Cart = () => {
   const handleRemoveAllCart = async () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng không?")) {
       try {
+        carts.forEach((cart) => {
+          markItemAsUserDeleted(cart.productId._id, cart.variantId);
+        });
+
         const { data } = await deleteAllCart();
         setCarts([]);
         setTotalAmount(0);
