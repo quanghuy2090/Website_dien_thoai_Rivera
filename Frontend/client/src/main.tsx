@@ -9,6 +9,7 @@ import { ColorProvider } from "./context/ColorContext.tsx";
 import { CapacityProvider } from "./context/CapacityContext.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { CartProvider } from "./context/CartContext.tsx";
+
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
 console.log("Google Client ID:", clientId);
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -20,9 +21,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <ColorProvider>
               <CapacityProvider>
                 <CartProvider>
+
                   <GoogleOAuthProvider clientId={clientId}>
                     <App />
                   </GoogleOAuthProvider>
+
                 </CartProvider>
               </CapacityProvider>
             </ColorProvider>

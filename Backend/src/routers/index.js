@@ -9,6 +9,7 @@ import routerColor from "./color.js";
 import routerCapacity from "./capacity.js";
 import routerStatistics from "./statistics.js";
 import routerGoogle from "./google.js";
+import routerGemini from "./gemini.js";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.use("/order", routerOrder);
 router.use("/color", routerColor);
 router.use("/capacity", routerCapacity);
 router.use("/statistics", routerStatistics);
-router.use("/auth", routerGoogle)
+router.use("/auth", routerGoogle);
+router.use("/gemini", routerGemini);
 
 export default router;

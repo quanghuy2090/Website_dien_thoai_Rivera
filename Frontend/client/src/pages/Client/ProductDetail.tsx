@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { getProductById, Product } from "../../services/product";
+import { getProductExplanation } from "../../services/gemini";
 import { Link, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
@@ -7,11 +8,11 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useProductPolling } from "../../hooks/useProductPolling";
-import { CartContext } from "../../context/CartContext"; // Import CartContext
+import { CartContext } from "../../context/CartContext";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { addToCart } = useContext(CartContext); // Use CartContext
+  const { addToCart } = useContext(CartContext);
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -19,17 +20,27 @@ const ProductDetail = () => {
   const [selectedVariant, setSelectedVariant] = useState<Product["variants"][0] | null>(null);
   const [activeTab, setActiveTab] = useState("tab01");
   const [isBanned, setIsBanned] = useState(false);
+  const [consultHistory, setConsultHistory] = useState<{ question: string; answer: string }[]>([]);
+  const [consultQuery, setConsultQuery] = useState("");
+  const [isLoadingConsult, setIsLoadingConsult] = useState(false);
   const productDetailSliderRef = useRef<Slider | null>(null);
 
-  // Sử dụng custom hook cho polling
-  useProductPolling(
-    id,
-    product,
-    setProduct,
-    setRelatedProducts,
-    selectedVariant,
-    setSelectedVariant
-  );
+  useProductPolling(id, product, setProduct, setRelatedProducts, selectedVariant, setSelectedVariant);
+
+  // Khôi phục consultHistory từ localStorage khi component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem(`consultHistory_${id}`);
+    if (savedHistory) {
+      setConsultHistory(JSON.parse(savedHistory));
+    }
+  }, [id]);
+
+  // Lưu consultHistory vào localStorage khi nó thay đổi
+  useEffect(() => {
+    if (consultHistory.length > 0) {
+      localStorage.setItem(`consultHistory_${id}`, JSON.stringify(consultHistory));
+    }
+  }, [consultHistory, id]);
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
@@ -44,48 +55,12 @@ const ProductDetail = () => {
     dots: false,
     arrows: true,
     responsive: [
-      {
-        breakpoint: 1600,
-        settings: {
-          slidesToShow: 8,
-          infinite: false,
-        },
-      },
-      {
-        breakpoint: 1400,
-        settings: {
-          slidesToShow: 6,
-          infinite: false,
-        },
-      },
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 5,
-          infinite: false,
-        },
-      },
-      {
-        breakpoint: 992,
-        settings: {
-          slidesToShow: 4,
-          infinite: false,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 3,
-          infinite: false,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 2,
-          infinite: false,
-        },
-      },
+      { breakpoint: 1600, settings: { slidesToShow: 8, infinite: false } },
+      { breakpoint: 1400, settings: { slidesToShow: 6, infinite: false } },
+      { breakpoint: 1200, settings: { slidesToShow: 5, infinite: false } },
+      { breakpoint: 992, settings: { slidesToShow: 4, infinite: false } },
+      { breakpoint: 768, settings: { slidesToShow: 3, infinite: false } },
+      { breakpoint: 480, settings: { slidesToShow: 2, infinite: false } },
     ],
   };
 
@@ -98,27 +73,9 @@ const ProductDetail = () => {
     dots: false,
     arrows: true,
     responsive: [
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 3,
-          infinite: true,
-        },
-      },
-      {
-        breakpoint: 992,
-        settings: {
-          slidesToShow: 2,
-          infinite: true,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-          infinite: true,
-        },
-      },
+      { breakpoint: 1200, settings: { slidesToShow: 3, infinite: true } },
+      { breakpoint: 992, settings: { slidesToShow: 2, infinite: true } },
+      { breakpoint: 768, settings: { slidesToShow: 1, infinite: true } },
     ],
   };
 
@@ -130,6 +87,35 @@ const ProductDetail = () => {
     if (quantity > 1) {
       setQuantity((prev) => prev - 1);
     }
+  };
+
+  // Xử lý gửi câu hỏi tư vấn
+  const handleConsult = async () => {
+    if (!consultQuery.trim()) {
+      toast.error("Vui lòng nhập câu hỏi hoặc yêu cầu tư vấn");
+      return;
+    }
+
+    setIsLoadingConsult(true);
+    try {
+      const { data } = await getProductExplanation(id!, consultQuery);
+      setConsultHistory((prev) => {
+        const newHistory = [...prev, { question: consultQuery, answer: data.explanation }].slice(-10); // Giới hạn 10 câu hỏi
+        return newHistory;
+      });
+      setConsultQuery("");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Lỗi khi tạo nội dung tư vấn");
+    } finally {
+      setIsLoadingConsult(false);
+    }
+  };
+
+  // Xóa lịch sử tư vấn
+  const clearConsultHistory = () => {
+    setConsultHistory([]);
+    localStorage.removeItem(`consultHistory_${id}`);
+    toast.success("Đã xóa lịch sử tư vấn");
   };
 
   useEffect(() => {
@@ -225,17 +211,14 @@ const ProductDetail = () => {
 
                     <div className="d-flex align-items-center mb-2">
                       <div style={{ color: "yellow" }}>
-                        <i className="fas fa-star"> </i>
-                        <i className="fas fa-star"> </i>
-                        <i className="fas fa-star"> </i>
-                        <i className="fas fa-star"> </i>
-                        <i className="fas fa-star-half-alt"> </i>
+                        <i className="fas fa-star" />
+                        <i className="fas fa-star" />
+                        <i className="fas fa-star" />
+                        <i className="fas fa-star" />
+                        <i className="fas fa-star-half-alt" />
                       </div>
                       <span className="ml-2 text-muted">
-                        (10 Đánh giá) |
-                        <a className="text-primary" href="#">
-                          {" "}Đánh giá{" "}
-                        </a>
+                        (10 Đánh giá) | <a className="text-primary" href="#">Đánh giá</a>
                       </span>
                     </div>
 
@@ -257,17 +240,17 @@ const ProductDetail = () => {
                                     backgroundColor:
                                       typeof variant.color === "string"
                                         ? variant.color
-                                        : variant.color.name,
+                                        : variant.color?.name || "#000",
                                   }}
                                 />
                                 <span className="variant-text">
                                   {typeof variant.color === "string"
                                     ? variant.color
-                                    : variant.color.name}
+                                    : variant.color?.name || "Không rõ"}
                                   {" - "}
                                   {typeof variant.capacity === "string"
                                     ? variant.capacity
-                                    : variant.capacity.value}
+                                    : variant.capacity?.value || "Không rõ"}
                                   {variant.stock <= 0 && " (Hết hàng)"}
                                 </span>
                               </div>
@@ -299,7 +282,7 @@ const ProductDetail = () => {
                         <span className="ms-2">
                           {typeof selectedVariant?.capacity === "string"
                             ? selectedVariant.capacity
-                            : selectedVariant?.capacity.value}
+                            : selectedVariant?.capacity?.value || "Không rõ"}
                         </span>
                       </label>
                       <label>
@@ -307,7 +290,7 @@ const ProductDetail = () => {
                         <span className="ms-2">
                           {typeof selectedVariant?.color === "string"
                             ? selectedVariant.color
-                            : selectedVariant?.color.name}
+                            : selectedVariant?.color?.name || "Không rõ"}
                         </span>
                       </label>
                     </div>
@@ -317,13 +300,18 @@ const ProductDetail = () => {
                         <span className="me-2">Số lượng: </span>
                         <div className="input-number">
                           <input type="number" value={quantity} readOnly />
-                          <span className="qty-up" onClick={increaseQuantity}>+</span>
-                          <span className="qty-down" onClick={decreaseQuantity}>-</span>
+                          <span className="qty-up" onClick={increaseQuantity}>
+                            +
+                          </span>
+                          <span className="qty-down" onClick={decreaseQuantity}>
+                            -
+                          </span>
                         </div>
                       </div>
                       <button
                         className="add-to-cart-btn"
-                        onClick={() => addToCart(product?._id, selectedVariant, quantity)} // Use context addToCart
+                        onClick={() => addToCart(product?._id, selectedVariant, quantity)}
+                      // disabled={!selectedVariant || selectedVariant.stock <= 0}
                       >
                         <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                       </button>
@@ -346,12 +334,15 @@ const ProductDetail = () => {
                   <li className={activeTab === "tab03" ? "active" : ""}>
                     <a onClick={() => handleTabClick("tab03")}>Đánh giá (3)</a>
                   </li>
+                  <li className={activeTab === "tab04" ? "active" : ""}>
+                    <a onClick={() => handleTabClick("tab04")}>Tư vấn AI</a>
+                  </li>
                 </ul>
                 <div className="tab-content">
                   <div id="tab01" className={`tab-pane ${activeTab === "tab01" ? "active" : "fade"}`}>
                     <div className="row">
                       <div className="col-md-12">
-                        <p dangerouslySetInnerHTML={{ __html: product?.short_description || "" }}></p>
+                        <p dangerouslySetInnerHTML={{ __html: product?.short_description || "Không có mô tả" }} />
                       </div>
                     </div>
                   </div>
@@ -359,7 +350,7 @@ const ProductDetail = () => {
                   <div id="tab02" className={`tab-pane ${activeTab === "tab02" ? "active" : "fade"}`}>
                     <div className="row">
                       <div className="col-md-12">
-                        <p dangerouslySetInnerHTML={{ __html: product?.long_description || "" }}></p>
+                        <p dangerouslySetInnerHTML={{ __html: product?.long_description || "Không có chi tiết" }} />
                       </div>
                     </div>
                   </div>
@@ -464,17 +455,28 @@ const ProductDetail = () => {
                               </div>
                               <div className="review-body">
                                 <p>
-                                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
+                                  incididunt ut labore et dolore magna aliqua.
                                 </p>
                               </div>
                             </li>
                           </ul>
                           <ul className="reviews-pagination">
                             <li className="active">1</li>
-                            <li><a href="#">2</a></li>
-                            <li><a href="#">3</a></li>
-                            <li><a href="#">4</a></li>
-                            <li><a href="#"><i className="fa fa-angle-right" /></a></li>
+                            <li>
+                              <a href="#">2</a>
+                            </li>
+                            <li>
+                              <a href="#">3</a>
+                            </li>
+                            <li>
+                              <a href="#">4</a>
+                            </li>
+                            <li>
+                              <a href="#">
+                                <i className="fa fa-angle-right" />
+                              </a>
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -483,24 +485,76 @@ const ProductDetail = () => {
                           <form className="review-form">
                             <input className="input" type="text" placeholder="Your Name" />
                             <input className="input" type="email" placeholder="Your Email" />
-                            <textarea className="input" placeholder="Your Review" defaultValue={""} />
+                            <textarea className="input" placeholder="Your Review" />
                             <div className="input-rating">
                               <span>Your Rating: </span>
                               <div className="stars">
-                                <input id="star5" name="rating" defaultValue={5} type="radio" />
+                                <input id="star5" name="rating" value={5} type="radio" />
                                 <label htmlFor="star5" />
-                                <input id="star4" name="rating" defaultValue={4} type="radio" />
+                                <input id="star4" name="rating" value={4} type="radio" />
                                 <label htmlFor="star4" />
-                                <input id="star3" name="rating" defaultValue={3} type="radio" />
+                                <input id="star3" name="rating" value={3} type="radio" />
                                 <label htmlFor="star3" />
-                                <input id="star2" name="rating" defaultValue={2} type="radio" />
+                                <input id="star2" name="rating" value={2} type="radio" />
                                 <label htmlFor="star2" />
-                                <input id="star1" name="rating" defaultValue={1} type="radio" />
+                                <input id="star1" name="rating" value={1} type="radio" />
                                 <label htmlFor="star1" />
                               </div>
                             </div>
                             <button className="primary-btn">Submit</button>
                           </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="tab04" className={`tab-pane ${activeTab === "tab04" ? "active" : "fade"}`}>
+                    <div className="row">
+                      <div className="col-md-12">
+                        {/* Form tư vấn */}
+                        <div className="consult-form">
+                          <h5>Tư vấn sản phẩm</h5>
+                          <textarea
+                            className="form-control"
+                            placeholder="Nhập câu hỏi hoặc yêu cầu tư vấn của bạn (ví dụ: Camera của sản phẩm này có tốt không?)"
+                            value={consultQuery}
+                            onChange={(e) => setConsultQuery(e.target.value)}
+                            rows={4}
+                          />
+                          <button
+                            className="btn btn-primary mt-2"
+                            onClick={handleConsult}
+                            disabled={isLoadingConsult}
+                          >
+                            {isLoadingConsult ? <i className="fa fa-spinner fa-spin" /> : "Gửi câu hỏi"}
+                          </button>
+                        </div>
+
+                        {/* Lịch sử tư vấn */}
+                        <div className="consult-history mt-4">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <h5>Lịch sử tư vấn</h5>
+                            {consultHistory.length > 0 && (
+                              <button className="btn btn-danger btn-sm" onClick={clearConsultHistory}>
+                                Xóa lịch sử
+                              </button>
+                            )}
+                          </div>
+                          {consultHistory.length === 0 ? (
+                            <p>Chưa có câu hỏi nào được đặt. Hãy gửi câu hỏi để nhận tư vấn!</p>
+                          ) : (
+                            consultHistory.map((item, index) => (
+                              <div key={index} className="consult-item mt-3">
+                                <p>
+                                  <strong>Hỏi:</strong> {item.question}
+                                </p>
+                                <p>
+                                  <strong>Đáp:</strong>{" "}
+                                  <span dangerouslySetInnerHTML={{ __html: item.answer }} />
+                                </p>
+                              </div>
+                            ))
+                          )}
                         </div>
                       </div>
                     </div>
@@ -531,9 +585,7 @@ const ProductDetail = () => {
                           {formatPrice(item.variants[0].salePrice)}
                           <br />
                           {item.variants[0]?.salePrice !== item.variants[0]?.price && (
-                            <del className="product-old-price">
-                              {formatPrice(item.variants[0]?.price ?? 0)}
-                            </del>
+                            <del className="product-old-price">{formatPrice(item.variants[0]?.price ?? 0)}</del>
                           )}
                         </h4>
                         <div className="product-btns">
@@ -553,7 +605,7 @@ const ProductDetail = () => {
                     <div className="add-to-cart">
                       <button
                         className="add-to-cart-btn"
-                        onClick={() => addToCart(item._id, item.variants?.[0], 1)} // Use context addToCart for related products
+                        onClick={() => addToCart(item._id, item.variants?.[0], 1)}
                       >
                         <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                       </button>
