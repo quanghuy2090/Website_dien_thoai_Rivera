@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { CartItem, getCart } from "../../services/cart";
@@ -13,6 +13,7 @@ import {
   Province,
   Ward,
 } from "../../services/order";
+import { CartContext } from "../../context/CartContext";
 
 const Checkout = () => {
   const {
@@ -35,7 +36,7 @@ const Checkout = () => {
   const [wards, setWards] = useState<Ward[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0); // Dùng cái này
   const nav = useNavigate();
-
+  const { clearCart, getCarts } = useContext(CartContext);
   // Lấy thông tin tỉnh/thành phố (giữ nguyên)
   useEffect(() => {
     const fetchProvinces = async () => {
@@ -114,13 +115,7 @@ const Checkout = () => {
     try {
       const newOrder: Omit<
         Order,
-        | "_id"
-        | "createdAt"
-        | "updatedAt"
-        | "paymentStatus"
-        | "status"
-        | "totalAmount"
-        | "items"
+        "_id" | "createdAt" | "updatedAt" | "paymentStatus" | "status" | "totalAmount" | "items"
       > & { orderItems: CartItem[] } = {
         userId: userId,
         orderItems: carts,
@@ -138,42 +133,41 @@ const Checkout = () => {
       if (formData.paymentMethod === "Online") {
         try {
           const { data } = await createOrderOnline(newOrder);
-          console.log("vào đây", data);
-
           window.location.href = data.paymentUrl;
-        } catch (error: any) {
-          if (error.response?.data?.message) {
-            toast.error(error.response.data.message);
-          } else {
-            toast.error(
-              "Có lỗi xảy ra khi thanh toán online. Vui lòng thử lại!"
-            );
-          }
+        } catch (error: unknown) {
+          const axiosError = error as AxiosError<{ message?: string }>;
+          toast.error(
+            axiosError.response?.data?.message ||
+            "Có lỗi xảy ra khi thanh toán online. Vui lòng thử lại!"
+          );
         }
       } else {
         try {
           const { data } = await createOrder(newOrder);
-          console.log("đây cơ mà", data);
-
-          toast.success("Đặt hàng thành công!");
-          nav("/history");
+          console.log(data);
+          await clearCart();
+          await getCarts();
           setCarts([]);
           setTotalAmount(0);
-        } catch (error: any) {
-          if (error.response?.data?.message) {
-            toast.error(error.response.data.message);
-          } else {
-            toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
-          }
+          toast.success("Đặt hàng thành công!");
+          nav("/history");
+        } catch (error: unknown) {
+          const axiosError = error as AxiosError<{ message?: string }>;
+          toast.error(
+            axiosError.response?.data?.message ||
+            "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!"
+          );
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi:", error);
+      const axiosError = error as AxiosError<{ message?: string }>;
       toast.error(
-        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
+        axiosError.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
       );
     }
   };
+
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";

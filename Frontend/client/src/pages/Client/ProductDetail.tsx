@@ -1,16 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { getProductById, Product } from "../../services/product";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "./ProductDetail.css";
 import toast from "react-hot-toast";
-import { addCart, Carts, getCart } from "../../services/cart";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useProductPolling } from "../../hooks/useProductPolling";
+import { CartContext } from "../../context/CartContext"; // Import CartContext
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const { addToCart } = useContext(CartContext); // Use CartContext
   const [product, setProduct] = useState<Product | null>(null);
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -133,8 +134,6 @@ const ProductDetail = () => {
     }
   };
 
-  const nav = useNavigate();
-
   useEffect(() => {
     window.scrollTo(0, 0);
     (async () => {
@@ -162,117 +161,6 @@ const ProductDetail = () => {
       }
     })();
   }, [id]);
-
-  const addToCart = async (
-    productId: string,
-    variant?: Product["variants"][0]
-  ) => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      if (!user || !user._id) {
-        toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng");
-        return nav("/login");
-      }
-
-      if (!productId) {
-        toast.error("Không tìm thấy sản phẩm");
-        return;
-      }
-
-      // Lấy thông tin giỏ hàng hiện tại
-      const { data: cartData } = await getCart();
-      const currentCart = cartData.cart;
-
-      const { data } = await getProductById(productId);
-      const selectedProduct = data.data;
-
-      if (!selectedProduct) {
-        toast.error("Không tìm thấy thông tin sản phẩm");
-        return;
-      }
-
-      const chosenVariant = variant
-        ? selectedProduct.variants.find((v) => v._id === variant._id)
-        : selectedProduct.variants[0];
-
-      if (!chosenVariant) {
-        toast.error("Không tìm thấy thông tin biến thể sản phẩm");
-        return;
-      }
-
-      if (selectedProduct.status === "banned") {
-        toast.error("Sản phẩm này hiện không khả dụng");
-        return;
-      }
-
-      if (chosenVariant.stock <= 0) {
-        toast.error("Sản phẩm đã hết hàng");
-        return;
-      }
-
-      // Tính số lượng đã có trong giỏ hàng
-      const existingCartItem = currentCart.items.find(
-        (item) => item.variantId === chosenVariant._id
-      );
-      const currentQuantityInCart = existingCartItem
-        ? existingCartItem.quantity
-        : 0;
-
-      // Cập nhật số lượng tồn kho của biến thể trong giỏ hàng
-      const updatedVariant = {
-        ...chosenVariant,
-        stock: chosenVariant.stock - currentQuantityInCart,
-      };
-
-      // Kiểm tra số lượng tồn kho còn lại
-      if (quantity > updatedVariant.stock) {
-        toast.error(
-          `Số lượng đặt hàng (${quantity}) vượt quá số lượng tồn kho còn lại (${updatedVariant.stock})`
-        );
-        return;
-      }
-
-      const MAX_QUANTITY = 100;
-      if (quantity > MAX_QUANTITY) {
-        toast.error(`Số lượng tối đa cho phép là ${MAX_QUANTITY}`);
-        return;
-      }
-
-      const cartItem: Carts = {
-        userId: user._id,
-        productId: selectedProduct._id,
-        variantId: chosenVariant._id,
-        quantity: quantity,
-        price: chosenVariant.price,
-        salePrice: chosenVariant.salePrice,
-        color:
-          typeof chosenVariant.color === "object"
-            ? chosenVariant.color.name
-            : chosenVariant.color,
-        capacity:
-          typeof chosenVariant.capacity === "object"
-            ? chosenVariant.capacity.value
-            : chosenVariant.capacity,
-        subtotal: chosenVariant.salePrice * quantity,
-      };
-
-      await addCart(cartItem);
-      toast.success("Đã thêm sản phẩm vào giỏ hàng");
-
-      setProduct(selectedProduct);
-      setSelectedVariant(chosenVariant);
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else if (error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error(
-          "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại sau"
-        );
-      }
-    }
-  };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
@@ -329,14 +217,6 @@ const ProductDetail = () => {
                 </div>
               </div>
             </div>
-
-            {/* <div className="col-md-5 col-md-push-2 d-flex justify-content-center">
-              <div id="product-main-img">
-                <div className="product-preview">
-                  <img src={mainImage!} alt="" />
-                </div>
-              </div>
-            </div> */}
 
             <div className="col-md-5">
               <div className="product-details">
@@ -460,7 +340,9 @@ const ProductDetail = () => {
                       </div>
                       <button
                         className="add-to-cart-btn"
-                        onClick={() => addToCart(product?._id, selectedVariant)}
+                        onClick={() =>
+                          addToCart(product?._id, selectedVariant, quantity)
+                        } // Use context addToCart
                       >
                         <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                       </button>
@@ -630,7 +512,6 @@ const ProductDetail = () => {
                                 </p>
                               </div>
                             </li>
-                            {/* More reviews can be added here */}
                           </ul>
                           <ul className="reviews-pagination">
                             <li className="active">1</li>
@@ -651,7 +532,6 @@ const ProductDetail = () => {
                           </ul>
                         </div>
                       </div>
-                      {/* Review Form */}
                       <div className="col-md-3">
                         <div id="review-form">
                           <form className="review-form">
@@ -759,10 +639,6 @@ const ProductDetail = () => {
                             <i className="fa fa-heart-o" />
                             <span className="tooltipp">Thêm yêu thích</span>
                           </button>
-                          {/* <button className="add-to-compare">
-                            <i className="fa fa-exchange" />
-                            <span className="tooltipp">add to compare</span>
-                          </button> */}
                           <button className="quick-view">
                             <Link to={`/product/${item._id}`}>
                               <i className="fa fa-eye" />
@@ -772,11 +648,12 @@ const ProductDetail = () => {
                         </div>
                       </div>
                     </div>
-                    {/* Add to Cart button - hidden initially */}
                     <div className="add-to-cart">
                       <button
                         className="add-to-cart-btn"
-                        onClick={() => addToCart(item._id, item.variants?.[0])}
+                        onClick={() =>
+                          addToCart(item._id, item.variants?.[0], 1)
+                        } // Use context addToCart for related products
                       >
                         <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                       </button>
@@ -785,7 +662,6 @@ const ProductDetail = () => {
                 ))}
               </Slider>
 
-              {/* Custom Slider Controls BELOW and RIGHT */}
               <div className="custom-slider-controls">
                 <button
                   className="custom-prev-btn"
@@ -804,7 +680,6 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
-      {/* Shop Detail End */}
     </div>
   );
 };
