@@ -6,9 +6,11 @@ import "../css/slick-theme.css";
 import "../css/slick.css";
 import "../css/style.css";
 import { CartContext } from "../context/CartContext";
+import { useParams } from "react-router-dom";
 
 
 export function Header() {
+  const { id } = useParams();
   const [isNavActive, setIsNavActive] = useState<boolean>(false);
   const [isCartDropdownOpen, setIsCartDropdownOpen] = useState<boolean>(false);
   const token = localStorage.getItem("token");
@@ -27,6 +29,7 @@ export function Header() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem(`consultHistory_${id}`);
   };
 
   const toggleNav = (e: React.MouseEvent<HTMLDivElement>) => {
