@@ -8,6 +8,10 @@ const capacitySchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     versionKey: false,

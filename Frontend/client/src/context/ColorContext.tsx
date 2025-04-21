@@ -1,16 +1,18 @@
 import { createContext } from "react";
-import { addColors, Color, deleteColors, getColors, getColorsById, updateColors } from "../services/color";
+import { addColors, Color, deleteColors, getColors, getColorsById, getDeleteColor, RestoreColor, updateColors } from "../services/color";
 import ColorReducer from "../reducers/ColorReducer";
 import { useEffect, useReducer } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
+
 type ColorContextType = {
-  state: { colors: Color[]; selectedColor?: Color };
+  state: { colors: Color[]; selectedColor?: Color, deletedColor: Color[] };
   createColor: (color: Color) => void;
   removeColor: (_id: string) => void;
   updateColor: (_id: string, color: Color) => void;
   getDetailColor: (_id: string) => void;
+  updateColorRestored: (_id: string, color: Color) => void;
 };
 
 export const ColorContext = createContext({} as ColorContextType);
@@ -20,7 +22,7 @@ type Children = {
 };
 
 export const ColorProvider = ({ children }: Children) => {
-  const [state, dispatch] = useReducer(ColorReducer, { colors: [] });
+  const [state, dispatch] = useReducer(ColorReducer, { colors: [], deletedColor: [] });
   const nav = useNavigate();
 
   useEffect(() => {
@@ -29,6 +31,13 @@ export const ColorProvider = ({ children }: Children) => {
       dispatch({ type: "GET_COLORS", payload: data.data });
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await getDeleteColor();
+      dispatch({ type: "GET_COLOR_DELETE", payload: data.data });
+    })()
+  }, [])
 
   const createColor = async (color: Color) => {
     try {
@@ -45,13 +54,17 @@ export const ColorProvider = ({ children }: Children) => {
   const removeColor = async (_id: string) => {
     try {
       if (confirm("delete")) {
-        await deleteColors(_id);
+        const response = await deleteColors(_id);
+        console.log(response);
         dispatch({ type: "REMOVE_COLORS", payload: _id });
+
+        const { data } = await getDeleteColor();
+        dispatch({ type: "GET_COLOR_DELETE", payload: data.data })
         toast.success("  Xóa màu thành công");
       }
     } catch (error) {
       console.log(error);
-      toast.error("Xóa màu thất bại");
+      toast.error("Không thể xóa màu này vì nó đang được sử dụng trong sản phẩm");
     }
   };
   const updateColor = async (_id: string, color: Color) => {
@@ -73,8 +86,25 @@ export const ColorProvider = ({ children }: Children) => {
       console.log(error)
     }
   }
+  const updateColorRestored = async (_id: string, color: Color) => {
+    try {
+      await RestoreColor(_id, color);
+
+      dispatch({
+        type: "UPDATE_COLOR_RESTORE",
+        payload: color,
+      });
+      const { data } = await getColors();
+      dispatch({ type: "GET_COLORS", payload: data.data });
+      toast.success("Khôi phục màu thành công");
+
+    } catch (error) {
+      console.log(error);
+      toast.error("Khôi phục màu thất bại");
+    }
+  };
   return (
-    <ColorContext.Provider value={{ state, createColor, removeColor, updateColor, getDetailColor }}>
+    <ColorContext.Provider value={{ state, createColor, removeColor, updateColor, getDetailColor, updateColorRestored }}>
       {children}
     </ColorContext.Provider>
   );

@@ -21,11 +21,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <ColorProvider>
               <CapacityProvider>
                 <CartProvider>
-
                   <GoogleOAuthProvider clientId={clientId}>
                     <App />
                   </GoogleOAuthProvider>
-
                 </CartProvider>
               </CapacityProvider>
             </ColorProvider>

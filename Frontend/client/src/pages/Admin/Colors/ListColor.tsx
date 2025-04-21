@@ -2,12 +2,10 @@ import React, { useContext } from "react";
 import { ColorContext } from "../../../context/ColorContext";
 import { Link } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
-import { MdDelete } from "react-icons/md";
+import { MdAutoDelete, MdDelete } from "react-icons/md";
 import { FaPen } from "react-icons/fa";
 const ListColor = () => {
-  // const { state } = useContext(ColorContext);
   const { state, removeColor } = useContext(ColorContext);
-
   return (
     <div className="content">
       <div className="card mb-4 ">
@@ -24,6 +22,7 @@ const ListColor = () => {
 
           <div className="table-responsive">
             <table className="table table-hover">
+              <Link className="btn btn-info" to={`/admin/color/deleted`}><MdAutoDelete /></Link>
               <thead className="thead-light">
                 <tr>
                   <th scope="col">Stt</th>
