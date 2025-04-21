@@ -27,12 +27,29 @@ routerOrder.get("/vnpay_return", async (req, res) => {
     const result = await handleVnpayReturn(req.query);
     console.log("result", result);
 
-    return res.status(result.status).json(result.data);
+    // Nếu thanh toán thành công, chuyển hướng về trang lịch sử đơn hàng
+    if (result.status === 200) {
+      return res.redirect(
+        `http://localhost:5173/history?success=true&orderId=${
+          result.data.orderId
+        }&message=${encodeURIComponent(
+          "Đặt hàng thành công! Cảm ơn bạn đã mua hàng."
+        )}`
+      );
+    } else {
+      // Nếu thanh toán thất bại, chuyển hướng về trang lịch sử đơn hàng với thông báo lỗi
+      return res.redirect(
+        `http://localhost:5173/history?success=false&message=${encodeURIComponent(
+          result.data.message
+        )}`
+      );
+    }
   } catch (error) {
-    return res.status(500).json({
-      message: "Lỗi xử lý phản hồi từ VNPAY",
-      error: error.message,
-    });
+    return res.redirect(
+      `http://localhost:5173/history?success=false&message=${encodeURIComponent(
+        "Lỗi xử lý phản hồi từ VNPAY"
+      )}`
+    );
   }
 });
 
