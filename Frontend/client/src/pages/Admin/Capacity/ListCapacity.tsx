@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { IoMdAdd } from 'react-icons/io'
 import { Link } from 'react-router-dom'
 import { CapacityContext } from '../../../context/CapacityContext'
-import { MdDelete } from 'react-icons/md'
+import { MdAutoDelete, MdDelete } from 'react-icons/md'
 import { FaPen } from 'react-icons/fa'
 import "../../../components/Admin.css"
 
@@ -22,6 +22,7 @@ const ListCapacity = () => {
                     </Link>
 
                     <table className="table table-hover">
+                        <Link className="btn btn-info" to={`/admin/capacity/deleted`}><MdAutoDelete /></Link>
                         <thead className="thead-light">
                             <tr>
                                 <th scope="col">Stt</th>
