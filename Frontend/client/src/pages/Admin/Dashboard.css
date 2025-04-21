@@ -1,0 +1,146 @@
+/* Global Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f6f9;
+}
+
+.card {
+  border-radius: 12px;
+  transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Header and Text */
+.card-text {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.card-body h5 {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+/* Stats Cards */
+.card-stats {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  color: white;
+}
+
+.card-stats-2 {
+  background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+  color: white;
+}
+
+.card-stats,
+.card-stats-2 {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card-stats p {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Tables */
+.table-hover tbody tr:hover {
+  background-color: #f1f3f5;
+  cursor: pointer;
+}
+
+.table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  text-transform: uppercase;
+}
+
+.table td {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Order Status */
+.order-status span {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.order-status .shipped {
+  background-color: #28a745;
+}
+
+.order-status .pending {
+  background-color: #ffc107;
+}
+
+.order-status .canceled {
+  background-color: #dc3545;
+}
+
+.order-status .delivered {
+  background-color: #17a2b8;
+}
+
+/* Charts */
+.card-chart {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.card-chart h5 {
+  color: #333;
+}
+
+.card-chart .chart-container {
+  height: 400px;
+  margin-top: 20px;
+}
+
+/* Spacing and Layout */
+.row.mb-4 {
+  margin-bottom: 30px;
+}
+
+.col-md-6,
+.col-lg-4 {
+  padding: 15px;
+}
+
+@media (max-width: 768px) {
+
+  .col-md-6,
+  .col-lg-4 {
+    padding: 10px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-text {
+    font-size: 1.2rem;
+  }
+}

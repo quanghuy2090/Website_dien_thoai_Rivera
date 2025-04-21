@@ -11,6 +11,7 @@ import { CapacityContext } from "../../../context/CapacityContext";
 import { ColorContext } from "../../../context/ColorContext";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { Link } from "react-router-dom";
 const productSchema = z.object({
   name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
   images: z
@@ -130,19 +131,15 @@ const AddProduct = () => {
     }
   };
   return (
-    <div className="content">
-      <div className="container d-flex justify-content-center align-items-center mt-5">
-        <div className="row justify-content-center w-100">
-          <div className="col-lg-12 col-md-12">
-            {" "}
-            {/* Giới hạn chiều rộng */}
-            <div className="text-center">
-              <h2 className="fw-bold text-primary">Thêm mới Sản phẩm</h2>
-              <p className="text-muted">Quản lý sản phẩm cho cửa hàng Rivera</p>
-            </div>
+    <div className="content p-4">
+      <div className="card mb-4">
+        <div className="card-body">
+          <div style={{ maxWidth: '1500px', margin: '0 auto' }}>
+            <h3 className="fw-bold mb-3">Thêm mới Sản phẩm</h3>
+            <p className="text-muted mb-4">Quản lý sản phẩm cho cửa hàng Rivera</p>
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="p-5 border rounded shadow-sm bg-light"
+
             >
               {/* Tên sản phẩm */}
               <div className="mb-3">
@@ -324,7 +321,7 @@ const AddProduct = () => {
                       )}
                     </div>
                     <div className="col-md-4">
-                      <label className="fw-bold">Stock</label>
+                      <label className="fw-bold">Số lượng</label>
                       <input
                         type="number"
                         className="form-control"
@@ -404,18 +401,21 @@ const AddProduct = () => {
               </div>
 
               {/* Nút Submit */}
-              <div className="text-center mt-4">
-                <button
-                  type="submit"
-                  className="btn btn-primary w-100 py-3 fs-5"
-                >
+              <div className="d-flex gap-2">
+                <button type="submit" className="btn btn-primary px-4">
                   Lưu
                 </button>
+                <Link to={`/admin/products`} type="reset" className="btn btn-danger">
+                  Hủy
+                </Link>
               </div>
             </form>
           </div>
+
+
         </div>
       </div>
+
     </div>
   );
 };

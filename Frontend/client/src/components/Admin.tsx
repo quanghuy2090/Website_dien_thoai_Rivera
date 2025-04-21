@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./Admin.css";
+import "./Admin.css"
 const Admin = () => {
   const nav = useNavigate();
   const token = localStorage.getItem("token");
@@ -44,100 +44,69 @@ const Admin = () => {
     );
   }
   return (
-    <div className="d-flex">
-      <div className="sidebar p-3">
-        <div className="d-flex align-items-center mb-4 mt-4">
-          <i className="fas fa-smile fa-2x"></i>
-          <div className="sidebar-brand-text mx-3 ">
-            RIVERA ADMIN <sup>2</sup>
+    <div className="body">
+      <div className="d-flex">
+        <div className="sidebar p-3">
+          <div className="d-flex align-items-center mb-4">
+            {/* <img src="https://storage.googleapis.com/a1aa/image/gQse4uPSwGVLnTgaUUCk8ki2BWFWAVTb5QXlSiIR5wQ.jpg" alt="" className="rounded-circle" width="40" height="40" /> */}
+            <span className="ml-2 text-purple-600 h4 font-weight-bold"></span>
+          </div>
+          <div className="d-flex align-items-center mb-4">
+            <img src="" alt="" />
+            <div className="ml-2">
+              {/* <p className="mb-0 font-weight-bold">David Grey. H</p>
+            <p className="mb-0 text-muted">Project Manager</p> */}
+            </div>
+          </div>
+          <nav className="nav flex-column">
+            <a className="nav-link mb-3" href="/"><i className="fa-solid fa-house mr-2"></i>Trang chủ</a>
+            <a className="nav-link mb-3" href="/admin/dashboard"><i className="fas fa-tachometer-alt mr-2"></i>Thống kê</a>
+            <a className="nav-link mb-3" href="/admin/color"><i className="fa-solid fa-palette mr-2"></i>Màu sắc</a>
+            <a className="nav-link mb-3" href="/admin/capacity"><i className="fas fa-icons mr-2"></i>Bộ nhớ</a>
+            <a className="nav-link mb-3" href="/admin/category"><i className="fas fa-edit mr-2"></i>Danh mục</a>
+            <a className="nav-link mb-3" href="/admin/products"><i className="fas fa-chart-bar mr-2"></i>Sản phẩm</a>
+            <a className="nav-link mb-3" href="/admin/user"><i className="fas fa-user-lock mr-2"></i>Người dùng</a>
+            <a className="nav-link mb-3" href="/admin/order"><i className="fa-solid fa-cart-shopping mr-2"></i>Đơn hàng</a>
+            <a className="nav-link mb-3" href="#"><i className="fas fa-book mr-2"></i>Documentation</a>
+          </nav>
+        </div>
+        <div className="flex-grow-1">
+          <div className="header d-flex justify-content-between align-items-center px-4">
+            {/* Logo + Title */}
+            <div className="d-flex align-items-center">
+              {/* <img src="../../image/logo.png" alt="Logo" width="40" height="40" className="rounded mr-2" /> */}
+              <span className="text-purple-600 h4 font-weight-bold mb-0">Rivera Admin</span>
+            </div>
+
+            {/* Search bar */}
+            <div className="d-flex align-items-center">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search projects"
+                style={{ width: 600 }}
+              />
+            </div>
+
+            {/* Notification + Profile */}
+            <div className="d-flex align-items-center gap-3">
+              <i className="fas fa-bell text-secondary cursor-pointer"></i>
+              <i className="fas fa-envelope text-secondary cursor-pointer"></i>
+              {/* <img
+              src="/avatar.jpg"
+              alt="User Avatar"
+              className="rounded-circle"
+              width="40"
+              height="40"
+            /> */}
+              <span className="ml-2 font-weight-medium">{user.email}</span>
+            </div>
           </div>
         </div>
-        <nav className="nav flex-column mt-5">
-          <a className="nav-link d-flex align-items-center" href="/">
-            <i className="fas fa-home mr-2"></i>
-            Trang chủ
-          </a>
-          <a
-            className="nav-link d-flex align-items-center"
-            href="/admin/dasboard"
-          >
-            <i className="fas fa-tachometer-alt mr-2"></i>
-            Thống kê
-          </a>
-          <a className="nav-link d-flex align-items-center" href="/admin/color">
-            <i className="fa-solid fa-palette"></i>
-            Màu sắc
-          </a>
-          <a className="nav-link d-flex align-items-center" href="/admin/capacity">
-            <i className="fa-solid fa-microchip"></i>
-            Bộ nhớ
-          </a>
-          <a
-            className="nav-link d-flex align-items-center"
-            href="/admin/category"
-          >
-            <i className="fa-solid fa-list"></i>
-            Danh mục
-          </a>
-          <a
-            className="nav-link d-flex align-items-center"
-            href="/admin/products"
-          >
-            <i className="fas fa-box mr-2"></i>
-            Sản phẩm
-          </a>
-          <a className="nav-link d-flex align-items-center" href="/admin/user">
-            <i className="fas fa-user mr-2"></i>
-            Người dùng
-          </a>
-          <a className="nav-link d-flex align-items-center" href="/admin/order">
-            <i className="fas fa-shopping-cart mr-2"></i>
-            Đơn hàng
-          </a>
-          {/* <a className="nav-link d-flex align-items-center" href="">
-            <i className="fas fa-table mr-2"></i>
-            Tables
-          </a> */}
-        </nav>
-      </div>
-      <div className="flex-grow-1">
-        <div className="topbar d-flex justify-content-between align-items-center">
-          <div className="input-group w-25">
-            {/* <input type="text" className='form-control bg-light border-0 small' placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" /> */}
 
-            {/* <div className="input-group-append">
-              <button className="btn btn-primary" type="button">
-                <i className="fas fa-search">
-                </i>
-              </button>
-            </div> */}
-          </div>
-          <div className="d-flex align-items-center">
-            <div className="position-relative mr-3 mb-3">
-              <i className="fas fa-bell text-gray-600 fa-lg"></i>
-              <span className="badge badge-danger badge-counter mb-4">3+</span>
-            </div>
-            <div className="position-relative mr-3 mb-3">
-              <i className="fas fa-envelope text-gray-600 fa-lg"></i>
-              <span className="badge badge-danger badge-counter mb-4">7</span>
-            </div>
-            <div className="d-flex align-items-center mb-3">
-              <span className="text-gray-600 mr-2">{user.email}</span>
-            </div>
-            <div className="mb-3">
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={handleLogout} // Đây là hàm xử lý đăng xuất của bạn
-              >
-                Đăng xuất
-              </button>
-            </div>
-
-          </div>
-
-        </div>
       </div>
     </div>
+
   );
 };
 

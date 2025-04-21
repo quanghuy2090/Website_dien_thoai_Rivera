@@ -11,7 +11,7 @@ const ListUser = () => {
             case 1:
                 return "Admin";
             case 2:
-                return "Quản lý";
+                return "Nhân viên";
             case 3:
                 return "Người dùng";
             default:
@@ -20,16 +20,17 @@ const ListUser = () => {
     };
     return (
         <div className='content'>
-            <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-                <i className="fas fa-users me-2"></i> Quản lý Người dùng
-            </h1>
-            <p className="mb-4 text-secondary">
-                Đây là danh sách người dùng trong hệ thống. Bạn có thể quản lý tài khoản, cập nhật thông tin hoặc chặn người dùng vi phạm.
-            </p>
+            <div className='card mb-4'>
+                <div className='card-body'>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <h5 className="card-title mb-0">Danh sách người dùng</h5>
+                        <span className="text-primary">Bảng / Người dùng</span>
+                    </div>
+                    <Link to={`/admin/user/add`} className='btn btn-primary mb-3'> <IoMdAdd />Thêm người dùng</Link>
+                </div>
 
-            <div className='table-container'>
-                <Link to={`/admin/user/add`} className='btn btn-primary mb-3 w-100'> <IoMdAdd /></Link>
-                <table className="table table-bordered">
+
+                <table className="table table-hover">
                     <thead>
                         <tr>
                             <th scope="col">Stt</th>
@@ -46,7 +47,7 @@ const ListUser = () => {
                     <tbody>
                         {state.users.map((u, index) => (
                             <tr key={index}>
-                                <td>{index + 1}</td>
+                                <th>{index + 1}</th>
                                 <td>{u.userName}</td>
                                 <td>{u.email}</td>
                                 <td>{u.address}</td>
@@ -62,8 +63,10 @@ const ListUser = () => {
                     </tbody>
                 </table>
             </div>
-
         </div>
+
+
+
     )
 }
 

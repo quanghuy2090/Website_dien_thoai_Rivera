@@ -38,6 +38,8 @@ import AddUser from "./pages/Admin/User/AddUser";
 import ListCategoryDeleted from "./pages/Admin/Categories/ListCategoryDeleted";
 import UpdateUser from "./pages/Admin/User/UpdateUser";
 import UpdateProfile from "./pages/Client/UpdateProfile";
+import ListDeleteColor from "./pages/Admin/Colors/ListDeleteColor";
+import ListCapacityDeleted from "./pages/Admin/Capacity/ListCapacityDeleted";
 function App() {
   const routes = useRoutes([
     {
@@ -63,7 +65,7 @@ function App() {
       path: "/admin",
       element: <AdminLayout />,
       children: [
-        { path: "/admin/dasboard", element: <Dashboard /> },
+        { path: "/admin/dashboard", element: <Dashboard /> },
         { path: "/admin/category", element: <ListCategories /> },
         { path: "/admin/category/add", element: <AddCategories /> },
         { path: "/admin/category/update/:id", element: <UpdateCategories /> },
@@ -80,9 +82,11 @@ function App() {
         { path: "/admin/order", element: <Orders /> },
         { path: "/admin/order/:id", element: <OrderDetail /> },
         { path: "/admin/color", element: <ListColor /> },
+        { path: "/admin/color/deleted", element: <ListDeleteColor /> },
         { path: "/admin/color/add", element: <AddColor /> },
         { path: "/admin/color/update/:id", element: <UpdateColor /> },
         { path: "/admin/capacity", element: <ListCapacity /> },
+        { path: "/admin/capacity/deleted", element: <ListCapacityDeleted /> },
         { path: "/admin/capacity/add", element: <AddCapacity /> },
         { path: "/admin/capacity/update/:id", element: <UpdateCapacity /> },
       ],

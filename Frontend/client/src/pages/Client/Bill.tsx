@@ -58,6 +58,9 @@ const Bill = () => {
                 <li>
                   <a href="/profile">Tài khoản</a>
                 </li>
+                <li>
+                  <a href="/history">Lịch sử đơn hàng</a>
+                </li>
                 <li className="active">Chi tiết đơn hàng</li>
               </ul>
             </div>
@@ -205,10 +208,10 @@ const Bill = () => {
                   <span>Tổng tiền hàng:</span>
                   <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
                 </div>
-                <div className="summary-row">
+                {/* <div className="summary-row">
                   <span>Phí vận chuyển:</span>
                   <span>0 VND</span>
-                </div>
+                </div> */}
                 <div className="summary-row total">
                   <span>Tổng thanh toán:</span>
                   <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
@@ -219,10 +222,10 @@ const Bill = () => {
             <div className="bill-footer">
               <div className="support-info">
                 <p>
-                  <i className="fa fa-phone"></i> Hotline hỗ trợ: 0123 456 789
+                  <i className="fa fa-phone"></i> Hotline hỗ trợ: +8494 5533 843
                 </p>
                 <p>
-                  <i className="fa fa-envelope"></i> Email: support@rivera.com
+                  <i className="fa fa-envelope"></i> Email: email@email.com
                 </p>
               </div>
               <div className="thank-you">

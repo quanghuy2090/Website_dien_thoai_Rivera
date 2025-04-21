@@ -1,29 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../css/bootstrap.min.css";
 import "../css/font-awesome.min.css";
 import "../css/nouislider.min.css";
 import "../css/slick-theme.css";
 import "../css/slick.css";
 import "../css/style.css";
-import { getDetailUser, User } from "../services/auth";
+import { CartContext } from "../context/CartContext";
+import { useParams } from "react-router-dom";
+
 
 export function Header() {
+  const { id } = useParams();
   const [isNavActive, setIsNavActive] = useState<boolean>(false);
   const [isCartDropdownOpen, setIsCartDropdownOpen] = useState<boolean>(false);
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-
+  const { state } = useContext(CartContext);
   let userName = "";
   let userRole = null; // Initialize userRole
+  let userImage = "";
   if (user) {
     const parsedUser = JSON.parse(user);
-    userName = parsedUser.userName || "User";  
+    userName = parsedUser.userName || "User";
     userRole = parsedUser.role; // Get the user's role
+    userImage = parsedUser.image || "";
   }
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem(`consultHistory_${id}`);
   };
 
   const toggleNav = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -86,12 +92,17 @@ export function Header() {
               <>
                 <li>
                   <a href="/profile">
-                    <i className="fa fa-user-o" /> {userName}
+                    {userImage ? (
+                      <img src={userImage} alt="User Avatar" style={{ width: '30px', height: '30px', borderRadius: '50%' }} />
+                    ) : (
+                      <i className="fa fa-user-o" />
+                    )}
+                    {userName}
                   </a>
                 </li>
-                {userRole === 1 && ( // Check if user is an admin
+                {userRole === 1 && ( // Kiểm tra nếu người dùng là admin
                   <li>
-                    <a href="/admin">
+                    <a href="/admin/dashboard">
                       <i className="fa fa-cog" /> Quản lý
                     </a>
                   </li>
@@ -103,6 +114,7 @@ export function Header() {
                 </li>
               </>
             )}
+
             {!token && (
               <>
                 <li>
@@ -158,7 +170,7 @@ export function Header() {
                   >
                     <i className="fa fa-shopping-cart" />
                     <span>Giỏ hàng</span>
-                    <div className="qty">3</div>
+                    <div className="qty">{state.totalQuantity}</div>
                   </a>
                 </div>
                 <div className="menu-toggle" onClick={toggleNav}>

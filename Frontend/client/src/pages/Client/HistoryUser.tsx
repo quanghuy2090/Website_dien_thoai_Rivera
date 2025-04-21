@@ -1,12 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { getAllOrder, Order, updateStatusOrder } from "../../services/order";
+import {
+  getAllOrder,
+  Order,
+  updateStatusCustomerOrder,
+} from "../../services/order";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import "./HistoryUser.css";
+import "../../css/HistoryUser.css";
 
 type UpdateInfo = {
-  status: Order["status"];
+  status: "Đã nhận hàng" | "Đã hủy";
   cancellationReason: string;
+};
+
+const getStatusClass = (status: Order["status"]) => {
+  switch (status) {
+    case "Chưa xác nhận":
+      return "status-pending";
+    case "Đã xác nhận":
+      return "status-confirmed";
+    case "Đang giao hàng":
+      return "status-shipping";
+    case "Đã giao hàng":
+      return "status-delivered";
+    case "Hoàn thành":
+      return "status-completed";
+    case "Đã hủy":
+      return "status-cancelled";
+    default:
+      return "";
+  }
 };
 
 const HistoryUser = () => {
@@ -15,6 +38,7 @@ const HistoryUser = () => {
   const [updates, setUpdates] = useState<Record<string, UpdateInfo>>({});
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const userData = localStorage.getItem("user");
     if (userData) {
       try {
@@ -36,8 +60,19 @@ const HistoryUser = () => {
         (order: Order) => order.userId.toString() === userId
       );
       setOrderUser(filteredOrders);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        toast.error(
+          axiosError.response?.data?.message || "Lỗi khi tải đơn hàng"
+        );
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Lỗi khi tải đơn hàng");
+      }
     }
   };
 
@@ -49,22 +84,46 @@ const HistoryUser = () => {
 
   const handleStatusChange = async (
     orderId: string,
-    newStatus: Order["status"],
+    newStatus: "Đã nhận hàng" | "Đã hủy",
     cancellationReason: string
   ) => {
     try {
-      await updateStatusOrder(orderId, newStatus, cancellationReason);
-      toast.success("Cập nhật trạng thái thành công!");
+      const { data } = await updateStatusCustomerOrder(
+        orderId,
+        newStatus,
+        cancellationReason
+      );
+      toast.success(data.message);
       fetchOrder(userId!);
       setUpdates((prev) => {
         const newUpdates = { ...prev };
         delete newUpdates[orderId];
         return newUpdates;
       });
-    } catch (error) {
-      console.error("Lỗi cập nhật trạng thái:", error);
-      toast.error("Cập nhật trạng thái thất bại, vui lòng thử lại!");
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as {
+          response?: { data?: { message?: string } };
+        };
+        toast.error(
+          axiosError.response?.data?.message || "Cập nhật trạng thái thất bại!"
+        );
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Cập nhật trạng thái thất bại!");
+      }
     }
+  };
+
+  const canUpdateStatus = (order: Order) => {
+    if (order.status === "Đã giao hàng") {
+      return true; // Có thể cập nhật thành "Đã nhận hàng"
+    }
+    if (order.status === "Chưa xác nhận") {
+      return true; // Có thể cập nhật thành "Đã hủy"
+    }
+    return false;
   };
 
   return (
@@ -86,55 +145,109 @@ const HistoryUser = () => {
           </div>
         </div>
       </div>
-
       <div className="section">
-        <div className="container history">
-          <table className="table table-bordered text-center mb-0">
-            <thead className="bg-secondary text-dark">
-              <tr>
-                <th scope="col">Sản phẩm</th>
-                <th scope="col">Tổng tiền</th>
-                <th scope="col">Trạng thái đơn hàng</th>
-                <th scope="col">Phương thức thanh toán</th>
-                <th scope="col">Ngày đặt</th>
-                <th scope="col">Trạng thái thanh toán</th>
-                <th scope="col">Cập nhật trạng thái</th>
-                <th scope="col">Chi tiết</th>
-              </tr>
-            </thead>
-            <tbody className="history-body">
+        <div className="container">
+          <div className="history-container">
               {orderUser.map((order) => (
-                <tr key={order._id}>
-                  <td>
-                    <div className="product-list">
-                      {order.items.map((item, idx) => (
-                        <div key={idx} className="product-item">
-                          <span className="product-name">
-                            {item.productId.name}
-                          </span>
-                          {item.variantId &&
-                            typeof item.variantId === "object" && (
-                              <span className="product-variant">
-                                ({(item.variantId as any).ram}/
-                                {(item.variantId as any).storage})
-                              </span>
-                            )}
-                          <span> x{item.quantity}</span>
-                        </div>
-                      ))}
+              <div key={order._id} className="order-card">
+                <div className="order-header">
+                  <span className="order-id">Đơn hàng #{order.orderId}</span>
+                  <span className="order-date">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </span>
+                  <span
+                    className={`order-status ${getStatusClass(order.status)}`}
+                  >
+                    {order.status}
+                        </span>
+                </div>
+
+                <div className="order-info">
+                  <div className="info-group">
+                    <span className="info-label">Phương thức thanh toán</span>
+                    <span className="info-value">{order.paymentMethod}</span>
+                  </div>
+                  <div className="info-group">
+                    <span className="info-label">Trạng thái thanh toán</span>
+                    <span className="info-value">{order.paymentStatus}</span>
                     </div>
-                  </td>
-                  <td>{formatPrice(order.totalAmount)}</td>
-                  <td>{order.status}</td>
-                  <td>{order.paymentMethod}</td>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>{order.paymentStatus}</td>
-                  <td>
+                            </div>
+
+                <div className="order-products">
+                  {order.items.map((item, idx) => (
+                    <div key={idx} className="product-item">
+                      <img
+                        src={item.productId.images?.[0] || "/placeholder.png"}
+                        alt={item.productId.name}
+                        className="product-image"
+                      />
+                      <div className="product-details">
+                        <div className="product-name">
+                          {item.productId.name}
+                        </div>
+                        {item.variantId &&
+                          typeof item.variantId === "object" && (
+                            <div className="product-variant">
+                              (
+                              {
+                                (
+                                  item.variantId as {
+                                    ram: string;
+                                    storage: string;
+                                  }
+                                ).ram
+                              }
+                              /
+                              {
+                                (
+                                  item.variantId as {
+                                    ram: string;
+                                    storage: string;
+                                  }
+                                ).storage
+                              }
+                              )
+                            </div>
+                          )}
+                        <div className="product-quantity">
+                          Số lượng: {item.quantity}
+                        </div>
+                      </div>
+                      <div className="product-price">
+                        {formatPrice(item.salePrice || item.price)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="order-total">
+                  <span className="total-label">Tổng tiền:</span>
+                  <span className="total-value">
+                    {formatPrice(order.totalAmount)}
+                  </span>
+                </div>
+
+                <div className="order-actions">
+                  <div className="action-left">
+                    <Link
+                      to={`/bill/${order.orderId}`}
+                      className="action-button view-details"
+                    >
+                      <i className="fa fa-eye mr-2 me-2"></i>
+                      Xem chi tiết
+                    </Link>
+                  </div>
+
+                  {canUpdateStatus(order) && (
+                    <div className="action-right">
+                      <div className="status-form">
                     <select
                       className="form-select"
                       value={updates[order.orderId]?.status || ""}
                       onChange={(e) => {
-                        const selected = e.target.value as Order["status"];
+                            const selected = e.target.value as
+                              | "Đã nhận hàng"
+                              | "Đã hủy";
                         setUpdates((prev) => ({
                           ...prev,
                           [order.orderId]: {
@@ -148,15 +261,21 @@ const HistoryUser = () => {
                       <option value="" disabled>
                         Chọn cập nhật
                       </option>
+                          {order.status === "Đã giao hàng" && (
                       <option value="Đã nhận hàng">Đã nhận hàng</option>
-                      <option value="Đã huỷ">Hủy</option>
+                          )}
+                          {order.status === "Chưa xác nhận" && (
+                            <option value="Đã hủy">Hủy</option>
+                          )}
                     </select>
-                    {updates[order.orderId]?.status === "Đã huỷ" && (
+                        {updates[order.orderId]?.status === "Đã hủy" && (
                       <input
                         type="text"
-                        className="form-control mt-2"
+                            className="form-control"
                         placeholder="Nhập lý do hủy đơn"
-                        value={updates[order.orderId]?.cancellationReason || ""}
+                            value={
+                              updates[order.orderId]?.cancellationReason || ""
+                            }
                         onChange={(e) =>
                           setUpdates((prev) => ({
                             ...prev,
@@ -169,37 +288,39 @@ const HistoryUser = () => {
                       />
                     )}
                     <button
-                      className="btn btn-success mt-2"
+                          className={`action-button ${
+                            updates[order.orderId]?.status === "Đã hủy"
+                              ? "cancel-order"
+                              : "update-status"
+                          }`}
                       onClick={() => {
                         if (
                           !updates[order.orderId] ||
                           !updates[order.orderId].status
                         ) {
-                          alert("Chọn cập nhật trạng thái!");
+                              toast.error("Vui lòng chọn trạng thái!");
                           return;
                         }
                         handleStatusChange(
                           order.orderId,
                           updates[order.orderId].status,
-                          updates[order.orderId].status === "Đã huỷ"
+                              updates[order.orderId].status === "Đã hủy"
                             ? updates[order.orderId].cancellationReason
                             : ""
                         );
                       }}
                     >
-                      Gửi
+                          {updates[order.orderId]?.status === "Đã hủy"
+                            ? "Hủy đơn hàng"
+                            : "Cập nhật"}
                     </button>
-                  </td>
-                  <td>
-                    <Link
-                      to={`/bill/${order.orderId}`}
-                      className="fa fa-eye btn"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </>

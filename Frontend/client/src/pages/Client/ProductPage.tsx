@@ -59,8 +59,12 @@ const ProductPage = () => {
       try {
         const res = await getAllProduct();
         setProducts(res.data.data);
-      } catch (error) {
-        toast.error("Failed to load products.");
+      } catch (error: any) {
+        if (error.response?.data?.message) {
+          toast.error(error.response.data.message);
+        } else {
+          toast.error("Có lỗi xảy ra khi tải danh sách sản phẩm");
+        }
       } finally {
         setLoading(false);
       }
@@ -91,9 +95,19 @@ const ProductPage = () => {
         return;
       }
 
+      if (product.status === "banned") {
+        toast.error("Sản phẩm này hiện không khả dụng");
+        return;
+      }
+
       const selectedVariant = product.variants?.[0];
       if (!selectedVariant) {
         toast.error("Sản phẩm không có biến thể hợp lệ!");
+        return;
+      }
+
+      if (selectedVariant.stock <= 0) {
+        toast.error("Sản phẩm đã hết hàng!");
         return;
       }
 
@@ -107,18 +121,22 @@ const ProductPage = () => {
         color:
           typeof selectedVariant.color === "object"
             ? selectedVariant.color.name
-            : selectedVariant.color, // Kiểm tra nếu color là object
+            : selectedVariant.color,
         capacity:
           typeof selectedVariant.capacity === "object"
             ? selectedVariant.capacity.value
-            : selectedVariant.capacity, // Kiểm tra nếu capacity là object
+            : selectedVariant.capacity,
         subtotal: selectedVariant.salePrice * 1,
       };
 
       await addCart(cartItem);
       toast.success("Sản phẩm đã được thêm vào giỏ hàng!");
-    } catch (error) {
-      toast.error("Thêm sản phẩm thất bại!");
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+      }
     }
   };
 
@@ -296,27 +314,15 @@ const ProductPage = () => {
                                 </del>
                               )}
                             </h4>
-                            <div className="product-btns">
-                              <button className="add-to-wishlist">
-                                <i className="fa fa-heart-o" />
-                                <span className="tooltipp">Thêm yêu thích</span>
-                              </button>
-                              <button className="quick-view">
-                                <Link to={`/product/${product._id}`}>
-                                  <i className="fa fa-eye" />
-                                </Link>
-                                <span className="tooltipp">Xem chi tiết</span>
-                              </button>
-                            </div>
                           </div>
                         </div>
                         {/* Add to Cart button */}
                         <div className="add-to-cart">
-                          <button
-                            className="add-to-cart-btn"
-                            onClick={() => addToCart(product)}
-                          >
-                            <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
+                          <button className="add-to-cart-btn">
+                            <i className="fa fa-eye me-2"></i>
+                            <Link to={`/product/${product._id}`}>
+                              <span className="tooltipp">Xem chi tiết</span>{" "}
+                            </Link>
                           </button>
                         </div>
                       </div>

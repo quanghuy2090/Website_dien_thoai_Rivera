@@ -24,9 +24,10 @@ export type Product = {
   images: string[];
   variants: Variants[];
   categoryId?: string | Category; // Hỗ trợ cả string và object
-  createdAt: Date;
   is_hot: string;
   status: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 

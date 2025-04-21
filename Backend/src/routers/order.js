@@ -25,6 +25,8 @@ routerOrder.post("/online", checkUserPermission, createOrderOnline);
 routerOrder.get("/vnpay_return", async (req, res) => {
   try {
     const result = await handleVnpayReturn(req.query);
+    console.log("result", result);
+
     return res.status(result.status).json(result.data);
   } catch (error) {
     return res.status(500).json({

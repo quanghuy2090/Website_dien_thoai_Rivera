@@ -18,96 +18,101 @@ const ListCategories = () => {
   );
   return (
     <div className="content">
-      <h1 className="h3 mb-4 fw-bold text-primary d-flex align-items-center">
-        <i className="fas fa-th-large me-2"></i> Quản lý Danh mục sản phẩm
-      </h1>
-      <p className="mb-4 text-secondary">
-        Đây là danh sách các danh mục sản phẩm trong hệ thống. Bạn có thể thêm,
-        sửa hoặc xóa danh mục theo nhu cầu.
-      </p>
-      <div className="table-container">
-        {/* <h2 className="h5 mb-4">DataTables Example</h2> */}
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          {/* Phần chọn số lượng hiển thị */}
-          <div>
-            <label className="d-flex align-items-center">
-              Hiển thị
-              <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
-              >
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40">40</option>
-              </select>
-              mục
-            </label>
+      <div className="card mb-4">
+        <div className="card-body">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="card-title mb-0">Danh sách danh mục</h5>
+            <span className="text-primary">Bảng / Danh mục sản phẩm</span>
           </div>
 
-          {/* Ô tìm kiếm căn phải */}
-          <div>
-            <input
-              type="text"
-              className="form-control form-control-sm"
-              placeholder="Nhập tên danh mục..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          {/* <h2 className="h5 mb-4">DataTables Example</h2> */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            {/* Phần chọn số lượng hiển thị */}
+            <div>
+              <label className="d-flex align-items-center">
+                Hiển thị
+                <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                >
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="30">30</option>
+                  <option value="40">40</option>
+                </select>
+                mục
+              </label>
+            </div>
+
+            {/* Ô tìm kiếm căn phải */}
+            <div>
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                placeholder="Nhập tên danh mục..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
-        <Link to={`/admin/category/add`} className="btn btn-primary mb-3 w-100">
-          {" "}
-          <IoMdAdd />
-        </Link>
-        <Link className="btn btn-info" to={`/admin/category/delete`}><MdAutoDelete /></Link>
-        <table className="table table-bordered">
-          <thead className="thead-light">
-            <tr>
-              <th scope="col">Stt</th>
-              <th scope="col">Danh mục</th>
-              <th scope="col">Mô tả</th>
-              <th scope="col">Ngày tạo</th>
-              {/* <th scope="col">Cập nhật lần cuối</th> */}
-              <th scope="col">Tùy chọn</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCategories.slice(0, itemsPerPage).map((category, index) => (
-              <tr key={index}>
-                <th scope="row">{index + 1}</th>
-                <td>{category.name}</td>
-                <td>{category.slug}</td>
-                <td>{new Date(category.createdAt).toLocaleDateString()}</td>
-                {/* <td>{new Date(category.updatedAt).toLocaleString()}</td> */}
-                <td>
-                  <button
-                    className="btn btn-danger me-2"
-                    onClick={() => removeCategory(category._id)}
-                  >
-                    {" "}
-                    <MdDelete />
-                  </button>
-                  <Link
-                    to={`/admin/category/update/${category._id}`}
-                    className="btn btn-warning me-2"
-                  >
-                    {" "}
-                    <FaPen />
-                  </Link>
-                  <Link
-                    to={`/admin/category/detail/${category._id}`}
-                    className="btn btn-success me-2"
-                  >
-                    <FaEye />
-                  </Link>
-                </td>
+          <Link to={`/admin/category/add`} className="btn btn-primary mb-3 ">
+            {" "}
+            <IoMdAdd /> Thêm danh mục
+          </Link>
+
+          <table className="table table-hover">
+            <Link className="btn btn-info" to={`/admin/category/delete`}><MdAutoDelete /></Link>
+            <thead className="thead-light">
+              <tr>
+                <th scope="col">Stt</th>
+                <th scope="col">Danh mục</th>
+                <th scope="col">Mô tả</th>
+                <th scope="col">Ngày tạo</th>
+                {/* <th scope="col">Cập nhật lần cuối</th> */}
+                <th scope="col">Tùy chọn</th>
               </tr>
+            </thead>
+            <tbody>
+              {filteredCategories.slice(0, itemsPerPage).map((category, index) => (
+                <tr key={index}>
+                  <th>{index + 1}</th>
+                  <td>{category.name}</td>
+                  <td>{category.slug}</td>
+                  <td>{new Date(category.createdAt).toLocaleDateString()}</td>
+                  {/* <td>{new Date(category.updatedAt).toLocaleString()}</td> */}
+                  <td>
+                    <button
+                      className="btn btn-danger me-2"
+                      onClick={() => removeCategory(category._id)}
+                    >
+                      {" "}
+                      <MdDelete />
+                    </button>
+                    <Link
+                      to={`/admin/category/update/${category._id}`}
+                      className="btn btn-warning me-2"
+                    >
+                      {" "}
+                      <FaPen />
+                    </Link>
+                    <Link
+                      to={`/admin/category/detail/${category._id}`}
+                      className="btn btn-success me-2"
+                    >
+                      <FaEye />
+                    </Link>
+                  </td>
 
-            ))}
-          </tbody>
-        </table>
+                </tr>
+
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+
+
   );
 };
 
