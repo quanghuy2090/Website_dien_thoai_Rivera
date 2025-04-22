@@ -7,7 +7,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../../css/style.css";
 
-
 const HomePage = () => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,8 +22,6 @@ const HomePage = () => {
       } else {
         toast.error("Thanh toán thất bại. Vui lòng thử lại.");
       }
-
-      // Xóa query parameters khỏi URL để tránh lặp lại toast
     }
     setSearchParams({});
   }, [searchParams, setSearchParams]);
@@ -245,7 +242,7 @@ const HomePage = () => {
                     <div className="product-body">
                       <p className="product-category">
                         {typeof product.categoryId === "object" &&
-                          product.categoryId !== null
+                        product.categoryId !== null
                           ? product.categoryId.name
                           : product.categoryId}
                       </p>
@@ -260,10 +257,10 @@ const HomePage = () => {
                           <br />
                           {product.variants[0]?.salePrice !==
                             product.variants[0]?.price && (
-                              <del className="product-old-price">
-                                {formatPrice(product.variants[0]?.price ?? 0)}
-                              </del>
-                            )}
+                            <del className="product-old-price">
+                              {formatPrice(product.variants[0]?.price ?? 0)}
+                            </del>
+                          )}
                         </h4>
                       </div>
                     </div>
@@ -347,7 +344,7 @@ const HomePage = () => {
                     <div className="product-body">
                       <p className="product-category">
                         {typeof product.categoryId === "object" &&
-                          product.categoryId !== null
+                        product.categoryId !== null
                           ? product.categoryId.name
                           : product.categoryId}
                       </p>
@@ -362,10 +359,10 @@ const HomePage = () => {
                           <br />
                           {product.variants[0]?.salePrice !==
                             product.variants[0]?.price && (
-                              <del className="product-old-price">
-                                {formatPrice(product.variants[0]?.price ?? 0)}
-                              </del>
-                            )}
+                            <del className="product-old-price">
+                              {formatPrice(product.variants[0]?.price ?? 0)}
+                            </del>
+                          )}
                         </h4>
                         {/* <div className="product-btns">
                           <button className="add-to-wishlist">

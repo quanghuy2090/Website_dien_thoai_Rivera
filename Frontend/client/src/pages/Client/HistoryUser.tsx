@@ -4,7 +4,7 @@ import {
   Order,
   updateStatusCustomerOrder,
 } from "../../services/order";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import "../../css/HistoryUser.css";
 
@@ -36,8 +36,26 @@ const HistoryUser = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [orderUser, setOrderUser] = useState<Order[]>([]);
   const [updates, setUpdates] = useState<Record<string, UpdateInfo>>({});
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Xử lý thông báo từ URL parameters
+    const success = searchParams.get("success");
+    const message = searchParams.get("message");
+
+    if (success && message) {
+      // Hiển thị thông báo
+      if (success === "true") {
+        toast.success(decodeURIComponent(message));
+      } else {
+        toast.error(decodeURIComponent(message));
+      }
+
+      // Xóa parameters khỏi URL để tránh hiển thị lại khi refresh
+      navigate("/history", { replace: true });
+    }
+
     window.scrollTo(0, 0);
     const userData = localStorage.getItem("user");
     if (userData) {
@@ -51,7 +69,7 @@ const HistoryUser = () => {
         console.error("Lỗi khi parse user data:", error);
       }
     }
-  }, []);
+  }, [searchParams, navigate]);
 
   const fetchOrder = async (userId: string) => {
     try {
@@ -148,7 +166,7 @@ const HistoryUser = () => {
       <div className="section">
         <div className="container">
           <div className="history-container">
-              {orderUser.map((order) => (
+            {orderUser.map((order) => (
               <div key={order._id} className="order-card">
                 <div className="order-header">
                   <span className="order-id">Đơn hàng #{order.orderId}</span>
@@ -159,7 +177,7 @@ const HistoryUser = () => {
                     className={`order-status ${getStatusClass(order.status)}`}
                   >
                     {order.status}
-                        </span>
+                  </span>
                 </div>
 
                 <div className="order-info">
@@ -170,8 +188,8 @@ const HistoryUser = () => {
                   <div className="info-group">
                     <span className="info-label">Trạng thái thanh toán</span>
                     <span className="info-value">{order.paymentStatus}</span>
-                    </div>
-                            </div>
+                  </div>
+                </div>
 
                 <div className="order-products">
                   {order.items.map((item, idx) => (
@@ -241,79 +259,79 @@ const HistoryUser = () => {
                   {canUpdateStatus(order) && (
                     <div className="action-right">
                       <div className="status-form">
-                    <select
-                      className="form-select"
-                      value={updates[order.orderId]?.status || ""}
-                      onChange={(e) => {
+                        <select
+                          className="form-select"
+                          value={updates[order.orderId]?.status || ""}
+                          onChange={(e) => {
                             const selected = e.target.value as
                               | "Đã nhận hàng"
                               | "Đã hủy";
-                        setUpdates((prev) => ({
-                          ...prev,
-                          [order.orderId]: {
-                            status: selected,
-                            cancellationReason:
-                              prev[order.orderId]?.cancellationReason || "",
-                          },
-                        }));
-                      }}
-                    >
-                      <option value="" disabled>
-                        Chọn cập nhật
-                      </option>
+                            setUpdates((prev) => ({
+                              ...prev,
+                              [order.orderId]: {
+                                status: selected,
+                                cancellationReason:
+                                  prev[order.orderId]?.cancellationReason || "",
+                              },
+                            }));
+                          }}
+                        >
+                          <option value="" disabled>
+                            Chọn cập nhật
+                          </option>
                           {order.status === "Đã giao hàng" && (
-                      <option value="Đã nhận hàng">Đã nhận hàng</option>
+                            <option value="Đã nhận hàng">Đã nhận hàng</option>
                           )}
                           {order.status === "Chưa xác nhận" && (
                             <option value="Đã hủy">Hủy</option>
                           )}
-                    </select>
+                        </select>
                         {updates[order.orderId]?.status === "Đã hủy" && (
-                      <input
-                        type="text"
+                          <input
+                            type="text"
                             className="form-control"
-                        placeholder="Nhập lý do hủy đơn"
+                            placeholder="Nhập lý do hủy đơn"
                             value={
                               updates[order.orderId]?.cancellationReason || ""
                             }
-                        onChange={(e) =>
-                          setUpdates((prev) => ({
-                            ...prev,
-                            [order.orderId]: {
-                              ...prev[order.orderId],
-                              cancellationReason: e.target.value,
-                            },
-                          }))
-                        }
-                      />
-                    )}
-                    <button
+                            onChange={(e) =>
+                              setUpdates((prev) => ({
+                                ...prev,
+                                [order.orderId]: {
+                                  ...prev[order.orderId],
+                                  cancellationReason: e.target.value,
+                                },
+                              }))
+                            }
+                          />
+                        )}
+                        <button
                           className={`action-button ${
                             updates[order.orderId]?.status === "Đã hủy"
                               ? "cancel-order"
                               : "update-status"
                           }`}
-                      onClick={() => {
-                        if (
-                          !updates[order.orderId] ||
-                          !updates[order.orderId].status
-                        ) {
+                          onClick={() => {
+                            if (
+                              !updates[order.orderId] ||
+                              !updates[order.orderId].status
+                            ) {
                               toast.error("Vui lòng chọn trạng thái!");
-                          return;
-                        }
-                        handleStatusChange(
-                          order.orderId,
-                          updates[order.orderId].status,
+                              return;
+                            }
+                            handleStatusChange(
+                              order.orderId,
+                              updates[order.orderId].status,
                               updates[order.orderId].status === "Đã hủy"
-                            ? updates[order.orderId].cancellationReason
-                            : ""
-                        );
-                      }}
-                    >
+                                ? updates[order.orderId].cancellationReason
+                                : ""
+                            );
+                          }}
+                        >
                           {updates[order.orderId]?.status === "Đã hủy"
                             ? "Hủy đơn hàng"
                             : "Cập nhật"}
-                    </button>
+                        </button>
                       </div>
                     </div>
                   )}

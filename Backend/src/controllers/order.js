@@ -1130,3 +1130,79 @@ export const filterOrders = async (req, res) => {
     });
   }
 };
+
+export const getCancelledOrdersByAdmin = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Tìm tất cả đơn hàng đã hủy, sắp xếp theo thời gian hủy mới nhất
+    const orders = await Order.find({ status: "Đã hủy" })
+      .populate("userId", "userName email phone")
+      .populate("items.productId", "name images")
+      .sort({ "cancelHistory.cancelledAt": -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Đếm tổng số đơn hàng đã hủy
+    const total = await Order.countDocuments({ status: "Đã hủy" });
+
+    return res.status(200).json({
+      message: "Lấy danh sách đơn hàng đã hủy thành công",
+      data: orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      name: error.name,
+      message: error.message,
+    });
+  }
+};
+
+export const getCancelledOrdersByCustomer = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Tìm đơn hàng đã hủy của khách hàng, sắp xếp theo thời gian hủy mới nhất
+    const orders = await Order.find({
+      userId,
+      status: "Đã hủy",
+    })
+      .populate("items.productId", "name images")
+      .sort({ "cancelHistory.cancelledAt": -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Đếm tổng số đơn hàng đã hủy của khách hàng
+    const total = await Order.countDocuments({
+      userId,
+      status: "Đã hủy",
+    });
+
+    return res.status(200).json({
+      message: "Lấy danh sách đơn hàng đã hủy thành công",
+      data: orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      name: error.name,
+      message: error.message,
+    });
+  }
+};
