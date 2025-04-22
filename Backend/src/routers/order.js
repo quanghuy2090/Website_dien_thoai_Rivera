@@ -15,6 +15,7 @@ import { checkUserPermission } from "./../middlewares/checkUserPermission.js";
 import { handleVnpayReturn } from "../controllers/vnpay.js";
 import { checkOrderPermission } from "../middlewares/checkOrderPermission.js";
 import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
+import Order from "../models/Order.js";
 
 const routerOrder = express.Router();
 
@@ -37,7 +38,10 @@ routerOrder.get("/vnpay_return", async (req, res) => {
         )}`
       );
     } else {
-      // Nếu thanh toán thất bại, chuyển hướng về trang lịch sử đơn hàng với thông báo lỗi
+      // Nếu thanh toán thất bại hoặc hủy, xóa đơn hàng và chuyển hướng về trang lịch sử đơn hàng với thông báo lỗi
+      if (result.data.orderId) {
+        await Order.findByIdAndDelete(result.data.orderId);
+      }
       return res.redirect(
         `http://localhost:5173/history?success=false&message=${encodeURIComponent(
           result.data.message
@@ -45,6 +49,10 @@ routerOrder.get("/vnpay_return", async (req, res) => {
       );
     }
   } catch (error) {
+    // Nếu có lỗi, cũng xóa đơn hàng nếu có
+    if (error.orderId) {
+      await Order.findByIdAndDelete(error.orderId);
+    }
     return res.redirect(
       `http://localhost:5173/history?success=false&message=${encodeURIComponent(
         "Lỗi xử lý phản hồi từ VNPAY"
