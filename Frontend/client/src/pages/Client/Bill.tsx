@@ -9,6 +9,7 @@ import {
 import { formatCurrency } from "../../utils/formatCurrency";
 import toast from "react-hot-toast";
 import "../../css/Bill.css";
+import { useOrderPolling } from "../../hooks/useOrderPolling";
 
 type UpdateInfo = {
   status: "Đã nhận hàng" | "Đã hủy";
@@ -17,28 +18,8 @@ type UpdateInfo = {
 
 const Bill = () => {
   const { id } = useParams<{ id: string }>();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
   const [updates, setUpdates] = useState<Record<string, UpdateInfo>>({});
-
-  useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        if (id) {
-          const { data } = await getOrderById(id);
-          if (data.order) {
-            setOrder(data.order);
-          }
-        }
-      } catch (error: any) {
-        console.error("Lỗi khi tải đơn hàng:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrder();
-  }, [id]);
+  const { order, error } = useOrderPolling(id);
 
   const getStatusClass = (status: Order["status"]) => {
     switch (status) {
@@ -71,12 +52,6 @@ const Bill = () => {
         cancelReason
       );
       toast.success(data.message);
-      if (id) {
-        const { data } = await getOrderById(id);
-        if (data.order) {
-          setOrder(data.order);
-        }
-      }
       setUpdates((prev) => {
         const newUpdates = { ...prev };
         delete newUpdates[orderId];
@@ -99,16 +74,18 @@ const Bill = () => {
     return false;
   };
 
-  if (loading) {
-    return <div className="loading">Đang tải...</div>;
+  if (error) {
+    return (
+      <div className="bill-page error">Không thể tải đơn hàng: {error}</div>
+    );
   }
 
   if (!order) {
-    return <div className="error">Không tìm thấy đơn hàng</div>;
+    return <div className="bill-page loading">Đang tải...</div>;
   }
 
   return (
-    <>
+    <div className="bill-page">
       <div id="breadcrumb" className="section">
         <div className="container">
           <div className="row">
@@ -131,7 +108,6 @@ const Bill = () => {
       </div>
       <div className="section">
         <div className="container">
-          {" "}
           <div className="bill-container">
             <div className="bill-header">
               <h1>Hóa đơn đơn hàng #{order.orderId}</h1>
@@ -322,7 +298,16 @@ const Bill = () => {
 
               {order.cancelReason && (
                 <div className="cancel-info">
+                  <h2>Thông tin hủy đơn</h2>
                   <div className="cancel-details">
+                    <p>
+                      <strong>Lý do hủy:</strong> {order.cancelReason}
+                    </p>
+                    {order.cancelledBy && (
+                      <p>
+                        <strong>Người hủy:</strong> {order.cancelledBy}
+                      </p>
+                    )}
                     {order.cancelHistory && order.cancelHistory.length > 0 && (
                       <div className="cancel-history">
                         <h3>Lịch sử hủy đơn</h3>
@@ -355,7 +340,7 @@ const Bill = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

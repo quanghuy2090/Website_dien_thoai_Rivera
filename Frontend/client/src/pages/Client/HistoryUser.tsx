@@ -9,6 +9,7 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import "../../css/HistoryUser.css";
+import { useOrderPolling } from "../../hooks/useOrderPolling";
 
 type UpdateInfo = {
   status: "Đã nhận hàng" | "Đã hủy";
@@ -36,9 +37,9 @@ const getStatusClass = (status: Order["status"]) => {
 
 const HistoryUser = () => {
   const [userId, setUserId] = useState<string | null>(null);
-  const [orderUser, setOrderUser] = useState<Order[]>([]);
   const [updates, setUpdates] = useState<Record<string, UpdateInfo>>({});
   const [searchParams] = useSearchParams();
+  const { orders, error } = useOrderPolling();
 
   useEffect(() => {
     // Xử lý thông báo từ URL parameters
@@ -58,27 +59,12 @@ const HistoryUser = () => {
         const user = JSON.parse(userData);
         if (user && user._id) {
           setUserId(user._id);
-          fetchOrder(user._id);
         }
       } catch (error) {
         console.error("Lỗi khi parse user data:", error);
       }
     }
   }, [searchParams]);
-
-  const fetchOrder = async (userId: string) => {
-    try {
-      const { data } = await getAllOrder();
-      if (data.orders) {
-        const filteredOrders = data.orders.filter(
-          (order: Order) => order.userId.toString() === userId.toString()
-        );
-        setOrderUser(filteredOrders);
-      }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Lỗi khi tải đơn hàng");
-    }
-  };
 
   const formatPrice = (price: number) => {
     return price
@@ -98,9 +84,6 @@ const HistoryUser = () => {
         cancelReason
       );
       toast.success(data.message);
-      if (userId) {
-        fetchOrder(userId);
-      }
       setUpdates((prev) => {
         const newUpdates = { ...prev };
         delete newUpdates[orderId];
@@ -122,6 +105,11 @@ const HistoryUser = () => {
     }
     return false;
   };
+
+  // Filter orders for current user
+  const userOrders = orders.filter(
+    (order: Order) => order.userId.toString() === userId?.toString()
+  );
 
   return (
     <>
@@ -145,7 +133,7 @@ const HistoryUser = () => {
       <div className="section">
         <div className="container">
           <div className="history-container">
-            {orderUser.map((order) => (
+            {userOrders.map((order) => (
               <div key={order.orderId} className="order-card">
                 <div className="order-header">
                   <span className="order-id">Đơn hàng #{order.orderId}</span>
