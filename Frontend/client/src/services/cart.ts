@@ -4,6 +4,7 @@ export interface CartItem {
         _id: string;
         name: string;
         images: string;
+        status: string;
         variants: {
             _id: string;
             color: { name: string };

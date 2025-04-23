@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { getCart } from "../services/cart";
-import { CartItem } from "../services/cart";
+import { getCart, CartItem } from "../services/cart";
 import toast from "react-hot-toast";
 
 export const useCartPolling = () => {
   const [carts, setCarts] = useState<CartItem[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [hasBannedProduct, setHasBannedProduct] = useState<boolean>(false); // ✅ Thêm trạng thái này
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousCartsRef = useRef<CartItem[]>([]);
   const shownNotificationsRef = useRef<Set<string>>(new Set());
@@ -17,7 +17,25 @@ export const useCartPolling = () => {
       const newCarts = data.cart.items || [];
       const newTotalAmount = data.cart.totalSalePrice || 0;
 
-      // Kiểm tra các sản phẩm bị xóa
+      let foundBannedProduct = false;
+
+      newCarts.forEach((item) => {
+        if (item.productId.status === "banned") {
+          foundBannedProduct = true;
+
+          const itemKey = `banned-${item.productId._id}-${item.variantId}`;
+          if (!shownNotificationsRef.current.has(itemKey)) {
+            toast.error(
+              `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị chặn và không thể thanh toán.`
+            );
+            shownNotificationsRef.current.add(itemKey);
+          }
+        }
+      });
+
+      setHasBannedProduct(foundBannedProduct); // ✅ Cập nhật trạng thái
+
+      // Xử lý sản phẩm bị xóa
       const removedItems = previousCartsRef.current.filter(
         (prevItem) =>
           !newCarts.some(
@@ -27,22 +45,19 @@ export const useCartPolling = () => {
           )
       );
 
-      // Hiển thị thông báo cho các sản phẩm bị xóa tự động
       removedItems.forEach((item) => {
         const itemKey = `${item.productId._id}-${item.variantId}`;
-        // Chỉ hiển thị thông báo nếu không phải do người dùng xóa
         if (!userDeletedItemsRef.current.has(itemKey)) {
           const notificationKey = `removed-${itemKey}`;
           if (!shownNotificationsRef.current.has(notificationKey)) {
             toast.error(
-              `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị xóa khỏi giỏ hàng do được cập nhật`
+              `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị xóa khỏi giỏ hàng do được cập nhật.`
             );
             shownNotificationsRef.current.add(notificationKey);
           }
         }
       });
 
-      // Kiểm tra các sản phẩm bị cập nhật
       newCarts.forEach((newItem) => {
         const prevItem = previousCartsRef.current.find(
           (item) =>
@@ -51,7 +66,6 @@ export const useCartPolling = () => {
         );
 
         if (prevItem) {
-          // Kiểm tra thay đổi số lượng
           if (prevItem.quantity !== newItem.quantity) {
             const notificationKey = `quantity-${newItem.productId._id}-${newItem.variantId}`;
             if (!shownNotificationsRef.current.has(notificationKey)) {
@@ -62,13 +76,11 @@ export const useCartPolling = () => {
             }
           }
 
-          // Kiểm tra thay đổi giá
           if (prevItem.salePrice !== newItem.salePrice) {
             const notificationKey = `price-${newItem.productId._id}-${newItem.variantId}`;
             if (!shownNotificationsRef.current.has(notificationKey)) {
               toast.info(
-                `Giá sản phẩm "${
-                  newItem.productId.name
+                `Giá sản phẩm "${newItem.productId.name
                 }" đã thay đổi từ ${prevItem.salePrice.toLocaleString()} VND xuống ${newItem.salePrice.toLocaleString()} VND`
               );
               shownNotificationsRef.current.add(notificationKey);
@@ -77,7 +89,6 @@ export const useCartPolling = () => {
         }
       });
 
-      // Reset notifications khi có thay đổi
       if (
         JSON.stringify(previousCartsRef.current) !== JSON.stringify(newCarts)
       ) {
@@ -92,7 +103,6 @@ export const useCartPolling = () => {
     }
   };
 
-  // Hàm để đánh dấu sản phẩm bị xóa bởi người dùng
   const markItemAsUserDeleted = (productId: string, variantId: string) => {
     userDeletedItemsRef.current.add(`${productId}-${variantId}`);
   };
@@ -114,5 +124,6 @@ export const useCartPolling = () => {
     setCarts,
     setTotalAmount,
     markItemAsUserDeleted,
+    hasBannedProduct, // ✅ Trả ra trạng thái này
   };
 };

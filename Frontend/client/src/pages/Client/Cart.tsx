@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import "../../css/style.css";
 import toast from "react-hot-toast";
 import { CartContext } from "../../context/CartContext";
+import { useCartPolling } from "../../hooks/useCartPolling";
 
 const Cart = () => {
   const { state, updateQuantity, removeFromCart, clearCart, getCarts } =
     useContext(CartContext);
   const { items: carts, totalQuantity } = state;
+  const { hasBannedProduct } = useCartPolling();
 
   useEffect(() => {
     getCarts();
@@ -190,9 +192,15 @@ const Cart = () => {
       {carts.length > 0 && (
         <div className="cart-summary">
           <h3>Tổng tiền: {formatPrice(totalAmount)}</h3>
-          <Link to="/checkout" className="checkout-btn">
-            Thanh toán ngay
-          </Link>
+          {hasBannedProduct ? (
+            <button className="checkout-btn disabled" disabled>
+              Không thể thanh toán (sản phẩm bị chặn)
+            </button>
+          ) : (
+            <Link to="/checkout" className="checkout-btn">
+              Thanh toán ngay
+            </Link>
+          )}
         </div>
       )}
     </div>
