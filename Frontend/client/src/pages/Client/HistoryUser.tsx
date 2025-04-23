@@ -4,7 +4,7 @@ import {
   Order,
   updateStatusCustomerOrder,
 } from "../../services/order";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import "../../css/HistoryUser.css";
 
@@ -37,23 +37,16 @@ const HistoryUser = () => {
   const [orderUser, setOrderUser] = useState<Order[]>([]);
   const [updates, setUpdates] = useState<Record<string, UpdateInfo>>({});
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Xử lý thông báo từ URL parameters
     const success = searchParams.get("success");
     const message = searchParams.get("message");
 
-    if (success && message) {
-      // Hiển thị thông báo
-      if (success === "true") {
-        toast.success(decodeURIComponent(message));
-      } else {
-        toast.error(decodeURIComponent(message));
-      }
-
-      // Xóa parameters khỏi URL để tránh hiển thị lại khi refresh
-      navigate("/history", { replace: true });
+    if (success === "true" && message) {
+      toast.success(decodeURIComponent(message));
+    } else if (success === "false" && message) {
+      toast.error(decodeURIComponent(message));
     }
 
     window.scrollTo(0, 0);
@@ -69,7 +62,7 @@ const HistoryUser = () => {
         console.error("Lỗi khi parse user data:", error);
       }
     }
-  }, [searchParams, navigate]);
+  }, [searchParams]);
 
   const fetchOrder = async (userId: string) => {
     try {
