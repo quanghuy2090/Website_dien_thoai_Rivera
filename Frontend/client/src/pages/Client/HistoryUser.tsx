@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import {
   getAllOrder,
   Order,
-  updateStatusCustomerOrder,
+  updateOrderStatusByCustomer,
+  IShippingAddress,
+  OrderItem,
 } from "../../services/order";
 import { Link, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -10,7 +12,7 @@ import "../../css/HistoryUser.css";
 
 type UpdateInfo = {
   status: "Đã nhận hàng" | "Đã hủy";
-  cancellationReason: string;
+  cancelReason: string;
 };
 
 const getStatusClass = (status: Order["status"]) => {
@@ -67,23 +69,14 @@ const HistoryUser = () => {
   const fetchOrder = async (userId: string) => {
     try {
       const { data } = await getAllOrder();
-      const filteredOrders = data.orders.filter(
-        (order: Order) => order.userId.toString() === userId
-      );
-      setOrderUser(filteredOrders);
-    } catch (error: unknown) {
-      if (typeof error === "object" && error !== null && "response" in error) {
-        const axiosError = error as {
-          response?: { data?: { message?: string } };
-        };
-        toast.error(
-          axiosError.response?.data?.message || "Lỗi khi tải đơn hàng"
+      if (data.orders) {
+        const filteredOrders = data.orders.filter(
+          (order: Order) => order.userId.toString() === userId.toString()
         );
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Lỗi khi tải đơn hàng");
+        setOrderUser(filteredOrders);
       }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Lỗi khi tải đơn hàng");
     }
   };
 
@@ -96,34 +89,27 @@ const HistoryUser = () => {
   const handleStatusChange = async (
     orderId: string,
     newStatus: "Đã nhận hàng" | "Đã hủy",
-    cancellationReason: string
+    cancelReason: string
   ) => {
     try {
-      const { data } = await updateStatusCustomerOrder(
+      const { data } = await updateOrderStatusByCustomer(
         orderId,
         newStatus,
-        cancellationReason
+        cancelReason
       );
       toast.success(data.message);
-      fetchOrder(userId!);
+      if (userId) {
+        fetchOrder(userId);
+      }
       setUpdates((prev) => {
         const newUpdates = { ...prev };
         delete newUpdates[orderId];
         return newUpdates;
       });
-    } catch (error: unknown) {
-      if (typeof error === "object" && error !== null && "response" in error) {
-        const axiosError = error as {
-          response?: { data?: { message?: string } };
-        };
-        toast.error(
-          axiosError.response?.data?.message || "Cập nhật trạng thái thất bại!"
-        );
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Cập nhật trạng thái thất bại!");
-      }
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Cập nhật trạng thái thất bại!"
+      );
     }
   };
 
@@ -160,7 +146,7 @@ const HistoryUser = () => {
         <div className="container">
           <div className="history-container">
             {orderUser.map((order) => (
-              <div key={order._id} className="order-card">
+              <div key={order.orderId} className="order-card">
                 <div className="order-header">
                   <span className="order-id">Đơn hàng #{order.orderId}</span>
                   <span className="order-date">
@@ -185,47 +171,27 @@ const HistoryUser = () => {
                 </div>
 
                 <div className="order-products">
-                  {order.items.map((item, idx) => (
+                  {order.items.map((item: OrderItem, idx: number) => (
                     <div key={idx} className="product-item">
                       <img
-                        src={item.productId.images?.[0] || "/placeholder.png"}
-                        alt={item.productId.name}
+                        src={item.productImage || "/placeholder.png"}
+                        alt={item.productName || "Sản phẩm"}
                         className="product-image"
                       />
                       <div className="product-details">
                         <div className="product-name">
-                          {item.productId.name}
+                          {item.productName || "Sản phẩm không xác định"}
                         </div>
-                        {item.variantId &&
-                          typeof item.variantId === "object" && (
-                            <div className="product-variant">
-                              (
-                              {
-                                (
-                                  item.variantId as {
-                                    ram: string;
-                                    storage: string;
-                                  }
-                                ).ram
-                              }
-                              /
-                              {
-                                (
-                                  item.variantId as {
-                                    ram: string;
-                                    storage: string;
-                                  }
-                                ).storage
-                              }
-                              )
-                            </div>
-                          )}
+                        <div className="product-variant">
+                          ({item.color || "Không xác định"} /{" "}
+                          {item.capacity || "Không xác định"})
+                        </div>
                         <div className="product-quantity">
-                          Số lượng: {item.quantity}
+                          Số lượng: {item.quantity || 0}
                         </div>
                       </div>
                       <div className="product-price">
-                        {formatPrice(item.salePrice || item.price)}
+                        {formatPrice(item.salePrice || 0)}
                       </div>
                     </div>
                   ))}
@@ -263,8 +229,8 @@ const HistoryUser = () => {
                               ...prev,
                               [order.orderId]: {
                                 status: selected,
-                                cancellationReason:
-                                  prev[order.orderId]?.cancellationReason || "",
+                                cancelReason:
+                                  prev[order.orderId]?.cancelReason || "",
                               },
                             }));
                           }}
@@ -284,15 +250,13 @@ const HistoryUser = () => {
                             type="text"
                             className="form-control"
                             placeholder="Nhập lý do hủy đơn"
-                            value={
-                              updates[order.orderId]?.cancellationReason || ""
-                            }
+                            value={updates[order.orderId]?.cancelReason || ""}
                             onChange={(e) =>
                               setUpdates((prev) => ({
                                 ...prev,
                                 [order.orderId]: {
                                   ...prev[order.orderId],
-                                  cancellationReason: e.target.value,
+                                  cancelReason: e.target.value,
                                 },
                               }))
                             }
@@ -316,7 +280,7 @@ const HistoryUser = () => {
                               order.orderId,
                               updates[order.orderId].status,
                               updates[order.orderId].status === "Đã hủy"
-                                ? updates[order.orderId].cancellationReason
+                                ? updates[order.orderId].cancelReason
                                 : ""
                             );
                           }}
