@@ -460,7 +460,6 @@ export const updateCartsWithProductChanges = async (updatedProduct) => {
     for (const cart of carts) {
       let cartUpdated = false;
       let updateMessages = [];
-      let itemsToRemove = [];
 
       // Duyệt qua từng item trong giỏ hàng
       for (let i = 0; i < cart.items.length; i++) {
@@ -476,18 +475,6 @@ export const updateCartsWithProductChanges = async (updatedProduct) => {
           const updatedVariant = updatedProduct.variants.find((v) =>
             v._id.equals(item.variantId)
           );
-
-          // Kiểm tra trạng thái sản phẩm
-          if (updatedProduct.status === "banned") {
-            console.log(`Sản phẩm đã bị cấm, xóa khỏi giỏ hàng`);
-            // Nếu sản phẩm bị cấm, thêm vào danh sách cần xóa
-            itemsToRemove.push(i);
-            updateMessages.push(
-              `Sản phẩm "${updatedProduct.name}" đã bị ngừng kinh doanh và đã được xóa khỏi giỏ hàng`
-            );
-            cartUpdated = true;
-            continue;
-          }
 
           if (updatedVariant) {
             console.log(`Tìm thấy biến thể tương ứng, cập nhật thông tin`);
@@ -520,28 +507,16 @@ export const updateCartsWithProductChanges = async (updatedProduct) => {
 
             cartUpdated = true;
           } else {
-            console.log(`Không tìm thấy biến thể tương ứng, xóa khỏi giỏ hàng`);
-            // Nếu variant không còn tồn tại, xóa khỏi giỏ hàng
-            itemsToRemove.push(i);
+            console.log(`Không tìm thấy biến thể tương ứng, cập nhật thông tin cơ bản`);
+            // Nếu variant không còn tồn tại, chỉ cập nhật thông tin cơ bản
+            cart.items[i].price = updatedProduct.price || cart.items[i].price;
+            cart.items[i].salePrice = updatedProduct.salePrice || cart.items[i].salePrice;
             updateMessages.push(
-              `Biến thể sản phẩm "${updatedProduct.name}" không còn tồn tại và đã được xóa khỏi giỏ hàng`
+              `Thông tin sản phẩm "${updatedProduct.name}" đã được cập nhật`
             );
             cartUpdated = true;
           }
         }
-      }
-
-      // Xóa các item đã đánh dấu
-      if (itemsToRemove.length > 0) {
-        // Sắp xếp mảng index giảm dần để tránh lỗi khi xóa nhiều phần tử
-        itemsToRemove.sort((a, b) => b - a);
-
-        // Xóa từng item theo index
-        for (const index of itemsToRemove) {
-          cart.items.splice(index, 1);
-        }
-
-        console.log(`Đã xóa ${itemsToRemove.length} sản phẩm khỏi giỏ hàng`);
       }
 
       // Nếu giỏ hàng đã được cập nhật, lưu lại
