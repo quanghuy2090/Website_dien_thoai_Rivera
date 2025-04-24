@@ -36,27 +36,27 @@ export const useCartPolling = () => {
       setHasBannedProduct(foundBannedProduct); // ✅ Cập nhật trạng thái
 
       // Xử lý sản phẩm bị xóa
-      const removedItems = previousCartsRef.current.filter(
-        (prevItem) =>
-          !newCarts.some(
-            (newItem) =>
-              newItem.productId._id === prevItem.productId._id &&
-              newItem.variantId === prevItem.variantId
-          )
-      );
+      // const removedItems = previousCartsRef.current.filter(
+      //   (prevItem) =>
+      //     !newCarts.some(
+      //       (newItem) =>
+      //         newItem.productId._id === prevItem.productId._id &&
+      //         newItem.variantId === prevItem.variantId
+      //     )
+      // );
 
-      removedItems.forEach((item) => {
-        const itemKey = `${item.productId._id}-${item.variantId}`;
-        if (!userDeletedItemsRef.current.has(itemKey)) {
-          const notificationKey = `removed-${itemKey}`;
-          if (!shownNotificationsRef.current.has(notificationKey)) {
-            toast.error(
-              `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị xóa khỏi giỏ hàng do được cập nhật.`
-            );
-            shownNotificationsRef.current.add(notificationKey);
-          }
-        }
-      });
+      // removedItems.forEach((item) => {
+      //   const itemKey = `${item.productId._id}-${item.variantId}`;
+      //   if (!userDeletedItemsRef.current.has(itemKey)) {
+      //     const notificationKey = `removed-${itemKey}`;
+      //     if (!shownNotificationsRef.current.has(notificationKey)) {
+      //       toast.error(
+      //         `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị xóa khỏi giỏ hàng do được cập nhật.`
+      //       );
+      //       shownNotificationsRef.current.add(notificationKey);
+      //     }
+      //   }
+      // });
 
       newCarts.forEach((newItem) => {
         const prevItem = previousCartsRef.current.find(

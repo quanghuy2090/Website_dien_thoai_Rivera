@@ -27,10 +27,27 @@ export const CartContext = createContext<CartContextType>({
 export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [state, dispatch] = useReducer(cartReducer, initialState);
     const nav = useNavigate();
+    const getCarts = async () => {
+        try {
+            const user = JSON.parse(localStorage.getItem("user") || '{}');
+            if (!user || !user._id) {
+                // Silently return if user is not logged in; don't redirect or show toast on initial load
+                return;
+            }
 
-    useEffect(() => {
-        getCarts(); // Fix naming mismatch
-    }, []);
+            const { data } = await getCart();
+            if (data.cart && data.cart.items) {
+                dispatch({ type: "FETCH_CART", payload: data.cart.items });
+            } else {
+                dispatch({ type: "CLEAR_CART" });
+            }
+        } catch (error) {
+            const err = error as AxiosError<{ message: string }>;
+            console.error("Lỗi khi gọi API giỏ hàng:", err);
+            // Don't show toast on initial load to avoid spamming user
+        }
+    };
+
 
     const addToCart = async (
         productId: string,
@@ -92,6 +109,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                     name: selectedProduct.name,
                     images: selectedProduct.images[0],
                     variants: selectedProduct.variants,
+                    status: selectedProduct.status,
                 },
                 variantId: chosenVariant._id,
                 quantity: quantity,
@@ -247,6 +265,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
                         name: selectedProduct.name,
                         images: selectedProduct.images[0],
                         variants: selectedProduct.variants,
+                        status: selectedProduct.status,
                     },
                     variantId: chosenVariant._id,
                     quantity: quantity,
@@ -274,27 +293,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             toast.error('Không thể cập nhật số lượng. Vui lòng thử lại sau.');
         }
     };
+    useEffect(() => {
+        getCarts(); // Fix naming mismatch
+    }, []);
 
-    const getCarts = async () => {
-        try {
-            const user = JSON.parse(localStorage.getItem("user") || '{}');
-            if (!user || !user._id) {
-                // Silently return if user is not logged in; don't redirect or show toast on initial load
-                return;
-            }
 
-            const { data } = await getCart();
-            if (data.cart && data.cart.items) {
-                dispatch({ type: "FETCH_CART", payload: data.cart.items });
-            } else {
-                dispatch({ type: "CLEAR_CART" });
-            }
-        } catch (error) {
-            const err = error as AxiosError<{ message: string }>;
-            console.error("Lỗi khi gọi API giỏ hàng:", err);
-            // Don't show toast on initial load to avoid spamming user
-        }
-    };
 
     return (
         <CartContext.Provider value={{ state, addToCart, removeFromCart, clearCart, updateQuantity, getCarts }}>

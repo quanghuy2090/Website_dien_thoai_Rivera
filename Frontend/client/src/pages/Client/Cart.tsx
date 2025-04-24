@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, } from "react";
 import { Link } from "react-router-dom";
 import "../../css/style.css";
 import toast from "react-hot-toast";
@@ -6,14 +6,14 @@ import { CartContext } from "../../context/CartContext";
 import { useCartPolling } from "../../hooks/useCartPolling";
 
 const Cart = () => {
-  const { state, updateQuantity, removeFromCart, clearCart, getCarts } =
+  const { state, updateQuantity, removeFromCart, clearCart, } =
     useContext(CartContext);
   const { items: carts, totalQuantity } = state;
   const { hasBannedProduct } = useCartPolling();
 
-  useEffect(() => {
-    getCarts();
-  }, [getCarts]);
+  // useEffect(() => {
+  //   getCarts();
+  // }, [getCarts]);
 
   const handleDeleteCartItem = (productId: string, variantId: string) => {
     removeFromCart(productId, variantId).catch((error) => {

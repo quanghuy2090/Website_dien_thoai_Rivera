@@ -208,9 +208,8 @@ const ProductDetail = () => {
                     {product?.images.map((img, index) => (
                       <div
                         key={index}
-                        className={`thumbnail-item ${
-                          img === mainImage ? "active" : ""
-                        }`}
+                        className={`thumbnail-item ${img === mainImage ? "active" : ""
+                          }`}
                         onClick={() => setMainImage(img)}
                       >
                         <img src={img} alt={`Thumbnail ${index + 1}`} />
@@ -253,9 +252,8 @@ const ProductDetail = () => {
                           {product?.variants.map((variant, index) => (
                             <button
                               key={index}
-                              className={`variant-btn ${
-                                variant === selectedVariant ? "active" : ""
-                              }`}
+                              className={`variant-btn ${variant === selectedVariant ? "active" : ""
+                                }`}
                               onClick={() => handleVariantChange(variant)}
                               disabled={variant.stock <= 0}
                             >
@@ -291,18 +289,17 @@ const ProductDetail = () => {
                       <br />
                       {selectedVariant?.salePrice !==
                         selectedVariant?.price && (
-                        <del className="product-old-price">
-                          {formatPrice(selectedVariant?.price ?? 0)}
-                        </del>
-                      )}
+                          <del className="product-old-price">
+                            {formatPrice(selectedVariant?.price ?? 0)}
+                          </del>
+                        )}
                     </h2>
 
                     <div
-                      className={`font-weight-bold mb-4 ${
-                        selectedVariant?.stock > 0
-                          ? "text-success"
-                          : "text-danger"
-                      }`}
+                      className={`font-weight-bold mb-4 ${selectedVariant?.stock > 0
+                        ? "text-success"
+                        : "text-danger"
+                        }`}
                     >
                       {selectedVariant?.stock > 0 ? "CÒN HÀNG" : "HẾT HÀNG"}:{" "}
                       {selectedVariant?.stock}
@@ -345,7 +342,7 @@ const ProductDetail = () => {
                         onClick={() =>
                           addToCart(product?._id, selectedVariant, quantity)
                         }
-                        // disabled={!selectedVariant || selectedVariant.stock <= 0}
+                      // disabled={!selectedVariant || selectedVariant.stock <= 0}
                       >
                         <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
                       </button>
@@ -375,9 +372,8 @@ const ProductDetail = () => {
                 <div className="tab-content">
                   <div
                     id="tab01"
-                    className={`tab-pane ${
-                      activeTab === "tab01" ? "active" : "fade"
-                    }`}
+                    className={`tab-pane ${activeTab === "tab01" ? "active" : "fade"
+                      }`}
                   >
                     <div className="row">
                       <div className="col-md-12">
@@ -393,9 +389,8 @@ const ProductDetail = () => {
 
                   <div
                     id="tab02"
-                    className={`tab-pane ${
-                      activeTab === "tab02" ? "active" : "fade"
-                    }`}
+                    className={`tab-pane ${activeTab === "tab02" ? "active" : "fade"
+                      }`}
                   >
                     <div className="row">
                       <div className="col-md-12">
@@ -411,9 +406,8 @@ const ProductDetail = () => {
 
                   <div
                     id="tab03"
-                    className={`tab-pane ${
-                      activeTab === "tab03" ? "active" : "fade"
-                    }`}
+                    className={`tab-pane ${activeTab === "tab03" ? "active" : "fade"
+                      }`}
                   >
                     <div className="row">
                       <div className="col-md-3">
@@ -606,9 +600,8 @@ const ProductDetail = () => {
 
                   <div
                     id="tab04"
-                    className={`tab-pane ${
-                      activeTab === "tab04" ? "active" : "fade"
-                    }`}
+                    className={`tab-pane ${activeTab === "tab04" ? "active" : "fade"
+                      }`}
                   >
                     <div className="row">
                       <div className="col-md-12">
@@ -707,10 +700,10 @@ const ProductDetail = () => {
                           <br />
                           {item.variants[0]?.salePrice !==
                             item.variants[0]?.price && (
-                            <del className="product-old-price">
-                              {formatPrice(item.variants[0]?.price ?? 0)}
-                            </del>
-                          )}
+                              <del className="product-old-price">
+                                {formatPrice(item.variants[0]?.price ?? 0)}
+                              </del>
+                            )}
                         </h4>
                         <div className="product-btns">
                           <button className="add-to-wishlist">
@@ -727,13 +720,11 @@ const ProductDetail = () => {
                       </div>
                     </div>
                     <div className="add-to-cart">
-                      <button
-                        className="add-to-cart-btn"
-                        onClick={() =>
-                          addToCart(item._id, item.variants?.[0], 1)
-                        }
-                      >
-                        <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
+                      <button className="add-to-cart-btn">
+                        <i className="fa fa-eye me-2"></i>
+                        <Link to={`/product/${item._id}`}>
+                          <span className="tooltipp">Xem chi tiết</span>{" "}
+                        </Link>
                       </button>
                     </div>
                   </div>

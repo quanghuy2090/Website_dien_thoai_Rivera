@@ -13,6 +13,7 @@ import {
   Ward,
 } from "../../services/order";
 import { CartContext } from "../../context/CartContext";
+import { useCartPolling } from "../../hooks/useCartPolling";
 
 const Checkout = () => {
   const {
@@ -34,7 +35,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const { clearCart, getCarts } = useContext(CartContext);
-
+  const { hasBannedProduct } = useCartPolling();
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
@@ -331,9 +332,8 @@ const Checkout = () => {
                         return (
                           <div
                             className="checkout-product"
-                            key={`${cart?.productId?._id || ""}-${
-                              cart?.variantId || ""
-                            }`}
+                            key={`${cart?.productId?._id || ""}-${cart?.variantId || ""
+                              }`}
                           >
                             <div className="product-info">
                               <div className="product-name">
@@ -405,11 +405,17 @@ const Checkout = () => {
 
                 <button
                   type="submit"
-                  className="primary-btn order-submit"
-                  disabled={loading}
+                  disabled={loading || hasBannedProduct}
+                  className={`primary-btn order-submit ${hasBannedProduct ? "disabled" : ""}`}
                 >
-                  {loading ? "Đang xử lý..." : "Đặt hàng"}
+                  Đặt hàng
                 </button>
+                {hasBannedProduct && (
+                  <p className="text-danger mt-2">
+                    Có sản phẩm bị chặn trong giỏ. Vui lòng xoá để tiếp tục thanh toán.
+                  </p>
+                )}
+
               </div>
             </div>
           </form>
