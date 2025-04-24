@@ -29,9 +29,9 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
     const { credential } = credentialResponse;
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/google-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("http://localhost:3000/api/auth/google-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: credential }),
       });
 
@@ -45,7 +45,6 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
       console.error("Login error", error);
     }
   };
-
 
   return (
     <>
@@ -150,8 +149,9 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                       style={{ cursor: "pointer" }}
                     >
                       <i
-                        className={`bx ${showConfirmPassword ? "bx-show" : "bx-hide"
-                          }`}
+                        className={`bx ${
+                          showConfirmPassword ? "bx-show" : "bx-hide"
+                        }`}
                       />
                     </span>
                     {errors?.confirmPassword && (
@@ -175,12 +175,12 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                 </div>
               </div>
               <div className="line" />
-              <div className="media-options">
+              {/* <div className="media-options">
                 <a href="#" className="field facebook">
                   <i className="bx bxl-facebook facebook-icon" />
                   <span>Đăng nhập với Facebook</span>
                 </a>
-              </div>
+              </div> */}
               <div className="media-options">
                 <a href="#" className="field google">
                   <img src=".\image\google-icon.webp" className="google-img" />
@@ -188,7 +188,11 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                 </a>
               </div>
               <div className="form-auth-link mt-4">
-                <a href="/" className="link login-link" style={{ fontSize: 18 }}>
+                <a
+                  href="/"
+                  className="link login-link"
+                  style={{ fontSize: 18 }}
+                >
                   Về trang chủ
                 </a>
               </div>
@@ -269,12 +273,12 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
                 </div>
               </div>
               <div className="line" />
-              <div className="media-options">
+              {/* <div className="media-options">
                 <a href="#" className="field facebook">
                   <i className="bx bxl-facebook facebook-icon" />
                   <span>Đăng nhập với Facebook</span>
                 </a>
-              </div>
+              </div> */}
               <div className="media-options">
                 <a href="#" className="field google">
                   {/* <img src=".\image\google-icon.webp" className="google-img" /> */}
@@ -283,7 +287,11 @@ export function AuthForm({ onSubmit, mode }: FormProps) {
               </div>
 
               <div className="form-auth-link mt-4">
-                <a href="/" className="link login-link" style={{ fontSize: 18 }}>
+                <a
+                  href="/"
+                  className="link login-link"
+                  style={{ fontSize: 18 }}
+                >
                   Về trang chủ
                 </a>
               </div>

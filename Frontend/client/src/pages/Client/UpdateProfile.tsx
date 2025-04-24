@@ -166,7 +166,7 @@ const UpdateProfile = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="form-group">
+                      {/* <div className="form-group">
                         <label htmlFor="img">Ảnh đại diện</label>
                         <div className="input-group">
                           <input
@@ -198,7 +198,7 @@ const UpdateProfile = () => {
                             />
                           </div>
                         )}
-                      </div>
+                      </div> */}
                       <div className="form-group text-center">
                         <button
                           type="submit"
