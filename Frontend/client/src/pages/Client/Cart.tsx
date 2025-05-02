@@ -1,128 +1,43 @@
-import React, { useEffect, useState } from "react";
-import {
-  CartItem,
-  deleteAllCart,
-  deleteCart,
-  getCart,
-  updateCart,
-} from "../../services/cart";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import "../../css/style.css";
-import toast from "react-hot-toast";
+import { CartContext } from "../../context/CartContext";
+import { useCartPolling } from "../../hooks/useCartPolling";
 
 const Cart = () => {
-  const [carts, setCarts] = useState<CartItem[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const { state, updateQuantity, removeFromCart, clearCart } =
+    useContext(CartContext);
+  const { items: carts, totalQuantity } = state;
+  const { hasBannedProduct } = useCartPolling();
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        if (user && user._id) {
-          fetchCart();
-        }
-      } catch (error) {
-        console.error("Lỗi khi parse user data:", error);
-      }
-    }
-  }, []);
-
-  const fetchCart = async () => {
-    try {
-      const { data } = await getCart();
-      if (data.cart && data.cart.items) {
-        setCarts(data.cart.items);
-        setTotalAmount(data.cart.totalSalePrice || 0);
-      }
-    } catch (error: any) {
-      console.error("Lỗi khi gọi API giỏ hàng:", error);
-      toast.error(error.response?.data?.message || "Lỗi khi tải giỏ hàng");
-    }
+  const handleDeleteCartItem = (productId: string, variantId: string) => {
+    removeFromCart(productId, variantId);
   };
 
-  const handleDeleteCartItem = async (productId: string, variantId: string) => {
-    if (
-      window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?")
-    ) {
-      try {
-        const { data } = await deleteCart(productId, variantId);
-        const updatedCart = carts.filter(
-          (cart) =>
-            !(cart.productId._id === productId && cart.variantId === variantId)
-        );
-        setCarts(updatedCart);
-        if (updatedCart.length === 0) {
-          setTotalAmount(0);
-        } else {
-          const newTotalPrice = updatedCart.reduce(
-            (sum, item) => sum + item.quantity * item.salePrice,
-            0
-          );
-          setTotalAmount(newTotalPrice);
-        }
-        toast.success(data.message || "Xóa thành công!");
-      } catch (error: any) {
-        console.log(error);
-        toast.error(error.response?.data?.message || "Xóa thất bại!");
-      }
+  const handleRemoveAllCart = () => {
+    if (carts.length === 0) {
+      return;
     }
-  };
 
-  const handleRemoveAllCart = async () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng không?")) {
-      try {
-        const { data } = await deleteAllCart();
-        setCarts([]);
-        setTotalAmount(0);
-        toast.success(data.message || "Đã xóa toàn bộ giỏ hàng!");
-      } catch (error: any) {
-        console.log(error);
-        toast.error(error.response?.data?.message || "Lỗi khi xóa giỏ hàng!");
-      }
+      clearCart();
     }
   };
 
-  const handleUpdateQuantity = async (
+  const handleUpdateQuantity = (
     productId: string,
     variantId: string,
     newQuantity: number
   ) => {
-    if (newQuantity <= 0) {
-      toast.error("Số lượng không được nhỏ hơn 1!");
+    if (newQuantity < 1) {
       return;
     }
 
-    try {
-      const { data } = await updateCart(productId, variantId, newQuantity);
-      const updatedCart = carts.map((cart) =>
-        cart.productId._id === productId && cart.variantId === variantId
-          ? {
-              ...cart,
-              quantity: newQuantity,
-              salePrice:
-                data.cart.items.find(
-                  (i: CartItem) =>
-                    i.productId._id === productId && i.variantId === variantId
-                )?.salePrice || cart.salePrice,
-              subtotal:
-                newQuantity *
-                (data.cart.items.find(
-                  (i: CartItem) =>
-                    i.productId._id === productId && i.variantId === variantId
-                )?.salePrice || cart.salePrice),
-            }
-          : cart
-      );
-      setCarts(updatedCart);
-      setTotalAmount(data.cart.totalSalePrice);
-      toast.success(data.message || "Cập nhật số lượng thành công!");
-    } catch (error: any) {
-      console.log(error);
-      toast.error(
-        error.response?.data?.message || "Lỗi khi cập nhật số lượng!"
-      );
+    if (newQuantity > 100) {
+      return;
     }
+
+    updateQuantity(productId, variantId, newQuantity);
   };
 
   const formatPrice = (price: number) => {
@@ -130,10 +45,15 @@ const Cart = () => {
     return price.toLocaleString("vi-VN") + " VND";
   };
 
+  const totalAmount = carts.reduce(
+    (sum, item) => sum + item.quantity * item.salePrice,
+    0
+  );
+
   return (
     <div className="cart-container">
       <div className="cart-header">
-        <h2>Giỏ hàng của bạn</h2>
+        <h2>Giỏ hàng của bạn ({totalQuantity} sản phẩm)</h2>
       </div>
 
       <div className="cart-table-container">
@@ -177,7 +97,7 @@ const Cart = () => {
                         <span className="product-sale-price">
                           {formatPrice(cart.salePrice)}
                         </span>
-                        {cart?.salePrice !== cart?.price && (
+                        {cart.salePrice !== cart.price && (
                           <span className="product-old-price">
                             {formatPrice(cart.price)}
                           </span>
@@ -255,9 +175,15 @@ const Cart = () => {
       {carts.length > 0 && (
         <div className="cart-summary">
           <h3>Tổng tiền: {formatPrice(totalAmount)}</h3>
-          <Link to="/checkout" className="checkout-btn">
-            Thanh toán ngay
-          </Link>
+          {hasBannedProduct ? (
+            <button className="checkout-btn disabled" disabled>
+              Không thể thanh toán (sản phẩm bị chặn)
+            </button>
+          ) : (
+            <Link to="/checkout" className="checkout-btn">
+              Thanh toán ngay
+            </Link>
+          )}
         </div>
       )}
     </div>

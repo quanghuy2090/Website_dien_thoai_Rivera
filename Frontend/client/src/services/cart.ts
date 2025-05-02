@@ -4,6 +4,7 @@ export interface CartItem {
         _id: string;
         name: string;
         images: string;
+        status: string;
         variants: {
             _id: string;
             color: { name: string };
@@ -19,6 +20,13 @@ export interface CartItem {
     color: string;  // Chuyển thành string để tránh lỗi kiểu dữ liệu
     capacity: string;  // Chuyển thành string để tránh lỗi kiểu dữ liệu
     subtotal: number;  // Tổng giá trị (quantity * salePrice)
+    snapshot?: {
+        name: string;
+        image: string;
+        price: number;
+        color: string;
+        capacity: string;
+    };
 }
 
 // Định nghĩa Carts chính

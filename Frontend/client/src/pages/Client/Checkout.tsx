@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { CartItem, getCart } from "../../services/cart";
 import {
-  createOrder,
-  createOrderOnline, // Import hàm mới
+  createOrderCOD,
+  createOrderOnline,
   District,
   IShippingAddress,
   Order,
   Province,
   Ward,
 } from "../../services/order";
+import { CartContext } from "../../context/CartContext";
+import { useCheckoutPolling } from "../../hooks/useCheckoutPolling";
 
 const Checkout = () => {
   const {
@@ -21,52 +22,61 @@ const Checkout = () => {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<
-    // Thêm errors
-    IShippingAddress & { paymentMethod: Order["paymentMethod"] }
-  >({
-    mode: "onBlur", // Thêm cái mode để validation
+  } = useForm<IShippingAddress & { paymentMethod: Order["paymentMethod"] }>({
+    mode: "onBlur",
   });
-  const [carts, setCarts] = useState<CartItem[]>([]);
-  // const [totalPrice, setTotalPrice] = useState<number>(0); // Không dùng nữa
-  const [userId, setUsetId] = useState<string | null>(null);
+
+  const { state } = useContext(CartContext);
+  const { items: carts } = state;
+  const { totalAmount, hasBannedProduct } = useCheckoutPolling();
+  const nav = useNavigate();
+
+  const [userId, setUserId] = useState<string | null>(null);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0); // Dùng cái này
-  const nav = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  // Lấy thông tin tỉnh/thành phố (giữ nguyên)
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
-        const { data } = await axios.get(
+        const response = await fetch(
           "https://provinces.open-api.vn/api/?depth=3"
         );
-        setProvinces(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchProvinces();
-
-    // Lấy thông tin user, giỏ hàng
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        if (user && user._id) {
-          setUsetId(user._id);
-          fetchCart();
-          // Set giá trị mặc định cho form (từ user)
-          setValue("name", user.userName || "");
-          setValue("street", user.address || ""); // Sửa thành street
-          setValue("phone", user.phone || "");
+        const data = await response.json();
+        console.log("Provinces data:", data);
+        if (data && Array.isArray(data)) {
+          setProvinces(data);
+        } else {
+          console.error("Invalid provinces data structure:", data);
+          toast.error("Không thể lấy danh sách tỉnh thành");
         }
       } catch (error) {
-        console.log(error);
+        console.error("Lỗi khi lấy danh sách tỉnh thành:", error);
+        toast.error("Không thể lấy danh sách tỉnh thành");
       }
-    }
+    };
+
+    const fetchUserAndCart = async () => {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user && user._id) {
+            setUserId(user._id);
+            setValue("userName", user.userName || "");
+            setValue("street", user.address || "");
+            setValue("phone", user.phone || "");
+            await fetchCart();
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin người dùng:", error);
+        }
+      }
+    };
+
+    fetchProvinces();
+    fetchUserAndCart();
   }, []);
 
   const selectedProvince = watch("city");
@@ -93,12 +103,18 @@ const Checkout = () => {
   const fetchCart = async () => {
     try {
       const { data } = await getCart();
+      console.log("Cart data from API:", data);
       if (data.cart && data.cart.items) {
-        setCarts(data.cart.items);
-        setTotalAmount(data.cart.totalSalePrice || 0);
+        console.log("Cart items:", data.cart.items);
+        getCart();
+      } else {
+        console.log("No cart items found");
+        getCart();
       }
     } catch (error) {
-      console.error("Lỗi khi gọi API giỏ hàng:", error);
+      console.error("Lỗi khi lấy giỏ hàng:", error);
+      toast.error("Không thể lấy thông tin giỏ hàng");
+      getCart();
     }
   };
 
@@ -110,76 +126,55 @@ const Checkout = () => {
       return;
     }
 
+    if (carts.length === 0) {
+      toast.error("Giỏ hàng trống!");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const newOrder: Omit<
-        Order,
-        | "_id"
-        | "createdAt"
-        | "updatedAt"
-        | "paymentStatus"
-        | "status"
-        | "totalAmount"
-        | "items"
-      > & { orderItems: CartItem[] } = {
-        userId: userId,
-        orderItems: carts,
-        shippingAddress: {
-          name: formData.name,
-          street: formData.street,
-          phone: formData.phone,
-          ward: formData.ward,
-          district: formData.district,
-          city: formData.city,
-        },
-        paymentMethod: formData.paymentMethod,
+      const shippingAddress: IShippingAddress = {
+        userName: formData.userName,
+        phone: formData.phone,
+        street: formData.street,
+        ward: formData.ward,
+        district: formData.district,
+        city: formData.city,
       };
 
       if (formData.paymentMethod === "Online") {
-        try {
-          const { data } = await createOrderOnline(newOrder);
+        const { data } = await createOrderOnline(shippingAddress);
+        if (data.paymentUrl) {
           window.location.href = data.paymentUrl;
-        } catch (error: any) {
-          if (error.response?.data?.message) {
-            toast.error(error.response.data.message);
-          } else {
-            toast.error(
-              "Có lỗi xảy ra khi thanh toán online. Vui lòng thử lại!"
-            );
-          }
+        } else {
+          throw new Error("Không thể tạo URL thanh toán");
         }
       } else {
-        try {
-          const { data } = await createOrder(newOrder);
+        const { data } = await createOrderCOD(shippingAddress);
+        if (data.order) {
+          await fetchCart();
           toast.success("Đặt hàng thành công!");
           nav("/history");
-          setCarts([]);
-          setTotalAmount(0);
-        } catch (error: any) {
-          if (error.response?.data?.message) {
-            toast.error(error.response.data.message);
-          } else {
-            toast.error("Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!");
-          }
         }
       }
     } catch (error: any) {
-      console.error("Lỗi:", error);
+      console.error("Lỗi khi đặt hàng:", error);
       toast.error(
-        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!"
+        error.response?.data?.message || "Có lỗi xảy ra khi đặt hàng"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";
   };
+
   return (
     <>
-      {/* BREADCRUMB */}
       <div id="breadcrumb" className="section">
-        {/* container */}
         <div className="container">
-          {/* row */}
           <div className="row">
             <div className="col-md-12">
               <ul className="breadcrumb-tree">
@@ -193,244 +188,242 @@ const Checkout = () => {
               </ul>
             </div>
           </div>
-          {/* /row */}
         </div>
-        {/* /container */}
       </div>
-      {/* /BREADCRUMB */}
-      <div>
-        {/* Page Header End */}
-        {/* SECTION */}
-        <div className="section">
-          {/* container */}
-          <div className="container">
-            {/* row */}
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="row">
-                <div className="col-md-7">
-                  {/* Billing Details */}
-                  <div className="billing-details">
-                    <div className="section-title">
-                      <h3 className="title">Thông tin thanh toán</h3>
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="name">Tên người dùng</label>
-                      <input
-                        type="text"
-                        className={`input ${errors.name ? "is-invalid" : ""}`}
-                        placeholder="Nhập tên người dùng"
-                        {...register("name", { required: "Vui lòng nhập tên" })}
-                      />
-                      {errors.name && (
-                        <p className="invalid-feedback">
-                          {errors.name.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="phone">Số điện thoại</label>
-                      <input
-                        type="text"
-                        className={`input ${errors.phone ? "is-invalid" : ""}`}
-                        placeholder="Nhập số điện thoại"
-                        {...register("phone", {
-                          required: "Vui lòng nhập số điện thoại",
-                          pattern: {
-                            value: /^[0-9]{10}$/, // VD: Yêu cầu 10 chữ số
-                            message: "Số điện thoại không hợp lệ",
-                          },
-                        })}
-                      />
-                      {errors.phone && (
-                        <p className="invalid-feedback">
-                          {errors.phone.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="street">Địa chỉ</label>
-                      <input
-                        type="text"
-                        className={`input ${errors.street ? "is-invalid" : ""}`}
-                        placeholder="Nhập địa chỉ"
-                        {...register("street", {
-                          required: "Vui lòng nhập địa chỉ",
-                        })}
-                      />
-                      {errors.street && (
-                        <p className="invalid-feedback">
-                          {errors.street.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="city">Tỉnh / Thành phố</label>
-                      <select
-                        className={`input ${errors.city ? "is-invalid" : ""}`}
-                        {...register("city", {
-                          required: "Vui lòng chọn tỉnh/thành phố",
-                        })}
-                      >
-                        <option value="">Chọn tỉnh / thành phố</option>
-                        {provinces.map((province) => (
-                          <option key={province.code} value={province.name}>
-                            {province.name}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.city && (
-                        <p className="invalid-feedback">
-                          {errors.city.message}
-                        </p>
-                      )}
-                    </div>
 
-                    <div className=" form-group">
-                      <label htmlFor="district">Quận / Huyện</label>
-                      <select
-                        className={`input ${
-                          errors.district ? "is-invalid" : ""
-                        }`}
-                        {...register("district", {
-                          required: "Vui lòng chọn quận/huyện",
-                        })}
-                        disabled={!districts.length}
-                      >
-                        <option value="">Chọn quận / huyện</option>
-                        {districts.map((district) => (
-                          <option key={district.code} value={district.name}>
-                            {district.name}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.district && (
-                        <p className="invalid-feedback">
-                          {errors.district.message}
-                        </p>
-                      )}
-                    </div>
+      <div className="section">
+        <div className="container">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="row">
+              <div className="col-md-7">
+                <div className="billing-details">
+                  <div className="section-title">
+                    <h3 className="title">Thông tin thanh toán</h3>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="userName">Tên người nhận</label>
+                    <input
+                      type="text"
+                      className={`input ${errors.userName ? "is-invalid" : ""}`}
+                      placeholder="Nhập tên người nhận"
+                      {...register("userName", {
+                        required: "Vui lòng nhập tên",
+                      })}
+                    />
+                    {errors.userName && (
+                      <p className="invalid-feedback">
+                        {errors.userName.message}
+                      </p>
+                    )}
+                  </div>
 
-                    <div className=" form-group">
-                      <label htmlFor="ward">Phường / Xã</label>
-                      <select
-                        className={`input ${errors.ward ? "is-invalid" : ""}`}
-                        {...register("ward", {
-                          required: "Vui lòng chọn phường/xã",
-                        })}
-                        disabled={!wards.length}
-                      >
-                        <option value="">Chọn phường / xã</option>
-                        {wards.map((ward) => (
-                          <option key={ward.code} value={ward.name}>
-                            {ward.name}
+                  <div className="form-group">
+                    <label htmlFor="phone">Số điện thoại</label>
+                    <input
+                      type="text"
+                      className={`input ${errors.phone ? "is-invalid" : ""}`}
+                      placeholder="Nhập số điện thoại"
+                      {...register("phone", {
+                        required: "Vui lòng nhập số điện thoại",
+                        pattern: {
+                          value: /^[0-9]{10}$/,
+                          message: "Số điện thoại không hợp lệ",
+                        },
+                      })}
+                    />
+                    {errors.phone && (
+                      <p className="invalid-feedback">{errors.phone.message}</p>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="street">Địa chỉ</label>
+                    <input
+                      type="text"
+                      className={`input ${errors.street ? "is-invalid" : ""}`}
+                      placeholder="Nhập địa chỉ"
+                      {...register("street", {
+                        required: "Vui lòng nhập địa chỉ",
+                      })}
+                    />
+                    {errors.street && (
+                      <p className="invalid-feedback">
+                        {errors.street.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="city">Tỉnh / Thành phố</label>
+                    <select
+                      className={`input ${errors.city ? "is-invalid" : ""}`}
+                      {...register("city", {
+                        required: "Vui lòng chọn tỉnh/thành phố",
+                      })}
+                    >
+                      <option value="">Chọn tỉnh / thành phố</option>
+                      {Array.isArray(provinces) &&
+                        provinces.map((province) => (
+                          <option key={province?.code} value={province?.name}>
+                            {province?.name}
                           </option>
                         ))}
-                      </select>
-                      {errors.ward && (
-                        <p className="invalid-feedback">
-                          {errors.ward.message}
-                        </p>
-                      )}
-                    </div>
+                    </select>
+                    {errors.city && (
+                      <p className="invalid-feedback">{errors.city.message}</p>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="district">Quận / Huyện</label>
+                    <select
+                      className={`input ${errors.district ? "is-invalid" : ""}`}
+                      {...register("district", {
+                        required: "Vui lòng chọn quận/huyện",
+                      })}
+                      disabled={!districts.length}
+                    >
+                      <option value="">Chọn quận / huyện</option>
+                      {Array.isArray(districts) &&
+                        districts.map((district) => (
+                          <option key={district?.code} value={district?.name}>
+                            {district?.name}
+                          </option>
+                        ))}
+                    </select>
+                    {errors.district && (
+                      <p className="invalid-feedback">
+                        {errors.district.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="ward">Phường / Xã</label>
+                    <select
+                      className={`input ${errors.ward ? "is-invalid" : ""}`}
+                      {...register("ward", {
+                        required: "Vui lòng chọn phường/xã",
+                      })}
+                      disabled={!wards.length}
+                    >
+                      <option value="">Chọn phường / xã</option>
+                      {Array.isArray(wards) &&
+                        wards.map((ward) => (
+                          <option key={ward?.code} value={ward?.name}>
+                            {ward?.name}
+                          </option>
+                        ))}
+                    </select>
+                    {errors.ward && (
+                      <p className="invalid-feedback">{errors.ward.message}</p>
+                    )}
                   </div>
                 </div>
-                {/* /Billing Details */}
-                {/* Order Details */}
-                <div className="col-md-5 order-details">
-                  <div className="section-title text-center">
-                    <h3 className="title">Đơn hàng</h3>
-                  </div>
-                  <div className="order-summary">
-                    <div className="order-col"></div>
-                    <div className="order-products">
-                      {carts.map((cart) => (
-                        <div
-                          className="checkout-product"
-                          key={`${cart.productId._id}-${cart.variantId}`}
-                        >
-                          <tr>
-                            <div>
-                              <strong>Sản phẩm</strong>
-                              <td>
-                                {cart.quantity} x {cart.productId.name}-
-                                {cart.color}-{cart.capacity}
-                              </td>
-                            </div>
-                            <div>
-                              <strong>Giá</strong>
-                              <td className="text-center">
-                                {formatPrice(cart.salePrice)}
-                              </td>
-                            </div>
-                          </tr>
-                        </div>
-                      ))}
-                    </div>
-                    {/* <div className="order-col">
-                      <div>Phí giao hàng</div>
-                      <div><strong>FREE</strong></div>
-                    </div> */}
-                    <div className="order-col">
-                      <div>
-                        <strong>Tổng</strong>
-                      </div>
-                      <div>
-                        <strong className="order-total">
-                          {formatPrice(totalAmount)}
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="payment-method">
-                    <div className="input-radio">
-                      <input
-                        type="radio"
-                        value="COD"
-                        id="payment-cod"
-                        {...register("paymentMethod", {
-                          required: "Vui lòng chọn phương thức thanh toán",
-                        })}
-                      />
-                      <label htmlFor="payment-cod">
-                        <span />
-                        Thanh toán khi nhận hàng
-                      </label>
-                      <div className="caption">
-                        <p>Thanh toán khi nhận hàng</p>
-                      </div>
-                    </div>
-
-                    <div className="input-radio">
-                      <input
-                        type="radio"
-                        id="payment-online"
-                        value="Online"
-                        {...register("paymentMethod", {
-                          required: "Vui lòng chọn phương thức thanh toán",
-                        })}
-                      />
-                      <label htmlFor="payment-online">
-                        <span />
-                        Thanh Toán VNPay
-                      </label>
-                      {errors.paymentMethod && (
-                        <p className="text-danger">
-                          {errors.paymentMethod.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <button type="submit" className="primary-btn order-submit">
-                    Đặt hàng
-                  </button>
-                </div>
-                {/* /Order Details */}
               </div>
-            </form>
-            {/* /row */}
-          </div>
-          {/* /container */}
+
+              <div className="col-md-5 order-details">
+                <div className="section-title text-center">
+                  <h3 className="title">Đơn hàng</h3>
+                </div>
+                <div className="order-summary">
+                  <div className="order-products">
+                    {Array.isArray(carts) && carts.length > 0 ? (
+                      carts.map((cart) => {
+                        console.log("Rendering cart item:", cart);
+                        return (
+                          <div
+                            className="checkout-product"
+                            key={`${cart?.productId?._id || ""}-${
+                              cart?.variantId || ""
+                            }`}
+                          >
+                            <div className="product-info">
+                              <div className="product-name">
+                                {cart?.quantity || 0} x{" "}
+                                {cart?.productId?.name || "Sản phẩm"}
+                              </div>
+                              <div className="product-variant">
+                                {cart?.color || ""} - {cart?.capacity || ""}
+                              </div>
+                              <div className="product-price">
+                                {formatPrice(cart?.salePrice || 0)}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="empty-cart">Giỏ hàng trống</div>
+                    )}
+                  </div>
+                  <div className="order-col">
+                    <div>
+                      <strong>Tổng tiền</strong>
+                    </div>
+                    <div>
+                      <strong className="order-total">
+                        {formatPrice(totalAmount)}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="payment-method">
+                  <div className="input-radio">
+                    <input
+                      type="radio"
+                      value="COD"
+                      id="payment-cod"
+                      {...register("paymentMethod", {
+                        required: "Vui lòng chọn phương thức thanh toán",
+                      })}
+                    />
+                    <label htmlFor="payment-cod">
+                      <span />
+                      Thanh toán khi nhận hàng
+                    </label>
+                  </div>
+
+                  <div className="input-radio">
+                    <input
+                      type="radio"
+                      id="payment-online"
+                      value="Online"
+                      {...register("paymentMethod", {
+                        required: "Vui lòng chọn phương thức thanh toán",
+                      })}
+                    />
+                    <label htmlFor="payment-online">
+                      <span />
+                      Thanh Toán VNPay
+                    </label>
+                  </div>
+                  {errors.paymentMethod && (
+                    <p className="text-danger">
+                      {errors.paymentMethod.message}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || hasBannedProduct}
+                  className={`primary-btn order-submit ${
+                    hasBannedProduct ? "disabled" : ""
+                  }`}
+                >
+                  Đặt hàng
+                </button>
+                {hasBannedProduct && (
+                  <p className="text-danger mt-2">
+                    Có sản phẩm bị chặn trong giỏ. Vui lòng xoá để tiếp tục
+                    thanh toán.
+                  </p>
+                )}
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </>

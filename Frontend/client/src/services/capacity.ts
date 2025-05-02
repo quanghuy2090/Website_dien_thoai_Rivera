@@ -6,6 +6,7 @@ export type Capacity = {
     value: string;
     createdAt: string;
     updatedAt: string;
+    isDeleted: boolean;
 }
 
 export const getCapacity = async () => {
@@ -23,4 +24,10 @@ export const getCapacityById = async (_id: string) => {
 }
 export const updateCapacity = async (_id: string, capacity: Capacity) => {
     return http.put("/capacity/" + _id, capacity);
+}
+export const getDeleteCapacity = async () => {
+    return http.get("/capacity/deleted");
+}
+export const restoreCapacity = async (_id: string, capacity: Capacity) => {
+    return http.patch(`/capacity/restore/${_id}`, capacity);
 }

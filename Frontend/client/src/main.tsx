@@ -7,7 +7,11 @@ import { ProductProvider } from "./context/ProductContext.tsx";
 import { AuthProvider } from "./context/AuthContext.tsx";
 import { ColorProvider } from "./context/ColorContext.tsx";
 import { CapacityProvider } from "./context/CapacityContext.tsx";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { CartProvider } from "./context/CartContext.tsx";
 
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+console.log("Google Client ID:", clientId);
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
@@ -16,7 +20,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <AuthProvider>
             <ColorProvider>
               <CapacityProvider>
-                <App />
+                <CartProvider>
+                  <GoogleOAuthProvider clientId={clientId}>
+                    <App />
+                  </GoogleOAuthProvider>
+                </CartProvider>
               </CapacityProvider>
             </ColorProvider>
           </AuthProvider>

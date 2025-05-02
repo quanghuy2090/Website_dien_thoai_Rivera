@@ -5,6 +5,7 @@ export type Color = {
     name: string;
     createdAt: string;
     updatedAt: string;
+    isDeleted: boolean;
 }
 
 export const getColors = () => {
@@ -25,4 +26,12 @@ export const getColorsById = (_id: string) => {
 
 export const updateColors = (_id: string, color: Color) => {
     return http.put(`/color/${_id}`, color)
+}
+
+export const getDeleteColor = () => {
+    return http.get("/color/deleted");
+}
+
+export const RestoreColor = (_id: string, color: Color) => {
+    return http.patch(`/color/restore/${_id}`, color);
 }

@@ -19,7 +19,11 @@ export const createOrderCOD = async (req, res) => {
     // Bước 1: Lấy giỏ hàng của user
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
-      select: "name variants",
+      select: "name images short_description variants",
+      populate: [
+        { path: "variants.color", select: "name" },
+        { path: "variants.capacity", select: "value" },
+      ],
     });
 
     if (!cart || cart.items.length === 0) {
@@ -44,9 +48,25 @@ export const createOrderCOD = async (req, res) => {
 
       if (variant.stock < cartItem.quantity) {
         return res.status(400).json({
-          message: `Sản phẩm ${product.name} (${variant.color}/${variant.capacity}) không đủ hàng`,
+          message: `Sản phẩm ${product.name} (${variant.color.name}/${variant.capacity.value}) không đủ hàng`,
         });
       }
+
+      // Tạo snapshot của sản phẩm tại thời điểm tạo đơn hàng
+      const productSnapshot = {
+        productName: product.name,
+        productImages: product.images,
+        shortDescription: product.short_description,
+        variant: {
+          color: variant.color.name,
+          capacity: variant.capacity.value,
+          price: variant.price,
+          salePrice:
+            variant.salePrice !== undefined ? variant.salePrice : variant.price,
+          stock: variant.stock,
+          sku: variant.sku,
+        },
+      };
 
       orderItems.push({
         productId: product._id,
@@ -55,8 +75,9 @@ export const createOrderCOD = async (req, res) => {
         price: variant.price,
         salePrice:
           variant.salePrice !== undefined ? variant.salePrice : variant.price,
-        color: cartItem.color,
-        capacity: cartItem.capacity,
+        color: variant.color.name,
+        capacity: variant.capacity.value,
+        snapshot: productSnapshot,
       });
     }
 
@@ -101,15 +122,22 @@ export const createOrderCOD = async (req, res) => {
 
     // Bước 8: Populate thêm thông tin để trả về đầy đủ
     const populatedOrder = await Order.findById(order._id)
-      .populate("userId", "name email") // Populate thông tin user
-      .populate("items.productId", "name"); // Populate tên sản phẩm
+      .populate("userId", "name email")
+      .populate({
+        path: "items.productId",
+        select: "name images short_description variants",
+        populate: [
+          { path: "variants.color", select: "name" },
+          { path: "variants.capacity", select: "value" },
+        ],
+      });
 
-    // Bước 9: Trả về tất cả thông tin đơn hàng
     return res.status(201).json({
       message: "Tạo đơn hàng thành công",
-      order: populatedOrder, // Trả về toàn bộ thông tin đơn hàng đã populate
+      order: populatedOrder,
     });
   } catch (error) {
+    console.error("Lỗi khi tạo đơn hàng:", error);
     return res.status(500).json({
       name: error.name,
       message: error.message,
@@ -137,7 +165,11 @@ export const createOrderOnline = async (req, res) => {
     // Bước 1: Lấy giỏ hàng của user
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
-      select: "name variants",
+      select: "name images short_description variants",
+      populate: [
+        { path: "variants.color", select: "name" },
+        { path: "variants.capacity", select: "value" },
+      ],
     });
 
     if (!cart || cart.items.length === 0) {
@@ -162,9 +194,25 @@ export const createOrderOnline = async (req, res) => {
 
       if (variant.stock < cartItem.quantity) {
         return res.status(400).json({
-          message: `Sản phẩm ${product.name} (${variant.color}/${variant.capacity}) không đủ hàng`,
+          message: `Sản phẩm ${product.name} (${variant.color.name}/${variant.capacity.value}) không đủ hàng`,
         });
       }
+
+      // Tạo snapshot của sản phẩm tại thời điểm tạo đơn hàng
+      const productSnapshot = {
+        productName: product.name,
+        productImages: product.images,
+        shortDescription: product.short_description,
+        variant: {
+          color: variant.color.name,
+          capacity: variant.capacity.value,
+          price: variant.price,
+          salePrice:
+            variant.salePrice !== undefined ? variant.salePrice : variant.price,
+          stock: variant.stock,
+          sku: variant.sku,
+        },
+      };
 
       orderItems.push({
         productId: product._id,
@@ -173,8 +221,9 @@ export const createOrderOnline = async (req, res) => {
         price: variant.price,
         salePrice:
           variant.salePrice !== undefined ? variant.salePrice : variant.price,
-        color: cartItem.color,
-        capacity: cartItem.capacity,
+        color: variant.color.name,
+        capacity: variant.capacity.value,
+        snapshot: productSnapshot,
       });
     }
 
@@ -213,7 +262,7 @@ export const createOrderOnline = async (req, res) => {
       vnp_OrderInfo: `Thanh toán đơn hàng ${order._id}`,
       vnp_OrderType: "250000",
       vnp_Locale: "vn",
-      vnp_ReturnUrl: VNPAY_RETURN_URL, // Đảm bảo dùng http://localhost:3000/api/order/vnpay_return
+      vnp_ReturnUrl: VNPAY_RETURN_URL,
       vnp_IpAddr: req.ip || "127.0.0.1",
       vnp_CreateDate: new Date()
         .toISOString()
@@ -247,6 +296,7 @@ export const createOrderOnline = async (req, res) => {
       order: order,
     });
   } catch (error) {
+    console.error("Lỗi khi tạo đơn hàng online:", error);
     return res.status(500).json({
       name: error.name,
       message: error.message,
@@ -264,16 +314,8 @@ export const getAllOrder = async (req, res) => {
 
     const orders = await Order.find(query)
       .populate({ path: "userId", select: "userName email phone" })
-      .populate({
-        path: "items.productId",
-        select: "name images short_description variants",
-        populate: [
-          { path: "variants.color", select: "name" },
-          { path: "variants.capacity", select: "value" },
-        ],
-      })
-      .populate({ path: "cancelledBy", select: "userName" }) // Thêm populate cho cancelledBy
-      .populate({ path: "cancelHistory.cancelledBy", select: "userName" }) // Populate cho cancelHistory
+      .populate({ path: "cancelledBy", select: "userName" })
+      .populate({ path: "cancelHistory.cancelledBy", select: "userName" })
       .sort({ createdAt: -1 });
 
     if (!orders || orders.length === 0) {
@@ -282,20 +324,19 @@ export const getAllOrder = async (req, res) => {
 
     const orderDetails = orders.map((order) => {
       const items = order.items.map((item) => {
-        const product = item.productId || {};
-        const variant =
-          product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+        // Sử dụng thông tin từ snapshot thay vì populate
         return {
-          productId: item.productId || null,
-          variantId: item.variantId || null,
-          quantity: item.quantity || 0,
-          price: item.price || 0,
-          salePrice: item.salePrice || 0,
-          color: item.color || variant.color?.name || "N/A",
-          capacity: item.capacity || variant.capacity?.value || "N/A",
-          productName: product.name || "N/A",
-          productImage: product.images?.[0] || null,
-          shortDescription: product.short_description || "",
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity,
+          price: item.price,
+          salePrice: item.salePrice,
+          color: item.color,
+          capacity: item.capacity,
+          productName: item.snapshot.productName,
+          productImage: item.snapshot.productImages[0],
+          shortDescription: item.snapshot.shortDescription,
+          variant: item.snapshot.variant,
         };
       });
 
@@ -319,7 +360,7 @@ export const getAllOrder = async (req, res) => {
         paymentStatus: order.paymentStatus,
         cancelReason: order.cancelReason || null,
         cancelledBy: order.cancelledBy ? order.cancelledBy.userName : null,
-        cancelHistory, // Thêm lịch sử hủy
+        cancelHistory,
         createdAt: order.createdAt,
         updatedAt: order.updatedAt,
         deliveredAt: order.deliveredAt || null,
@@ -346,16 +387,8 @@ export const getOrderById = async (req, res) => {
 
     const order = await Order.findById(id)
       .populate({ path: "userId", select: "userName email phone" })
-      .populate({
-        path: "items.productId",
-        select: "name images short_description variants",
-        populate: [
-          { path: "variants.color", select: "name" },
-          { path: "variants.capacity", select: "value" },
-        ],
-      })
-      .populate({ path: "cancelledBy", select: "userName" }) // Populate cancelledBy
-      .populate({ path: "cancelHistory.cancelledBy", select: "userName" }); // Populate cancelHistory
+      .populate({ path: "cancelledBy", select: "userName" })
+      .populate({ path: "cancelHistory.cancelledBy", select: "userName" });
 
     if (!order) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
@@ -371,20 +404,19 @@ export const getOrderById = async (req, res) => {
     }
 
     const items = order.items.map((item) => {
-      const product = item.productId || {};
-      const variant =
-        product.variants?.find((v) => v._id?.equals(item.variantId)) || {};
+      // Sử dụng thông tin từ snapshot thay vì populate
       return {
-        productId: item.productId || null,
-        variantId: item.variantId || null,
-        quantity: item.quantity || 0,
-        price: item.price || 0,
-        salePrice: item.salePrice || 0,
-        color: item.color || variant.color?.name || "N/A",
-        capacity: item.capacity || variant.capacity?.value || "N/A",
-        productName: product.name || "N/A",
-        productImage: product.images?.[0] || null,
-        shortDescription: product.short_description || "",
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        price: item.price,
+        salePrice: item.salePrice,
+        color: item.color,
+        capacity: item.capacity,
+        productName: item.snapshot.productName,
+        productImage: item.snapshot.productImages[0],
+        shortDescription: item.snapshot.shortDescription,
+        variant: item.snapshot.variant,
       };
     });
 
@@ -408,7 +440,7 @@ export const getOrderById = async (req, res) => {
       paymentStatus: order.paymentStatus,
       cancelReason: order.cancelReason || null,
       cancelledBy: order.cancelledBy ? order.cancelledBy.userName : null,
-      cancelHistory, // Thêm lịch sử hủy
+      cancelHistory,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
       deliveredAt: order.deliveredAt || null,
@@ -1121,6 +1153,82 @@ export const filterOrders = async (req, res) => {
     return res.status(200).json({
       message: "Lọc đơn hàng thành công",
       data: orderDetails,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      name: error.name,
+      message: error.message,
+    });
+  }
+};
+
+export const getCancelledOrdersByAdmin = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Tìm tất cả đơn hàng đã hủy, sắp xếp theo thời gian hủy mới nhất
+    const orders = await Order.find({ status: "Đã hủy" })
+      .populate("userId", "userName email phone")
+      .populate("items.productId", "name images")
+      .sort({ "cancelHistory.cancelledAt": -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Đếm tổng số đơn hàng đã hủy
+    const total = await Order.countDocuments({ status: "Đã hủy" });
+
+    return res.status(200).json({
+      message: "Lấy danh sách đơn hàng đã hủy thành công",
+      data: orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      name: error.name,
+      message: error.message,
+    });
+  }
+};
+
+export const getCancelledOrdersByCustomer = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Tìm đơn hàng đã hủy của khách hàng, sắp xếp theo thời gian hủy mới nhất
+    const orders = await Order.find({
+      userId,
+      status: "Đã hủy",
+    })
+      .populate("items.productId", "name images")
+      .sort({ "cancelHistory.cancelledAt": -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Đếm tổng số đơn hàng đã hủy của khách hàng
+    const total = await Order.countDocuments({
+      userId,
+      status: "Đã hủy",
+    });
+
+    return res.status(200).json({
+      message: "Lấy danh sách đơn hàng đã hủy thành công",
+      data: orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     return res.status(500).json({

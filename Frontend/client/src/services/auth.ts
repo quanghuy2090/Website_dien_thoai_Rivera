@@ -10,10 +10,10 @@ export type User = {
   role: number;
   status: string;
   confirmPassword: string;
-  img: string;
+  image: string;
   updatedAt: string;
   createdAt: string;
-  updatedBy: User
+  updatedBy: User;
 };
 
 export const registerUser = (data: User) => {
@@ -44,6 +44,13 @@ export const updateRole = (userId: string, role: number) => {
   return http.put(`auth/user/role/${userId}`, { role });
 };
 
-export const updateUser = (_id: string, user: User) => {
-  return http.put(`/auth/user/update/${_id}`, user)
-}
+export const updateUser = (userId: string, userData: Partial<User>) => {
+  return http.put(`/auth/user/update`, {
+    _id: userId,
+    ...userData,
+  });
+};
+
+export const updateAdminUser = (userId: string, userData: Partial<User>) => {
+  return http.put(`/auth/user/update/${userId}`, userData);
+};

@@ -5,9 +5,7 @@ import Admin from '../components/Admin'
 const AdminLayout = () => {
   return (
     <div>
-
       <Admin />
-
       <Outlet />
     </div>
   )

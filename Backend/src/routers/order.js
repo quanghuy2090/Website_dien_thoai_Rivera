@@ -8,11 +8,14 @@ import {
   searchOrders,
   updateOrderStatusByAdmin,
   updateOrderStatusByCustomer,
+  getCancelledOrdersByAdmin,
+  getCancelledOrdersByCustomer,
 } from "../controllers/order.js";
 import { checkUserPermission } from "./../middlewares/checkUserPermission.js";
 import { handleVnpayReturn } from "../controllers/vnpay.js";
 import { checkOrderPermission } from "../middlewares/checkOrderPermission.js";
 import { checkAdminPermission } from "../middlewares/checkAdminPermission.js";
+import Order from "../models/Order.js";
 
 const routerOrder = express.Router();
 
@@ -23,12 +26,38 @@ routerOrder.post("/online", checkUserPermission, createOrderOnline);
 routerOrder.get("/vnpay_return", async (req, res) => {
   try {
     const result = await handleVnpayReturn(req.query);
-    return res.status(result.status).json(result.data);
+    console.log("result", result);
+
+    // Nếu thanh toán thành công, chuyển hướng về trang lịch sử đơn hàng
+    if (result.status === 200) {
+      return res.redirect(
+        `http://localhost:5173/history?success=true&orderId=${
+          result.data.orderId
+        }&message=${encodeURIComponent(
+          "Đặt hàng thành công! Cảm ơn bạn đã mua hàng."
+        )}`
+      );
+    } else {
+      // Nếu thanh toán thất bại hoặc hủy, xóa đơn hàng và chuyển hướng về trang lịch sử đơn hàng với thông báo lỗi
+      if (result.data.orderId) {
+        await Order.findByIdAndDelete(result.data.orderId);
+      }
+      return res.redirect(
+        `http://localhost:5173/history?success=false&message=${encodeURIComponent(
+          result.data.message
+        )}`
+      );
+    }
   } catch (error) {
-    return res.status(500).json({
-      message: "Lỗi xử lý phản hồi từ VNPAY",
-      error: error.message,
-    });
+    // Nếu có lỗi, cũng xóa đơn hàng nếu có
+    if (error.orderId) {
+      await Order.findByIdAndDelete(error.orderId);
+    }
+    return res.redirect(
+      `http://localhost:5173/history?success=false&message=${encodeURIComponent(
+        "Lỗi xử lý phản hồi từ VNPAY"
+      )}`
+    );
   }
 });
 
@@ -47,6 +76,20 @@ routerOrder.put(
   "/customer/status/:id",
   checkUserPermission,
   updateOrderStatusByCustomer
+);
+
+// API lấy danh sách đơn hàng đã hủy cho admin
+routerOrder.get(
+  "/cancelled/admin",
+  checkAdminPermission,
+  getCancelledOrdersByAdmin
+);
+
+// API lấy danh sách đơn hàng đã hủy cho khách hàng
+routerOrder.get(
+  "/cancelled/customer",
+  checkUserPermission,
+  getCancelledOrdersByCustomer
 );
 
 export default routerOrder;

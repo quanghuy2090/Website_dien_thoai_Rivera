@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema(
       enum: [1, 2, 3], // 1: Admin, 2: Seller, 3: Customer
       default: 3,
     },
+    googleLogin: { type: Boolean, default: false },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

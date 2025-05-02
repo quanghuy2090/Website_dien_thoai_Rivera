@@ -314,27 +314,15 @@ const ProductPage = () => {
                                 </del>
                               )}
                             </h4>
-                            <div className="product-btns">
-                              <button className="add-to-wishlist">
-                                <i className="fa fa-heart-o" />
-                                <span className="tooltipp">Thêm yêu thích</span>
-                              </button>
-                              <button className="quick-view">
-                                <Link to={`/product/${product._id}`}>
-                                  <i className="fa fa-eye" />
-                                </Link>
-                                <span className="tooltipp">Xem chi tiết</span>
-                              </button>
-                            </div>
                           </div>
                         </div>
                         {/* Add to Cart button */}
                         <div className="add-to-cart">
-                          <button
-                            className="add-to-cart-btn"
-                            onClick={() => addToCart(product)}
-                          >
-                            <i className="fa fa-shopping-cart" /> Thêm giỏ hàng
+                          <button className="add-to-cart-btn">
+                            <i className="fa fa-eye me-2"></i>
+                            <Link to={`/product/${product._id}`}>
+                              <span className="tooltipp">Xem chi tiết</span>{" "}
+                            </Link>
                           </button>
                         </div>
                       </div>

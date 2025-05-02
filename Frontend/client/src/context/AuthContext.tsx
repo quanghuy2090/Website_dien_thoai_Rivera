@@ -35,10 +35,10 @@ export const AuthProvider = ({ children }: Children) => {
         try {
             const { data } = await getDetailUser(_id);
             dispatch({ type: "SET_SELECTED_USER", payload: data.data })
-            toast.success("Lấy user thành công")
+            toast.success("Lấy người dùng thành công")
         } catch (error) {
             console.log(error)
-            toast.error("Lấy người dùng thành công")
+            toast.error("Lấy người dùng không thành công")
         }
     }
     const createUser = async (user: User) => {
@@ -46,10 +46,10 @@ export const AuthProvider = ({ children }: Children) => {
             const { data } = await registerUser(user)
             dispatch({ type: "ADD_USER", payload: data.data });
             nav("/admin/user")
-            toast.success("Thêm user thành công")
+            toast.success("Thêm người dùng thành công")
         } catch (error) {
             console.log(error)
-            toast.error("Thêm user thất bại")
+            toast.error("Thêm người dùng thất bại")
         }
     }
     const updateUsers = async (_id: string, user: User) => {

@@ -15,19 +15,21 @@ export const getTotalRevenue = async (req, res) => {
       },
       {
         $group: {
-          _id: null,
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
           totalRevenue: { $sum: "$totalAmount" },
         },
       },
+      {
+        $sort: { "_id.year": -1, "_id.month": -1 } // Sắp xếp theo năm và tháng mới nhất
+      }
     ]);
 
-    const totalRevenue = result.length > 0 ? result[0].totalRevenue : 0;
-
     return res.status(200).json({
-      message: "Lấy tổng doanh thu thành công",
-      data: {
-        totalRevenue,
-      },
+      message: "Lấy tổng doanh thu theo tháng và năm thành công",
+      data: result,
     });
   } catch (error) {
     return res.status(500).json({
@@ -215,3 +217,37 @@ export const getLeastSoldProducts = async (req, res) => {
     });
   }
 };
+
+export const getOrderStatus = async (req, res) => {
+  try {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          totalOrders: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { totalOrders: -1 },
+      }
+    ]);
+    const totalOrders = result.reduce((sum, statusGroup) => sum + statusGroup.totalOrders, 0);
+
+    const dataWithPercentage = result.map((statusGroup) => ({
+      status: statusGroup._id,
+      totalOrders: statusGroup.totalOrders,
+      percentage: ((statusGroup.totalOrders / totalOrders) * 100).toFixed(2) + '%',
+    }));
+
+    return res.status(200).json({
+      message: "Thống kê trạng thái các đơn hàng thành công",
+      totalOrders,
+      data: dataWithPercentage,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Lỗi khi thống kê trạng thái đơn hàng",
+      error: error.message,
+    });
+  }
+}
