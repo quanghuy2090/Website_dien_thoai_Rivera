@@ -154,13 +154,13 @@ export function Header() {
             </div>
             <div className="col-md-3 clearfix">
               <div className="header-ctn">
-                <div>
+                {/* <div>
                   <a href="#">
                     <i className="fa fa-heart-o" />
                     <span>Yêu thích</span>
                     <div className="qty">2</div>
                   </a>
-                </div>
+                </div> */}
                 <div className="dropdown">
                   <a
                     href="/cart"

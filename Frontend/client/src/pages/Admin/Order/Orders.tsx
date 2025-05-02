@@ -1,54 +1,10 @@
-import { useEffect, useState } from "react";
-import { getAllOrder } from "../../../services/order";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaEye } from "react-icons/fa";
-
-interface OrderResponse {
-  orderId: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  userPhone: string;
-  items: any[];
-  totalAmount: number;
-  shippingAddress: any;
-  status: string;
-  paymentMethod: string;
-  paymentStatus: string;
-  cancelReason?: string;
-  cancelledBy?: string;
-  cancelHistory?: any[];
-  createdAt: Date;
-  updatedAt: Date;
-  deliveredAt?: Date;
-  completedAt?: Date;
-}
+import { useAdminOrderPolling } from "../../../hooks/useAdminOrderPolling";
 
 const Orders = () => {
-  const [orders, setOrders] = useState<OrderResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  const fetchOrders = async () => {
-    try {
-      const { data } = await getAllOrder();
-      if (data.orders) {
-        // Sort orders by createdAt date in ascending order (oldest to newest)
-        const sortedOrders = data.orders.sort(
-          (a: OrderResponse, b: OrderResponse) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-        setOrders(sortedOrders);
-      }
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { orders, loading } = useAdminOrderPolling();
 
   if (loading) {
     return <div>Loading...</div>;

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -13,7 +13,7 @@ import {
   Ward,
 } from "../../services/order";
 import { CartContext } from "../../context/CartContext";
-import { useCartPolling } from "../../hooks/useCartPolling";
+import { useCheckoutPolling } from "../../hooks/useCheckoutPolling";
 
 const Checkout = () => {
   const {
@@ -26,16 +26,17 @@ const Checkout = () => {
     mode: "onBlur",
   });
 
-  const [carts, setCarts] = useState<CartItem[]>([]);
+  const { state } = useContext(CartContext);
+  const { items: carts } = state;
+  const { totalAmount, hasBannedProduct } = useCheckoutPolling();
+  const nav = useNavigate();
+
   const [userId, setUserId] = useState<string | null>(null);
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const nav = useNavigate();
-  const { clearCart, getCarts } = useContext(CartContext);
-  const { hasBannedProduct } = useCartPolling();
+
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
@@ -105,18 +106,15 @@ const Checkout = () => {
       console.log("Cart data from API:", data);
       if (data.cart && data.cart.items) {
         console.log("Cart items:", data.cart.items);
-        setCarts(data.cart.items);
-        setTotalAmount(data.cart.totalSalePrice || 0);
+        getCart();
       } else {
         console.log("No cart items found");
-        setCarts([]);
-        setTotalAmount(0);
+        getCart();
       }
     } catch (error) {
       console.error("Lỗi khi lấy giỏ hàng:", error);
       toast.error("Không thể lấy thông tin giỏ hàng");
-      setCarts([]);
-      setTotalAmount(0);
+      getCart();
     }
   };
 
@@ -154,8 +152,7 @@ const Checkout = () => {
       } else {
         const { data } = await createOrderCOD(shippingAddress);
         if (data.order) {
-          await clearCart();
-          await getCarts();
+          await fetchCart();
           toast.success("Đặt hàng thành công!");
           nav("/history");
         }
@@ -219,6 +216,7 @@ const Checkout = () => {
                       </p>
                     )}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="phone">Số điện thoại</label>
                     <input
@@ -237,6 +235,7 @@ const Checkout = () => {
                       <p className="invalid-feedback">{errors.phone.message}</p>
                     )}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="street">Địa chỉ</label>
                     <input
@@ -253,6 +252,7 @@ const Checkout = () => {
                       </p>
                     )}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="city">Tỉnh / Thành phố</label>
                     <select
@@ -273,6 +273,7 @@ const Checkout = () => {
                       <p className="invalid-feedback">{errors.city.message}</p>
                     )}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="district">Quận / Huyện</label>
                     <select
@@ -296,6 +297,7 @@ const Checkout = () => {
                       </p>
                     )}
                   </div>
+
                   <div className="form-group">
                     <label htmlFor="ward">Phường / Xã</label>
                     <select
@@ -332,8 +334,9 @@ const Checkout = () => {
                         return (
                           <div
                             className="checkout-product"
-                            key={`${cart?.productId?._id || ""}-${cart?.variantId || ""
-                              }`}
+                            key={`${cart?.productId?._id || ""}-${
+                              cart?.variantId || ""
+                            }`}
                           >
                             <div className="product-info">
                               <div className="product-name">
@@ -406,16 +409,18 @@ const Checkout = () => {
                 <button
                   type="submit"
                   disabled={loading || hasBannedProduct}
-                  className={`primary-btn order-submit ${hasBannedProduct ? "disabled" : ""}`}
+                  className={`primary-btn order-submit ${
+                    hasBannedProduct ? "disabled" : ""
+                  }`}
                 >
                   Đặt hàng
                 </button>
                 {hasBannedProduct && (
                   <p className="text-danger mt-2">
-                    Có sản phẩm bị chặn trong giỏ. Vui lòng xoá để tiếp tục thanh toán.
+                    Có sản phẩm bị chặn trong giỏ. Vui lòng xoá để tiếp tục
+                    thanh toán.
                   </p>
                 )}
-
               </div>
             </div>
           </form>

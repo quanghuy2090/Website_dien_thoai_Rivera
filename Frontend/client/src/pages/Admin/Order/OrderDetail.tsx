@@ -4,19 +4,23 @@ import {
   Order,
   updateOrderStatusByAdmin,
 } from "../../../services/order";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAdminOrderPolling } from "../../../hooks/useAdminOrderPolling";
 import "./OrderDetail.css";
 
 const OrderDetail = () => {
   const { id } = useParams();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { orders, checkOrderUpdates } = useAdminOrderPolling();
+  const [order, setOrder] = useState(
+    orders.find((o) => o.orderId === id) || null
+  );
+  const [loading, setLoading] = useState(!order);
   const [showCancelReasonForm, setShowCancelReasonForm] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const [pendingStatus, setPendingStatus] = useState<Order["status"] | null>(
-    null
-  );
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [hasReloaded, setHasReloaded] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -27,19 +31,37 @@ const OrderDetail = () => {
         if (data.order) {
           setOrder(data.order);
         }
-      } catch (error: any) {
-        toast.error(
-          error.response?.data?.message || "Không thể tải chi tiết đơn hàng"
-        );
+      } catch (error) {
+        toast.error("Không thể tải chi tiết đơn hàng");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrderDetail();
-  }, [id]);
+    if (!order) {
+      fetchOrderDetail();
+    }
+  }, [id, order]);
 
-  const handleStatusChange = (newStatus: Order["status"]) => {
+  // Kiểm tra thay đổi trạng thái và tự động reload
+  useEffect(() => {
+    if (!id || !order || hasReloaded) return;
+
+    const checkStatusChange = async () => {
+      await checkOrderUpdates();
+      const updatedOrder = orders.find((o) => o.orderId === id);
+
+      if (updatedOrder && updatedOrder.status !== order.status) {
+        setHasReloaded(true);
+        navigate(0); // Reload trang
+      }
+    };
+
+    const interval = setInterval(checkStatusChange, 2000);
+    return () => clearInterval(interval);
+  }, [id, order, orders, hasReloaded, checkOrderUpdates, navigate]);
+
+  const handleStatusChange = (newStatus: string) => {
     if (newStatus === "Đã hủy") {
       setPendingStatus(newStatus);
       setShowCancelReasonForm(true);
@@ -49,10 +71,7 @@ const OrderDetail = () => {
     updateOrderStatus(newStatus);
   };
 
-  const updateOrderStatus = async (
-    status: Order["status"],
-    reason: string = ""
-  ) => {
+  const updateOrderStatus = async (status: string, reason: string = "") => {
     if (!id) {
       toast.error("Không tìm thấy ID đơn hàng!");
       return;
@@ -65,10 +84,9 @@ const OrderDetail = () => {
       setShowCancelReasonForm(false);
       setCancelReason("");
       setPendingStatus(null);
-    } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Cập nhật trạng thái thất bại"
-      );
+      setHasReloaded(false); // Reset trạng thái reload
+    } catch (error) {
+      toast.error("Cập nhật trạng thái thất bại");
     }
   };
 
@@ -89,7 +107,7 @@ const OrderDetail = () => {
       <div className="card mb-4">
         <div className="card-body">
           <h5 className="card-title mb-0">
-            Thông tin chi tiết đơn hàng <strong>#{order._id}</strong>
+            Thông tin chi tiết đơn hàng <strong>#{order.orderId}</strong>
           </h5>
           <span className="text-primary">Bảng / Đơn hàng</span>
 
@@ -148,9 +166,7 @@ const OrderDetail = () => {
               <h3>Trạng thái đơn hàng</h3>
               <select
                 value={order.status}
-                onChange={(e) =>
-                  handleStatusChange(e.target.value as Order["status"])
-                }
+                onChange={(e) => handleStatusChange(e.target.value)}
                 className="status-select"
               >
                 <option value="Chưa xác nhận">Chưa xác nhận</option>

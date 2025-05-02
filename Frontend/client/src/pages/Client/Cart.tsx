@@ -1,38 +1,26 @@
-import React, { useContext, } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import "../../css/style.css";
-import toast from "react-hot-toast";
 import { CartContext } from "../../context/CartContext";
 import { useCartPolling } from "../../hooks/useCartPolling";
 
 const Cart = () => {
-  const { state, updateQuantity, removeFromCart, clearCart, } =
+  const { state, updateQuantity, removeFromCart, clearCart } =
     useContext(CartContext);
   const { items: carts, totalQuantity } = state;
   const { hasBannedProduct } = useCartPolling();
 
-  // useEffect(() => {
-  //   getCarts();
-  // }, [getCarts]);
-
   const handleDeleteCartItem = (productId: string, variantId: string) => {
-    removeFromCart(productId, variantId).catch((error) => {
-      console.error("Lỗi khi xóa sản phẩm:", error);
-      toast.error("Có lỗi xảy ra khi xóa sản phẩm");
-    });
+    removeFromCart(productId, variantId);
   };
 
   const handleRemoveAllCart = () => {
     if (carts.length === 0) {
-      toast.error("Giỏ hàng của bạn đã trống!");
       return;
     }
 
     if (window.confirm("Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng không?")) {
-      clearCart().catch((error) => {
-        console.error("Lỗi khi xóa toàn bộ giỏ hàng:", error);
-        toast.error("Có lỗi xảy ra khi xóa giỏ hàng");
-      });
+      clearCart();
     }
   };
 
@@ -42,19 +30,14 @@ const Cart = () => {
     newQuantity: number
   ) => {
     if (newQuantity < 1) {
-      toast.error("Số lượng không được nhỏ hơn 1!");
       return;
     }
 
     if (newQuantity > 100) {
-      toast.error("Số lượng tối đa cho phép là 100!");
       return;
     }
 
-    updateQuantity(productId, variantId, newQuantity).catch((error) => {
-      console.error("Lỗi khi cập nhật số lượng:", error);
-      toast.error("Có lỗi xảy ra khi cập nhật số lượng");
-    });
+    updateQuantity(productId, variantId, newQuantity);
   };
 
   const formatPrice = (price: number) => {

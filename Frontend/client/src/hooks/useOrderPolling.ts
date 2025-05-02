@@ -2,13 +2,54 @@ import { useEffect, useRef, useState } from "react";
 import { getAllOrder, getOrderById } from "../services/order";
 import toast from "react-hot-toast";
 
+interface OrderResponse {
+  orderId: string;
+  userId: string;
+  userEmail: string;
+  userPhone: string;
+  items: {
+    productId: string;
+    productName: string;
+    productImage: string;
+    color: string;
+    capacity: string;
+    price: number;
+    salePrice: number;
+    quantity: number;
+  }[];
+  totalAmount: number;
+  shippingAddress: {
+    userName: string;
+    phone: string;
+    street: string;
+    ward: string;
+    district: string;
+    city: string;
+  };
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  cancelReason?: string;
+  cancelledBy?: string;
+  cancelHistory?: {
+    cancelledAt: Date;
+    cancelledBy: string;
+    cancelReason: string;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+  deliveredAt?: Date;
+  completedAt?: Date;
+}
+
 export const useOrderPolling = (orderId?: string) => {
-  const [order, setOrder] = useState<any>(null);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [order, setOrder] = useState<OrderResponse | null>(null);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [error, setError] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const previousOrderRef = useRef<any>(null);
-  const previousOrdersRef = useRef<any[]>([]);
+  const previousOrderRef = useRef<OrderResponse | null>(null);
+  const previousOrdersRef = useRef<OrderResponse[]>([]);
+  const hasShownErrorRef = useRef<boolean>(false);
 
   const checkOrderUpdates = async () => {
     try {
@@ -29,7 +70,7 @@ export const useOrderPolling = (orderId?: string) => {
             // Show notification for status changes
             if (previousOrderRef.current.status !== newOrder.status) {
               toast.success(
-                `Trạng thái đơn hàng đã thay đổi từ "${previousOrderRef.current.status}" thành "${newOrder.status}"`,
+                `Trạng thái đơn hàng đã thay đổi từ "${previousOrderRef.current.status}" thành "${newOrder.status}"`
               );
             }
           }
@@ -40,7 +81,7 @@ export const useOrderPolling = (orderId?: string) => {
         // Check all orders updates
         const { data } = await getAllOrder();
         if (!data || !data.orders) {
-          throw new Error("Không thể lấy danh sách đơn hàng");
+          throw new Error("Không có đơn hàng");
         }
 
         const newOrders = data.orders;
@@ -50,31 +91,17 @@ export const useOrderPolling = (orderId?: string) => {
           JSON.stringify(previousOrdersRef.current) !==
           JSON.stringify(newOrders)
         ) {
-          // Check for new orders
-          const newOrderIds = newOrders.map((o: any) => o.orderId);
-          const previousOrderIds = previousOrdersRef.current.map(
-            (o: any) => o.orderId
-          );
-          const addedOrders = newOrders.filter(
-            (o: any) => !previousOrderIds.includes(o.orderId)
-          );
-
           // Check for status changes
-          const statusChanges = newOrders.filter((newOrder: any) => {
+          const statusChanges = newOrders.filter((newOrder: OrderResponse) => {
             const prevOrder = previousOrdersRef.current.find(
-              (o: any) => o.orderId === newOrder.orderId
+              (o: OrderResponse) => o.orderId === newOrder.orderId
             );
             return prevOrder && prevOrder.status !== newOrder.status;
           });
 
-          // Show notifications
-          // if (addedOrders.length > 0) {
-          //   toast.success(`Bạn có ${addedOrders.length} đơn hàng mới`);
-          // }
-
-          statusChanges.forEach((order: any) => {
+          statusChanges.forEach((order: OrderResponse) => {
             const prevOrder = previousOrdersRef.current.find(
-              (o: any) => o.orderId === order.orderId
+              (o: OrderResponse) => o.orderId === order.orderId
             );
             if (prevOrder) {
               toast(
@@ -94,15 +121,17 @@ export const useOrderPolling = (orderId?: string) => {
       // Reset error state if successful
       if (error) {
         setError(null);
+        hasShownErrorRef.current = false;
       }
     } catch (error) {
       console.error("Lỗi khi kiểm tra cập nhật đơn hàng:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Có lỗi xảy ra khi cập nhật đơn hàng";
-      setError(errorMessage);
-      toast.error(errorMessage);
+      // Chỉ hiển thị lỗi một lần
+      if (!hasShownErrorRef.current) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Không có đơn hàng";
+        setError(errorMessage);
+        hasShownErrorRef.current = true;
+      }
     }
   };
 

@@ -2,14 +2,13 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { getCart, CartItem } from "../services/cart";
 import { CartContext } from "../context/CartContext";
 
-export const useCartPolling = () => {
+export const useCheckoutPolling = () => {
   const [carts, setCarts] = useState<CartItem[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [hasBannedProduct, setHasBannedProduct] = useState<boolean>(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const previousCartsRef = useRef<CartItem[]>([]);
   const shownNotificationsRef = useRef<Set<string>>(new Set());
-  const userDeletedItemsRef = useRef<Set<string>>(new Set());
   const { showError, showSuccess, getCarts } = useContext(CartContext);
 
   const checkCartUpdates = async () => {
@@ -86,10 +85,6 @@ export const useCartPolling = () => {
     }
   };
 
-  const markItemAsUserDeleted = (productId: string, variantId: string) => {
-    userDeletedItemsRef.current.add(`${productId}-${variantId}`);
-  };
-
   useEffect(() => {
     checkCartUpdates();
     intervalRef.current = setInterval(checkCartUpdates, 3000);
@@ -104,9 +99,6 @@ export const useCartPolling = () => {
   return {
     carts,
     totalAmount,
-    setCarts,
-    setTotalAmount,
-    markItemAsUserDeleted,
     hasBannedProduct,
   };
 };
