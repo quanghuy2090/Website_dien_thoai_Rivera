@@ -512,6 +512,14 @@ export const updateOrderStatus = async (req, res) => {
         cancelReason: cancelReason,
         cancelledBy: user._id,
       });
+
+      // Cập nhật số lượng sản phẩm trong kho khi hủy đơn
+      for (const item of order.items) {
+        await Product.updateOne(
+          { _id: item.productId, "variants._id": item.variantId },
+          { $inc: { "variants.$.stock": item.quantity } }
+        );
+      }
     } else {
       return res.status(403).json({
         message:
@@ -677,6 +685,14 @@ export const updateOrderStatusByAdmin = async (req, res) => {
         cancelReason: cancelReason,
         cancelledBy: user._id,
       });
+
+      // Cập nhật số lượng sản phẩm trong kho khi hủy đơn
+      for (const item of order.items) {
+        await Product.updateOne(
+          { _id: item.productId, "variants._id": item.variantId },
+          { $inc: { "variants.$.stock": item.quantity } }
+        );
+      }
     } else {
       order.status = status;
 
@@ -825,6 +841,14 @@ export const updateOrderStatusByCustomer = async (req, res) => {
         cancelReason: cancelReason,
         cancelledBy: user._id,
       });
+
+      // Cập nhật số lượng sản phẩm trong kho khi hủy đơn
+      for (const item of order.items) {
+        await Product.updateOne(
+          { _id: item.productId, "variants._id": item.variantId },
+          { $inc: { "variants.$.stock": item.quantity } }
+        );
+      }
     } else {
       return res.status(403).json({
         message:
