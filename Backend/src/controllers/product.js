@@ -4,6 +4,7 @@ import { productValidation } from "../validation/product.js";
 import Color from "../models/Color.js";
 import Capacity from "../models/Capacity.js";
 import { updateCartsWithProductChanges } from "./cart.js";
+import mongoose from "mongoose";
 
 export const getAllProduct = async (req, res) => {
   try {
@@ -290,16 +291,6 @@ export const updateProduct = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Validate dữ liệu đầu vào
-    const { error } = productValidation.validate(updateData, {
-      abortEarly: false,
-    });
-    if (error) {
-      return res.status(400).json({
-        message: error.details.map((detail) => detail.message).join(", "),
-      });
-    }
-
     // Kiểm tra sản phẩm có tồn tại không
     const product = await Product.findById(id);
     if (!product) {
@@ -316,7 +307,7 @@ export const updateProduct = async (req, res) => {
           message: `Sản phẩm "${updateData.name}" đã tồn tại`,
         });
       }
-      product.name = updateData.name; // Cập nhật name
+      product.name = updateData.name;
     }
 
     // Cập nhật images nếu có
@@ -342,78 +333,50 @@ export const updateProduct = async (req, res) => {
       await Category.findByIdAndUpdate(updateData.categoryId, {
         $addToSet: { products: product._id },
       });
-      product.categoryId = updateData.categoryId; // Cập nhật categoryId
+      product.categoryId = updateData.categoryId;
     }
 
-    // Nếu cập nhật variants, xóa toàn bộ biến thể cũ và thay bằng biến thể mới
+    // Nếu cập nhật variants
     if (updateData.variants) {
       const variantErrors = [];
-
-      // Kiểm tra trùng lặp trong dữ liệu gửi lên
-      const seenNewVariants = new Set();
-      updateData.variants.forEach((variant) => {
-        const variantKey = `${variant.color}-${variant.capacity}`;
-        if (seenNewVariants.has(variantKey)) {
-          variantErrors.push(`Biến thể đã trùng lặp trong dữ liệu gửi lên`);
-        }
-        seenNewVariants.add(variantKey);
-      });
 
       // Chuẩn bị variants mới
       const preparedVariants = await Promise.all(
         updateData.variants.map(async (variant) => {
-          const { color, capacity, price, sale, stock, sku, _id } = variant;
+          const { color, capacity, price, sale, stock } = variant;
 
-          // Kiểm tra color
-          const colorDoc = await Color.findById(color);
+          // Kiểm tra color và capacity
+          const [colorDoc, capacityDoc] = await Promise.all([
+            Color.findById(color),
+            Capacity.findById(capacity),
+          ]);
+
           if (!colorDoc) {
             variantErrors.push(`Color ${color} không tồn tại`);
           }
-
-          // Kiểm tra capacity
-          const capacityDoc = await Capacity.findById(capacity);
           if (!capacityDoc) {
             variantErrors.push(`Capacity ${capacity} không tồn tại`);
           }
 
-          // Nếu không có SKU, sinh mới
-          let finalSKU = sku;
-          if (colorDoc && capacityDoc && !sku) {
-            finalSKU = await generateSKU(
+          // Tìm biến thể cũ nếu có
+          const existingVariant = product.variants.find(
+            (v) =>
+              v.color.toString() === color.toString() &&
+              v.capacity.toString() === capacity.toString()
+          );
+
+          // Nếu là biến thể mới, tạo SKU mới
+          let sku = existingVariant?.sku;
+          if (!sku && colorDoc && capacityDoc) {
+            sku = await generateSKU(
               updateData.name || product.name,
               color,
               capacity
             );
           }
 
-          // Kiểm tra SKU duy nhất (trừ sản phẩm hiện tại)
-          if (finalSKU) {
-            const existingVariant = await Product.findOne({
-              "variants.sku": finalSKU,
-              _id: { $ne: id },
-            });
-            if (existingVariant) {
-              variantErrors.push(`SKU "${finalSKU}" đã tồn tại`);
-            }
-          }
-
-          // === GIỮ LẠI _id CŨ NẾU CÓ ===
-          let variantId = _id;
-          if (!variantId) {
-            // Tìm _id cũ trong product.variants nếu trùng color/capacity
-            const old = product.variants.find(
-              v =>
-                v.color.toString() === color.toString() &&
-                v.capacity.toString() === capacity.toString()
-            );
-            if (old) {
-              variantId = old._id;
-            }
-          }
-          // Nếu vẫn chưa có _id, tạo mới
-          if (!variantId) {
-            variantId = new (require("mongoose")).Types.ObjectId();
-          }
+          // Nếu là biến thể mới, tạo _id mới
+          const variantId = existingVariant?._id || new mongoose.Types.ObjectId();
 
           return {
             _id: variantId,
@@ -422,7 +385,7 @@ export const updateProduct = async (req, res) => {
             price,
             sale: sale || 0,
             stock,
-            sku: finalSKU,
+            sku,
           };
         })
       );
@@ -433,14 +396,14 @@ export const updateProduct = async (req, res) => {
         });
       }
 
-      // Thay thế toàn bộ variants cũ bằng variants mới (nhưng đã giữ lại _id)
+      // Cập nhật variants
       product.variants = preparedVariants;
     }
 
-    // Lưu sản phẩm để chạy middleware pre('save')
+    // Lưu sản phẩm
     const updatedProduct = await product.save();
 
-    // Cập nhật giỏ hàng cho tất cả người dùng có sản phẩm này trong giỏ
+    // Cập nhật giỏ hàng
     await updateCartsWithProductChanges(updatedProduct);
 
     return res.status(200).json({
@@ -448,8 +411,10 @@ export const updateProduct = async (req, res) => {
       data: updatedProduct,
     });
   } catch (error) {
+    console.error("Lỗi khi cập nhật sản phẩm:", error);
     return res.status(500).json({
       message: error.message || "Đã xảy ra lỗi khi cập nhật sản phẩm",
+      error: error.stack
     });
   }
 };

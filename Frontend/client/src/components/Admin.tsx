@@ -61,13 +61,12 @@ const Admin = () => {
           <nav className="nav flex-column">
             <a className="nav-link mb-3" href="/"><i className="fa-solid fa-house mr-2"></i>Trang chủ</a>
             <a className="nav-link mb-3" href="/admin/dashboard"><i className="fas fa-tachometer-alt mr-2"></i>Thống kê</a>
-            <a className="nav-link mb-3" href="/admin/color"><i className="fa-solid fa-palette mr-2"></i>Màu sắc</a>
-            <a className="nav-link mb-3" href="/admin/capacity"><i className="fas fa-icons mr-2"></i>Bộ nhớ</a>
-            <a className="nav-link mb-3" href="/admin/category"><i className="fas fa-edit mr-2"></i>Danh mục</a>
-            <a className="nav-link mb-3" href="/admin/products"><i className="fas fa-chart-bar mr-2"></i>Sản phẩm</a>
-            <a className="nav-link mb-3" href="/admin/user"><i className="fas fa-user-lock mr-2"></i>Người dùng</a>
-            <a className="nav-link mb-3" href="/admin/order"><i className="fa-solid fa-cart-shopping mr-2"></i>Đơn hàng</a>
-            <a className="nav-link mb-3" href="#"><i className="fas fa-book mr-2"></i>Documentation</a>
+            <a className="nav-link mb-3" href="/admin/color"><i className="fa-solid fa-palette mr-2"></i>Quản lý màu sắc</a>
+            <a className="nav-link mb-3" href="/admin/capacity"><i className="fas fa-icons mr-2"></i>Quản lý bộ nhớ</a>
+            <a className="nav-link mb-3" href="/admin/category"><i className="fas fa-edit mr-2"></i>Quản lý danh mục</a>
+            <a className="nav-link mb-3" href="/admin/products"><i className="fas fa-chart-bar mr-2"></i>Quản lý sản phẩm</a>
+            <a className="nav-link mb-3" href="/admin/user"><i className="fas fa-user-lock mr-2"></i>Quản lý người dùng</a>
+            <a className="nav-link mb-3" href="/admin/order"><i className="fa-solid fa-cart-shopping mr-2"></i>Quản lý đơn hàng</a>
           </nav>
         </div>
         <div className="flex-grow-1">

@@ -10,7 +10,8 @@ export const useCartPolling = () => {
   const previousCartsRef = useRef<CartItem[]>([]);
   const shownNotificationsRef = useRef<Set<string>>(new Set());
   const userDeletedItemsRef = useRef<Set<string>>(new Set());
-  const { showError, showSuccess, getCarts } = useContext(CartContext);
+  const { showError, showSuccess, getCarts, removeFromCart } =
+    useContext(CartContext);
 
   const checkCartUpdates = async () => {
     try {
@@ -20,8 +21,36 @@ export const useCartPolling = () => {
 
       let foundBannedProduct = false;
 
+      // Kiểm tra và xóa các biến thể không tồn tại
+      const validCarts = newCarts.filter((item: CartItem) => {
+        if (
+          !item.productId ||
+          !item.productId.name ||
+          item.color === "NA" ||
+          item.capacity === "NA"
+        ) {
+          const itemKey = `invalid-${item.productId?._id}-${item.variantId}`;
+          if (!shownNotificationsRef.current.has(itemKey)) {
+            showError(
+              `Phiên bản sản phẩm "${
+                item.productId?.name || "Không xác định"
+              }" (${item.color} / ${
+                item.capacity
+              }) không tồn tại, vui lòng chọn phiên bản khác.`
+            );
+            shownNotificationsRef.current.add(itemKey);
+            // Tự động xóa biến thể không tồn tại
+            if (item.productId?._id && item.variantId) {
+              removeFromCart(item.productId._id, item.variantId);
+            }
+          }
+          return false;
+        }
+        return true;
+      });
+
       // Kiểm tra sản phẩm bị chặn
-      newCarts.forEach((item: CartItem) => {
+      validCarts.forEach((item: CartItem) => {
         if (item.productId.status === "banned") {
           foundBannedProduct = true;
           const itemKey = `banned-${item.productId._id}-${item.variantId}`;
@@ -37,7 +66,7 @@ export const useCartPolling = () => {
       setHasBannedProduct(foundBannedProduct);
 
       // Kiểm tra thay đổi số lượng và giá
-      newCarts.forEach((newItem: CartItem) => {
+      validCarts.forEach((newItem: CartItem) => {
         const prevItem = previousCartsRef.current.find(
           (item) =>
             item.productId._id === newItem.productId._id &&
@@ -71,15 +100,15 @@ export const useCartPolling = () => {
 
       // Xóa thông báo cũ khi có thay đổi mới
       if (
-        JSON.stringify(previousCartsRef.current) !== JSON.stringify(newCarts)
+        JSON.stringify(previousCartsRef.current) !== JSON.stringify(validCarts)
       ) {
         shownNotificationsRef.current.clear();
         // Cập nhật CartContext khi có thay đổi
         await getCarts();
       }
 
-      previousCartsRef.current = newCarts;
-      setCarts(newCarts);
+      previousCartsRef.current = validCarts;
+      setCarts(validCarts);
       setTotalAmount(newTotalAmount);
     } catch (error) {
       console.error("Lỗi khi kiểm tra cập nhật giỏ hàng:", error);

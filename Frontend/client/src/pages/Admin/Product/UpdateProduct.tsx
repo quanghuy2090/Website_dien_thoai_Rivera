@@ -1,6 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { Category, getProductById, Product, Variants } from "../../../services/product";
+import {
+  Category,
+  getProductById,
+  Product,
+  Variants,
+} from "../../../services/product";
 import { Link, useParams } from "react-router-dom";
 import { getCategories } from "../../../services/category";
 import toast from "react-hot-toast";
@@ -10,26 +15,29 @@ import axios from "axios";
 import { ProductContext } from "../../../context/ProductContext";
 import { ColorContext } from "../../../context/ColorContext";
 import { CapacityContext } from "../../../context/CapacityContext";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 const productSchema = z.object({
-  name: z.string().min(3, "Tên sản phẩm phải có ít nhất 3 ký tự").max(225),
+  name: z
+    .string()
+    .min(3, "Tên sản phẩm phải có ít nhất 3 ký tự")
+    .max(225)
+    .optional(),
   images: z
     .array(z.string())
     .max(5, "Chỉ được tải lên tối đa 5 ảnh")
     .optional(),
-  short_description: z.string().nonempty("Mô tả ngắn không được để trống"),
-  long_description: z.string().nonempty("Mô tả chi tiết không được để trống"),
-  categoryId: z.string().nonempty("Vui lòng chọn danh mục"),
+  short_description: z.string().optional(),
+  long_description: z.string().optional(),
+  categoryId: z.string().optional(),
   variants: z
     .array(
       z.object({
-
         color: z.string().min(1, "Màu sắc không được để trống"),
         capacity: z.string().nonempty("Bộ nhớ không được để trống"),
         price: z.number().min(1, "Giá phải lớn hơn 0"),
         stock: z.number().min(0, "Số lượng phải >= 0"),
-        sale: z.number().max(100, "sale max 100%"),
+        sale: z.number().max(100, "sale max 100%").default(0),
       })
     )
     .min(1, "Cần ít nhất 1 biến thể"),
@@ -63,10 +71,9 @@ const UpdateProduct = () => {
   const [imageInputs, setImageInputs] = useState<
     { file: File | null; preview: string }[]
   >([{ file: null, preview: "" }]);
-  // const nav = useNavigate();
-  const { updateProducts } = useContext(ProductContext)
+  const { updateProducts } = useContext(ProductContext);
   const { states } = useContext(CapacityContext);
-  const { state } = useContext(ColorContext)
+  const { state } = useContext(ColorContext);
 
   // Xử lý khi chọn ảnh
   const handleImageChange = (
@@ -127,38 +134,45 @@ const UpdateProduct = () => {
   useEffect(() => {
     (async () => {
       const { data } = await getProductById(id!);
-      toast.success("Lấy chi tiết sản phẩm  thành công!");
+      toast.success("Lấy chi tiết sản phẩm thành công!");
       const images = Array.isArray(data.data.images)
         ? data.data.images.slice(0, 5)
         : [data.data.images];
       setImageInputs(
         images.map((img: string) => ({ file: null, preview: img }))
       );
-      // const cleanHTML = (html: string) =>
-      //   html.replace(/<\/?(em|i)>/g, "");
       reset({
         name: data.data.name,
         short_description: data.data.short_description,
         long_description: data.data.long_description,
         categoryId: data.data.categoryId?._id || data.data.categoryId,
-        variants: data.data.variants.length > 0
-          ? data.data.variants.map((v: Variants) => ({ // 🔥 Định nghĩa kiểu dữ liệu cho v
-            ...v,
-            color: typeof v.color === "object" ? v.color._id : v.color,
-            capacity: typeof v.capacity === "object" ? v.capacity._id : v.capacity,
-            sku: v.sku && v.sku !== "null" ? v.sku : `SKU-${Date.now()}`
-          }))
-          : [{ color: "", capacity: "", price: 1, stock: 0, sale: 0 }]
+        variants:
+          data.data.variants.length > 0
+            ? data.data.variants.map((v: Variants) => ({
+                ...v,
+                color: typeof v.color === "object" ? v.color._id : v.color,
+                capacity:
+                  typeof v.capacity === "object" ? v.capacity._id : v.capacity,
+                sku: v.sku && v.sku !== "null" ? v.sku : `SKU-${Date.now()}`,
+                isExisting: true,
+              }))
+            : [
+                {
+                  color: "",
+                  capacity: "",
+                  price: 1,
+                  stock: 0,
+                  sale: 0,
+                  isExisting: false,
+                },
+              ],
       });
-
-
-
     })();
   }, [id, reset]);
 
   const onSubmit = async (product: Product) => {
     try {
-      let imageUrls = imageInputs.map((img) => img.preview); // Lấy danh sách ảnh hiện có
+      let imageUrls = imageInputs.map((img) => img.preview);
 
       // Upload ảnh mới nếu có
       const newFiles = imageInputs
@@ -166,18 +180,40 @@ const UpdateProduct = () => {
         .filter((file) => file !== null);
       if (newFiles.length > 0) {
         const uploadedUrls = await uploadImages(newFiles);
-
-        // **Giữ thứ tự cũ, thay thế ảnh mới vào đúng vị trí**
         imageUrls = imageInputs.map((img) =>
           img.file ? uploadedUrls.shift() || img.preview : img.preview
         );
       }
 
+      // Chỉ gửi các trường đã thay đổi
+      const updateData: Partial<Product> = {
+        ...(product.name && { name: product.name }),
+        ...(imageUrls.length > 0 && { images: imageUrls }),
+        ...(product.short_description && {
+          short_description: product.short_description,
+        }),
+        ...(product.long_description && {
+          long_description: product.long_description,
+        }),
+        ...(product.categoryId && { categoryId: product.categoryId }),
+        variants: product.variants.map((variant) => ({
+          color: variant.color,
+          capacity: variant.capacity,
+          price: variant.price,
+          stock: variant.stock,
+          sale: variant.sale || 0,
+        })),
+      };
 
-      product.images = imageUrls; // Gán danh sách ảnh đã cập nhật
-      updateProducts(id!, product);
+      await updateProducts(id!, updateData as Product);
+      toast.success("Cập nhật sản phẩm thành công!");
     } catch (err) {
-      console.log(err)
+      console.error("Lỗi khi cập nhật sản phẩm:", err);
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Có lỗi xảy ra khi cập nhật sản phẩm");
+      }
     }
   };
   // const modules = {
@@ -192,13 +228,12 @@ const UpdateProduct = () => {
     <div className="content p-4">
       <div className="card mb-4">
         <div className="card-body">
-          <div style={{ maxWidth: '1500px', margin: '0 auto' }}>
+          <div style={{ maxWidth: "1500px", margin: "0 auto" }}>
             <h3 className="fw-bold mb-3">Sửa Sản phẩm</h3>
-            <p className="text-muted mb-4">Quản lý sản phẩm cho cửa hàng Rivera</p>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-
-            >
+            <p className="text-muted mb-4">
+              Quản lý sản phẩm cho cửa hàng Rivera
+            </p>
+            <form onSubmit={handleSubmit(onSubmit)}>
               {/* Tên và giá sản phẩm */}
 
               <div className="mb-3">
@@ -213,13 +248,12 @@ const UpdateProduct = () => {
                 )}
               </div>
 
-
               <div className="mb-3">
                 <label className="fw-bold">Mô tả ngắn</label>
                 <Controller
                   name="short_description"
                   control={control}
-                  rules={{ required: 'Vui lòng nhập mô tả ngắn' }}
+                  rules={{ required: "Vui lòng nhập mô tả ngắn" }}
                   render={({ field }) => (
                     <ReactQuill
                       theme="snow"
@@ -231,7 +265,9 @@ const UpdateProduct = () => {
                   )}
                 />
                 {errors.short_description && (
-                  <p className="text-danger">{errors.short_description.message}</p>
+                  <p className="text-danger">
+                    {errors.short_description.message}
+                  </p>
                 )}
               </div>
 
@@ -240,7 +276,7 @@ const UpdateProduct = () => {
                 <Controller
                   name="long_description"
                   control={control}
-                  rules={{ required: 'Vui lòng nhập mô tả chi tiết' }}
+                  rules={{ required: "Vui lòng nhập mô tả chi tiết" }}
                   render={({ field }) => (
                     <ReactQuill
                       theme="snow"
@@ -252,7 +288,9 @@ const UpdateProduct = () => {
                   )}
                 />
                 {errors.long_description && (
-                  <p className="text-danger">{errors.long_description.message}</p>
+                  <p className="text-danger">
+                    {errors.long_description.message}
+                  </p>
                 )}
               </div>
 
@@ -308,11 +346,11 @@ const UpdateProduct = () => {
                       <select
                         className="form-control"
                         {...register(`variants.${index}.color`)}
+                        disabled={field.isExisting}
                       >
                         <option disabled value="">
                           Chọn màu
                         </option>
-
                         {state.colors.map((color) => (
                           <option key={color._id} value={color._id}>
                             {color.name}
@@ -330,6 +368,7 @@ const UpdateProduct = () => {
                       <select
                         className="form-control"
                         {...register(`variants.${index}.capacity`)}
+                        disabled={field.isExisting}
                       >
                         <option disabled value="">
                           Chọn Bộ Nhớ
@@ -397,27 +436,15 @@ const UpdateProduct = () => {
                         </p>
                       )}
                     </div>
-                    {/* <div className="col-md-4">
-                      <label className="fw-bold">SKU</label>
-                      <input
-                        type="text" disabled
-                        className="form-control"
-                        {...register(`variants.${index}.sku`, {
-                          required: true,
-                        })}
-                      />
-                      {errors.variants?.[index]?.sku && (
-                        <p className="tex-danger">
-                          {errors.variants[index]?.sku?.message}
-                        </p>
-                      )}
-                    </div> */}
                   </div>
 
                   <button
                     type="button"
                     className="btn btn-danger btn-sm mt-2"
-                    onClick={() => remove(index)}
+                    onClick={() => {
+                      remove(index);
+                      toast.success("Đã xóa biến thể thành công!");
+                    }}
                   >
                     Xóa
                   </button>
@@ -464,7 +491,11 @@ const UpdateProduct = () => {
                 <button type="submit" className="btn btn-primary px-4">
                   Lưu
                 </button>
-                <Link to={`/admin/products`} type="reset" className="btn btn-danger">
+                <Link
+                  to={`/admin/products`}
+                  type="reset"
+                  className="btn btn-danger"
+                >
                   Hủy
                 </Link>
               </div>
@@ -472,7 +503,6 @@ const UpdateProduct = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };
