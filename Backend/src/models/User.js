@@ -13,13 +13,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, //Định dạng email
+      match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       trim: true,
       lowercase: true,
     },
     phone: {
       type: String,
-      match: [/^[0-9]{10,15}$/, "Số điện thoại phải từ 10 đến 15 chữ số"], // Giới hạn số điện thoại từ 10 đến 15 số
+      match: [/^[0-9]{10,15}$/, "Số điện thoại phải từ 10 đến 15 chữ số"],
       default: null,
     },
     image: {
@@ -45,13 +45,23 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: Number,
-      enum: [1, 2, 3], // 1: Admin, 2: Seller, 3: Customer
+      enum: [1, 2, 3, 4], // 1: Admin, 2: Seller, 3: Customer, 4: Shipper
       default: 3,
     },
     googleLogin: { type: Boolean, default: false },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null,
+    },
+
+    // ==== Trường riêng cho shipper ====
+    isShipperAvailable: {
+      type: Boolean,
+      default: true, // true: có thể giao hàng, false: đang nghỉ
+    },
+    startedShipperAt: {
+      type: Date,
       default: null,
     },
   },

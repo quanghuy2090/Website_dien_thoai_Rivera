@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getProductById } from "../services/product";
-import { Product } from "../types/Product";
+import { getProductById, Product } from "../services/product";
 
 export const useProductPolling = (
   productId: string | undefined,

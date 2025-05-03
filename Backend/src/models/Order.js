@@ -139,6 +139,12 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "Chưa xác nhận",
     },
+    shipperId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
     deliveredAt: {
       type: Date,
       default: null,
