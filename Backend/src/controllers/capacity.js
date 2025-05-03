@@ -17,7 +17,7 @@ export const createCapacity = async (req, res) => {
 
 export const getAllCapacities = async (req, res) => {
   try {
-    const capacities = await Capacity.find();
+    const capacities = await Capacity.find({ isDeleted: false });
     res.status(200).json({
       message: "Danh sách dung lượng!",
       data: capacities,
@@ -68,28 +68,58 @@ export const updateCapacity = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
-
 export const deleteCapacity = async (req, res) => {
   try {
-    // Tìm dung lượng theo _id
     const capacity = await Capacity.findById(req.params.id);
-    if (!capacity) return res.status(404).json({ error: "Không tìm thấy dung lượng" });
+    if (!capacity) {
+      return res.status(404).json({ error: "Không tìm thấy bộ nhớ" })
+    }
+    if (capacity.isDeleted) {
+      return res.status(400).json({ error: "bộ nhớ đã được xóa mềm" })
+    }
 
-    // Kiểm tra xem dung lượng có đang được sử dụng trong product không (theo _id)
     const productsUsingCapacity = await Product.find({ "variants.capacity": capacity._id });
     if (productsUsingCapacity.length > 0) {
       return res.status(400).json({
-        error: "Không thể xóa dung lượng này vì nó đang được sử dụng trong sản phẩm",
-      });
+        error: "Không thể xóa bộ nhớ  này vì nó đang được sử dụng trong sản phẩm"
+      })
     }
 
-    // Xóa dung lượng theo _id
-    await Capacity.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Xóa thành công" });
+    await Capacity.findByIdAndUpdate(req.params.id, { isDeleted: true });
+    res.json({ message: "Xóa mềm thành công" })
   } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(400).json({ error: "ID dung lượng không hợp lệ" });
+    if (error.value === "CastError") {
+      return res.status(400).json({ error: "ID bộ nhớ  không hợp lệ" });
     }
     res.status(400).json({ error: error.message });
   }
 };
+
+export const restoreCapacity = async (req, res) => {
+  try {
+    const capacity = await Capacity.findById(req.params.id);
+    if (!capacity) {
+      return res.status(404).json({ error: "Không tìm thấy bộ nhớ " })
+    }
+    if (!capacity.isDeleted) {
+      return res.status(400).json({ error: "bộ nhớ  này chưa được xóa mềm" })
+    }
+    await Capacity.findByIdAndUpdate(req.params.id, { isDeleted: false });
+    res.json({ message: "Khôi phục bộ nhớ thành công" })
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+export const getDeletedCapacity = async (req, res) => {
+  try {
+    const deletedCapacity = await Capacity.find({ isDeleted: true });
+    res.status(200).json({
+      message: "Danh sách biến thể bộ nhớ đã xóa!",
+      data: deletedCapacity,
+    })
+  } catch (error) {
+    console.error("Error in getDeletedColors:", error);
+    res.status(500).json({ error: error.message });
+  }
+}

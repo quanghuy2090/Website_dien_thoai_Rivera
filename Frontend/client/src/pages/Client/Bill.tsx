@@ -1,52 +1,91 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getDetailOrder, Order } from "../../services/order";
+import {
+  getOrderById,
+  Order,
+  OrderItem,
+  updateOrderStatusByCustomer,
+} from "../../services/order";
+import { formatCurrency } from "../../utils/formatCurrency";
 import toast from "react-hot-toast";
 import "../../css/Bill.css";
+import { useOrderPolling } from "../../hooks/useOrderPolling";
+
+type UpdateInfo = {
+  status: "Đã nhận hàng" | "Đã hủy";
+  cancelReason: string;
+};
 
 const Bill = () => {
-  const { id } = useParams();
-  const [orderDetail, setOrderDetail] = useState<Order | null>(null);
+  const { id } = useParams<{ id: string }>();
+  const [updates, setUpdates] = useState<Record<string, UpdateInfo>>({});
+  const { order, error } = useOrderPolling(id);
 
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchOrderDetail = async (id: string) => {
-      try {
-        const { data } = await getDetailOrder(id);
-        setOrderDetail(data.order);
-      } catch (error) {
-        toast.error("Không thể tải chi tiết đơn hàng.");
-        console.error(error);
-      }
-    };
-    fetchOrderDetail(id);
-  }, [id]);
-
-  const formatPrice = (price: number) => {
-    if (price === undefined || price === null) {
-      return "0 VND";
-    }
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " VND";
-  };
-
-  const getStatusColor = (status: string) => {
+  const getStatusClass = (status: Order["status"]) => {
     switch (status) {
-      case "Đã huỷ":
-        return "status-cancelled";
-      case "Hoàn thành":
-        return "status-completed";
-      case "Đang giao hàng":
-        return "status-shipping";
+      case "Chưa xác nhận":
+        return "status-pending";
       case "Đã xác nhận":
         return "status-confirmed";
+      case "Đang giao hàng":
+        return "status-shipping";
+      case "Đã giao hàng":
+        return "status-delivered";
+      case "Hoàn thành":
+        return "status-completed";
+      case "Đã hủy":
+        return "status-cancelled";
       default:
-        return "status-pending";
+        return "";
     }
   };
 
+  const handleStatusChange = async (
+    orderId: string,
+    newStatus: "Đã nhận hàng" | "Đã hủy",
+    cancelReason: string
+  ) => {
+    try {
+      const { data } = await updateOrderStatusByCustomer(
+        orderId,
+        newStatus,
+        cancelReason
+      );
+      toast.success(data.message);
+      setUpdates((prev) => {
+        const newUpdates = { ...prev };
+        delete newUpdates[orderId];
+        return newUpdates;
+      });
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Cập nhật trạng thái thất bại!"
+      );
+    }
+  };
+
+  const canUpdateStatus = (order: Order) => {
+    if (order.status === "Đã giao hàng") {
+      return true; // Có thể cập nhật thành "Đã nhận hàng"
+    }
+    if (order.status === "Chưa xác nhận") {
+      return true; // Có thể cập nhật thành "Đã hủy"
+    }
+    return false;
+  };
+
+  if (error) {
+    return (
+      <div className="bill-page error">Không thể tải đơn hàng: {error}</div>
+    );
+  }
+
+  if (!order) {
+    return <div className="bill-page loading">Đang tải...</div>;
+  }
+
   return (
-    <>
+    <div className="bill-page">
       <div id="breadcrumb" className="section">
         <div className="container">
           <div className="row">
@@ -67,175 +106,241 @@ const Bill = () => {
           </div>
         </div>
       </div>
-
       <div className="section">
         <div className="container">
           <div className="bill-container">
             <div className="bill-header">
-              <div className="bill-logo">
-                {/* <img src="../../image/logo1.png" alt="Rivera Store" /> */}
-                <h1>RIVERA</h1>
-              </div>
+              <h1>Hóa đơn đơn hàng #{order.orderId}</h1>
               <div className="bill-info">
-                <h2>CHI TIẾT ĐƠN HÀNG</h2>
-                <p className="order-id">
-                  Mã đơn hàng: <strong>#{orderDetail?.orderId}</strong>
-                </p>
-                <p className="order-date">
-                  Ngày đặt:{" "}
-                  <strong>
-                    {orderDetail?.createdAt
-                      ? new Date(orderDetail.createdAt).toLocaleDateString()
-                      : "N/A"}
-                  </strong>
-                </p>
-                <div
-                  className={`order-status ${getStatusColor(
-                    orderDetail?.status || ""
-                  )}`}
-                >
-                  {orderDetail?.status}
+                <div className="info-row">
+                  <span className="label">Ngày đặt hàng:</span>
+                  <span className="value">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="label">Trạng thái:</span>
+                  <span
+                    className={`value status ${getStatusClass(order.status)}`}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="label">Phương thức thanh toán:</span>
+                  <span className="value">{order.paymentMethod}</span>
+                </div>
+                <div className="info-row">
+                  <span className="label">Trạng thái thanh toán:</span>
+                  <span className="value">{order.paymentStatus}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bill-body">
-              <div className="info-grid">
-                <div className="info-section">
-                  <h3>
-                    <i className="fa fa-user"></i> Thông tin khách hàng
-                  </h3>
-                  <div className="info-content">
-                    <p>
-                      <strong>Họ tên:</strong> {orderDetail?.userName}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {orderDetail?.userEmail}
-                    </p>
-                    <p>
-                      <strong>Số điện thoại:</strong> {orderDetail?.userPhone}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="info-section">
-                  <h3>
-                    <i className="fa fa-truck"></i> Địa chỉ giao hàng
-                  </h3>
-                  <div className="info-content">
-                    <p>{orderDetail?.shippingAddress.street}</p>
-                    <p>{orderDetail?.shippingAddress.ward}</p>
-                    <p>{orderDetail?.shippingAddress.district}</p>
-                    <p>{orderDetail?.shippingAddress.city}</p>
-                  </div>
-                </div>
-
-                <div className="info-section">
-                  <h3>
-                    <i className="fa fa-credit-card"></i> Thông tin thanh toán
-                  </h3>
-                  <div className="info-content">
-                    <p>
-                      <strong>Phương thức:</strong> {orderDetail?.paymentMethod}
-                    </p>
-                    <p>
-                      <strong>Trạng thái:</strong> {orderDetail?.paymentStatus}
-                    </p>
-                  </div>
+            <div className="bill-content">
+              <div className="shipping-info">
+                <h2>Thông tin giao hàng</h2>
+                <div className="info-details">
+                  <p>
+                    <strong>Người nhận:</strong>{" "}
+                    {order.shippingAddress.userName}
+                  </p>
+                  <p>
+                    <strong>Số điện thoại:</strong>{" "}
+                    {order.shippingAddress.phone}
+                  </p>
+                  <p>
+                    <strong>Địa chỉ:</strong> {order.shippingAddress.street},{" "}
+                    {order.shippingAddress.ward},{" "}
+                    {order.shippingAddress.district},{" "}
+                    {order.shippingAddress.city}
+                  </p>
                 </div>
               </div>
 
-              <div className="products-section">
-                <h3>
-                  <i className="fa fa-shopping-cart"></i> Sản phẩm đã mua
-                </h3>
-                <div className="products-table">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Sản phẩm</th>
-                        <th>Giá gốc</th>
-                        <th>Giá sale</th>
-                        <th>Số lượng</th>
-                        <th>Thành tiền</th>
+              <div className="order-items">
+                <h2>Chi tiết đơn hàng</h2>
+                <table className="items-table">
+                  <thead>
+                    <tr>
+                      <th>Sản phẩm</th>
+                      <th>Màu sắc</th>
+                      <th>Dung lượng</th>
+                      <th>Số lượng</th>
+                      <th>Đơn giá</th>
+                      <th>Thành tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {order.items.map((item: OrderItem, index: number) => (
+                      <tr key={index}>
+                        <td>
+                          <div className="product-info">
+                            <img
+                              src={item.productImage || "/placeholder.png"}
+                              alt={item.productName}
+                              className="product-image"
+                            />
+                            <span>{item.productName}</span>
+                          </div>
+                        </td>
+                        <td>{item.color}</td>
+                        <td>{item.capacity}</td>
+                        <td>{item.quantity}</td>
+                        <td>{formatCurrency(item.salePrice)}</td>
+                        <td>
+                          {formatCurrency(item.salePrice * item.quantity)}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {orderDetail?.items.map((product, index) => {
-                        const variant = product.productId.variants?.find(
-                          (v) => v._id === product.variantId
-                        );
-                        return (
-                          <tr key={index}>
-                            <td className="product-info">
-                              <img
-                                src={product.productId.images[0]}
-                                alt={product.productId.name}
-                                className="product-image"
-                              />
-                              <div className="product-details">
-                                <div className="product-name">
-                                  {product.productId.name}
-                                </div>
-                                <div className="variant-info">
-                                  {variant?.color?.name} -{" "}
-                                  {variant?.capacity?.value}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="price">
-                              {formatPrice(product.price)}
-                            </td>
-                            <td className="sale-price">
-                              {formatPrice(product.salePrice)}
-                            </td>
-                            <td className="quantity">{product.quantity}</td>
-                            <td className="total-price">
-                              {formatPrice(
-                                product.salePrice * product.quantity
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="order-summary">
+                <h2>Tổng cộng</h2>
+                <div className="summary-details">
+                  <div className="summary-row">
+                    <span className="label">Tổng tiền hàng:</span>
+                    <span className="value">
+                      {formatCurrency(order.totalAmount)}
+                    </span>
+                  </div>
+                  <div className="summary-row total">
+                    <span className="label">Tổng thanh toán:</span>
+                    <span className="value">
+                      {formatCurrency(order.totalAmount)}
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              <div className="bill-summary">
-                <div className="summary-row">
-                  <span>Tổng tiền hàng:</span>
-                  <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
+              {canUpdateStatus(order) && (
+                <div className="status-update-section">
+                  <h2>Cập nhật trạng thái</h2>
+                  <div className="status-form">
+                    <select
+                      className="form-select"
+                      value={updates[order.orderId]?.status || ""}
+                      onChange={(e) => {
+                        const selected = e.target.value as
+                          | "Đã nhận hàng"
+                          | "Đã hủy";
+                        setUpdates((prev) => ({
+                          ...prev,
+                          [order.orderId]: {
+                            status: selected,
+                            cancelReason:
+                              prev[order.orderId]?.cancelReason || "",
+                          },
+                        }));
+                      }}
+                    >
+                      <option value="" disabled>
+                        Chọn cập nhật
+                      </option>
+                      {order.status === "Đã giao hàng" && (
+                        <option value="Đã nhận hàng">Đã nhận hàng</option>
+                      )}
+                      {order.status === "Chưa xác nhận" && (
+                        <option value="Đã hủy">Hủy</option>
+                      )}
+                    </select>
+
+                    {updates[order.orderId]?.status === "Đã hủy" && (
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Nhập lý do hủy đơn"
+                        value={updates[order.orderId]?.cancelReason || ""}
+                        onChange={(e) =>
+                          setUpdates((prev) => ({
+                            ...prev,
+                            [order.orderId]: {
+                              ...prev[order.orderId],
+                              cancelReason: e.target.value,
+                            },
+                          }))
+                        }
+                      />
+                    )}
+
+                    <button
+                      className={`action-button ${
+                        updates[order.orderId]?.status === "Đã hủy"
+                          ? "cancel-order"
+                          : "update-status"
+                      }`}
+                      onClick={() => {
+                        if (
+                          !updates[order.orderId] ||
+                          !updates[order.orderId].status
+                        ) {
+                          toast.error("Vui lòng chọn trạng thái!");
+                          return;
+                        }
+                        handleStatusChange(
+                          order.orderId,
+                          updates[order.orderId].status,
+                          updates[order.orderId].status === "Đã hủy"
+                            ? updates[order.orderId].cancelReason
+                            : ""
+                        );
+                      }}
+                    >
+                      {updates[order.orderId]?.status === "Đã hủy"
+                        ? "Hủy đơn hàng"
+                        : "Cập nhật"}
+                    </button>
+                  </div>
                 </div>
-                {/* <div className="summary-row">
-                  <span>Phí vận chuyển:</span>
-                  <span>0 VND</span>
-                </div> */}
-                <div className="summary-row total">
-                  <span>Tổng thanh toán:</span>
-                  <span>{formatPrice(orderDetail?.totalAmount ?? 0)}</span>
+              )}
+
+              {order.cancelReason && (
+                <div className="cancel-info">
+                  <h2>Thông tin hủy đơn</h2>
+                  <div className="cancel-details">
+                    <p>
+                      <strong>Lý do hủy:</strong> {order.cancelReason}
+                    </p>
+                    {order.cancelledBy && (
+                      <p>
+                        <strong>Người hủy:</strong> {order.cancelledBy}
+                      </p>
+                    )}
+                    {order.cancelHistory && order.cancelHistory.length > 0 && (
+                      <div className="cancel-history">
+                        <h3>Lịch sử hủy đơn</h3>
+                        {order.cancelHistory.map((history, index) => (
+                          <div key={index} className="history-item">
+                            <p>
+                              <strong>Thời gian:</strong>{" "}
+                              {new Date(history.cancelledAt).toLocaleString()}
+                            </p>
+                            <p>
+                              <strong>Lý do:</strong> {history.cancelReason}
+                            </p>
+                            <p>
+                              <strong>Người hủy:</strong> {history.cancelledBy}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="bill-footer">
-              <div className="support-info">
-                <p>
-                  <i className="fa fa-phone"></i> Hotline hỗ trợ: +8494 5533 843
-                </p>
-                <p>
-                  <i className="fa fa-envelope"></i> Email: email@email.com
-                </p>
-              </div>
-              <div className="thank-you">
-                <p>Cảm ơn bạn đã mua hàng tại cửa hàng RIVERA!</p>
-              </div>
+              <button className="print-button" onClick={() => window.print()}>
+                In hóa đơn
+              </button>
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

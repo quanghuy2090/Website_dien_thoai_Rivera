@@ -362,7 +362,7 @@ export const updateProduct = async (req, res) => {
       // Chuẩn bị variants mới
       const preparedVariants = await Promise.all(
         updateData.variants.map(async (variant) => {
-          const { color, capacity, price, sale, stock, sku } = variant;
+          const { color, capacity, price, sale, stock, sku, _id } = variant;
 
           // Kiểm tra color
           const colorDoc = await Color.findById(color);
@@ -397,7 +397,26 @@ export const updateProduct = async (req, res) => {
             }
           }
 
+          // === GIỮ LẠI _id CŨ NẾU CÓ ===
+          let variantId = _id;
+          if (!variantId) {
+            // Tìm _id cũ trong product.variants nếu trùng color/capacity
+            const old = product.variants.find(
+              v =>
+                v.color.toString() === color.toString() &&
+                v.capacity.toString() === capacity.toString()
+            );
+            if (old) {
+              variantId = old._id;
+            }
+          }
+          // Nếu vẫn chưa có _id, tạo mới
+          if (!variantId) {
+            variantId = new (require("mongoose")).Types.ObjectId();
+          }
+
           return {
+            _id: variantId,
             color,
             capacity,
             price,
@@ -414,7 +433,7 @@ export const updateProduct = async (req, res) => {
         });
       }
 
-      // Thay thế toàn bộ variants cũ bằng variants mới
+      // Thay thế toàn bộ variants cũ bằng variants mới (nhưng đã giữ lại _id)
       product.variants = preparedVariants;
     }
 

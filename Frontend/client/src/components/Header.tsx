@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../css/bootstrap.min.css";
 import "../css/font-awesome.min.css";
 import "../css/nouislider.min.css";
 import "../css/slick-theme.css";
 import "../css/slick.css";
 import "../css/style.css";
+import { CartContext } from "../context/CartContext";
+import { useParams } from "react-router-dom";
 
 
 export function Header() {
+  const { id } = useParams();
   const [isNavActive, setIsNavActive] = useState<boolean>(false);
   const [isCartDropdownOpen, setIsCartDropdownOpen] = useState<boolean>(false);
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-
+  const { state } = useContext(CartContext);
   let userName = "";
   let userRole = null; // Initialize userRole
   let userImage = "";
@@ -26,6 +29,7 @@ export function Header() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem(`consultHistory_${id}`);
   };
 
   const toggleNav = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -150,13 +154,13 @@ export function Header() {
             </div>
             <div className="col-md-3 clearfix">
               <div className="header-ctn">
-                <div>
+                {/* <div>
                   <a href="#">
                     <i className="fa fa-heart-o" />
                     <span>Yêu thích</span>
                     <div className="qty">2</div>
                   </a>
-                </div>
+                </div> */}
                 <div className="dropdown">
                   <a
                     href="/cart"
@@ -166,7 +170,7 @@ export function Header() {
                   >
                     <i className="fa fa-shopping-cart" />
                     <span>Giỏ hàng</span>
-                    <div className="qty">3</div>
+                    <div className="qty">{state.totalQuantity}</div>
                   </a>
                 </div>
                 <div className="menu-toggle" onClick={toggleNav}>

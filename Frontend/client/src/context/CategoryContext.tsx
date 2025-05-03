@@ -87,10 +87,11 @@ export const CategoryProvider = ({ children }: Children) => {
         try {
             const { data } = await updateCategoryRestore(_id, category);
             dispatch({ type: "UPDATE_CATEGORY_RESTORE", payload: data.data })
-            toast.success("Cập nhật danh mục thành công")
+
+            toast.success("Khôi phục danh mục thành công")
         } catch (error) {
             console.log(error)
-            toast.error("cập nhật danh mục thất bại")
+            toast.error("Khôi phục danh mục thất bại")
         }
     }
     const createCategory = async (category: Category) => {

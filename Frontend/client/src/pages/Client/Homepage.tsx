@@ -1,13 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { getAllProduct, Product } from "../../services/product";
-import { addCart, Carts } from "../../services/cart";
 import toast from "react-hot-toast";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "../../css/style.css";
-import { getCategories } from "../../services/category";
 
 const HomePage = () => {
   const location = useLocation();
@@ -24,8 +22,6 @@ const HomePage = () => {
       } else {
         toast.error("Thanh toán thất bại. Vui lòng thử lại.");
       }
-
-      // Xóa query parameters khỏi URL để tránh lặp lại toast
     }
     setSearchParams({});
   }, [searchParams, setSearchParams]);
@@ -100,62 +96,62 @@ const HomePage = () => {
   //   fetchCategories();
   // }, []);
 
-  const addToCart = async (product: Product) => {
-    try {
-      const user = JSON.parse(localStorage.getItem("user") || "null");
-      if (!user?._id) {
-        toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
-        return;
-      }
+  // const addToCart = async (product: Product) => {
+  //   try {
+  //     const user = JSON.parse(localStorage.getItem("user") || "null");
+  //     if (!user?._id) {
+  //       toast.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
+  //       return;
+  //     }
 
-      if (product.status === "banned") {
-        toast.error("Sản phẩm này hiện không khả dụng");
-        return;
-      }
+  //     if (product.status === "banned") {
+  //       toast.error("Sản phẩm này hiện không khả dụng");
+  //       return;
+  //     }
 
-      const selectedVariant = product.variants?.[0];
-      if (!selectedVariant) {
-        toast.error("Sản phẩm không có biến thể hợp lệ!");
-        return;
-      }
+  //     const selectedVariant = product.variants?.[0];
+  //     if (!selectedVariant) {
+  //       toast.error("Sản phẩm không có biến thể hợp lệ!");
+  //       return;
+  //     }
 
-      if (selectedVariant.stock <= 0) {
-        toast.error("Sản phẩm đã hết hàng!");
-        return;
-      }
+  //     if (selectedVariant.stock <= 0) {
+  //       toast.error("Sản phẩm đã hết hàng!");
+  //       return;
+  //     }
 
-      const cartItem: Carts = {
-        userId: user._id,
-        productId: product._id,
-        variantId: selectedVariant._id,
-        quantity: 1,
-        price: selectedVariant.price,
-        salePrice: selectedVariant.salePrice,
-        color:
-          typeof selectedVariant.color === "object"
-            ? selectedVariant.color.name
-            : selectedVariant.color,
-        capacity:
-          typeof selectedVariant.capacity === "object"
-            ? selectedVariant.capacity.value
-            : selectedVariant.capacity,
-        subtotal: selectedVariant.salePrice * 1,
-      };
+  //     const cartItem: Carts = {
+  //       userId: user._id,
+  //       productId: product._id,
+  //       variantId: selectedVariant._id,
+  //       quantity: 1,
+  //       price: selectedVariant.price,
+  //       salePrice: selectedVariant.salePrice,
+  //       color:
+  //         typeof selectedVariant.color === "object"
+  //           ? selectedVariant.color.name
+  //           : selectedVariant.color,
+  //       capacity:
+  //         typeof selectedVariant.capacity === "object"
+  //           ? selectedVariant.capacity.value
+  //           : selectedVariant.capacity,
+  //       subtotal: selectedVariant.salePrice * 1,
+  //     };
 
-      const response = await addCart(cartItem);
-      toast.success(
-        response.data.message || "Sản phẩm đã được thêm vào giỏ hàng!"
-      );
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else if (error.message) {
-        toast.error(error.message);
-      } else {
-        toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
-      }
-    }
-  };
+  //     const response = await addCart(cartItem);
+  //     toast.success(
+  //       response.data.message || "Sản phẩm đã được thêm vào giỏ hàng!"
+  //     );
+  //   } catch (error: any) {
+  //     if (error.response?.data?.message) {
+  //       toast.error(error.response.data.message);
+  //     } else if (error.message) {
+  //       toast.error(error.message);
+  //     } else {
+  //       toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+  //     }
+  //   }
+  // };
 
   const formatPrice = (price: number) => {
     return price.toLocaleString("vi-VN") + " VND";

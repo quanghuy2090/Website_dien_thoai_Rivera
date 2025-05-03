@@ -33,6 +33,47 @@ const orderItemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  snapshot: {
+    productName: {
+      type: String,
+      required: true,
+    },
+    productImages: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+    shortDescription: {
+      type: String,
+    },
+    variant: {
+      color: {
+        type: String,
+        required: true,
+      },
+      capacity: {
+        type: String,
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      salePrice: {
+        type: Number,
+        required: true,
+      },
+      stock: {
+        type: Number,
+        required: true,
+      },
+      sku: {
+        type: String,
+        required: true,
+      },
+    },
+  },
 });
 
 const orderSchema = new mongoose.Schema(
@@ -98,9 +139,15 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "Chưa xác nhận",
     },
+    shipperId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
     deliveredAt: {
       type: Date,
-      default: null, // Thời điểm chuyển sang "Đã giao hàng"
+      default: null,
     },
     completedAt: {
       type: Date,
@@ -136,18 +183,18 @@ const orderSchema = new mongoose.Schema(
       {
         cancelledAt: {
           type: Date,
-          default: Date.now, // Thời điểm hủy
+          default: Date.now,
         },
         cancelReason: {
           type: String,
           maxlength: 500,
           trim: true,
-          required: true, // Bắt buộc phải có lý do hủy
+          required: true,
         },
         cancelledBy: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
-          required: true, // Người thực hiện hủy
+          required: true,
         },
       },
     ],
@@ -159,11 +206,9 @@ const orderSchema = new mongoose.Schema(
 );
 
 // Middleware pre('save') chỉ cập nhật name/phone, không tính totalAmount nữa
-
 orderSchema.pre("save", async function (next) {
   const order = this;
   // Điền name và phone từ User nếu thiếu
-
   if (!order.shippingAddress.userName || !order.shippingAddress.phone) {
     const user = await mongoose.model("User").findById(order.userId).exec();
     if (user) {
