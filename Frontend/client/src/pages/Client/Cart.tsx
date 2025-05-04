@@ -177,7 +177,7 @@ const Cart = () => {
           <h3>Tổng tiền: {formatPrice(totalAmount)}</h3>
           {hasBannedProduct ? (
             <button className="checkout-btn disabled" disabled>
-              Không thể thanh toán (sản phẩm bị chặn)
+              Không thể thanh toán
             </button>
           ) : (
             <Link to="/checkout" className="checkout-btn">

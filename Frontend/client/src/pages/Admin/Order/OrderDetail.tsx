@@ -279,14 +279,14 @@ const OrderDetail = () => {
                 {order.cancelHistory.map((history, index) => (
                   <div key={index} className="cancel-history-item">
                     <div className="cancel-info">
-                      <span className="cancel-date">
-                        {new Date(history.cancelledAt).toLocaleString()}
-                      </span>
-                      <span className="cancel-by">
+                      <div className="cancel-date">
+                        Thời gian: {new Date(history.cancelledAt).toLocaleString()}
+                      </div>
+                      <div className="cancel-by">
                         Bởi: {history.cancelledBy}
-                      </span>
+                      </div>
                     </div>
-                    <div className="cancel-reason">{history.cancelReason}</div>
+                    {/* <div className="cancel-reason">Lý do: {history.cancelReason}</div> */}
                   </div>
                 ))}
               </div>

@@ -406,7 +406,21 @@ const Checkout = () => {
                   )}
                 </div>
 
-                <button
+                {/* <button
+                  type="submit"
+                  disabled={loading || hasBannedProduct}
+                  className={`primary-btn order-submit ${
+                    hasBannedProduct ? "disabled" : ""
+                  }`}
+                >
+                  Đặt hàng
+                </button> */}
+                {hasBannedProduct ? (
+                  <p className="text-danger mt-2">
+                    Có sản phẩm dừng hoạt động trong giỏ. Vui lòng lựa chọn sản phẩm khác
+                  </p>
+                ): (
+                  <button
                   type="submit"
                   disabled={loading || hasBannedProduct}
                   className={`primary-btn order-submit ${
@@ -415,11 +429,6 @@ const Checkout = () => {
                 >
                   Đặt hàng
                 </button>
-                {hasBannedProduct && (
-                  <p className="text-danger mt-2">
-                    Có sản phẩm bị chặn trong giỏ. Vui lòng xoá để tiếp tục
-                    thanh toán.
-                  </p>
                 )}
               </div>
             </div>

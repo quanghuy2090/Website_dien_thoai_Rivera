@@ -300,17 +300,8 @@ const Bill = () => {
                 <div className="cancel-info">
                   <h2>Thông tin hủy đơn</h2>
                   <div className="cancel-details">
-                    <p>
-                      <strong>Lý do hủy:</strong> {order.cancelReason}
-                    </p>
-                    {order.cancelledBy && (
-                      <p>
-                        <strong>Người hủy:</strong> {order.cancelledBy}
-                      </p>
-                    )}
                     {order.cancelHistory && order.cancelHistory.length > 0 && (
                       <div className="cancel-history">
-                        <h3>Lịch sử hủy đơn</h3>
                         {order.cancelHistory.map((history, index) => (
                           <div key={index} className="history-item">
                             <p>

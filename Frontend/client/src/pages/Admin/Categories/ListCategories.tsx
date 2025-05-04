@@ -9,7 +9,7 @@ import { CategoryContext } from "../../../context/CategoryContext";
 const ListCategories = () => {
   const { state, removeCategory } = useContext(CategoryContext);
   const [searchTerm, setSearchTerm] = useState(""); // State để lưu từ khóa tìm kiếm
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   // Lọc danh mục theo tên (case-insensitive)
   const filteredCategories = state.categorys.filter(
     (category) =>
@@ -31,7 +31,9 @@ const ListCategories = () => {
             <div>
               <label className="d-flex align-items-center">
                 Hiển thị
-                <select className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2" value={itemsPerPage}
+                <select
+                  className="custom-select custom-select-sm form-control form-control-sm w-auto mx-2"
+                  value={itemsPerPage}
                   onChange={(e) => setItemsPerPage(Number(e.target.value))}
                 >
                   <option value="10">10</option>
@@ -54,65 +56,65 @@ const ListCategories = () => {
               />
             </div>
           </div>
-          <Link to={`/admin/category/add`} className="btn btn-primary mb-3 ">
-            {" "}
-            <IoMdAdd /> Thêm danh mục
-          </Link>
+          <div className="d-flex gap-2 mb-3">
+            <Link to={`/admin/category/add`} className="btn btn-primary">
+              <IoMdAdd /> Thêm danh mục
+            </Link>
+            <Link className="btn btn-info" to={`/admin/category/delete`}>
+              <MdAutoDelete />
+            </Link>
+          </div>
 
           <table className="table table-hover">
-            <Link className="btn btn-info" to={`/admin/category/delete`}><MdAutoDelete /></Link>
             <thead className="thead-light">
               <tr>
                 <th scope="col">Stt</th>
                 <th scope="col">Danh mục</th>
-                <th scope="col">Mô tả</th>
+                <th scope="col">Slug</th>
                 <th scope="col">Ngày tạo</th>
                 {/* <th scope="col">Cập nhật lần cuối</th> */}
                 <th scope="col">Tùy chọn</th>
               </tr>
             </thead>
             <tbody>
-              {filteredCategories.slice(0, itemsPerPage).map((category, index) => (
-                <tr key={index}>
-                  <th>{index + 1}</th>
-                  <td>{category.name}</td>
-                  <td>{category.slug}</td>
-                  <td>{new Date(category.createdAt).toLocaleDateString()}</td>
-                  {/* <td>{new Date(category.updatedAt).toLocaleString()}</td> */}
-                  <td>
-                    <button
-                      className="btn btn-danger me-2"
-                      onClick={() => removeCategory(category._id)}
-                    >
-                      {" "}
-                      <MdDelete />
-                    </button>
-                    <Link
-                      to={`/admin/category/update/${category._id}`}
-                      className="btn btn-warning me-2"
-                    >
-                      {" "}
-                      <FaPen />
-                    </Link>
-                    <Link
-                      to={`/admin/category/detail/${category._id}`}
-                      className="btn btn-success me-2"
-                    >
-                      <FaEye />
-                    </Link>
-                  </td>
-
-                </tr>
-
-              ))}
+              {filteredCategories
+                .slice(0, itemsPerPage)
+                .map((category, index) => (
+                  <tr key={index}>
+                    <th>{index + 1}</th>
+                    <td>{category.name}</td>
+                    <td>{category.slug}</td>
+                    <td>{new Date(category.createdAt).toLocaleDateString()}</td>
+                    {/* <td>{new Date(category.updatedAt).toLocaleString()}</td> */}
+                    <td>
+                      <button
+                        className="btn btn-danger me-2"
+                        onClick={() => removeCategory(category._id)}
+                      >
+                        {" "}
+                        <MdDelete />
+                      </button>
+                      <Link
+                        to={`/admin/category/update/${category._id}`}
+                        className="btn btn-warning me-2"
+                      >
+                        {" "}
+                        <FaPen />
+                      </Link>
+                      <Link
+                        to={`/admin/category/detail/${category._id}`}
+                        className="btn btn-success me-2"
+                      >
+                        <FaEye />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
       </div>
     </div>
-
-
-
   );
 };
 

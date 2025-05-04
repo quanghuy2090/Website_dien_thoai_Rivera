@@ -56,7 +56,7 @@ export const useCartPolling = () => {
           const itemKey = `banned-${item.productId._id}-${item.variantId}`;
           if (!shownNotificationsRef.current.has(itemKey)) {
             showError(
-              `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã bị chặn và không thể thanh toán.`
+              `Sản phẩm "${item.productId.name}" (${item.color} / ${item.capacity}) đã dừng hoạt động và không thể thanh toán.`
             );
             shownNotificationsRef.current.add(itemKey);
           }

@@ -258,7 +258,7 @@ const ProductPage = () => {
                     </div>
                   </div>
                 </div>
-                <ul className="store-grid">
+                {/* <ul className="store-grid">
                   <li className="active">
                     <i className="fa fa-th" />
                   </li>
@@ -267,7 +267,7 @@ const ProductPage = () => {
                       <i className="fa fa-th-list" />
                     </a>
                   </li>
-                </ul>
+                </ul> */}
               </div>
               {/* /store top filter */}
               {/* store products */}
